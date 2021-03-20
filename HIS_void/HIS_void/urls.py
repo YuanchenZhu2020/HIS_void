@@ -16,6 +16,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from his.views import IndexView, LoginView
+from patient.views import PatientLoginView
+
 urlpatterns = [
+    # 管理员
     path('admin/', admin.site.urls),
+    # 主页
+    path('index/', IndexView.as_view(), name = "index"),
+    # 职工登录页面
+    path("login-staff/", LoginView.as_view(), name = "login-staff"),
+    # 患者登录页面
+    path("login-patient/", PatientLoginView.as_view(), name = "login-patient"),
 ]

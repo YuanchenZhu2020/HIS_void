@@ -25,7 +25,7 @@ SECRET_KEY = 'rx*$9b3=cd$a=&9p9e1t7k%*r0-sjxanaawmofpg-q-q5pz^k%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "39.97.170.255"]
 
 
 # Application definition
@@ -37,6 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Role-Based Access Control
+    'rbac',
+    # Hospital Iinformation System Gate
+    'his',
+    # 病人页面
+    'patient',
 ]
 
 MIDDLEWARE = [
@@ -47,6 +53,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # RBAC Middleware
+    "rbac.middleware.rbac.RBACMiddleware",
 ]
 
 ROOT_URLCONF = 'HIS_void.urls'
@@ -103,9 +111,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -118,3 +126,18 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    str(Path(BASE_DIR, "his/static")),
+)
+
+
+# Role-Based Access Control
+PERMISSION_URL_KEY = "url_key"
+PERMISSION_MENU_KEY = "menu_key"
+
+SAFE_URL = [
+    r"/index/",
+    r"/login-staff/",
+    r"/login-patient/",
+    r"/admin/.*",
+]
