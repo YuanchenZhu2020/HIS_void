@@ -1,6 +1,6 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
-
+from django.urls import reverse
 
 class PatientLoginView(View):
     template_name = "page-login.html"
@@ -14,6 +14,6 @@ class PatientLoginView(View):
         # 测试用
         print(username, password)
         if username == "test" and password == "123456":
-            return render(request, "index.html")
+            return redirect(reverse("index"))
         else:
             return render(request, PatientLoginView.template_name, context = {"user_type": "patient"})
