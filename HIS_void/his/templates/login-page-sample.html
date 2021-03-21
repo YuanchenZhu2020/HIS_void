@@ -5,14 +5,14 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
     <title>医院信息管理系统</title>
-    <link rel="stylesheet" href="{% static 'login-page.css' %}">
+  <div id="login-box">
+        <h1>欢迎登录</h1>
+        <form action="/login-{{ user_type }}/" method="POST" >
+            {% csrf_t  <link rel="stylesheet" href="{% static 'login-page.css' %}">
 </head>
 
 <body>
-    <div id="login-box">
-        <h1>欢迎登录</h1>
-        <form action="/login-{{ user_type }}/" method="POST" >
-            {% csrf_token %}
+    oken %}
             <div class="form">
                 <div class="item">
                     <label for="username">用户</label>

@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from his.views import IndexView, LoginView
+from his.views import IndexView, LoginView, RegisterView
 from patient.views import PatientLoginView
 
 urlpatterns = [
@@ -28,4 +28,6 @@ urlpatterns = [
     path("login-staff/", LoginView.as_view(), name="login-staff"),
     # 患者登录页面
     path("login-patient/", PatientLoginView.as_view(), name="login-patient"),
+    # 注册页面
+    path("register/", RegisterView.as_view(), name="register"),
 ]

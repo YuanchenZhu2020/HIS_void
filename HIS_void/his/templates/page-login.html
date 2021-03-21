@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="zh" class="h-100">
 
@@ -7,8 +8,8 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>登录 - 医院信息管理系统</title>
     <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="../static/images/favicon.png">
-    <link href="../static/css/style.css" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon.png' %}">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
 
 </head>
 
@@ -26,11 +27,11 @@
                                     {% csrf_token %}
                                     <div class="form-group">
                                         <label class="mb-1"><strong>用户名</strong></label>
-                                        <input type="email" class="form-control" value="hello@example.com">
+                                        <input type="text" class="form-control" value="test" name="username">
                                     </div>
                                     <div class="form-group">
                                         <label class="mb-1"><strong>密码</strong></label>
-                                        <input type="password" class="form-control" value="Password">
+                                        <input type="password" class="form-control " name="password" value="Password">
                                     </div>
                                     <div class="form-row d-flex justify-content-between mt-4 mb-2">
                                         <div class="form-group">
@@ -49,10 +50,17 @@
                                         <button type="submit" class="btn btn-primary btn-block">登录</button>
                                     </div>
                                 </form>
-                                <div class="new-account mt-3">
+                                <div class="new-account mt-3 text-center">
                                     {# url好像是在urls.py中定义的，这里暂时使用'page-register，后端应该要修改 #}
                                     {#  <p>还没有帐号？ <a class="text-primary" href="{% url 'page-register' %}">注册</a></p> #}
-                                    <p>还没有帐号？ <a class="text-primary">注册</a></p>
+                                    {# 对登陆人进行了判断，如果是患者，则提供注册按钮，若是医生，则提供管理员联系按钮 #}
+                                    {% if  user_type == 'staff' %}
+                                        <p>还没有帐号？ <a class="text-primary">联系管理员</a></p>
+                                    {% endif %}
+                                    {% if  user_type == 'patient' %}
+                                        <p>还没有帐号？ <a class="text-primary">注册</a></p>
+
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -68,10 +76,12 @@
     Scripts
 ***********************************-->
 <!-- Required vendors -->
-<script src="../static/vendor/global/global.min.js"></script>
-<script src="../static/vendor/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
-<script src="../static/js/custom.min.js"></script>
-<script src="../static/js/deznav-init.js"></script>
+<script src="{% static 'vendor/global/global.min.js' %}"></script>
+<script src="
+{% static 'vendor/bootstrap-select/dist/js/bootstrap-select.min.js' %}"></script>
+<script src="{% static 'js/custom.min.js' %}"></script>
+<script src="
+{% static 'js/deznav-init.js' %}"></script>
 
 </body>
 

@@ -27,3 +27,17 @@ class LoginView(View):
             return render(request, "")
         else:
             return render(request, LoginView.template_name)
+
+
+class RegisterView(View):
+    template_name = "page-register.html"
+
+    def get(self, request):
+        return render(request, RegisterView.template_name)
+
+    def post(self, request):
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        email = request.POST.get("email")
+        # 判断是否重复、存入数据库等操作
+        return render(request, "")
