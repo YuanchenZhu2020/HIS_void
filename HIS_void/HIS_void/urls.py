@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from his.views import IndexView, LoginView, RegisterView
+from his.views import IndexView, LoginView, RegisterView, ForgotPassword
 from patient.views import PatientLoginView
 
 urlpatterns = [
@@ -30,4 +30,6 @@ urlpatterns = [
     path("login-patient/", PatientLoginView.as_view(), name="login-patient"),
     # 注册页面
     path("register/", RegisterView.as_view(), name="register"),
+    # 找回密码页面
+    path('forgot-password/', ForgotPassword.as_view(), name="forgot-password/")
 ]

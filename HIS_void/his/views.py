@@ -33,11 +33,21 @@ class RegisterView(View):
     template_name = "page-register.html"
 
     def get(self, request):
+        pass
         return render(request, RegisterView.template_name)
 
     def post(self, request):
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        email = request.POST.get("email")
-        # 判断是否重复、存入数据库等操作
+        pass
         return render(request, "")
+
+
+class ForgotPassword(View):
+    template_name = "page-forgot-password.html"
+
+    def get(self, request):
+        pass
+        return render(request, ForgotPassword.template_name, locals())
+
+    def post(self, request):
+        pass
+        return render(request, ForgotPassword.template_name)
