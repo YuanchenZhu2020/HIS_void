@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views import View
 
@@ -33,12 +34,11 @@ class RegisterView(View):
     template_name = "page-register.html"
 
     def get(self, request):
-        pass
-        return render(request, RegisterView.template_name)
+        return HttpResponse(RegisterView.template_name)
 
     def post(self, request):
         pass
-        return render(request, "")
+        return HttpResponse(RegisterView.template_name)
 
 
 class ForgotPassword(View):

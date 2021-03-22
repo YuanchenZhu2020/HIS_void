@@ -1,69 +1,59 @@
-<!DOCTYPE html>
-<html lang="zh" class="h-100">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>注册 - 医院信息管理系统</title>
-    <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="../static/images/favicon.png">
-    <link href="../static/css/style.css" rel="stylesheet">
-
-</head>
-
-<body class="h-100">
-<div class="authincation h-100">
-    <div class="container h-100">
-        <div class="row justify-content-center h-100 align-items-center">
-            <div class="col-md-6">
-                <div class="authincation-content">
-                    <div class="row no-gutters">
-                        <div class="col-xl-12">
-                            <div class="auth-form">
-                                <h4 class="text-center mb-4">注册您的账户</h4>
-                                {# 这里不太清楚应该action到哪 cation='#'似乎是提交到当前页 #}
-                                <form action="#" method="POST">
-                                    <div class="form-group ">
-                                        <label class="mb-1"><strong>姓名</strong></label>
-                                        <input type="text" class="form-control " name="username" placeholder="">
-                                    </div>
-                                    <div class="form-group ">
-                                        <label class="mb-1"><strong>身份证号</strong></label>
-                                        <input type="text" class="form-control" name="IDCard"
-                                               placeholder="">
-                                    </div>
-                                    <div class="form-group ">
-                                        <label class="mb-1"><strong>密码</strong></label>
-                                        <input type="password" class="form-control" name="password"
-                                               placeholder="">
-                                    </div>
-                                    <div class="form-group ">
-                                        <label class="mb-1"><strong>手机号码</strong></label>
-                                        <input type="text" class="form-control" name="telephone"
-                                               placeholder="">
-                                    </div>
-                                    <label class="mb-1"><strong>验证码</strong></label>
-                                    <div class="row">
-                                        <div class="form-group col-sm-4">
-                                            <input type="text" class="form-control" name="check_code"
+{% extends 'base.html' %}
+{% block title %}注册{% endblock %}
+{% block body-context %}
+    <div class="authincation h-100">
+        <div class="container h-100">
+            <div class="row justify-content-center h-100 align-items-center">
+                <div class="col-md-6">
+                    <div class="authincation-content">
+                        <div class="row no-gutters">
+                            <div class="col-xl-12">
+                                <div class="auth-form">
+                                    <h4 class="text-center mb-4">注册您的账户</h4>
+                                    {# 这里不太清楚应该action到哪 cation='#'似乎是提交到当前页 #}
+                                    <form action="#" method="POST">
+                                        <div class="form-group ">
+                                            <label class="mb-1"><strong>姓名</strong></label>
+                                            <input type="text" class="form-control " name="username" placeholder="">
+                                        </div>
+                                        <div class="form-group ">
+                                            <label class="mb-1"><strong>身份证号</strong></label>
+                                            <input type="text" class="form-control" name="IDCard"
                                                    placeholder="">
                                         </div>
-                                        <div class="col-sm-8 text-center">
-                                            <button type="submit" class="btn btn-primary btn-block ">发送短信验证码</button>
+                                        <div class="form-group ">
+                                            <label class="mb-1"><strong>密码</strong></label>
+                                            <input type="password" class="form-control" name="password"
+                                                   placeholder="">
                                         </div>
-                                        {# 这里我把按钮的布局设置好了，但具体按钮应该提交什么东西到何处还没想清楚 #}
-                                        {# 这里的按钮比文本框矮了一点，不知道为啥 #}
-                                    </div>
+                                        <div class="form-group ">
+                                            <label class="mb-1"><strong>手机号码</strong></label>
+                                            <input type="text" class="form-control" name="telephone"
+                                                   placeholder="">
+                                        </div>
+                                        <label class="mb-1"><strong>验证码</strong></label>
+                                        <div class="row">
+                                            <div class="form-group col-sm-4">
+                                                <input type="text" class="form-control" name="check_code"
+                                                       placeholder="">
+                                            </div>
+                                            <div class="col-sm-8 text-center">
+                                                <button type="submit" class="btn btn-primary btn-block ">发送短信验证码
+                                                </button>
+                                            </div>
+                                            {# 这里我把按钮的布局设置好了，但具体按钮应该提交什么东西到何处还没想清楚 #}
+                                            {# 这里的按钮比文本框矮了一点，不知道为啥 #}
+                                        </div>
 
 
-                                    <div class="text-center mt-4">
-                                        <button type="submit" class="btn btn-primary btn-block">注册</button>
+                                        <div class="text-center mt-4">
+                                            <button type="submit" class="btn btn-primary btn-block">注册</button>
+                                        </div>
+                                    </form>
+                                    <div class="new-account mt-3 text-center">
+                                        {# 这里的href需要后端人员修改一下 感觉是跳转到选择是病人还是医生的那个页面 #}
+                                        <p>已拥有帐号？ <a class="text-primary" href="{% url 'index' %}">登录</a></p>
                                     </div>
-                                </form>
-                                <div class="new-account mt-3 text-center">
-                                    {# 这里的href需要后端人员修改一下 感觉是跳转到选择是病人还是医生的那个页面 #}
-                                    <p>已拥有帐号？ <a class="text-primary" href="page-login.html">登录</a></p>
                                 </div>
                             </div>
                         </div>
@@ -72,16 +62,4 @@
             </div>
         </div>
     </div>
-</div>
-
-<!--**********************************
-	Scripts
-***********************************-->
-<!-- Required vendors -->
-<script src="../static/vendor/global/global.min.js"></script>
-<script src="../static/vendor/bootstrap-select/dist/js/bootstrap-select.min.js"></script>
-<script src="../static/js/custom.min.js"></script>
-<script src="../static/js/deznav-init.js"></script>
-
-</body>
-</html>
+{% endblock %}

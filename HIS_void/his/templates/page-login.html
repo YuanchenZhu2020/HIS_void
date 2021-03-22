@@ -1,72 +1,62 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="zh" class="h-100">
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>登录 - 医院信息管理系统</title>
-    <!-- Favicon icon -->
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon.png' %}">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
-
-</head>
-
-<body class="h-100">
-<div class="authincation h-100">
-    <div class="container h-100">
-        <div class="row justify-content-center h-100 align-items-center">
-            <div class="col-md-6">
-                <div class="authincation-content">
-                    <div class="row no-gutters">
-                        <div class="col-xl-12">
-                            <div class="auth-form">
-                                <h4 class="text-center mb-4">登录您的帐户</h4>
-                                <form action="/login-{{ user_type }}/" method="POST">
-                                    {% csrf_token %}
-                                    <div class="form-group">
-                                        <label class="mb-1"><strong>用户名</strong></label>
-                                        <input type="text" class="form-control" value="test" name="username">
-                                    </div>
-                                    <div class="form-group">
-                                        <label class="mb-1"><strong>密码</strong></label>
-                                        <input type="password" class="form-control " name="password" value="Password">
-                                    </div>
-                                    <div class="form-row d-flex justify-content-between mt-4 mb-2">
+{% block title %}登录{% endblock %}
+{% block body-context %}
+    <div class="authincation h-100">
+        <div class="container h-100">
+            <div class="row justify-content-center h-100 align-items-center">
+                <div class="col-md-6">
+                    <div class="authincation-content">
+                        <div class="row no-gutters">
+                            <div class="col-xl-12">
+                                <div class="auth-form">
+                                    <h4 class="text-center mb-4">登录您的帐户</h4>
+                                    <form action="/login-{{ user_type }}/" method="POST">
+                                        {% csrf_token %}
                                         <div class="form-group">
-{#                                            <div class="custom-control custom-checkbox ml-1">#}
-{#                                                <input type="checkbox" class="custom-control-input"#}
-{#                                                       id="basic_checkbox_1">#}
+                                            <label class="mb-1"><strong>用户名</strong></label>
+                                            <input type="text" class="form-control" value="test" name="username">
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="mb-1"><strong>密码</strong></label>
+                                            <input type="password" class="form-control " name="password"
+                                                   value="Password">
+                                        </div>
+                                        <div class="form-row d-flex justify-content-between mt-4 mb-2">
+                                            <div class="form-group">
+                                                {#                                            <div class="custom-control custom-checkbox ml-1">#}
+                                                {#                                                <input type="checkbox" class="custom-control-input"#}
+                                                {#                                                       id="basic_checkbox_1">#}
                                                 {#  也许通过Session可以实现？如果技术上有困难可以把这个功能删去 #}
-{#                                                <label class="custom-control-label"#}
-{#                                                       for="basic_checkbox_1">记住我的账号密码</label>#}
-{#                                            </div>#}
+                                                {#                                                <label class="custom-control-label"#}
+                                                {#                                                       for="basic_checkbox_1">记住我的账号密码</label>#}
+                                                {#                                            </div>#}
+                                            </div>
+                                            <div class="form-group">
+                                                <a href="{% url 'register' %}">忘记密码？</a>
+                                            </div>
                                         </div>
-                                        <div class="form-group">
-                                            <a href="/page-forgot-password">忘记密码？</a>
+                                        <div class="text-center">
+                                            {% if user_type == "patient" %}
+                                                <button type="submit" class="btn btn-primary btn-block">登录</button>
+                                            {% endif %}
+                                            {% if user_type == "staff" %}
+                                                <button type="submit" class="btn btn-info btn-block">登录</button>
+                                            {% endif %}
                                         </div>
-                                    </div>
-                                    <div class="text-center">
-                                        {% if user_type == "patient" %}
-                                            <button type="submit" class="btn btn-primary btn-block">登录</button>
+                                    </form>
+                                    <div class="new-account mt-3 text-center">
+                                        {# url好像是在urls.py中定义的，这里暂时使用'page-register，后端应该要修改 #}
+                                        {#  <p>还没有帐号？ <a class="text-primary" href="{% url 'page-register' %}">注册</a></p> #}
+                                        {# 对登陆人进行了判断，如果是患者，则提供注册按钮，若是医生，则提供管理员联系按钮 #}
+                                        {% if  user_type == 'staff' %}
+                                            <p>还没有帐号？ <a class="text-info">联系管理员</a></p>
                                         {% endif %}
-                                        {% if user_type == "staff" %}
-                                            <button type="submit" class="btn btn-info btn-block">登录</button>
-                                        {% endif %}
-                                    </div>
-                                </form>
-                                <div class="new-account mt-3 text-center">
-                                    {# url好像是在urls.py中定义的，这里暂时使用'page-register，后端应该要修改 #}
-                                    {#  <p>还没有帐号？ <a class="text-primary" href="{% url 'page-register' %}">注册</a></p> #}
-                                    {# 对登陆人进行了判断，如果是患者，则提供注册按钮，若是医生，则提供管理员联系按钮 #}
-                                    {% if  user_type == 'staff' %}
-                                        <p>还没有帐号？ <a class="text-info">联系管理员</a></p>
-                                    {% endif %}
-                                    {% if  user_type == 'patient' %}
-                                        <p>还没有帐号？ <a class="text-primary">注册</a></p>
+                                        {% if  user_type == 'patient' %}
+                                            <p>还没有帐号？ <a class="text-primary" href="{% url 'register' %}">注册</a></p>
 
-                                    {% endif %}
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -75,20 +65,4 @@
             </div>
         </div>
     </div>
-</div>
-
-
-<!--**********************************
-    Scripts
-***********************************-->
-<!-- Required vendors -->
-<script src="{% static 'vendor/global/global.min.js' %}"></script>
-<script src="
-{% static 'vendor/bootstrap-select/dist/js/bootstrap-select.min.js' %}"></script>
-<script src="{% static 'js/custom.min.js' %}"></script>
-<script src="
-{% static 'js/deznav-init.js' %}"></script>
-
-</body>
-
-</html>
+{% endblock %}
