@@ -31,5 +31,5 @@ urlpatterns = [
     # 注册页面
     path('register/', RegisterView.as_view(), name='register'),
     # 找回密码页面
-    path('forgot-password/', ForgotPassword.as_view(), name="forgot-password/")
+    path('forgot-password/', ForgotPassword.as_view(), name="forgot-password")
 ]
