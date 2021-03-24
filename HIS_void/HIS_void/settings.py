@@ -128,7 +128,7 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 
 # Auth user model
-AUTH_USER_MODEL = "rbac.UserInfo"
+# AUTH_USER_MODEL = "rbac.UserInfo"
 
 # Role-Based Access Control
 PERMISSION_URL_KEY = "url_key"

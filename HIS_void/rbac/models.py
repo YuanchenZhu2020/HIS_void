@@ -53,7 +53,7 @@ class Role(models.Model):
         return "<Role {}>".format(self.title)
 
 
-class UserInfo(AbstractUser):
+class UserInfo(models.Model):
     # 以 6 位数字的工号作为登录账号
     # 患者账号单独管理
     username    = models.CharField(max_length = 6, verbose_name = "登录账号")

@@ -18,27 +18,24 @@
                                         </div>
                                         <div class="form-group input-group-sm">
                                             <label class="mb-1"><strong>身份证号</strong></label>
-                                            <input type="text" class="form-control" name="IDCard"
-                                                   placeholder="">
+                                            <input type="text" class="form-control" name="IDCard" placeholder="">
                                         </div>
                                         <div class="form-group input-group-sm">
                                             <label class="mb-1"><strong>密码</strong></label>
-                                            <input type="password" class="form-control" name="password"
-                                                   placeholder="">
+                                            <input type="password" class="form-control" name="password" placeholder="">
                                         </div>
                                         <div class="form-group input-group-sm">
                                             <label class="mb-1"><strong>手机号码</strong></label>
-                                            <input type="text" class="form-control" name="telephone"
-                                                   placeholder="">
+                                            <input type="text" class="form-control" name="telephone" placeholder="">
                                         </div>
                                         <label class="mb-1"><strong>验证码</strong></label>
                                         <div class="row">
                                             <div class="form-group col-sm-4">
-                                                <input type="text" class="form-control" name="check_code"
-                                                       placeholder="">
+                                                <input type="text" class="form-control" name="check_code" placeholder="">
                                             </div>
                                             <div class="col-sm-8 text-center">
-                                                <button type="submit" class="btn btn-sm btn-primary btn-block ">发送短信验证码
+                                                <button type="submit" class="btn btn-sm btn-primary btn-block ">
+                                                    发送短信验证码
                                                 </button>
                                             </div>
                                             {# 这里我把按钮的布局设置好了，但具体按钮应该提交什么东西到何处还没想清楚 #}
@@ -51,8 +48,7 @@
                                         </div>
                                     </form>
                                     <div class="new-account mt-3 text-center">
-                                        {# 这里的href需要后端人员修改一下 感觉是跳转到选择是病人还是医生的那个页面 #}
-                                        <p>已拥有帐号？ <a class="text-primary" href="{% url 'index' %}">登录</a></p>
+                                        <p>已拥有帐号？<a class="text-primary" href="{% url 'patient' %}">登录</a></p>
                                     </div>
                                 </div>
                             </div>
