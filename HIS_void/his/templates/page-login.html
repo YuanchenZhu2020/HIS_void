@@ -24,16 +24,16 @@
                                         </div>
                                         <div class="form-row d-flex justify-content-between mt-4 mb-2">
                                             <div class="form-group">
-                                                {#                                            <div class="custom-control custom-checkbox ml-1">#}
-                                                {#                                                <input type="checkbox" class="custom-control-input"#}
-                                                {#                                                       id="basic_checkbox_1">#}
-                                                {#  也许通过Session可以实现？如果技术上有困难可以把这个功能删去 #}
-                                                {#                                                <label class="custom-control-label"#}
-                                                {#                                                       for="basic_checkbox_1">记住我的账号密码</label>#}
-                                                {#                                            </div>#}
+                                                <div class="custom-control custom-checkbox ml-1">
+                                                    <input type="checkbox" class="custom-control-input"
+                                                           id="basic_checkbox_1">
+                                                    {#                                                  也许通过Session可以实现？如果技术上有困难可以把这个功能删去#}
+                                                    <label class="custom-control-label"
+                                                           for="basic_checkbox_1">记住我的账号密码</label>
+                                                </div>
                                             </div>
                                             <div class="form-group">
-                                                <a href="{% url 'register' %}">忘记密码？</a>
+                                                <a href="{% url 'forgot-password' %}">忘记密码？</a>
                                             </div>
                                         </div>
                                         <div class="text-center">

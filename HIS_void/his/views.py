@@ -34,7 +34,7 @@ class RegisterView(View):
     template_name = "page-register.html"
 
     def get(self, request):
-        return HttpResponse(RegisterView.template_name)
+        return render(request, RegisterView.template_name)
 
     def post(self, request):
         pass
@@ -45,8 +45,7 @@ class ForgotPassword(View):
     template_name = "page-forgot-password.html"
 
     def get(self, request):
-        pass
-        return render(request, ForgotPassword.template_name, locals())
+        return render(request, ForgotPassword.template_name)
 
     def post(self, request):
         pass

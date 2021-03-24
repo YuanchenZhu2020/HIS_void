@@ -9,13 +9,17 @@
             <p>如果您是患者，请点击患者登录</p>
         </div>
     </div>
+    <div class="row">1</div>
+    <div class="row">1</div>
+    <div class="row">1</div>
+    <div class="row">1</div>
     <div class="row justify-content-center h-100 align-items-center">
         <div class="col-md-3">
-            <a class="btn btn-primary btn-block" href="/login-patient"><strong>患者登录</strong></a>
+            <a class="btn btn-primary btn-block" href="{% url 'login-patient' %}"><strong>患者登录</strong></a>
         </div>
         <div class="col-md-1"></div>
         <div class="col-md-3">
-            <a class="btn btn-info btn-block" href="/login-staff"><strong>职工登录</strong></a>
+            <a class="btn btn-info btn-block" href="{% url 'login-staff' %}"><strong>职工登录</strong></a>
         </div>
     </div>
 {% endblock %}
