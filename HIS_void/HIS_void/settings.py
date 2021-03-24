@@ -131,6 +131,9 @@ STATIC_URL = '/static/'
 # )
 
 
+# Auth user model
+AUTH_USER_MODEL = "rbac.UserInfo"
+
 # Role-Based Access Control
 PERMISSION_URL_KEY = "url_key"
 # PERMISSION_MENU_KEY = "menu_key"

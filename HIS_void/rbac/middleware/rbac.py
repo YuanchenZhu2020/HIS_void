@@ -38,6 +38,7 @@ class RBACMiddleware:
     
     def process_request(self, request):
         """
+        在执行视图函数之前判断用户能否访问该页面。
         """
         request_url = request.path_info
         permission_url = request.session.get(settings.PERMISSION_URL_KEY)

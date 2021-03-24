@@ -1,15 +1,5 @@
 from django.db import models
-
-
-# class Menu(models.Model):
-#     title = models.CharField(max_length = 32, unique = True, verbose_name = "一级菜单")
-
-#     class Meta:
-#         verbose_name = "一级菜单表"
-#         verbose_name_plural = verbose_name
-    
-#     def __str__(self) -> str:
-#         return "<Menu {}>".format(self.title)
+from django.contrib.auth.models import AbstractUser
 
 
 class PermGroup(models.Model):
@@ -63,7 +53,7 @@ class Role(models.Model):
         return "<Role {}>".format(self.title)
 
 
-class UserInfo(models.Model):
+class UserInfo(AbstractUser):
     # 以 6 位数字的工号作为登录账号
     # 患者账号单独管理
     username    = models.CharField(max_length = 6, verbose_name = "登录账号")
