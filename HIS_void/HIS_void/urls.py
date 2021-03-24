@@ -16,16 +16,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from his.views import IndexView, LoginView
+from his.views import IndexView, LoginView, RegisterView, ForgotPassword
 from patient.views import PatientLoginView
 
 urlpatterns = [
     # 管理员
     path('admin/', admin.site.urls),
     # 主页
-    path('index/', IndexView.as_view(), name = "index"),
+    path('index/', IndexView.as_view(), name="index"),
     # 职工登录页面
-    path("login-staff/", LoginView.as_view(), name = "login-staff"),
+    path("login-staff/", LoginView.as_view(), name="login-staff"),
     # 患者登录页面
-    path("login-patient/", PatientLoginView.as_view(), name = "login-patient"),
+    path("login-patient/", PatientLoginView.as_view(), name="login-patient"),
+    # 注册页面
+    path('register/', RegisterView.as_view(), name='register'),
+    # 找回密码页面
+    path('forgot-password/', ForgotPassword.as_view(), name="forgot-password")
 ]

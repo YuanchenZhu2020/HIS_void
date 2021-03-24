@@ -3,7 +3,7 @@ from django.views import View
 from django.urls import reverse
 
 class PatientLoginView(View):
-    template_name = "login-page.html"
+    template_name = "page-login.html"
 
     def get(self, request):
         return render(request, PatientLoginView.template_name, context = {"user_type": "patient"})
