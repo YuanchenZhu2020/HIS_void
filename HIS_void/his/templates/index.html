@@ -1,20 +1,25 @@
+{% extends 'base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="zh">
-
-<head>
-    <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">
-    <title>医院信息管理系统</title>
-    <link rel="stylesheet" type="text/css" href="{% static 'index.css' %}">
-</head>
-
-<body>
-    <div class="login-gate">
-        <a href="/login-patient"><h1>患者登录</h1></a>
+{% block title %}主页{% endblock %}
+{% block body-context %}
+    <div class="container">
+        <div class="jumbotron">
+            <h1>欢迎使用HIS医院信息管理系统</h1>
+            <p>如果您是医护人员，请点击职工登录</p>
+            <p>如果您是患者，请点击患者登录</p>
+        </div>
     </div>
-    <div class="login-gate">
-        <a href="/login-staff"><h1>职工登录</h1></a>
+    <div class="row">1</div>
+    <div class="row">1</div>
+    <div class="row">1</div>
+    <div class="row">1</div>
+    <div class="row justify-content-center h-100 align-items-center">
+        <div class="col-md-3">
+            <a class="btn btn-primary btn-block" href="{% url 'login-patient' %}"><strong>患者登录</strong></a>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-3">
+            <a class="btn btn-info btn-block" href="{% url 'login-staff' %}"><strong>职工登录</strong></a>
+        </div>
     </div>
-</body>
-
-</html>
+{% endblock %}
