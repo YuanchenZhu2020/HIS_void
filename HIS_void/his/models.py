@@ -31,7 +31,7 @@ class Staff(models.Model):
         verbose_name_plural = verbose_name
     
     def __str__(self) -> str:
-        return "<Staff {}>".format(self.username)
+        return "<Staff {}>".format(self.name)
 
 class LoginLog(models.Model):
     """ 登录日志 """

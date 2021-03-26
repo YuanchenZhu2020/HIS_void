@@ -138,6 +138,7 @@ SAFE_URL = [
     r"/index/",
     r"/login-staff/",
     r"/login-patient/",
+    r"/logout/",
     r"/register",
     r"/forgot-password",
     r"/admin/.*",

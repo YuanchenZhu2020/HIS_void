@@ -16,4 +16,5 @@ class PatientLoginView(View):
         if username == "test" and password == "123456":
             return redirect(reverse("index"))
         else:
-            return render(request, PatientLoginView.template_name, context = {"user_type": "patient"})
+            context = {"user_type": "patient", "name_or_password_error": True}
+            return render(request, PatientLoginView.template_name, context)

@@ -1,5 +1,6 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from django.views import View
 
 from rbac import models as rbac_models
@@ -9,13 +10,18 @@ class IndexView(View):
     template_name = "index.html"
 
     def get(self, request):
+        if 'user_name' in request.session:
+            return redirect(reverse("profile"))
         return render(request, IndexView.template_name)
 
 
 class LoginView(View):
     template_name = "page-login.html"
+    user_type = "staff"
 
     def get(self, request):
+        if 'user_name' in request.session:
+            return redirect(reverse("profile"))
         return render(request, LoginView.template_name, context={"user_type": "staff"})
 
     def post(self, request):
@@ -23,11 +29,11 @@ class LoginView(View):
         password = request.POST.get("password")
         user = rbac_models.UserInfo.objects.filter(username=username, password=password).first()
         if user:
-            request.session["user_name"] = user.name
-            request.session["dep_id"] = user.dep_id
-            return render(request, "")
+            request.session["user_name"] = user.username
+            return redirect(reverse("profile"))
         else:
-            return render(request, LoginView.template_name)
+            context = {"user_type": "staff", "name_or_password_error": True}
+            return render(request, LoginView.template_name, context)
 
 
 class RegisterView(View):
@@ -50,3 +56,19 @@ class ForgotPassword(View):
     def post(self, request):
         pass
         return render(request, ForgotPassword.template_name)
+
+
+class Logout(View):
+    def get(self, request):
+        del request.session['user_name']
+        return redirect(reverse("index"))
+
+
+class Profile(View):
+    template_name = 'page-profile.html'
+
+    def get(self, request):
+        if 'user_name' not in request.session:
+            return redirect(reverse("index"))
+        # 根据用户名查询需要的信息，用户名通过login传递?
+        return render(request, Profile.template_name)

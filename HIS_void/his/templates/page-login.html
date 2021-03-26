@@ -13,18 +13,23 @@
                                     <h4 class="text-center mb-4">登录您的帐户</h4>
                                     <form action="/login-{{ user_type }}/" method="POST">
                                         {% csrf_token %}
+                                    {% if name_or_password_error %}
+                                        <div class="alert alert-danger">账号或密码错误！</div>
+                                    {% endif %}
                                         <div class="form-group">
                                             <label class="mb-1"><strong>用户名</strong></label>
                                             <input type="text" class="form-control" value="test" name="username">
                                         </div>
                                         <div class="form-group">
                                             <label class="mb-1"><strong>密码</strong></label>
-                                            <input type="password" class="form-control " name="password" value="Password">
+                                            <input type="password" class="form-control " name="password"
+                                                   value="Password">
                                         </div>
                                         <div class="form-row d-flex justify-content-between mt-4 mb-2">
                                             <div class="form-group">
                                                 <div class="custom-control custom-checkbox ml-1">
-                                                    <input type="checkbox" class="custom-control-input" id="basic_checkbox_1">
+                                                    <input type="checkbox" class="custom-control-input"
+                                                           id="basic_checkbox_1">
                                                     <label class="custom-control-label" for="basic_checkbox_1">
                                                         记住我的账号密码
                                                     </label>

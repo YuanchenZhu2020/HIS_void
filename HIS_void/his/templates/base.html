@@ -12,18 +12,29 @@
     <link href="{% static 'vendor/bootstrap-select/css/bootstrap-select.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="https://cdn.lineicons.com/2.0/LineIcons.css" rel="stylesheet">
+    <!-- 调整左上角Logo位置 -->
+    <style type="text/css">
+        body {
+            background-image: url({% static 'images/background.png' %});
+        {#    background-image: url('../static/images/background.png');#}
+            background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+        }
+
+        .nav {
+            /* 上 右 下 左 */
+            margin: 30px 0px 30px 30px;
+        }
+
+        .container {
+            opacity: 0.8;
+        }
+    </style>
 
 </head>
 <body class="h-100">
 {% include 'header.html' %}
-
-<!-- 调整左上角Logo位置 -->
-<style type="text/css">
-    .nav {
-        /* 上 右 下 左 */
-        margin: 30px 0px 30px 30px;
-    }
-</style>
 
 {% block body-context %}
 
@@ -36,5 +47,7 @@
 <script src="{% static 'vendor/bootstrap-select/js/bootstrap-select.min.js' %}"></script>
 <script src="{% static 'js/custom.min.js' %}"></script>
 <script src="{% static 'js/deznav-init.js' %}"></script>
+
+{% include 'footer.html' %}
 </body>
 </html>
