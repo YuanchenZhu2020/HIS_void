@@ -13,13 +13,16 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="https://cdn.lineicons.com/2.0/LineIcons.css" rel="stylesheet">
     <!-- 调整左上角Logo位置 -->
+    {#    <style type="text/css">#}
+
     <style type="text/css">
         body {
-            background-image: url({% static 'images/background.png' %});
-        {#    background-image: url('../static/images/background.png');#}
+            {#position: relative;#}
             background-repeat: no-repeat;
             background-size: 100% 100%;
             background-attachment: fixed;
+            {#background-image: url({% static 'images/background.png' %});#}
+            {#background-image: url('../static/images/background.png'); #}
         }
 
         .nav {
@@ -30,6 +33,21 @@
         .container {
             opacity: 0.8;
         }
+
+        ul.nav-pills {
+			top: 20px;
+			position: fixed;
+		}
+		{#div.col-sm-10 div {#}
+		{#	height: 250px;#}
+		{#	font-size: 28px;#}
+		{#/}#}
+
+        {#@media screen and (max-width: 810px) {#}
+		{#	#section1, #section2, #section3, #section41, #section42  {#}
+		{#		margin-left: 150px;#}
+		{#	}#}
+		{#/}#}
     </style>
 
 </head>

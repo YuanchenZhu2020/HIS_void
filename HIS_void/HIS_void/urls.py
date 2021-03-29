@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 
 from his.views import IndexView, LoginView, RegisterView, ForgotPassword, Profile, Logout
-from patient.views import PatientLoginView
+from patient.views import PatientLoginView,PatientWorkSpace
 
 urlpatterns = [
     path('', IndexView.as_view(), name=''),
@@ -37,4 +37,6 @@ urlpatterns = [
     path('logout/', Logout.as_view(), name='logout'),
     # 个人信息页面
     path('profile/', Profile.as_view(), name='profile'),
+    # 患者界面
+    path('patient/', PatientWorkSpace.as_view(),name='patient'),
 ]
