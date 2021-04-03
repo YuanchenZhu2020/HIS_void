@@ -36,3 +36,10 @@ class PatientWorkSpace(View):
     #     else:
     #         context = {"user_type": "patient", "name_or_password_error": True}
     #         return render(request, PatientLoginView.template_name, context)
+
+
+class PatientWorkMy(View):
+    template_name = "patient-my.html"
+
+    def get(self, request):
+        return render(request, PatientWorkMy.template_name, context={"user_type": "patient"})
