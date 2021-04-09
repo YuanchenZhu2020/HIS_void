@@ -14,7 +14,7 @@ class IndexView(View):
     def get(self, request):
         if 'user_name' in request.session:
             print("session中存在user_name")
-            return redirect(reverse("outpatient"))
+            return redirect(reverse("profile"))
         return render(request, IndexView.template_name)
 
 
@@ -25,7 +25,7 @@ class LoginView(View):
     def get(self, request):
         if 'user_name' in request.session:
             print("session中存在user_name")
-            return redirect(reverse("outpatient"))
+            return redirect(reverse("profile"))
         return render(request, LoginView.template_name, context={"user_type": "staff"})
 
     def post(self, request):
@@ -36,7 +36,7 @@ class LoginView(View):
         if user:
             request.session["user_name"] = user.username
             request.session["staff_name"] = staff.name
-            return redirect(reverse("outpatient"))
+            return redirect(reverse("profile"))
         else:
             context = {"user_type": "staff", "name_or_password_error": True}
             return render(request, LoginView.template_name, context)
@@ -76,8 +76,16 @@ class Profile(View):
     def get(self, request):
         if 'user_name' not in request.session:
             return redirect(reverse("index"))
+
         # 根据用户名查询需要的信息，用户名通过login传递?
-        return render(request, Profile.template_name)
+        chang_gui = request.GET.get("chang_gui")
+        return render(request, Profile.template_name, locals())
+
+    def post(self, request):
+        post_dict = dict(request.POST)
+
+        print("````````````````````````````````````````````````")
+        print(post_dict)
 
 
 class Outpatient(View):

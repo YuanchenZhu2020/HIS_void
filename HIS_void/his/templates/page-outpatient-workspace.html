@@ -1,54 +1,46 @@
 {% extends 'base.html' %}
 {% block title %}门诊医生工作台{% endblock %}
 {% block body-context %}
-
     {# 两侧留白较小的容器 #}
     <div class="container-fluid">
-        {#        <div class="page-titles">#}
-        {#            <ol class="breadcrumb">#}
-        {#                <li class="breadcrumb-item"><a href="javascript:void(0)">Bootstrap</a></li>#}
-        {#                <li class="breadcrumb-item active"><a href="javascript:void(0)">Accordion</a></li>#}
-        {#            </ol>#}
-        {#        </div>#}
         {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病例首页，检查检验等 #}
         <div class="row">
+
             {# 第一列宽度为3，用于放置诊中患者信息和待诊患者信息 #}
-            <div class="col-md-3">
-                {# 在第一列中新建行，每一个container占一行（这里的一行指container不会横向排布 #}
+            <div class="col-m   d-3">
                 {# 诊中患者信息 #}
                 <div class="container">
-                    <div class="card">
-
+                    <div class="card">{# 我目前只会使用card（卡片）布局 #}
+                        {# 设置卡片头 #}
                         <div class="card-header">诊中患者</div>
+                        {# 固定卡片大小，使得患者过多时可以滚动 #}
                         <div style="overflow-x: auto; overflow-y: auto; height: 250px; ">
-
-                            <div class="table-responsive text-center">
-                                <table class="table table-hover small">
-                                    <thead>
-                                    <tr>
-                                        <th>姓名</th>
-                                        <th>状态</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td>肖云冲</td>
-                                        <td><span class="badge badge-success">检查完毕</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>云冲肖</td>
-                                        <td><span class="badge badge-primary light">检查中</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>冲云肖</td>
-                                        <td><span class="badge badge-primary light">检查中</span>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            {# 设置诊中患者表（试一试就知道了 #}
+                            <table class="table table-hover small text-center">
+                                <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>状态</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>肖云冲</td>
+                                    <td><span class="badge badge-success">检查完毕</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>云冲肖</td>
+                                    <td><span class="badge badge-primary light">检查中</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>冲云肖</td>
+                                    <td><span class="badge badge-primary light">检查中</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -57,61 +49,57 @@
                     <div class="card">
                         <div class="card-header">待诊患者</div>
                         <div style="overflow-x: auto; overflow-y: auto; height: 300px; ">
-                            <div class="table-responsive text-center">
-                                <table class="table table-hover small">
-                                    <thead>
-                                    <tr>
-                                        <th>姓名</th>
-                                        <th>紧急程度</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td>李国铭</td>
-                                        <td><span class="badge badge-primary light">普通</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>特狼普</td>
-                                        <td><span class="badge badge-danger light">危急</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>好可怕</td>
-                                        <td><span class="badge badge-primary light">普通</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>两只老虎</td>
-                                        <td><span class="badge badge-primary light">Sale</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Kolor Tea Shirt</td>
-                                        <td><span class="badge badge-primary light">Sale</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Kolor Tea Shirt</td>
-                                        <td><span class="badge badge-primary light">Sale</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Kolor Tea Shirt</td>
-                                        <td><span class="badge badge-success">Tax</span>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>Blue Backpack</td>
-                                        <td><span class="badge badge-danger light">Extended</span>
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <table class="table table-hover small text-center">
+                                <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>紧急程度</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>李国铭</td>
+                                    <td><span class="badge badge-primary light">普通</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>特狼普</td>
+                                    <td><span class="badge badge-danger light">危急</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>好可怕</td>
+                                    <td><span class="badge badge-primary light">普通</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>两只老虎</td>
+                                    <td><span class="badge badge-primary light">Sale</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Kolor Tea Shirt</td>
+                                    <td><span class="badge badge-primary light">Sale</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Kolor Tea Shirt</td>
+                                    <td><span class="badge badge-primary light">Sale</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Kolor Tea Shirt</td>
+                                    <td><span class="badge badge-success">Tax</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Blue Backpack</td>
+                                    <td><span class="badge badge-danger light">Extended</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
                         </div>
-
-
                     </div>
                 </div>
             </div>
@@ -119,6 +107,7 @@
             <div class="col-md-9">
                 <div class="card">
                     <div class="card-body">
+                        {# 这里时当前患者的信息，放在了最上面 #}
                         <div class="basic-form">
                             <form>
                                 <div class="form-row justify-content-center">
@@ -157,7 +146,7 @@
                                 </div>
                             </form>
                         </div>
-                        {# 这些分页表单用container包裹，为了美观 #}
+
                         {# 分页导航栏列表，用于放置分页按钮 #}
                         <div class="default-tab">
                             <ul class="nav nav-tabs justify-content-center" role="tablist">
@@ -178,12 +167,12 @@
                                 </li>
                                 {# 处方开具按钮 #}
                                 <li class="nav-item">
-                                    <a href="#navpills-4" class="nav-link" data-toggle="tab"
+                                    <a href="#chu_fang_kai_ju" class="nav-link" data-toggle="tab"
                                        aria-expanded="true">处方开具</a>
                                 </li>
                                 {# 手术申请按钮 #}
                                 <li class="nav-item">
-                                    <a href="#navpills-4" class="nav-link" data-toggle="tab"
+                                    <a href="#shou_shu_shen_qing" class="nav-link" data-toggle="tab"
                                        aria-expanded="true">手术申请</a>
                                 </li>
                                 {# 患者账单按钮 #}
@@ -192,10 +181,8 @@
                                        aria-expanded="true">患者账单</a>
                                 </li>
                             </ul>
-
                             {# 分页页面内容 #}
                             <div class="tab-content">
-
                                 {# 病例首页页面信息，第一次进入页面默认显示这个 #}
                                 <div id="bing_li_shou_ye" class="tab-pane fade show active">
                                     <div class="card-body">
@@ -203,43 +190,43 @@
                                             <form action="#">
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-2 col-form-label text-right">患者主诉： </label>
-                                                    <input type="text" class="form-control" readonly
-                                                           placeholder="您好，这种状况持续很久了">
+                                                    <textarea type="text" class="form-control"
+                                                              placeholder=""></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-2 col-form-label text-right">现病史：</label>
-                                                    <input type="text" class="form-control" placeholder="不想学习"
-                                                           readonly>
+                                                    <textarea type="text" class="form-control" placeholder=""
+                                                    ></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-2 col-form-label text-right">现病治疗情况：
-                                                    </label> <input type="text" class="form-control"
-                                                                    placeholder="缺少一顿毒打"
-                                                                    readonly>
+                                                    </label> <textarea type="text" class="form-control"
+                                                                       placeholder=""
+                                                ></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-2 col-form-label text-right">既往史：
-                                                    </label> <input type="text" class="form-control"
-                                                                    placeholder="既往一直不想学习"
-                                                                    readonly>
+                                                    </label> <textarea type="text" class="form-control"
+                                                                       placeholder=""
+                                                ></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-2 col-form-label text-right">过敏史：
-                                                    </label> <input type="text" class="form-control"
-                                                                    placeholder="对书本、作业、ppt过敏"
-                                                                    readonly>
+                                                    </label> <textarea type="text" class="form-control"
+                                                                       placeholder=""
+                                                ></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-2 col-form-label text-right">体格检查：
-                                                    </label> <input type="text" class="form-control"
-                                                                    placeholder="一切偏低"
-                                                                    readonly>
+                                                    </label> <textarea type="text" class="form-control"
+                                                                       placeholder=""
+                                                ></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-2 col-form-label text-right">发病时间：
-                                                    </label> <input type="text" class="form-control"
-                                                                    placeholder="time ∈ (-∞, +∞)"
-                                                                    readonly>
+                                                    </label> <textarea type="text" class="form-control"
+                                                                       placeholder=""
+                                                ></textarea>
                                                 </div>
                                             </form>
                                         </div>
@@ -249,12 +236,14 @@
                                 {# 检查检验页面信息 #}
                                 <div id="jian_cha_jian_yan" class="tab-pane fade">
                                     <div class="card-body">
+                                        {# 检验表单 #}
                                         <div class="basic-form">
-                                            <form action="#">
+                                            <form action="{% url 'profile' %}" method="POST">
+                                                {% csrf_token %}
                                                 <div class="form-group">
                                                     <div class="input-group input-group-sm mb-3">
                                                         <label class="col-md-1.5 col-form-label text-right">常规检验： </label>
-                                                        <select class="form-control form-control-lg" id="sel1">
+                                                        <select class="form-control form-control-lg" name='chang_gui'>
                                                             <option>无</option>
                                                             <option>血常规</option>
                                                             <option>尿常规</option>
@@ -272,25 +261,22 @@
                                                 <div class="form-group">
                                                     <div class="input-group input-group-sm mb-3">
                                                         <label class="col-md-1.5 col-form-label text-right">生化检验： </label>
-                                                        <select class="form-control form-control-lg" id="sel1">
+                                                        <select class="form-control form-control-lg" name="sheng_hua">
                                                             <option>无</option>
-                                                            <option>血常规</option>
-                                                            <option>尿常规</option>
-                                                            <option>便常规</option>
-                                                            <option>精液常规</option>
-                                                            <option>白带常规</option>
-                                                            <option>脑脊液常规</option>
-                                                            <option>血流变</option>
-                                                            <option>血沉</option>
-                                                            <option>血凝</option>
-                                                            <option>血涂片</option>
+                                                            <option>肝功能</option>
+                                                            <option>肾功能</option>
+                                                            <option>血糖</option>
+                                                            <option>血脂</option>
+                                                            <option>尿酸</option>
+                                                            <option>乳酸脱氢酶</option>
+                                                            <option>肌酸激酶</option>
                                                         </select>
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
                                                     <div class="input-group input-group-sm mb-3">
                                                         <label class="col-md-1.5 col-form-label text-right">免疫检验： </label>
-                                                        <select class="form-control form-control-lg" id="sel1">
+                                                        <select class="form-control form-control-lg" name="mian_yi">
                                                             <option>无</option>
                                                             <option>乙肝五项</option>
                                                             <option>甲肝</option>
@@ -306,7 +292,7 @@
                                                 <div class="form-group">
                                                     <div class="input-group input-group-sm mb-3">
                                                         <label class="col-md-1.5 col-form-label text-right">细菌检验： </label>
-                                                        <select class="form-control form-control-lg" id="sel1">
+                                                        <select class="form-control form-control-lg" name="xijun">
                                                             <option>无</option>
                                                             <option>葡萄球菌</option>
                                                             <option>杆菌</option>
@@ -318,12 +304,18 @@
                                                 <div class="form-group">
                                                     <div class="input-group input-group-sm mb-3">
                                                         <label class="col-md-1.5 col-form-label text-right">其他检验： </label>
-                                                        <select class="form-control form-control-lg" id="sel1">
+                                                        <select class="form-control form-control-lg" name="qi_ta">
                                                             <option>无</option>
                                                             <option>强制性脊椎炎</option>
                                                             <option>脑钠肽</option>
                                                         </select>
                                                     </div>
+                                                </div>
+                                                <div class="col-md-12 text-right">
+                                                    <button type="submit"
+                                                            class="form-group btn btn-outline-primary btn-sm">
+                                                        提交检验
+                                                    </button>
                                                 </div>
                                             </form>
                                             <div class="card">
@@ -359,10 +351,184 @@
                                         <div class="card-body">
                                             <div class="basic-form">
                                                 <form action="#">
+                                                    <div class="input-group">
+                                                        <textarea class="form-control" rows="18"
+                                                                  placeholder="请输入您的判断"></textarea>
+
+                                                    </div>
                                                 </form>
                                             </div>
                                         </div>
 
+                                    </div>
+                                </div>
+
+                                {# 处方开具页面信息 #}
+                                <div id="chu_fang_kai_ju" class="tab-pane fade">
+                                    <div class="container">
+                                        <div class="card-body">
+
+                                            <div class="basic-form">
+                                                <form action="#">
+                                                    <div class="input-group">
+                                                        <input type="text" class="form-control"
+                                                               placeholder="请输入药品名">
+                                                        <div class="input-group-append">
+                                                            <button class="btn btn-primary"
+                                                                    type="button">搜索
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+
+                                            <div class="basic-form">
+                                                <form action="#">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered verticle-middle table-responsive-sm">
+                                                            <thead>
+                                                            <tr>
+                                                                <th scope="col">药品名</th>
+                                                                <th scope="col">药品数量</th>
+                                                                <th scope="col">单价</th>
+                                                                <th scope="col">总价</th>
+                                                                <th scope="col">Action</th>
+                                                            </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                            <tr>
+                                                                <td>Air Conditioner</td>
+                                                                <td>
+                                                                    <div class="progress bgl-primary">
+                                                                        <div class="progress-bar bg-primary"
+                                                                             style="width: 70%;" role="progressbar">
+                                                                            <span class="sr-only">70% Complete</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>Apr 20,2018</td>
+                                                                <td><span class="badge badge-primary light">70%</span>
+                                                                </td>
+                                                                <td>
+                                                                    <span>
+                                                                        <a href="javascript:void(0)" class="mr-4"
+                                                                           data-toggle="tooltip"
+                                                                           data-placement="top" title="Edit"><i
+                                                                                class="fa fa-pencil color-muted"></i> </a>
+                                                                        <a href="javascript:void()"
+                                                                           data-toggle="tooltip"
+                                                                           data-placement="top" title="Close"><i
+                                                                                class="fa fa-close color-danger"></i></a>
+                                                                    </span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Textiles</td>
+                                                                <td>
+                                                                    <div class="progress bgl-success">
+                                                                        <div class="progress-bar bg-success"
+                                                                             style="width: 70%;" role="progressbar">
+                                                                            <span class="sr-only">70% Complete</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>May 27,2018</td>
+                                                                <td><span class="badge badge-success">70%</span>
+                                                                </td>
+                                                                <td><span><a href="javascript:void()" class="mr-4"
+                                                                             data-toggle="tooltip"
+                                                                             data-placement="top" title="Edit"><i
+                                                                        class="fa fa-pencil color-muted"></i> </a><a
+                                                                        href="javascript:void()" data-toggle="tooltip"
+                                                                        data-placement="top" title="Close"><i
+                                                                        class="fa fa-close color-danger"></i></a></span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Milk Powder</td>
+                                                                <td>
+                                                                    <div class="progress bgl-dark">
+                                                                        <div class="progress-bar bg-dark"
+                                                                             style="width: 70%;" role="progressbar">
+                                                                            <span class="sr-only">70% Complete</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>May 18,2018</td>
+                                                                <td><span class="badge badge-dark light">70%</span>
+                                                                </td>
+                                                                <td><span><a href="javascript:void()" class="mr-4"
+                                                                             data-toggle="tooltip"
+                                                                             data-placement="top" title="Edit"><i
+                                                                        class="fa fa-pencil color-muted"></i> </a><a
+                                                                        href="javascript:void()" data-toggle="tooltip"
+                                                                        data-placement="top" title="Close"><i
+                                                                        class="fa fa-close color-danger"></i></a></span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Vehicles</td>
+                                                                <td>
+                                                                    <div class="progress bgl-danger">
+                                                                        <div class="progress-bar bg-danger"
+                                                                             style="width: 70%;" role="progressbar">
+                                                                            <span class="sr-only">70% Complete</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>Mar 27,2018</td>
+                                                                <td><span class="badge badge-danger">70%</span>
+                                                                </td>
+                                                                <td><span><a href="javascript:void()" class="mr-4"
+                                                                             data-toggle="tooltip"
+                                                                             data-placement="top" title="Edit"><i
+                                                                        class="fa fa-pencil color-muted"></i> </a><a
+                                                                        href="javascript:void()" data-toggle="tooltip"
+                                                                        data-placement="top" title="Close"><i
+                                                                        class="fa fa-close color-danger"></i></a></span>
+                                                                </td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>Boats</td>
+                                                                <td>
+                                                                    <div class="progress bgl-warning">
+                                                                        <div class="progress-bar bg-warning"
+                                                                             style="width: 70%;" role="progressbar">
+                                                                            <span class="sr-only">70% Complete</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>Jun 28,2018</td>
+                                                                <td><span class="badge badge-warning">70%</span>
+                                                                </td>
+                                                                <td><span><a href="javascript:void()" class="mr-4"
+                                                                             data-toggle="tooltip"
+                                                                             data-placement="top" title="Edit"><i
+                                                                        class="fa fa-pencil color-muted"></i> </a><a
+                                                                        href="javascript:void()" data-toggle="tooltip"
+                                                                        data-placement="top" title="Close"><i
+                                                                        class="fa fa-close color-danger"></i></a></span>
+                                                                </td>
+                                                            </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {# 手术申请页面信息 #}
+                                <div id="shou_shu_shen_qing" class="tab-pane fade">
+                                    <div class="container">
+                                        <div class="card-body">
+                                            <div class="basic-form">
+                                                <form action="#">
+                                                    手术申请页面未完成
+                                                </form>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -382,7 +548,43 @@
                                                                     <thead>
                                                                     <tr>
                                                                         <th>药品名</th>
-                                                                        <th>类型</th>
+                                                                        <th>单价</th>
+                                                                        <th>数量</th>
+                                                                        <th>总价</th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    <tr>
+                                                                        <td>Kolor Tea Shirt For Man</td>
+                                                                        <td><span
+                                                                                class="badge badge-primary light">Sale</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Kolor Tea Shirt For Women</td>
+                                                                        <td><span
+                                                                                class="badge badge-success">Tax</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Blue Backpack For Baby</td>
+                                                                        <td><span
+                                                                                class="badge badge-danger light">Extended</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-hover small">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>检查项目</th>
+                                                                        <th>金额</th>
+                                                                        <th>数量</th>
+                                                                        <th>总价</th>
                                                                     </tr>
                                                                     </thead>
                                                                     <tbody>
@@ -428,98 +630,4 @@
         </div>
     </div>
 
-
 {% endblock %}
-<div class="basic-form">
-    <form action="#">
-        <div class="form-group">
-            <select class="form-control form-" id="sel1">
-                <option>无</option>
-                <option>血常规</option>
-                <option>尿常规</option>
-                <option>便常规</option>
-                <option>精液常规</option>
-                <option>白带常规</option>
-                <option>脑脊液常规</option>
-                <option>血流变</option>
-                <option>血沉</option>
-                <option>血凝</option>
-                <option>血涂片</option>
-            </select>
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">生化检验</span>
-                </div>
-                <select class="form-control" id="sel1">
-                    <option>无</option>
-                    <option>肝功能</option>
-                    <option>肾功能</option>
-                    <option>心肌酶</option>
-                    <option>血脂</option>
-                    <option>肌钙蛋白</option>
-                    <option>血气分析</option>
-                    <option>淀粉酶</option>
-                    <option>电解质</option>
-                </select>
-            </div>
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">免疫检验</span>
-                </div>
-                <select class="form-control" id="sel1">
-                    <option>无</option>
-                    <option>乙肝五项</option>
-                    <option>甲肝</option>
-                    <option>丙肝</option>
-                    <option>梅毒</option>
-                    <option>肺炎支原体</option>
-                    <option>甲状腺功能检查</option>
-                    <option>HIV</option>
-                    <option>类风湿检查</option>
-                </select>
-            </div>
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">细菌检验</span>
-                </div>
-                <select class="form-control" id="sel1">
-                    <option>无</option>
-                    <option>葡萄球菌</option>
-                    <option>杆菌</option>
-                    <option>链球菌</option>
-                    <option>真菌</option>
-                </select>
-            </div>
-            <div class="input-group mb-3">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">其他检验</span>
-                </div>
-                <select class="form-control" id="sel1">
-                    <option>无</option>
-                    <option>强制性脊椎炎</option>
-                    <option>脑钠肽</option>
-                </select>
-            </div>
-        </div>
-    </form>
-    <div class="card">
-        <div class="card-header border-0 pb-0">
-            <h5 class="card-title">检查结果</h5>
-        </div>
-        <div class="card-body">
-            <p class="card-text">He lay on his armour-like back, and if he
-                lifted his head a little he could see his brown
-                belly, slightly domed and divided by arches into stiff <br>
-                sections. The bedding was hardly able to cover
-                it and seemed ready to
-                slide off any moment.
-            </p>
-        </div>
-        <div class="card-footer border-0 pt-0">
-            <p class="card-text d-inline">Card footer</p>
-            <a href="javascript:void()" class="card-link float-right">Card
-                link</a>
-        </div>
-    </div>
-
-</div></div>
