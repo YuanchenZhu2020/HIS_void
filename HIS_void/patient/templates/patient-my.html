@@ -4,7 +4,7 @@
 {% block title %}患者{% endblock %}
 
 {% block body-context %}
-
+{{ '' }}
     <body> <!--data-spy="scroll"  data-offset="40" data-target="#myScrollspy" -->
     <div class="container-fluid">
         <div class="row">
@@ -22,7 +22,7 @@
                                                 <li>
                                                     <div class="icon bg-primary"><i class="las la-stethoscope"></i>
                                                     </div>
-                                                    <a class="timeline-panel text-muted" href="#treatment">
+                                                    <a class="timeline-panel text-muted" href="#future">
                                                         <h4 class="mb-2 mt-1">待诊信息</h4>
                                                         <p class="fs-15 mb-0 ">z</p>
                                                     </a>
@@ -30,16 +30,16 @@
                                                 <li>
                                                     <div class="icon bg-primary"><i class="las la-stethoscope"></i>
                                                     </div>
-                                                    <a class="timeline-panel text-muted" href="#state">
-                                                        <h4 class="mb-2 mt-1">就诊状态</h4>
+                                                    <a class="timeline-panel text-muted" href="#now">
+                                                        <h4 class="mb-2 mt-1">当前就诊</h4>
                                                         <p class="fs-15 mb-0 ">z</p>
                                                     </a>
                                                 </li>
                                                 <li>
                                                     <div class="icon bg-primary"><i class="las la-stethoscope"></i>
                                                     </div>
-                                                    <a class="timeline-panel text-muted" href="#record">
-                                                        <h4 class="mb-2 mt-1">病例记录</h4>
+                                                    <a class="timeline-panel text-muted" href="#past">
+                                                        <h4 class="mb-2 mt-1">就诊记录</h4>
                                                         <p class="fs-15 mb-0 ">his</p>
                                                     </a>
                                                 </li>
@@ -73,36 +73,6 @@
                     </ol>
                 </div>
 
-
-                <!-- 觉得maybe可以用上的组件 -->
-                <div class="d-md-flex d-block mb-3 align-items-center">
-                    <div class="widget-timeline-icon py-3 py-md-2 px-1 overflow-auto">
-                        <ul class="timeline">
-                            <li>
-                                <div class="icon bg-warning"></div>
-                                <a class="timeline-panel text-muted" href="javascript:void(0);">
-                                    <h4 class="mb-2 mt-0 text-warning fs-16 font-w600">Pending</h4>
-                                    <p class="fs-14 mb-0 ">21/08/2020, 12:45 AM</p>
-                                </a>
-                            </li>
-                            <li class="border-info">
-                                <div class="icon bg-info"></div>
-                                <a class="timeline-panel text-muted" href="javascript:void(0);">
-                                    <h4 class="mb-2 mt-0 text-info fs-16 font-w600">On Recovery</h4>
-                                    <p class="fs-14 mb-0 ">21/08/2020, 12:45 AM</p>
-                                </a>
-                            </li>
-                            <li>
-                                <div class="icon bg-primary"></div>
-                                <a class="timeline-panel text-muted" href="javascript:void(0);">
-                                    <h4 class="mb-2 text-primary mt-0 fs-16 font-w600">Recovered</h4>
-                                    <p class="fs-14 mb-0 ">21/08/2020, 12:45 AM</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-
                 <!--这里是医院对外的通知，尤其是相关的紧急通知之类的，比如疫情期间就可以发布一些防疫政策通知-->
                 <div class="col-lg-12">
                     <div class="card patient-detail">
@@ -122,175 +92,105 @@
 
                 <!--待诊信息（包括各种需要检查、复诊的状态信息，需要做的事情（较为急迫的事情）——其实还没太想好
                 但可以确定的一点是，该card也是只可读，不能提交或者修改）-->
-                <div class="col-lg-12" id="treatment">
+                <div class="col-lg-12" id="future">
                     <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">待诊信息</h4>
+                        </div>
                         <div class="card-body">
-                            <div class="profile-tab">
-                                <div class="custom-tab-1">
-                                    <ul class="nav nav-tabs">
-                                        <li class="nav-item"><a href="#outpatient" data-toggle="tab"
-                                                                class="nav-link active show">门诊楼</a>
-                                        </li>
-                                        <li class="nav-item"><a href="#in_hospital" data-toggle="tab" class="nav-link">住院楼</a>
-                                        </li>
-                                        <li class="nav-item"><a href="#check" data-toggle="tab"
-                                                                class="nav-link">检查楼</a>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content">
-                                        <div id="outpatient" class="tab-pane fade active show">
-                                            <div class="profile-outpatient">
-                                                <div class="counter">
-                                                    <table class="table">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>层</th>
-                                                            <th>科室</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        <tr>
-                                                            <td>-2F</td>
-                                                            <td>地下停车场</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>-1F</td>
-                                                            <td>病案室、消毒供应室、地下停车场</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>-1F</td>
-                                                            <td>病案室、消毒供应室、地下停车场</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F1</td>
-                                                            <td>
-                                                                总服务台、挂号收费、药房、血透室、门急诊化验、采血室、急诊、儿科门急诊、门急诊影像（CT室、DR室）、老年病科门诊、留观室、儿童点观室、投诉接待室、住院楼大厅、体检接待站、入出院服务站、医保办
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F2</td>
-                                                            <td>
-                                                                挂号收费、内科专科专家门诊、妇科门诊、产科门诊、内分泌诊疗区、营养科、影像科（CT室、放射室）、介入科（介入手术室）、综合外科/创伤骨科
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F3</td>
-                                                            <td>
-                                                                挂号收费、检验科、内窥镜室、理疗室、电生理室（心电图、脑电图）、超声诊断科（B超室）、外科专科专家门诊、耳鼻咽喉科门诊、皮肤科门诊、整形（美容）外科门诊、综合会诊室、肿瘤科门诊、戒烟门诊、门诊部办公室
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F4</td>
-                                                            <td>麻醉科、手术室、康复医学科治疗室、中医门诊、病理科、输血科</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F5</td>
-                                                            <td>
-                                                                重症医学科（ICU）、重症医学科2区（神经外科组）、心理咨询室、泌尿外科门诊、口腔科门诊、护理门诊、麻醉门诊、萍乡市司法鉴定中心
-                                                            </td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="in_hospital" class="tab-pane fade">
-                                            <div class="profile-in_hospital">
-                                                <div class="counter">
-                                                    <table class="table">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>层</th>
-                                                            <th>科室</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        <tr>
-                                                            <td>F6</td>
-                                                            <td>儿科小儿呼吸科、小儿消化科、新生儿科、儿科ICU</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F7</td>
-                                                            <td>肿瘤科一病区、肿瘤科二病区</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F8</td>
-                                                            <td>妇科、胃肠外科、肛肠外科</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F9</td>
-                                                            <td>肝胆外科、小儿外科、血管介入外科</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F10</td>
-                                                            <td>消化内科一病区、风湿免疫科、疼痛科消化内科二病区、肝病专科</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F11</td>
-                                                            <td>泌尿外科、胸外科、心脏大血管外科</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F12</td>
-                                                            <td>肾病科、血液科、口腔颌面外科、小儿颌面外科</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F13</td>
-                                                            <td>神经外科、耳鼻咽喉科、小儿耳鼻咽喉科</td>
-                                                        </tr>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="check" class="tab-pane fade">
-                                            <div class="profile-check">
-                                                <div class="counter">
-                                                    <table class="table">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>层</th>
-                                                            <th>科室</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                        <tr>
-                                                            <td>F1</td>
-                                                            <td>放疗室、放疗日间病房</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F2</td>
-                                                            <td>药物临床试验机构</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <td>F3</td>
-                                                            <td>核磁共振室</td>
-                                                        </tr>
+                            <div class="table-responsive">
+                                <table class="table table-responsive-md">
+                                    <thead>
+                                    <tr>
+                                        <th><p><strong>#</strong></p></th>
+                                        <th><p><strong>序号</strong></p></th>
+                                        <th><p style="width: 40px"><strong>科室</strong></p></th>
+                                        <th><p style="width: 60px"><strong>门诊</strong></p></th>
+                                        <th><p style="width: 60px"><strong>医生</strong></p></th>
+                                        <th><p><strong>日期</strong></p></th>
+                                        <th><p><strong>时间</strong></p></th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td><strong>01</strong></td>
+                                        <td>1234</td>
+                                        <td>内科</td>
+                                        <td>呼吸门诊</td>
+                                        <td>A医生</td>
+                                        <td>2021-04-09</td>
+                                        <td>13:00</td>
+                                        <td>
+                                            <button type="button" class="btn btn-success light sharp" href="#"
+                                                    style="width: 80px">
+                                                再次预约
+                                            </button>
+                                        </td>
+                                    </tr>
 
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!--当前就诊（包括目前就诊的时候医生需要你进行的所有未进行过的检查）-->
+                <div class="col-lg-12" id="now">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">当前就诊</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-responsive-md">
+                                    <thead>
+                                    <tr>
+                                        <th><p><strong>#</strong></p></th>
+                                        <th><p><strong>名称</strong></p></th>
+                                        <th><p style="width: 60px"><strong>地点</strong></p></th>
+                                        <th><p style="width: 30px"><strong>序号</strong></p></th>
+                                        <th><p><strong>状态</strong></p></th>
+                                        <th></th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr>
+                                        <td><strong>01</strong></td>
+                                        <td>CT</td>
+                                        <td>综合二层102</td>
+                                        <td>189</td>
 
-                <!--就诊状态（以及可以看到当前的检查结果，以及就诊的进度信息，以及以前的诊疗进度，缴费信息——其实还没太想好
-                但可以确定的一点是，该card也是只可读，不能提交或者修改）-->
-                <div class="col-lg-12" id="state">
+                                        <td><span class="badge light badge-danger">等待检查</span></td>
+                                        {#                                                <td><span class="badge light badge-warning">等待结果</span></td>#}
+                                        {#                                                <td><span class="badge light badge-success">已出结果</span></td>#}
+                                        <td>
+                                            <button type="button" class="btn btn-success light sharp" href="#"
+                                                    style="width: 80px">
+                                                详细信息
+                                            </button>
+                                        </td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--就诊记录（包括所有在该医院里边的就诊情况，包括确诊记录和检查记录，需要实现的需求就是
+                1.当点击详情的时候能够弹出相应的详细信息
+                2.每次确诊都必须有相应医生的记录，并允许点击再次预约挂号）-->
+                <div class="col-lg-12" id="past">
                     <div class="card">
                         <div class="card-body">
                             <div class="profile-tab">
                                 <div class="custom-tab-1">
                                     <!-- 上部导航栏信息 -->
                                     <ul class="nav nav-tabs">
-                                        <li class="nav-item"><a href="#all-state" data-toggle="tab"
-                                                                class="nav-link active show">就诊状态</a>
-                                        </li>
+
                                         <li class="nav-item"><a href="#all-record" data-toggle="tab" class="nav-link">确诊记录</a>
                                         </li>
                                         <li class="nav-item"><a href="#all-check" data-toggle="tab"
@@ -300,109 +200,46 @@
 
                                     <!-- 下部展示信息，包括以下内容 -->
                                     <div class="tab-content">
-                                        <!-- 就诊状态 -->
-                                        <div id="all-state" class="tab-pane fade active show">
-                                            <div class="profile-all-state">
-                                                <div class="counter">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-responsive-md">
-                                                            <thead>
-                                                            <tr>
-                                                                <th class="width80"><strong>#</strong></th>
-                                                                <th><strong>医生</strong></th>
-                                                                <th><strong>检查编号</strong></th>
-                                                                <th><strong>日期</strong></th>
-                                                                <th><strong>状态</strong></th>
-{#                                                                <th><strong>PRICE</strong></th>#}
-{#                                                                <th></th>#}
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            <tr>
-                                                                <td><strong>01</strong></td>
-                                                                <td>Mr. Bobby</td>
-                                                                <td>123456</td>
-                                                                <td>01 August 2020</td>
-                                                                <td><span
-                                                                        class="badge light badge-success">Successful</span>
-                                                                </td>
 
-                                                            </tr>
-                                                            <tr>
-                                                                <td><strong>02</strong></td>
-                                                                <td>Mr. Bobby</td>
-                                                                <td>654321</td>
-                                                                <td>01 August 2020</td>
-                                                                <td><span
-                                                                        class="badge light badge-danger">Canceled</span>
-                                                                </td>
-
-                                                            </tr>
-                                                            <tr>
-                                                                <td><strong>03</strong></td>
-                                                                <td>Mr. Bobby</td>
-                                                                <td>098765</td>
-                                                                <td>01 August 2020</td>
-                                                                <td><span
-                                                                        class="badge light badge-warning">Pending</span>
-                                                                </td>
-
-                                                            </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
 
                                         <!-- 确诊记录 -->
-                                        <div id="all-record" class="tab-pane fade">
+                                        <div id="all-record" class="tab-pane fade show active">
                                             <div class="profile-all-record">
                                                 <div class="counter">
                                                     <div class="table-responsive">
                                                         <table class="table table-responsive-md">
                                                             <thead>
                                                             <tr>
-                                                                <th class="width80"><strong>#</strong></th>
-                                                                <th><strong>医生</strong></th>
-
-                                                                <th><strong>日期</strong></th>
-                                                                <th><strong>确诊</strong></th>
-{#                                                                <th><strong>医嘱</strong></th>#}
-                                                                <th><strong>是否建议复诊</strong></th>
-
+                                                                <th><p><strong>#</strong></p></th>
+                                                                <th><p style="width: 100px"><strong>日期</strong></p></th>
+                                                                <th><p style="width: 60px"><strong>医生</strong></p></th>
+                                                                <th><p style="width: 60px"><strong>确诊</strong></p></th>
+                                                                <th></th>
+                                                                <th></th>
                                                             </tr>
                                                             </thead>
                                                             <tbody>
                                                             <tr>
                                                                 <td><strong>01</strong></td>
-                                                                <td>Mr. Bobby</td>
-
-                                                                <td>01 August 2020</td>
-                                                                <td>感冒</td>
-{#                                                                <td>多喝热水</td>#}
-                                                                <td>否</td>
-
+                                                                <td>2020-04-09</td>
+                                                                <td>A医生</td>
+                                                                <td>肺炎</td>
+                                                                <td>
+                                                                    <button type="button"
+                                                                            class="btn btn-success light sharp" href="#"
+                                                                            style="width: 80px">
+                                                                        再次预约
+                                                                    </button>
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button"
+                                                                            class="btn btn-success light sharp" href="#"
+                                                                            style="width: 80px">
+                                                                        确诊详情
+                                                                    </button>
+                                                                </td>
                                                             </tr>
-                                                            <tr>
-                                                                <td><strong>02</strong></td>
-                                                                <td>Mr. Bobby</td>
 
-                                                                <td>01 August 2020</td>
-                                                                <td>抑郁</td>
-{#                                                                <td>ABC三种药，回家好好吃，吃完来复诊</td>#}
-                                                                <td>是</td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><strong>03</strong></td>
-                                                                <td>Mr. Bobby</td>
-
-                                                                <td>01 August 2020</td>
-                                                                <td>外伤</td>
-{#                                                                <td>打完疫苗1天内不要沾水</td>#}
-                                                                <td>否</td>
-
-                                                            </tr>
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -418,353 +255,191 @@
                                                         <table class="table table-responsive-md">
                                                             <thead>
                                                             <tr>
-                                                                <th class="width80"><strong>#</strong></th>
-                                                                <th><strong>PATIENT</strong></th>
-                                                                <th><strong>DR NAME</strong></th>
-                                                                <th><strong>DATE</strong></th>
-                                                                <th><strong>STATUS</strong></th>
-                                                                <th><strong>PRICE</strong></th>
+                                                                <th><p><strong>#</strong></p></th>
+                                                                <th><p style="width: 60px"><strong>名称</strong></p></th>
+                                                                <th><p style="width: 60px"><strong>价格</strong></p></th>
                                                                 <th></th>
                                                             </tr>
                                                             </thead>
                                                             <tbody>
                                                             <tr>
                                                                 <td><strong>01</strong></td>
-                                                                <td>Mr. Bobby</td>
-                                                                <td>Dr. Jackson</td>
-                                                                <td>01 August 2020</td>
-                                                                <td><span
-                                                                        class="badge light badge-success">Successful</span>
-                                                                </td>
-                                                                <td>$21.56</td>
+                                                                <td>B超</td>
+                                                                <td>130</td>
                                                                 <td>
-                                                                    <div class="dropdown">
-                                                                        <button type="button"
-                                                                                class="btn btn-success light sharp"
-                                                                                data-toggle="dropdown">
-                                                                            <svg width="20px" height="20px"
-                                                                                 viewBox="0 0 24 24" version="1.1">
-                                                                                <g stroke="none" stroke-width="1"
-                                                                                   fill="none" fill-rule="evenodd">
-                                                                                    <rect x="0" y="0" width="24"
-                                                                                          height="24"/>
-                                                                                    <circle fill="#000000" cx="5"
-                                                                                            cy="12" r="2"/>
-                                                                                    <circle fill="#000000" cx="12"
-                                                                                            cy="12" r="2"/>
-                                                                                    <circle fill="#000000" cx="19"
-                                                                                            cy="12" r="2"/>
-                                                                                </g>
-                                                                            </svg>
-                                                                        </button>
-                                                                        <div class="dropdown-menu">
-                                                                            <a class="dropdown-item" href="#">Edit</a>
-                                                                            <a class="dropdown-item" href="#">Delete</a>
-                                                                        </div>
-                                                                    </div>
+                                                                    <button type="button"
+                                                                            class="btn btn-success light sharp"
+                                                                            data-toggle="modal"
+                                                                            data-target="#myModal"
+                                                                            style="width: 80px">
+                                                                        结果详情
+                                                                    </button>
                                                                 </td>
                                                             </tr>
-                                                            <tr>
-                                                                <td><strong>02</strong></td>
-                                                                <td>Mr. Bobby</td>
-                                                                <td>Dr. Jackson</td>
-                                                                <td>01 August 2020</td>
-                                                                <td><span
-                                                                        class="badge light badge-danger">Canceled</span>
-                                                                </td>
-                                                                <td>$21.56</td>
-                                                                <td>
-                                                                    <div class="dropdown">
-                                                                        <button type="button"
-                                                                                class="btn btn-danger light sharp"
-                                                                                data-toggle="dropdown">
-                                                                            <svg width="20px" height="20px"
-                                                                                 viewBox="0 0 24 24" version="1.1">
-                                                                                <g stroke="none" stroke-width="1"
-                                                                                   fill="none" fill-rule="evenodd">
-                                                                                    <rect x="0" y="0" width="24"
-                                                                                          height="24"/>
-                                                                                    <circle fill="#000000" cx="5"
-                                                                                            cy="12" r="2"/>
-                                                                                    <circle fill="#000000" cx="12"
-                                                                                            cy="12" r="2"/>
-                                                                                    <circle fill="#000000" cx="19"
-                                                                                            cy="12" r="2"/>
-                                                                                </g>
-                                                                            </svg>
-                                                                        </button>
-                                                                        <div class="dropdown-menu">
-                                                                            <a class="dropdown-item" href="#">Edit</a>
-                                                                            <a class="dropdown-item" href="#">Delete</a>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td><strong>03</strong></td>
-                                                                <td>Mr. Bobby</td>
-                                                                <td>Dr. Jackson</td>
-                                                                <td>01 August 2020</td>
-                                                                <td><span
-                                                                        class="badge light badge-warning">Pending</span>
-                                                                </td>
-                                                                <td>$21.56</td>
-                                                                <td>
-                                                                    <div class="dropdown">
-                                                                        <button type="button"
-                                                                                class="btn btn-warning light sharp"
-                                                                                data-toggle="dropdown">
-                                                                            <svg width="20px" height="20px"
-                                                                                 viewBox="0 0 24 24" version="1.1">
-                                                                                <g stroke="none" stroke-width="1"
-                                                                                   fill="none" fill-rule="evenodd">
-                                                                                    <rect x="0" y="0" width="24"
-                                                                                          height="24"/>
-                                                                                    <circle fill="#000000" cx="5"
-                                                                                            cy="12" r="2"/>
-                                                                                    <circle fill="#000000" cx="12"
-                                                                                            cy="12" r="2"/>
-                                                                                    <circle fill="#000000" cx="19"
-                                                                                            cy="12" r="2"/>
-                                                                                </g>
-                                                                            </svg>
-                                                                        </button>
-                                                                        <div class="dropdown-menu">
-                                                                            <a class="dropdown-item" href="#">Edit</a>
-                                                                            <a class="dropdown-item" href="#">Delete</a>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                            </tr>
+
                                                             </tbody>
                                                         </table>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    <!--病例记录（包括个人的说明性信息，包括过敏史等等，这个跟医院没有关系，但这个card只允许读，不允许个人修改）-->
-                    <div class="col-lg-12" id="record">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="profile-tab">
-                                    <div class="custom-tab-1">
-                                        <ul class="nav nav-tabs">
-                                            <li class="nav-item"><a href="#allergy" data-toggle="tab"
-                                                                    class="nav-link active show">过敏史</a>
-                                            </li>
-                                            <li class="nav-item"><a href="#others" data-toggle="tab"
-                                                                    class="nav-link">其他说明</a>
-                                            </li>
-                                        </ul>
-
-
-                                        <div class="tab-content">
-
-                                            <div id="allergy" class="tab-pane fade active show">
-                                                <div class="profile-allergy">
-                                                    <div id="accordion-two" class="accordion accordion-danger-solid">
-                                                        <div class="accordion__item">
-                                                            <div class="accordion__header" data-toggle="collapse"
-                                                                 data-target="#bordered_collapseOne"><span
-                                                                    class="accordion__header--text">抗生素A过敏</span>
-                                                                <span class="accordion__header--indicator"></span>
-                                                            </div>
-                                                            <div id="bordered_collapseOne"
-                                                                 class="collapse accordion__body show"
-                                                                 data-parent="#accordion-two">
-                                                                <div class="accordion__body--text">
-                                                                    主要症状为长红斑
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="accordion__item">
-                                                            <div class="accordion__header collapsed"
-                                                                 data-toggle="collapse"
-                                                                 data-target="#bordered_collapseTwo"><span
-                                                                    class="accordion__header--text">菠萝过敏</span>
-                                                                <span class="accordion__header--indicator"></span>
-                                                            </div>
-                                                            <div id="bordered_collapseTwo"
-                                                                 class="collapse accordion__body"
-                                                                 data-parent="#accordion-two">
-                                                                <div class="accordion__body--text">
-                                                                    主要症状为发烧，起水泡
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="accordion__item">
-                                                            <div class="accordion__header collapsed"
-                                                                 data-toggle="collapse"
-                                                                 data-target="#bordered_collapseThree"><span
-                                                                    class="accordion__header--text">先天性心脏病</span>
-                                                                <span class="accordion__header--indicator"></span>
-                                                            </div>
-                                                            <div id="bordered_collapseThree"
-                                                                 class="collapse accordion__body"
-                                                                 data-parent="#accordion-two">
-                                                                <div class="accordion__body--text">
-                                                                    曾有一次昏厥症状
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                        <!-- 弹出框 需要进行一些简单的配置即可-->
+                                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+                                             aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                                aria-hidden="true">
+                                                            &times;
+                                                        </button>
+                                                        <h4 class="modal-title" id="myModalLabel">
+                                                            检查结果
+                                                        </h4>
                                                     </div>
-                                                </div>
-                                            </div>
-                                            <div id="others" class="tab-pane fade">
-                                                <div class="profile-others">
-                                                    <div class="pt-4 border-bottom-1 pb-3">
-                                                        <h4 class="text-primary">其他说明</h4>
-                                                        <p class="mb-2">A wonderful serenity has taken possession of my
-                                                            entire soul, like these sweet mornings of spring which I
-                                                            enjoy
-                                                            with my whole heart. I am alone, and feel the charm of
-                                                            existence
-                                                            was created for the bliss of souls like mine.I am so happy,
-                                                            my
-                                                            dear friend, so absorbed in the exquisite sense of mere
-                                                            tranquil
-                                                            existence, that I neglect my talents.</p>
-                                                        <p>A collection of textile samples lay spread out on the table -
-                                                            Samsa was a travelling salesman - and above it there hung a
-                                                            picture that he had recently cut out of an illustrated
-                                                            magazine
-                                                            and housed in a nice, gilded frame.</p>
+                                                    <div class="modal-body">
+                                                        在这里添加一些文本
+                                                        写下很多很多很多结果信息，或许可以放图片
                                                     </div>
-                                                </div>
-                                            </div>
-
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-primary"
+                                                                data-dismiss="modal">确定
+                                                        </button>
+{#                                                        <button type="button" class="btn btn-default">#}
+{#                                                            确定#}
+{#                                                        </button>#}
+                                                    </div>
+                                                </div><!-- /.modal-content -->
+                                            </div><!-- /.modal -->
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    <!--个人的设置信息（包括修改电话号码、邮箱、密码等等）-->
-                    <div class="col-lg-12" id="settings">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="profile-tab">
-                                    <div class="custom-tab-1">
-                                        <ul class="nav nav-tabs">
-                                            <li class="nav-item"><a href="#about-me" data-toggle="tab"
-                                                                    class="nav-link active show">当前设置信息</a>
-                                            </li>
-                                            <li class="nav-item"><a href="#personal-settings" data-toggle="tab"
-                                                                    class="nav-link">修改信息</a>
-                                            </li>
 
-                                        </ul>
-                                        <div class="tab-content">
+                <!--个人的设置信息（包括修改电话号码、邮箱、密码等等）-->
+                <div class="col-lg-12" id="settings">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="profile-tab">
+                                <div class="custom-tab-1">
+                                    <ul class="nav nav-tabs">
+                                        <li class="nav-item"><a href="#about-me" data-toggle="tab"
+                                                                class="nav-link active show">当前设置信息</a>
+                                        </li>
+                                        <li class="nav-item"><a href="#personal-settings" data-toggle="tab"
+                                                                class="nav-link">修改信息</a>
+                                        </li>
 
-                                            <div id="about-me" class="tab-pane fade active show">
-                                                <div class="profile-about-me">
-                                                    <div class="pt-4 border-bottom-1 pb-3">
-                                                        <h4 class="text-primary">About Me</h4>
-                                                        <p class="mb-2">A wonderful serenity has taken possession of my
-                                                            entire soul, like these sweet mornings of spring which I
-                                                            enjoy
-                                                            with my whole heart. I am alone, and feel the charm of
-                                                            existence
-                                                            was created for the bliss of souls like mine.I am so happy,
-                                                            my
-                                                            dear friend, so absorbed in the exquisite sense of mere
-                                                            tranquil
-                                                            existence, that I neglect my talents.</p>
-                                                        <p>A collection of textile samples lay spread out on the table -
-                                                            Samsa was a travelling salesman - and above it there hung a
-                                                            picture that he had recently cut out of an illustrated
-                                                            magazine
-                                                            and housed in a nice, gilded frame.</p>
+                                    </ul>
+                                    <div class="tab-content">
+
+                                        <div id="about-me" class="tab-pane fade active show">
+                                            <div class="profile-about-me">
+                                                <div class="pt-4 border-bottom-1 pb-3">
+                                                    <h4 class="text-primary">About Me</h4>
+                                                    <p class="mb-2">A wonderful serenity has taken possession of my
+                                                        entire soul, like these sweet mornings of spring which I
+                                                        enjoy
+                                                        with my whole heart. I am alone, and feel the charm of
+                                                        existence
+                                                        was created for the bliss of souls like mine.I am so happy,
+                                                        my
+                                                        dear friend, so absorbed in the exquisite sense of mere
+                                                        tranquil
+                                                        existence, that I neglect my talents.</p>
+                                                    <p>A collection of textile samples lay spread out on the table -
+                                                        Samsa was a travelling salesman - and above it there hung a
+                                                        picture that he had recently cut out of an illustrated
+                                                        magazine
+                                                        and housed in a nice, gilded frame.</p>
+                                                </div>
+                                            </div>
+                                            <div class="profile-personal-info">
+                                                <h4 class="text-primary mb-4">Personal Information</h4>
+                                                <div class="row mb-2">
+                                                    <div class="col-3">
+                                                        <h5 class="f-w-500">Name <span class="pull-right">:</span>
+                                                        </h5>
+                                                    </div>
+                                                    <div class="col-9"><span>Mitchell C.Shay</span>
                                                     </div>
                                                 </div>
-                                                <div class="profile-personal-info">
-                                                    <h4 class="text-primary mb-4">Personal Information</h4>
-                                                    <div class="row mb-2">
-                                                        <div class="col-3">
-                                                            <h5 class="f-w-500">Name <span class="pull-right">:</span>
-                                                            </h5>
-                                                        </div>
-                                                        <div class="col-9"><span>Mitchell C.Shay</span>
-                                                        </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-3">
+                                                        <h5 class="f-w-500">Email <span class="pull-right">:</span>
+                                                        </h5>
                                                     </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-3">
-                                                            <h5 class="f-w-500">Email <span class="pull-right">:</span>
-                                                            </h5>
-                                                        </div>
-                                                        <div class="col-9"><span>example@examplel.com</span>
-                                                        </div>
+                                                    <div class="col-9"><span>example@examplel.com</span>
                                                     </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-3">
-                                                            <h5 class="f-w-500">Availability <span
-                                                                    class="pull-right">:</span></h5>
-                                                        </div>
-                                                        <div class="col-9"><span>Full Time (Free Lancer)</span>
-                                                        </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-3">
+                                                        <h5 class="f-w-500">Availability <span
+                                                                class="pull-right">:</span></h5>
                                                     </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-3">
-                                                            <h5 class="f-w-500">Age <span class="pull-right">:</span>
-                                                            </h5>
-                                                        </div>
-                                                        <div class="col-9"><span>27</span>
-                                                        </div>
+                                                    <div class="col-9"><span>Full Time (Free Lancer)</span>
                                                     </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-3">
-                                                            <h5 class="f-w-500">Location <span
-                                                                    class="pull-right">:</span>
-                                                            </h5>
-                                                        </div>
-                                                        <div class="col-9"><span>Rosemont Avenue Melbourne,
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-3">
+                                                        <h5 class="f-w-500">Age <span class="pull-right">:</span>
+                                                        </h5>
+                                                    </div>
+                                                    <div class="col-9"><span>27</span>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-3">
+                                                        <h5 class="f-w-500">Location <span
+                                                                class="pull-right">:</span>
+                                                        </h5>
+                                                    </div>
+                                                    <div class="col-9"><span>Rosemont Avenue Melbourne,
                                                                 Florida</span>
-                                                        </div>
                                                     </div>
-                                                    <div class="row mb-2">
-                                                        <div class="col-3">
-                                                            <h5 class="f-w-500">Year Experience <span
-                                                                    class="pull-right">:</span></h5>
-                                                        </div>
-                                                        <div class="col-9"><span>07 Year Experiences</span>
-                                                        </div>
+                                                </div>
+                                                <div class="row mb-2">
+                                                    <div class="col-3">
+                                                        <h5 class="f-w-500">Year Experience <span
+                                                                class="pull-right">:</span></h5>
+                                                    </div>
+                                                    <div class="col-9"><span>07 Year Experiences</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div id="personal-settings" class="tab-pane fade">
-                                                <div class="pt-3">
-                                                    <div class="settings-form">
-                                                        <h4 class="text-primary">Account Setting</h4>
-                                                        <form>
-                                                            <div class="form-row">
-                                                                <div class="form-group col-md-6">
-                                                                    <label>Email</label>
-                                                                    <input type="email" placeholder="Email"
-                                                                           class="form-control">
-                                                                </div>
-                                                                <div class="form-group col-md-6">
-                                                                    <label>Password</label>
-                                                                    <input type="password" placeholder="Password"
-                                                                           class="form-control">
-                                                                </div>
-                                                            </div>
-                                                            <div class="form-group">
-                                                                <label>Phone</label>
-                                                                <input type="text" placeholder="输入更新的手机号"
+                                        </div>
+                                        <div id="personal-settings" class="tab-pane fade">
+                                            <div class="pt-3">
+                                                <div class="settings-form">
+                                                    <h4 class="text-primary">Account Setting</h4>
+                                                    <form>
+                                                        <div class="form-row">
+                                                            <div class="form-group col-md-6">
+                                                                <label>Email</label>
+                                                                <input type="email" placeholder="Email"
                                                                        class="form-control">
                                                             </div>
+                                                            <div class="form-group col-md-6">
+                                                                <label>Password</label>
+                                                                <input type="password" placeholder="Password"
+                                                                       class="form-control">
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label>Phone</label>
+                                                            <input type="text" placeholder="输入更新的手机号"
+                                                                   class="form-control">
+                                                        </div>
 
-                                                            <button class="btn btn-primary" type="submit">重置
-                                                            </button>
-                                                        </form>
-                                                    </div>
+                                                        <button class="btn btn-primary" type="submit">重置
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             </div>
                                         </div>
@@ -773,10 +448,140 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
+
             </div>
         </div>
+    </div>
+
+
+    <!-- 觉得maybe可以用上的组件 -->
+    {#                <div class="d-md-flex d-block mb-3 align-items-center">#}
+    {#                    <div class="widget-timeline-icon py-3 py-md-2 px-1 overflow-auto">#}
+    {#                        <ul class="timeline">#}
+    {#                            <li>#}
+    {#                                <div class="icon bg-warning"></div>#}
+    {#                                <a class="timeline-panel text-muted" href="javascript:void(0);">#}
+    {#                                    <h4 class="mb-2 mt-0 text-warning fs-16 font-w600">Pending</h4>#}
+    {#                                    <p class="fs-14 mb-0 ">21/08/2020, 12:45 AM</p>#}
+    {#                                </a>#}
+    {#                            </li>#}
+    {#                            <li class="border-info">#}
+    {#                                <div class="icon bg-info"></div>#}
+    {#                                <a class="timeline-panel text-muted" href="javascript:void(0);">#}
+    {#                                    <h4 class="mb-2 mt-0 text-info fs-16 font-w600">On Recovery</h4>#}
+    {#                                    <p class="fs-14 mb-0 ">21/08/2020, 12:45 AM</p>#}
+    {#                                </a>#}
+    {#                            </li>#}
+    {#                            <li>#}
+    {#                                <div class="icon bg-primary"></div>#}
+    {#                                <a class="timeline-panel text-muted" href="javascript:void(0);">#}
+    {#                                    <h4 class="mb-2 text-primary mt-0 fs-16 font-w600">Recovered</h4>#}
+    {#                                    <p class="fs-14 mb-0 ">21/08/2020, 12:45 AM</p>#}
+    {#                                </a>#}
+    {#                            </li>#}
+    {#                        </ul>#}
+    {#                    </div>#}
+    {#                </div>#}
+
+
+    {#    <div class="col-lg-12" id="record">#}
+    {#                        <div class="card">#}
+    {#                            <div class="card-body">#}
+    {#                                <div class="profile-tab">#}
+    {#                                    <div class="custom-tab-1">#}
+    {#                                        <ul class="nav nav-tabs">#}
+    {#                                            <li class="nav-item"><a href="#allergy" data-toggle="tab"#}
+    {#                                                                    class="nav-link active show">过敏史</a>#}
+    {#                                            </li>#}
+    {#                                            <li class="nav-item"><a href="#others" data-toggle="tab"#}
+    {#                                                                    class="nav-link">其他说明</a>#}
+    {#                                            </li>#}
+    {#                                        </ul>#}
+    {##}
+    {##}
+    {#                                        <div class="tab-content">#}
+    {##}
+    {#                                            <div id="allergy" class="tab-pane fade active show">#}
+    {#                                                <div class="profile-allergy">#}
+    {#                                                    <div id="accordion-two" class="accordion accordion-danger-solid">#}
+    {#                                                        <div class="accordion__item">#}
+    {#                                                            <div class="accordion__header" data-toggle="collapse"#}
+    {#                                                                 data-target="#bordered_collapseOne"><span#}
+    {#                                                                    class="accordion__header--text">抗生素A过敏</span>#}
+    {#                                                                <span class="accordion__header--indicator"></span>#}
+    {#                                                            </div>#}
+    {#                                                            <div id="bordered_collapseOne"#}
+    {#                                                                 class="collapse accordion__body show"#}
+    {#                                                                 data-parent="#accordion-two">#}
+    {#                                                                <div class="accordion__body--text">#}
+    {#                                                                    主要症状为长红斑#}
+    {#                                                                </div>#}
+    {#                                                            </div>#}
+    {#                                                        </div>#}
+    {#                                                        <div class="accordion__item">#}
+    {#                                                            <div class="accordion__header collapsed"#}
+    {#                                                                 data-toggle="collapse"#}
+    {#                                                                 data-target="#bordered_collapseTwo"><span#}
+    {#                                                                    class="accordion__header--text">菠萝过敏</span>#}
+    {#                                                                <span class="accordion__header--indicator"></span>#}
+    {#                                                            </div>#}
+    {#                                                            <div id="bordered_collapseTwo"#}
+    {#                                                                 class="collapse accordion__body"#}
+    {#                                                                 data-parent="#accordion-two">#}
+    {#                                                                <div class="accordion__body--text">#}
+    {#                                                                    主要症状为发烧，起水泡#}
+    {#                                                                </div>#}
+    {#                                                            </div>#}
+    {#                                                        </div>#}
+    {#                                                        <div class="accordion__item">#}
+    {#                                                            <div class="accordion__header collapsed"#}
+    {#                                                                 data-toggle="collapse"#}
+    {#                                                                 data-target="#bordered_collapseThree"><span#}
+    {#                                                                    class="accordion__header--text">先天性心脏病</span>#}
+    {#                                                                <span class="accordion__header--indicator"></span>#}
+    {#                                                            </div>#}
+    {#                                                            <div id="bordered_collapseThree"#}
+    {#                                                                 class="collapse accordion__body"#}
+    {#                                                                 data-parent="#accordion-two">#}
+    {#                                                                <div class="accordion__body--text">#}
+    {#                                                                    曾有一次昏厥症状#}
+    {#                                                                </div>#}
+    {#                                                            </div>#}
+    {#                                                        </div>#}
+    {#                                                    </div>#}
+    {#                                                </div>#}
+    {#                                            </div>#}
+    {#                                            <div id="others" class="tab-pane fade">#}
+    {#                                                <div class="profile-others">#}
+    {#                                                    <div class="pt-4 border-bottom-1 pb-3">#}
+    {#                                                        <h4 class="text-primary">其他说明</h4>#}
+    {#                                                        <p class="mb-2">A wonderful serenity has taken possession of my#}
+    {#                                                            entire soul, like these sweet mornings of spring which I#}
+    {#                                                            enjoy#}
+    {#                                                            with my whole heart. I am alone, and feel the charm of#}
+    {#                                                            existence#}
+    {#                                                            was created for the bliss of souls like mine.I am so happy,#}
+    {#                                                            my#}
+    {#                                                            dear friend, so absorbed in the exquisite sense of mere#}
+    {#                                                            tranquil#}
+    {#                                                            existence, that I neglect my talents.</p>#}
+    {#                                                        <p>A collection of textile samples lay spread out on the table -#}
+    {#                                                            Samsa was a travelling salesman - and above it there hung a#}
+    {#                                                            picture that he had recently cut out of an illustrated#}
+    {#                                                            magazine#}
+    {#                                                            and housed in a nice, gilded frame.</p>#}
+    {#                                                    </div>#}
+    {#                                                </div>#}
+    {#                                            </div>#}
+    {##}
+    {#                                        </div>#}
+    {#                                    </div>#}
+    {#                                </div>#}
+    {#                            </div>#}
+    {#                        </div>#}
+    {#                    </div>#}
+
 
     </body>
 

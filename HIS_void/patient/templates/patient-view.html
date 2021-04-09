@@ -4,13 +4,19 @@
 {% block title %}患者{% endblock %}
 
 {% block body-context %}
+<style type="text/css">
+.widget-timeline-icon2 li {
+    padding-bottom: 73px;
+}
 
+</style>
     <body> <!--data-spy="scroll"  data-offset="40" data-target="#myScrollspy" -->
+
     <div class="container-fluid">
         <div class="row">
             <!-- 左边栏信息 -->
             <div id="myScrollspy" class="col-sm-3"> <!-- class="col-sm-3" -->
-                <div class="container-fluid">
+{#                <div class="container-fluid">#}
                     <div class="container-fluid">
                         <ul class="nav nav-pills nav-stacked">
                             <div>  <!--style="display: fixed"  class="col-xl-3 col-xxl-4 col-md-6"-->
@@ -55,7 +61,7 @@
                             </div>
                         </ul>
                     </div>
-                </div>
+{#                </div>#}
             </div>
 
             <!-- 右边滚动栏信息，包括以下几部分 -->
