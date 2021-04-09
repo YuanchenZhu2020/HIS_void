@@ -3,6 +3,8 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 
+import his.models as his_model
+
 from rbac import models as rbac_models
 
 
@@ -11,7 +13,8 @@ class IndexView(View):
 
     def get(self, request):
         if 'user_name' in request.session:
-            return redirect(reverse("profile"))
+            print("session中存在user_name")
+            return redirect(reverse("outpatient"))
         return render(request, IndexView.template_name)
 
 
@@ -21,16 +24,19 @@ class LoginView(View):
 
     def get(self, request):
         if 'user_name' in request.session:
-            return redirect(reverse("profile"))
+            print("session中存在user_name")
+            return redirect(reverse("outpatient"))
         return render(request, LoginView.template_name, context={"user_type": "staff"})
 
     def post(self, request):
         username = request.POST.get("username")
         password = request.POST.get("password")
         user = rbac_models.UserInfo.objects.filter(username=username, password=password).first()
+        staff = his_model.Staff.objects.filter(user_obj=user).first()
         if user:
             request.session["user_name"] = user.username
-            return redirect(reverse("profile"))
+            request.session["staff_name"] = staff.name
+            return redirect(reverse("outpatient"))
         else:
             context = {"user_type": "staff", "name_or_password_error": True}
             return render(request, LoginView.template_name, context)
@@ -60,7 +66,7 @@ class ForgotPassword(View):
 
 class Logout(View):
     def get(self, request):
-        del request.session['user_name']
+        del request.session["user_name"]
         return redirect(reverse("index"))
 
 
@@ -72,3 +78,10 @@ class Profile(View):
             return redirect(reverse("index"))
         # 根据用户名查询需要的信息，用户名通过login传递?
         return render(request, Profile.template_name)
+
+
+class Outpatient(View):
+    template_name = 'page-outpatient-workspace.html'
+
+    def get(self, request):
+        return render(request, Outpatient.template_name)
