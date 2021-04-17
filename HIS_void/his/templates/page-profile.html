@@ -2,13 +2,12 @@
 {% load static %}
 {% block title %}个人中心{% endblock %}
 {% block body-context %}
-    {{ chang_gui }}
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-3 shadow-lg">
                 <div class="card">
-                    <div class="card-header justify-content-center text-white bg-primary">
-                        <strong>个人信息</strong>
+                    <div class="card-header justify-content-center">
+                        <h3>近期新闻</h3>
                     </div>
                     <div class="card-content text-center">
                         <div class="">
@@ -38,90 +37,82 @@
             </div>
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header justify-content-center text-white bg-warning">待诊患者</div>
-                    <div style="overflow-x: auto; overflow-y: auto; height: 300px; ">
-                        <table class="table table-hover small text-center">
-                            <thead>
-                            <tr>
-                                <th>会诊号</th>
-                                <th>姓名</th>
-                                <th>性别</th>
-                                <th>年龄</th>
-                                <th>紧急程度</th>
+                    <div class="card-header">
+                        <H3>常用站点</H3>
+                    </div>
 
-                            </tr>
-                            </thead>
-                            <tbody>
-                            <tr>
-                                <td>李国铭</td>
-                                <td><span class="badge badge-primary light">普通</span>
-                                </td>
-                                <td>114514</td>
-                            </tr>
-                            <tr>
-                                <td>特狼普</td>
-                                <td><span class="badge badge-danger light">危急</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>好可怕</td>
-                                <td><span class="badge badge-primary light">普通</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>两只老虎</td>
-                                <td><span class="badge badge-primary light">Sale</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Kolor Tea Shirt</td>
-                                <td><span class="badge badge-primary light">Sale</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Kolor Tea Shirt</td>
-                                <td><span class="badge badge-primary light">Sale</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Kolor Tea Shirt</td>
-                                <td><span class="badge badge-success">Tax</span>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Blue Backpack</td>
-                                <td><span class="badge badge-danger light">Extended</span>
-                                </td>
-                            </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+                    <div class="card-body">
+                        <ul class="row">
+                            <li class="col-md-3">
+                                <div class="container shadow-lg">
+                                    <a href="https://gsmis.e2.buaa.edu.cn:443/" target="_blank">
+                                        <h4 class=""> 研究生管理信息系统
+                                        </h4>
+                                        <small>gsmis.buaa.edu.cn</small>
+                                    </a>
+                                </div>
+                            </li>
+                            <li class="col-md-3">
+                                <div class="container shadow-lg">
+                                    <a href="https://gsmis.e2.buaa.edu.cn:443/" target="_blank">
+                                        <h4 class="mb-0 mt-2"> 研究生管理信息系统
+                                        </h4>
+                                        <small>gsmis.buaa.edu.cn</small>
+                                    </a>
+                                </div>
+                            </li>
+                            <li class="col-md-3">
+                                <div class="container shadow-lg">
+                                    <a href="https://gsmis.e2.buaa.edu.cn:443/" target="_blank">
+                                        <h4 class="mb-0 mt-2"> 研究生管理信息系统
+                                        </h4>
+                                        <small>gsmis.buaa.edu.cn</small>
+                                    </a>
+                                </div>
+                            </li>
+                            <li class="col-md-3">
+                                <div class="container shadow-lg">
+                                    <a href="https://gsmis.e2.buaa.edu.cn:443/" target="_blank">
+                                        <h4 class="mb-0 mt-2"> 研究生管理信息系统
+                                        </h4>
+                                        <small>gsmis.buaa.edu.cn</small>
+                                    </a>
+                                </div>
+                            </li>
+                            <li class="col-md-3">
+                                <div class="container shadow-lg">
+                                    <a href="https://gsmis.e2.buaa.edu.cn:443/" target="_blank">
+                                        <h4 class="mb-0 mt-2"> 研究生管理信息系统
+                                        </h4>
+                                        <small>gsmis.buaa.edu.cn</small>
+                                    </a>
+                                </div>
+                            </li>
+                            <li class="col-md-3">
+                                <div class="container shadow-lg">
+                                    <a href="https://gsmis.e2.buaa.edu.cn:443/" target="_blank">
+                                        <h4 class="mb-0 mt-2"> 研究生管理信息系统
+                                        </h4>
+                                        <small>gsmis.buaa.edu.cn</small>
+                                    </a>
+                                </div>
+                            </li>
 
-        </div>
-        <div class="card abilities-chart">
-            <div class="card-header border-0 pb-0">
-                <h4 class="fs-20 font-w600">Doctors Abilities</h4>
-            </div>
-            <div class="card-body">
-                <div id="pie-chart" class="ct-chart ct-golden-section chartlist-chart"></div>
-                <div class="chart-point">
-                    <div>
-                        <span class="a"></span>
-                        <span class="text-ov px-1 fs-15">Operation</span>
-                    </div>
-                    <div>
-                        <span class="b"></span>
-                        <span class="text-ov px-1 fs-15">Theraphy</span>
-                    </div>
-                    <div>
-                        <span class="c"></span>
-                        <span class="text-ov px-1 fs-15">Mediation</span>
+                        </ul>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+    <div class="card abilities-chart">
+        <div class="card-header">
+            <h4>备忘录</h4>
+        </div>
+        <div class="card-body">
+        </div>
+    </div>
+    </div>
+
 
     </div>
 {% endblock %}
