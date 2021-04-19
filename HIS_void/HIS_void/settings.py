@@ -125,7 +125,7 @@ STATICFILES_DIRS = (
 
 
 # Auth user model
-# AUTH_USER_MODEL = "rbac.UserInfo"
+AUTH_USER_MODEL = "rbac.UserInfo"
 
 # Role-Based Access Control
 PERMISSION_URL_KEY = "url_key"

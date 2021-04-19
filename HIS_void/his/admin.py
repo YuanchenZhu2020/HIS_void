@@ -5,24 +5,24 @@ from .models import Staff, Department, LoginLog
 
 class StaffAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "user_obj", "name", "gender", "dept_id"
+        "id", "user", "name", "gender", "dept"
     )
-    list_filter = ("gender", "dept_id")
-    search_fields = ("name", "dept_id")
+    list_filter = ("gender", "dept")
+    search_fields = ("name", "dept")
 
 
 class DeptAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "name"
+        "dept_id", "name"
     )
 
 
 class LoginLogAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "user_id", "create_time", "ip_address"
+        "id", "user_id", "login_time", "ip_address"
     )
-    list_filter = ("create_time", "ip_address")
-    search_fields = ("create_time", "ip_address")
+    list_filter = ("login_time", "ip_address")
+    search_fields = ("login_time", "ip_address")
 
 
 admin.site.register(Staff, StaffAdmin)
