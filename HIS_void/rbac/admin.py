@@ -5,7 +5,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.utils.translation import gettext_lazy as _
 
-from .models import UserInfo, Role, Permission, PermGroup
+from .models import URLPermission, UserGroup, UserInfo, Role, Permission, PermGroup
 
 
 # class UserInfoAdmin(admin.ModelAdmin):
@@ -23,7 +23,11 @@ class UserCreationForm(forms.ModelForm):
 
     class Meta:
         model = UserInfo
-        fields = ("username", "is_active", "is_admin", "is_superuser")
+        fields = (
+            "username", "password", 
+            "groups", "url_permissions", 
+            "is_active", "is_admin", "is_superuser",
+        )
 
     def clean_password2(self):
         # 检查前后输入的密码是否相同
@@ -53,7 +57,11 @@ class UserChangeForm(forms.ModelForm):
 
     class Meta:
         model = UserInfo
-        fields = ("username", "password", "is_active")
+        fields = (
+            "username", "password",
+            "groups", "url_permissions", 
+            "is_active", "is_admin", "is_superuser",
+        )
 
     def clean_password(self):
         # Regardless of what the user provides, return the initial value.
@@ -71,23 +79,36 @@ class UserAdmin(BaseUserAdmin):
     # The fields to be used in displaying the User model.
     # These override the definitions on the base UserAdmin
     # that reference specific fields on auth.User.
-    list_display = ("username", "is_admin", "create_time")
+    list_display = ("username", "is_admin", "create_time", "last_login")
     list_filter = ("is_admin", "create_time")
     fieldsets = (
         (None, {"fields": ("username", "password")}),
-        (_("登录信息"), {"fields": ("last_login",)}),
-        (_("个人信息"), {"fields": ()}),
-        (_("人员权限"), {"fields": ("is_active", "is_admin", "is_superuser")}),
+        (_("用户组"), {"fields": ("groups", )}), 
+        (_("直接权限"), {"fields": ("url_permissions", )}), 
+        (_("账号状态"), {"fields": ("is_active", "is_admin", "is_superuser")}),
     )
     # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
     # overrides get_fieldsets to use this attribute when creating a user.
     add_fieldsets = (
         (None, {
-            'classes': ("wide",),
-            'fields': (
+            "classes": ("wide",),
+            "fields": (
                 "username", "password1", "password2", 
-                "is_active", "is_admin", "is_superuser",
             ),
+        }),
+        (_("用户组"), {
+            "classes": ("wide",), 
+            "fields": ("groups", ),
+        }), 
+        (_("直接权限"), {
+            "classes": ("wide",), 
+            "fields": ("url_permissions", )
+        }), 
+        (_("账号状态"), {
+            "classes": ("wide",), 
+            "fields": (
+                "is_active", "is_admin", "is_superuser"
+            )
         }),
     )
     search_fields = ("username",)
@@ -98,6 +119,26 @@ admin.site.register(UserInfo, UserAdmin)
 # ... and, since we're not using Django's built-in permissions,
 # unregister the Group model from admin.
 admin.site.unregister(Group)
+
+
+class UserGroupAdmin(admin.ModelAdmin):
+    list_display = (
+        "ug_id", "name",
+    )
+    list_filter = ("ug_id", "name")
+    search_fields = ("ug_id", "name")
+
+admin.site.register(UserGroup, UserGroupAdmin)
+
+
+class URLPermissionAdmin(admin.ModelAdmin):
+    list_display = (
+        "name", "url", "codename", "create_time", "perm_group",
+    )
+    list_filter = ("name", "codename", "create_time", "perm_group",)
+    search_fields = ("name", "codename", "url")
+
+admin.site.register(URLPermission, URLPermissionAdmin)
 
 
 class RoleAdmin(admin.ModelAdmin):
@@ -125,6 +166,6 @@ class PermGroupAdmin(admin.ModelAdmin):
 
 
 # admin.site.register(UserInfo, UserInfoAdmin)
-admin.site.register(Role, RoleAdmin)
-admin.site.register(Permission, PermissionAdmin)
-admin.site.register(PermGroup, PermGroupAdmin)
+# admin.site.register(Role, RoleAdmin)
+# admin.site.register(Permission, PermissionAdmin)
+# admin.site.register(PermGroup, PermGroupAdmin)

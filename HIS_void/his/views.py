@@ -13,8 +13,6 @@ class IndexView(View):
     template_name = "index.html"
 
     def get(self, request):
-        # if "user_name" in request.session:
-        #     print("session中存在user_name")
         if request.user.is_authenticated:
             return redirect(reverse("profile"))
         else:
@@ -72,9 +70,11 @@ class ForgotPasswordView(View):
 
 
 class LogoutView(View):
+    template_name = "index"
+
     def get(self, request):
         request.session.clear()
-        return redirect(reverse("index"))
+        return redirect(reverse(LogoutView.template_name))
 
 
 class ProfileView(View):
@@ -86,7 +86,7 @@ class ProfileView(View):
             return redirect(reverse("index"))
 
         # 根据用户名查询需要的信息，用户名通过login传递?
-        chang_gui = request.GET.get("chang_gui")
+        # chang_gui = request.GET.get("chang_gui")
         return render(request, ProfileView.template_name, locals())
 
     def post(self, request):

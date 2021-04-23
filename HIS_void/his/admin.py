@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from .models import Staff, Department, LoginLog
+from .models import Department, Staff, LoginLog
 
 
 class StaffAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "user", "name", "gender", "dept"
+        "user", "name", "gender", "dept"
     )
     list_filter = ("gender", "dept")
     search_fields = ("name", "dept")
@@ -13,8 +13,10 @@ class StaffAdmin(admin.ModelAdmin):
 
 class DeptAdmin(admin.ModelAdmin):
     list_display = (
-        "dept_id", "name"
+        "dept", "description"
     )
+    list_filter = ("dept",)
+    search_fields = ("dept",)
 
 
 class LoginLogAdmin(admin.ModelAdmin):
