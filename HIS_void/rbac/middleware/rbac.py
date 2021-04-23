@@ -69,7 +69,7 @@ class RBACMiddleware:
 
         # Cond 4: 一般情况
         flag = False
-        for perm_group_id, code_url in permission_url.items():
+        for code_name, code_url in permission_url:
             for url in code_url["urls"]:
                 url_pattern = "^{}$".format(url)
                 if re.match(url_pattern, request_url):

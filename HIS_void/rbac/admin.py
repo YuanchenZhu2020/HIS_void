@@ -116,8 +116,6 @@ class UserAdmin(BaseUserAdmin):
     filter_horizontal = ()
 
 admin.site.register(UserInfo, UserAdmin)
-# ... and, since we're not using Django's built-in permissions,
-# unregister the Group model from admin.
 admin.site.unregister(Group)
 
 
@@ -145,8 +143,18 @@ class RoleAdmin(admin.ModelAdmin):
     list_display = (
         "id", "title", "description", "create_time"
     )
-    list_filter = ("title", )
+    list_filter = ("title", "create_time")
     search_fields = ("title", "create_time")
+    fieldsets = (
+        (None, {"fields": ("title", "description")}),
+        (_("直接权限"), {"fields": ("url_permissions", )}), 
+    )
+    add_fieldsets = (
+        (None, {"classes": ("wide",), "fields": ("title", "description", ),}),
+        (_("直接权限"), {"classes": ("wide",), "fields": ("url_permissions", ),}),
+    )
+
+admin.site.register(Role, RoleAdmin)
 
 
 class PermissionAdmin(admin.ModelAdmin):
@@ -166,6 +174,5 @@ class PermGroupAdmin(admin.ModelAdmin):
 
 
 # admin.site.register(UserInfo, UserInfoAdmin)
-# admin.site.register(Role, RoleAdmin)
 # admin.site.register(Permission, PermissionAdmin)
 # admin.site.register(PermGroup, PermGroupAdmin)

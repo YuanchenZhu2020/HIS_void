@@ -84,21 +84,6 @@ class Permission(models.Model):
         return "<Permission {}>".format(self.title)
 
 
-class Role(models.Model):
-    """ 角色 """
-    title       = models.CharField(max_length = 32, unique = True, verbose_name = "角色名")
-    description = models.TextField(max_length = 300, default = "", verbose_name = "角色描述")
-    create_time = models.DateTimeField(auto_now_add = True, editable = False, verbose_name = "创建时间")
-    permissions = models.ManyToManyField(Permission, blank = True, verbose_name = "拥有权限")
-
-    class Meta:
-        verbose_name = "角色"
-        verbose_name_plural = verbose_name
-    
-    def __str__(self) -> str:
-        return "<Role {}>".format(self.title)
-
-
 class URLPermission(models.Model):
     name = models.CharField(
         max_length = 255, 
@@ -145,6 +130,34 @@ class URLPermission(models.Model):
     # natural_key.dependencies = ['contenttypes.contenttype']
 
 
+class Role(models.Model):
+    """ 角色 """
+    title       = models.CharField(max_length = 32, unique = True, verbose_name = "角色名")
+    description = models.TextField(max_length = 300, default = "", verbose_name = "角色描述")
+    create_time = models.DateTimeField(
+        auto_now_add = True, 
+        editable = False, 
+        verbose_name = "创建时间"
+    )
+    # URL访问权限
+    url_permissions = models.ManyToManyField(
+        URLPermission, 
+        blank = True, 
+        related_name = "role_set",
+        related_query_name = "role",
+        verbose_name = _("URL访问权限"),
+        help_text = _("该角色拥有的URL访问权限"),
+    )
+    # 行级资源权限
+
+    class Meta:
+        verbose_name = "角色"
+        verbose_name_plural = verbose_name
+    
+    def __str__(self) -> str:
+        return "<Role {}>".format(self.title)
+
+
 class GroupManager(models.Manager):
     use_in_migrations = True
 
@@ -154,7 +167,10 @@ class GroupManager(models.Manager):
 
 class UserGroup(models.Model):
     """
-    用户组，是拥有相同特点的用户的集合。
+    用户组，是拥有相同特点的用户的集合。具有三个权限模型：
+        - 角色
+        - URL访问权限
+        - （行级资源权限）
     """
     ug_id = models.IntegerField(
         validators = [MinValueValidator(1)], 
@@ -168,13 +184,30 @@ class UserGroup(models.Model):
         verbose_name = _("用户组名称"),
         help_text = _("科室、部门或项目组名称。"),
     )
-    # URL访问权限
+    create_time = models.DateTimeField(
+        auto_now_add = True, 
+        editable = False, 
+        verbose_name = "创建时间"
+    )
+    # Perm Cond 1: 角色
+    roles = models.ManyToManyField(
+        Role,
+        blank = True,
+        related_name = "usergroup_set",
+        related_query_name = "usergroup",
+        verbose_name = _("角色"),
+        help_text = _("用户组所拥有的角色，用户组能够获取所拥有角色的全部权限。"),
+    )
+    # Perm Cond 2: URL访问权限
     url_permissions = models.ManyToManyField(
         URLPermission, 
         blank = True, 
+        related_name = "usergroup_set",
+        related_query_name = "usergroup",
         verbose_name = _("URL访问权限"),
         help_text = _("用户组具有的全部URL访问权限。")
     )
+    # Perm Cond 3: 行级资源权限
 
     objects = GroupManager()
 
@@ -212,7 +245,16 @@ class PermissionsMixin(models.Model):
         verbose_name = _("用户组"),
         help_text = _("用户所属的用户组，用户能够获取所属用户组的全部权限。"),
     )
-    # Perm Cond 3: URL访问权限
+    # Perm Cond 3: 角色
+    roles = models.ManyToManyField(
+        Role,
+        blank = True,
+        related_name = "user_set",
+        related_query_name = "user",
+        verbose_name = _("角色"),
+        help_text = _("用户所拥有的角色，用户能够获取所拥有角色的全部权限。"),
+    )
+    # Perm Cond 4: URL访问权限
     url_permissions = models.ManyToManyField(
         URLPermission,
         blank = True,
@@ -221,7 +263,7 @@ class PermissionsMixin(models.Model):
         verbose_name = _("URL访问权限"),
         help_text = _("该用户具有的所有URL访问权限。"),
     )
-    # Perm Cond 4: 行级资源权限
+    # Perm Cond 5: 行级资源权限
 
     # 重写权限相关函数
     def get_user_url_permissions(self):
@@ -235,6 +277,12 @@ class PermissionsMixin(models.Model):
         获取 UserGroup 实例所属 UserGroup 拥有的URL访问权限
         """
         return _user_get_url_permissions(self, "group")
+    
+    def get_role_url_permissions(self):
+        """
+        获取 UserGroup 实例所属 Role 拥有的URL访问权限
+        """
+        return _user_get_url_permissions(self, "role")
 
     def get_all_url_permissions(self):
         return _user_get_url_permissions(self, 'all')
@@ -402,3 +450,15 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self) -> str:
         return "<User {}>".format(self.username)
+
+    def has_perm(self, perm, obj=None):
+        """
+        test
+        """
+        return True
+
+    def has_perms(self, perm_list, obj=None):
+        """
+        test
+        """
+        return True

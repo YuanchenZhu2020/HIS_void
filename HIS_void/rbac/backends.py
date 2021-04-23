@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 
-from rbac.models import URLPermission
+from rbac.models import URLPermission, UserGroup
 
 
 class CustomBackends(ModelBackend):
@@ -21,14 +21,34 @@ class CustomBackends(ModelBackend):
             3. 构造查询条件的名称：<表名>__<related_query_name>
             4. 在 URLPermission 表中进行条件查询（使用**构造查询表达式）
         """
+        # URLPermission <- UserGroup <- UserInfo
         user_groups_field = get_user_model()._meta.get_field("groups")
         user_groups_query = "usergroup__{}".format(user_groups_field.related_query_name())
-        return URLPermission.objects.filter(**{user_groups_query: user_obj})
+        group_url_perms_queryset =  URLPermission.objects.filter(**{user_groups_query: user_obj})
+        # URLPermission <- Role <- (UserGroup <- UserInfo)
+        usergroups = UserGroup.objects.filter(user = user_obj)
+        for ug in usergroups:
+            group_roles_field = ug._meta.get_field("roles")
+            group_roles_query = "role__{}".format(group_roles_field.related_query_name())
+        group_url_perms_queryset |= URLPermission.objects.filter(**{group_roles_query: ug})
+        return group_url_perms_queryset
+
+    def _get_role_url_permissions(self, user_obj):
+        """
+        获取 UserInfo 所属 Role 角色拥有的所有URL访问权限：
+            1. 获取 settings.AUTH_USER_MODEL 代表的对象（UserInfo）
+            2. 获取 UserInfo 的 roles 属性（Role）
+            3. 构造查询条件的名称：<表名>__<related_query_name>
+            4. 在 URLPermission 表中进行条件查询（使用**构造查询表达式）
+        """
+        user_roles_field = get_user_model()._meta.get_field("roles")
+        user_roles_query = "role__{}".format(user_roles_field.related_query_name())
+        return URLPermission.objects.filter(**{user_roles_query: user_obj})
 
     def _get_url_permissions(self, user_obj, from_name):
         """
         返回指定 UserInfo 实例所具有的不同类型的URL访问权限。
-        @from_name: 'user' or 'group'
+        @from_name: 'user' or 'group' or 'role'
         """
         if not user_obj.is_active or user_obj.is_anonymous:
             return set()
@@ -57,6 +77,12 @@ class CustomBackends(ModelBackend):
         """
         return self._get_url_permissions(user_obj, "group")
 
+    def get_role_url_permissions(self, user_obj):
+        """
+        返回URL访问权限字符串集合（User通过Role持有）
+        """
+        return self._get_url_permissions(user_obj, "role")
+
     def get_all_url_permissions(self, user_obj):
         if not user_obj.is_active or user_obj.is_anonymous:
             return set()
@@ -65,6 +91,7 @@ class CustomBackends(ModelBackend):
             all_perms_set = {
                 *self.get_user_url_permissions(user_obj),
                 *self.get_group_url_permissions(user_obj),
+                *self.get_role_url_permissions(user_obj),
             }
             user_obj._urlperm_cache = all_perms_set
         return user_obj._urlperm_cache
@@ -83,7 +110,7 @@ class CustomBackends(ModelBackend):
         """
         return user_obj.is_active and any(
             perm[perm.index('.'):] == url_regex
-            for perm in self.get_all_permissions(user_obj)
+            for perm in self.get_all_url_permissions(user_obj)
         )
 
     # Database Objects Access Permission Methods
