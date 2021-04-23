@@ -1,12 +1,10 @@
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 
-# import his.models as his_models
-# import rbac.models as rbac_models
+from rbac.server.init_permission import init_permission
 
 
 class IndexView(View):
@@ -41,6 +39,7 @@ class LoginView(View):
             login(request, user)
             request.session["username"] = user.get_username()
             request.session["is_login"] = True
+            init_permission(request, user)
             return redirect(reverse("profile"))
         else:
             context = {"user_type": "staff", "name_or_password_error": True}
@@ -82,11 +81,8 @@ class ProfileView(View):
 
     def get(self, request):
         print("[Session]", request.session)
-        if not request.session["is_login"]:
+        if not request.session.get("is_login"):
             return redirect(reverse("index"))
-
-        # 根据用户名查询需要的信息，用户名通过login传递?
-        # chang_gui = request.GET.get("chang_gui")
         return render(request, ProfileView.template_name, locals())
 
     def post(self, request):

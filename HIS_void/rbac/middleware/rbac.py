@@ -18,7 +18,7 @@ import re
 
 
 class RBACMiddleware:
-    count = 0
+    # count = 0
     """
     process_request: 接收到用户请求，执行视图函数前运行。
         return: [] None HttpResponse
@@ -30,7 +30,7 @@ class RBACMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        self.count += 1
+        # self.count += 1
         response = None
         if hasattr(self, "process_request"):
             # print("[middleware] process request")
@@ -50,21 +50,21 @@ class RBACMiddleware:
 
         # Cond 1: 超级用户，具有完全权限
         if request.user.is_superuser:
-            print("Cond 1")
+            # print("RBAC Cond 1")
             return None
         # Cond 2: URL 白名单
         for url in settings.SAFE_URL:
             if re.match(url, request_url):
                 # print("第", self.count, "调用中间件")
                 # print("··········匹配成功·············")
-                print("Cond 2")
+                # print("RBAC Cond 2")
                 return None
 
         # Cond 3: 用户未登入
         if not permission_url:
             # print("第", self.count, "调用中间件")
             # print("重定向到index")
-            print("Cond 3")
+            # print("RBAC Cond 3")
             return redirect(reverse("index"))
 
         # Cond 4: 一般情况

@@ -17,7 +17,8 @@ from django.contrib import admin
 from django.urls import path
 
 from his.views import (
-    IndexView, LoginView, RegisterView, ForgotPasswordView, ProfileView, LogoutView, OutpatientView
+    IndexView, LoginView, RegisterView, ForgotPasswordView, LogoutView, 
+    ProfileView, OutpatientView
 )
 from patient.views import (
     PatientLoginView, PatientWorkSpaceView, PatientWorkMyView

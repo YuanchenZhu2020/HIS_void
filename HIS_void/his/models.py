@@ -29,10 +29,9 @@ class Department(models.Model):
 def create_usergroup_department(sender, instance, created, **kwargs):
     if created:
         Department.objects.create(dept = instance)
-
-@receiver(post_save, sender = UserGroup)
-def save_usergroup_department(sender, instance, **kwargs):
-    instance.department.save()
+    else:
+        # print(Department.objects.filter(dept__ug_id = instance.ug_id))
+        Department.objects.filter(dept__ug_id = instance.ug_id).update(dept = instance)    
 
 
 class Staff(models.Model):
@@ -74,10 +73,9 @@ class Staff(models.Model):
 def create_userinfo_staff(sender, instance, created, **kwargs):
     if created:
         Staff.objects.create(user = instance)
-
-@receiver(post_save, sender = UserInfo)
-def save_userinfo_staff(sender, instance, **kwargs):
-    instance.staff.save()
+    else:
+        # print(Staff.objects.filter(user__username = instance.username))
+        Staff.objects.filter(user__username = instance.username).update(user = instance)
 
 
 class LoginLog(models.Model):

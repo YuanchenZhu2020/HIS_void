@@ -1,19 +1,52 @@
 from django.db import models
+from django.contrib.auth import get_backends
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.core.exceptions import PermissionDenied
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils.translation import gettext_lazy as _
 
 
-# def _user_get_permissions(user, obj, from_name):
-#     permissions = set()
-#     name = 'get_%s_permissions' % from_name
-#     for backend in auth.get_backends():
-#         if hasattr(backend, name):
-#             permissions.update(getattr(backend, name)(user, obj))
-#     return permissions
+def _user_get_permissions(user, obj, from_name):
+    """
+    遍历所有backends，获取
+    """
+    permissions = set()
+    name = "get_{}_permissions".format(from_name)
+    for backend in get_backends():
+        if hasattr(backend, name):
+            permissions.update(getattr(backend, name)(user, obj))
+    return permissions
 
-def _user_has_perm(user, perm, obj = None):
-    pass
+def _user_get_url_permissions(user, from_name):
+    permissions = set()
+    name = "get_{}_url_permissions".format(from_name)
+    for backend in get_backends():
+        if hasattr(backend, name):
+            permissions.update(getattr(backend, name)(user))
+    return permissions
+
+def _user_has_urlperm(user, perm):
+    for backend in get_backends():
+        if not hasattr(backend, 'has_urlperm'):
+            continue
+        try:
+            if backend.has_urlperm(user, perm):
+                return True
+        except PermissionDenied:
+            return False
+    return False
+
+def _user_has_module_urlperms(user, url_regex):
+    for backend in get_backends():
+        if not hasattr(backend, "has_module_urlperms"):
+            continue
+        try:
+            if backend.has_module_urlperms(user, url_regex):
+                return True
+        except PermissionDenied:
+            return False
+    return False
+
 
 class PermGroup(models.Model):
     title       = models.CharField(max_length = 32, verbose_name = "权限组名称")
@@ -188,6 +221,99 @@ class PermissionsMixin(models.Model):
         verbose_name = _("URL访问权限"),
         help_text = _("该用户具有的所有URL访问权限。"),
     )
+    # Perm Cond 4: 行级资源权限
+
+    # 重写权限相关函数
+    def get_user_url_permissions(self):
+        """
+        获取 UserInfo 实例直接拥有的URL访问权限
+        """
+        return _user_get_url_permissions(self, "user")
+    
+    def get_group_url_permissions(self):
+        """
+        获取 UserGroup 实例所属 UserGroup 拥有的URL访问权限
+        """
+        return _user_get_url_permissions(self, "group")
+
+    def get_all_url_permissions(self):
+        return _user_get_url_permissions(self, 'all')
+
+    def has_urlperm(self, urlperm:str):
+        """
+        判断指定 UserInfo 实例是否具有特定的URL访问权限
+        @urlperm: 权限字符串 <codename>.<url>
+        """
+        if self.is_active and self.is_superuser:
+            return True
+        return _user_has_urlperm(self, urlperm)
+
+    def has_urlperms(self, urlperm_list:list):
+        """
+        如果指定 UserInfo 实例拥有 urlperm_list 中的所有URL访问权限，则返回 True。
+        """
+        return all(self.has_urlperm(urlperm) for urlperm in urlperm_list)
+
+    def has_module_perms(self, url_regex):
+        """
+        如果指定 UserInfo 实例在指定页面正则表达式上具有访问权限，则返回 True
+        @url_regex: URL访问权限对象中，匹配页面的正则表达式。
+        """
+        if self.is_active and self.is_superuser:
+            return True
+        return _user_has_module_urlperms(self, url_regex)
+
+    # def get_user_permissions(self, obj=None):
+    #     """
+    #     Return a list of permission strings that this user has directly.
+    #     Query all available auth backends. If an object is passed in,
+    #     return only permissions matching this object.
+    #     """
+    #     return _user_get_permissions(self, obj, "user")
+
+    # def get_group_permissions(self, obj=None):
+    #     """
+    #     Return a list of permission strings that this user has through their
+    #     groups. Query all available auth backends. If an object is passed in,
+    #     return only permissions matching this object.
+    #     """
+    #     return _user_get_permissions(self, obj, 'group')
+
+    # def get_all_permissions(self, obj=None):
+    #     return _user_get_permissions(self, obj, 'all')
+
+    # def has_perm(self, perm, obj=None):
+    #     """
+    #     Return True if the user has the specified permission. Query all
+    #     available auth backends, but return immediately if any backend returns
+    #     True. Thus, a user who has permission from a single auth backend is
+    #     assumed to have permission in general. If an object is provided, check
+    #     permissions for that object.
+    #     """
+    #     # Active superusers have all permissions.
+    #     if self.is_active and self.is_superuser:
+    #         return True
+
+    #     # Otherwise we need to check the backends.
+    #     return _user_has_perm(self, perm, obj)
+
+    # def has_perms(self, perm_list, obj=None):
+    #     """
+    #     Return True if the user has each of the specified permissions. If
+    #     object is passed, check if the user has all required perms for it.
+    #     """
+    #     return all(self.has_perm(perm, obj) for perm in perm_list)
+
+    # def has_module_perms(self, app_label):
+    #     """
+    #     Return True if the user has any permissions in the given app label.
+    #     Use similar logic as has_perm(), above.
+    #     """
+    #     # Active superusers have all permissions.
+    #     if self.is_active and self.is_superuser:
+    #         return True
+
+    #     return _user_has_module_perms(self, app_label)
 
 
 class UserInfoManager(BaseUserManager):
@@ -262,20 +388,6 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return "<UsrInfo {}>".format(self.username)
-
-    def has_perm(self, perm, obj = None):
-        """
-        判断用户是否拥有特定权限
-        """
-        # 已激活的超级用户拥有所有权限
-        if self.is_active and self.is_superuser:
-            return True
-        return _user_has_perm(self, perm, obj)
-
-    def has_module_perms(self, app_label):
-        "Does the user have permissions to view the app `app_label`?"
-        # Simplest possible answer: Yes, always
-        return True
 
     @property
     def is_staff(self):
