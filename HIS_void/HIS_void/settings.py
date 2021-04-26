@@ -127,10 +127,13 @@ STATICFILES_DIRS = (
 # Auth user model
 AUTH_USER_MODEL = "rbac.UserInfo"
 # Auth backends
-AUTHENTICATION_BACKENDS = ("rbac.backends.CustomBackends",)
+AUTHENTICATION_BACKENDS = (
+    "rbac.backends.CustomBackends",
+)
 
 # Role-Based Access Control
 PERMISSION_URL_KEY = "url_key"
+PERMISSION_OBJ_KEY = "obj_key"
 # PERMISSION_MENU_KEY = "menu_key"
 
 SAFE_URL = [

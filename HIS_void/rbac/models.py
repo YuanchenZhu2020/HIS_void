@@ -1,21 +1,43 @@
 from django.db import models
 from django.contrib.auth import get_backends
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import Permission, AbstractBaseUser, BaseUserManager
 from django.core.exceptions import PermissionDenied
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.signals import user_logged_in
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
 
-def _user_get_permissions(user, obj, from_name):
-    """
-    遍历所有backends，获取
-    """
+def _user_get_obj_permissions(user, from_name):
     permissions = set()
-    name = "get_{}_permissions".format(from_name)
+    name = "get_{}_obj_permissions".format(from_name)
     for backend in get_backends():
         if hasattr(backend, name):
-            permissions.update(getattr(backend, name)(user, obj))
+            permissions.update(getattr(backend, name)(user))
     return permissions
+
+def _user_has_objperm(user, objperm):
+    for backend in get_backends():
+        if not hasattr(backend, "has_objperm"):
+            continue
+        try:
+            if backend.has_objperm(user, objperm):
+                return True
+        except PermissionDenied:
+            return False
+    return False
+
+def _user_has_module_objperms(user, app_label):
+    for backend in get_backends():
+        if not hasattr(backend, "has_module_objperms"):
+            continue
+        try:
+            if backend.has_module_objperms(user, app_label):
+                return True
+        except PermissionDenied:
+            return False
+    return False
+
 
 def _user_get_url_permissions(user, from_name):
     permissions = set()
@@ -48,40 +70,32 @@ def _user_has_module_urlperms(user, url_regex):
     return False
 
 
-class PermGroup(models.Model):
-    title       = models.CharField(max_length = 32, verbose_name = "权限组名称")
-    create_time = models.DateTimeField(auto_now_add = True, editable = False, verbose_name = "创建时间")
-    # menu  = models.ForeignKey(Menu, blank = True, on_delete = models.CASCADE, verbose_name = "所属菜单")
-
-    class Meta:
-        verbose_name = "权限组"
-        verbose_name_plural = verbose_name
-    
-    def __str__(self) -> str:
-        return "<PermGroup {}>".format(self.title)
-
-
-class Permission(models.Model):
-    """ 权限信息 """
-    title       = models.CharField(max_length = 32, unique = True, verbose_name = "权限名")
-    url         = models.CharField(max_length = 128, unique = True, verbose_name = "URL")
-    create_time = models.DateTimeField(auto_now_add = True, editable = False, verbose_name = "创建时间")
-    # 一般为 list, add, del, edit
-    perm_code   = models.CharField(max_length = 32, verbose_name = "权限代码")
-    # 权限组
-    perm_group  = models.ForeignKey(PermGroup, blank = True, on_delete = models.CASCADE, verbose_name = "所属权限组")
-    # 内联外键，可包含多个本表内权限记录。为 NULL 时作为二级菜单使用
-    pid         = models.ForeignKey(
-        "Permission", null = True, blank = True, 
-        on_delete = models.CASCADE, verbose_name = "所属二级菜单"
+class ObjectPermission(models.Model):
+    name = models.CharField(max_length = 255, verbose_name = _("对象权限名称"))
+    permission = models.ForeignKey(
+        Permission, 
+        on_delete = models.CASCADE, 
+        verbose_name = _("权限")
+    )
+    object_id = models.CharField(max_length = 255, verbose_name = _("对象ID"))
+    create_time = models.DateTimeField(
+        auto_now_add = True, 
+        editable = False, 
+        verbose_name = "创建时间"
     )
 
     class Meta:
-        verbose_name = "权限"
+        verbose_name = _("对象权限")
         verbose_name_plural = verbose_name
-    
-    def __str__(self) -> str:
-        return "<Permission {}>".format(self.title)
+        unique_together = [["permission", "object_id"]]
+        ordering = [
+            "permission__content_type__app_label", 
+            "permission__content_type__model", 
+            "object_id"
+        ]
+
+    def __str__(self):
+        return "<{} | {}>".format(self.permission, self.object_id)
 
 
 class URLPermission(models.Model):
@@ -107,15 +121,6 @@ class URLPermission(models.Model):
         editable = False, 
         verbose_name = _("创建时间")
     )
-    perm_group = models.ForeignKey(
-        PermGroup, 
-        null = True,
-        blank = True, 
-        on_delete = models.SET_NULL, 
-        verbose_name = _("所属权限组"),
-    )
-
-    # objects = URLPermissionManager()
 
     class Meta:
         verbose_name = _("URL访问权限")
@@ -124,10 +129,6 @@ class URLPermission(models.Model):
 
     def __str__(self):
         return "<URL Perm {}-{}>".format(self.codename, self.url)
-
-    # def natural_key(self):
-    #     return (self.codename,) + self.content_type.natural_key()
-    # natural_key.dependencies = ['contenttypes.contenttype']
 
 
 class Role(models.Model):
@@ -149,6 +150,14 @@ class Role(models.Model):
         help_text = _("该角色拥有的URL访问权限"),
     )
     # 行级资源权限
+    obj_permissions = models.ManyToManyField(
+        ObjectPermission,
+        blank = True, 
+        related_name = "role_set",
+        related_query_name = "role",
+        verbose_name = _("对象资源权限"),
+        help_text = _("该角色拥有的对象资源权限"),
+    )
 
     class Meta:
         verbose_name = "角色"
@@ -161,8 +170,8 @@ class Role(models.Model):
 class GroupManager(models.Manager):
     use_in_migrations = True
 
-    def get_by_natural_key(self, name):
-        return self.get(name = name)
+    def get_by_natural_key(self, ug_id, name):
+        return self.get(ug_id = ug_id, name = name)
 
 
 class UserGroup(models.Model):
@@ -208,6 +217,14 @@ class UserGroup(models.Model):
         help_text = _("用户组具有的全部URL访问权限。")
     )
     # Perm Cond 3: 行级资源权限
+    obj_permissions = models.ManyToManyField(
+        ObjectPermission,
+        blank = True, 
+        related_name = "usergroup_set",
+        related_query_name = "usergroup",
+        verbose_name = _("对象资源权限"),
+        help_text = _("该用户组拥有的对象资源权限"),
+    )
 
     objects = GroupManager()
 
@@ -219,7 +236,7 @@ class UserGroup(models.Model):
         return "<User Group {}-{}>".format(self.ug_id, self.name)
 
     def natural_key(self):
-        return (self.name,)
+        return (self.ug_id, self.name,)
 
 
 class PermissionsMixin(models.Model):
@@ -258,14 +275,22 @@ class PermissionsMixin(models.Model):
     url_permissions = models.ManyToManyField(
         URLPermission,
         blank = True,
-        related_name = "urlperm_set",
-        related_query_name = "urlperm",
+        related_name = "user_set",
+        related_query_name = "user",
         verbose_name = _("URL访问权限"),
         help_text = _("该用户具有的所有URL访问权限。"),
     )
     # Perm Cond 5: 行级资源权限
+    obj_permissions = models.ManyToManyField(
+        ObjectPermission,
+        blank = True, 
+        related_name = "user_set",
+        related_query_name = "user",
+        verbose_name = _("对象资源权限"),
+        help_text = _("该用户拥有的对象资源权限"),
+    )
 
-    # 重写权限相关函数
+    # 获取URL访问权限
     def get_user_url_permissions(self):
         """
         获取 UserInfo 实例直接拥有的URL访问权限
@@ -302,7 +327,7 @@ class PermissionsMixin(models.Model):
         """
         return all(self.has_urlperm(urlperm) for urlperm in urlperm_list)
 
-    def has_module_perms(self, url_regex):
+    def has_module_urlperms(self, url_regex):
         """
         如果指定 UserInfo 实例在指定页面正则表达式上具有访问权限，则返回 True
         @url_regex: URL访问权限对象中，匹配页面的正则表达式。
@@ -311,57 +336,51 @@ class PermissionsMixin(models.Model):
             return True
         return _user_has_module_urlperms(self, url_regex)
 
-    # def get_user_permissions(self, obj=None):
-    #     """
-    #     Return a list of permission strings that this user has directly.
-    #     Query all available auth backends. If an object is passed in,
-    #     return only permissions matching this object.
-    #     """
-    #     return _user_get_permissions(self, obj, "user")
+    # 获取对象资源权限
+    def get_user_obj_permissions(self):
+        """
+        获取 UserInfo 实例直接拥有的对象资源权限
+        """
+        return _user_get_obj_permissions(self, "user")
 
-    # def get_group_permissions(self, obj=None):
-    #     """
-    #     Return a list of permission strings that this user has through their
-    #     groups. Query all available auth backends. If an object is passed in,
-    #     return only permissions matching this object.
-    #     """
-    #     return _user_get_permissions(self, obj, 'group')
+    def get_group_boj_permissions(self):
+        """
+        获取 UserGroup 实例所属 UserGroup 拥有的对象资源权限
+        """
+        return _user_get_obj_permissions(self, "group")
+    
+    def get_role_obj_permissions(self):
+        """
+        获取 UserGroup 实例所属 Role 拥有的对象资源权限
+        """
+        return _user_get_obj_permissions(self, "role")
 
-    # def get_all_permissions(self, obj=None):
-    #     return _user_get_permissions(self, obj, 'all')
+    def get_all_obj_permissions(self):
+        return _user_get_obj_permissions(self, "all")
 
-    # def has_perm(self, perm, obj=None):
-    #     """
-    #     Return True if the user has the specified permission. Query all
-    #     available auth backends, but return immediately if any backend returns
-    #     True. Thus, a user who has permission from a single auth backend is
-    #     assumed to have permission in general. If an object is provided, check
-    #     permissions for that object.
-    #     """
-    #     # Active superusers have all permissions.
-    #     if self.is_active and self.is_superuser:
-    #         return True
+    def has_objperm(self, objperm):
+        """
+        判断指定 UserInfo 实例是否具有特定的对象资源权限
+        """
+        if self.is_active and self.is_superuser:
+            return True
+        return _user_has_objperm(self, objperm)
 
-    #     # Otherwise we need to check the backends.
-    #     return _user_has_perm(self, perm, obj)
+    def has_objperms(self, objperm_list):
+        """
+        判断指定 UserInfo 实例是否具有特定的对象资源权限
+        @objperm: 权限字符串 <app_label>.<model>.<object_id>.<codename>
+        """
+        return all(self.has_objperm(objperm) for objperm in objperm_list)
 
-    # def has_perms(self, perm_list, obj=None):
-    #     """
-    #     Return True if the user has each of the specified permissions. If
-    #     object is passed, check if the user has all required perms for it.
-    #     """
-    #     return all(self.has_perm(perm, obj) for perm in perm_list)
-
-    # def has_module_perms(self, app_label):
-    #     """
-    #     Return True if the user has any permissions in the given app label.
-    #     Use similar logic as has_perm(), above.
-    #     """
-    #     # Active superusers have all permissions.
-    #     if self.is_active and self.is_superuser:
-    #         return True
-
-    #     return _user_has_module_perms(self, app_label)
+    def has_module_objperms(self, app_label):
+        """
+        如果指定 UserInfo 实例在指定 Application 上具有对象资源权限，则返回 True
+        @app_label: Django Application 标签
+        """
+        if self.is_active and self.is_superuser:
+            return True
+        return _user_has_module_objperms(self, app_label)
 
 
 class UserInfoManager(BaseUserManager):
@@ -405,7 +424,6 @@ class UserInfoManager(BaseUserManager):
 class UserInfo(AbstractBaseUser, PermissionsMixin):
     # 以 6 位数字的工号作为登录账号
     # 患者账号单独管理
-    # password    = models.CharField(max_length = 256, verbose_name = "登录密码")
     username = models.CharField(
         max_length = 6, 
         unique = True, 
@@ -451,14 +469,56 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
     def __str__(self) -> str:
         return "<User {}>".format(self.username)
 
-    def has_perm(self, perm, obj=None):
+    def has_perm(self, perm, obj = None):
         """
-        test
+        used for admin customization
         """
-        return True
+        return self.has_objperm(perm)
 
-    def has_perms(self, perm_list, obj=None):
+    def has_perms(self, perm_list, obj = None):
         """
-        test
+        used for admin customization
         """
-        return True
+        return self.has_objperms(perm_list)
+    
+    def has_module_perms(self, app_label):
+        """
+        used for admin customization
+        """
+        if self.is_active and self.is_superuser:
+            return True
+        return self.has_module_objperms(app_label)
+
+
+class LoginLog(models.Model):
+    """
+    登录日志
+    """
+    # 删除 UserInfo 时级联删除它的所有登录日志
+    user = models.ForeignKey(
+        UserInfo, 
+        on_delete = models.CASCADE, 
+        verbose_name = _("用户账户")
+    )
+    login_time = models.DateTimeField(
+        auto_now_add = True, 
+        editable = False, 
+        verbose_name = _("登录时间")
+    )
+    ip_address = models.CharField(max_length = 256, verbose_name = _("登录IP"))
+
+    class Meta:
+        verbose_name = _("登录日志")
+        verbose_name_plural = verbose_name
+    
+    def __str__(self) -> str:
+        return "<{} Login at {} | {}>".format(self.user, self.login_time, self.ip_address)
+
+# UserInfo 登录后，LoginLog 会自动添加登录信息
+@receiver(user_logged_in, sender = UserInfo)
+def create_login_log(sender, request, user, **kwargs):
+    if "HTTP_X_FORWARDED_FOR" in request.META.keys():
+        ip =  request.META["HTTP_X_FORWARDED_FOR"]
+    else:
+        ip = request.META["REMOTE_ADDR"]
+    LoginLog.objects.create(user = user, ip_address = ip)

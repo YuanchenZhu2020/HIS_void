@@ -76,28 +76,3 @@ def create_userinfo_staff(sender, instance, created, **kwargs):
     else:
         # print(Staff.objects.filter(user__username = instance.username))
         Staff.objects.filter(user__username = instance.username).update(user = instance)
-
-
-class LoginLog(models.Model):
-    """
-    登录日志
-    """
-    # 删除 staff 时级联删除它的所有登录日志
-    user = models.ForeignKey(
-        Staff, 
-        on_delete = models.CASCADE, 
-        verbose_name = _("职工")
-    )
-    login_time = models.DateTimeField(
-        auto_now_add = True, 
-        editable = False, 
-        verbose_name = _("登录时间")
-    )
-    ip_address = models.CharField(max_length = 256, verbose_name = _("登录IP"))
-
-    class Meta:
-        verbose_name = _("登录日志")
-        verbose_name_plural = verbose_name
-    
-    def __str__(self) -> str:
-        return "<User {} Login at {} {}>".format(self.user, self.login_time, self.ip_address)

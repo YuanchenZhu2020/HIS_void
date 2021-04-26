@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Department, Staff, LoginLog
+from .models import Department, Staff
 
 
 class StaffAdmin(admin.ModelAdmin):
@@ -19,14 +19,5 @@ class DeptAdmin(admin.ModelAdmin):
     search_fields = ("dept",)
 
 
-class LoginLogAdmin(admin.ModelAdmin):
-    list_display = (
-        "id", "user_id", "login_time", "ip_address"
-    )
-    list_filter = ("login_time", "ip_address")
-    search_fields = ("login_time", "ip_address")
-
-
 admin.site.register(Staff, StaffAdmin)
 admin.site.register(Department, DeptAdmin)
-admin.site.register(LoginLog, LoginLogAdmin)

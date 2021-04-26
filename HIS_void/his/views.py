@@ -38,8 +38,10 @@ class LoginView(View):
         if user is not None:
             login(request, user)
             request.session["username"] = user.get_username()
-            request.session["is_login"] = True
+            # request.session["is_login"] = True
+            # 初始化，获取用户权限，写入 session 中
             init_permission(request, user)
+            # print(request.session["url_key"], request.session["obj_key"])
             return redirect(reverse("profile"))
         else:
             context = {"user_type": "staff", "name_or_password_error": True}
@@ -81,7 +83,7 @@ class ProfileView(View):
 
     def get(self, request):
         print("[Session]", request.session)
-        if not request.session.get("is_login"):
+        if not request.user.is_authenticated:
             return redirect(reverse("index"))
         return render(request, ProfileView.template_name, locals())
 

@@ -5,14 +5,10 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.utils.translation import gettext_lazy as _
 
-from .models import URLPermission, UserGroup, UserInfo, Role, Permission, PermGroup
+from .models import (
+    ObjectPermission, URLPermission, UserGroup, UserInfo, Role, LoginLog
+)
 
-
-# class UserInfoAdmin(admin.ModelAdmin):
-#     list_display = (
-#         "id", "username", "password1",
-#     )
-#     search_fields = ("username", )
 
 class UserCreationForm(forms.ModelForm):
     """
@@ -25,7 +21,7 @@ class UserCreationForm(forms.ModelForm):
         model = UserInfo
         fields = (
             "username", "password", 
-            "groups", "url_permissions", 
+            "roles", "groups", "url_permissions", "obj_permissions", 
             "is_active", "is_admin", "is_superuser",
         )
 
@@ -59,7 +55,7 @@ class UserChangeForm(forms.ModelForm):
         model = UserInfo
         fields = (
             "username", "password",
-            "groups", "url_permissions", 
+            "roles", "groups", "url_permissions", "obj_permissions",
             "is_active", "is_admin", "is_superuser",
         )
 
@@ -76,19 +72,16 @@ class UserAdmin(BaseUserAdmin):
     form = UserChangeForm
     add_form = UserCreationForm
 
-    # The fields to be used in displaying the User model.
-    # These override the definitions on the base UserAdmin
-    # that reference specific fields on auth.User.
     list_display = ("username", "is_admin", "create_time", "last_login")
     list_filter = ("is_admin", "create_time")
     fieldsets = (
         (None, {"fields": ("username", "password")}),
+        (_("角色"), {"fields": ("roles", )}), 
         (_("用户组"), {"fields": ("groups", )}), 
-        (_("直接权限"), {"fields": ("url_permissions", )}), 
+        (_("直接权限"), {"fields": ("url_permissions", "obj_permissions", )}), 
         (_("账号状态"), {"fields": ("is_active", "is_admin", "is_superuser")}),
     )
-    # add_fieldsets is not a standard ModelAdmin attribute. UserAdmin
-    # overrides get_fieldsets to use this attribute when creating a user.
+    # UserAdmin 使用方法 get_fieldsets，通过 add_fieldsets 定义创建对象时所用的字段。
     add_fieldsets = (
         (None, {
             "classes": ("wide",),
@@ -96,13 +89,17 @@ class UserAdmin(BaseUserAdmin):
                 "username", "password1", "password2", 
             ),
         }),
+        (_("角色"), {
+            "classes": ("wide", ),
+            "fields": ("roles", ),
+        }), 
         (_("用户组"), {
             "classes": ("wide",), 
             "fields": ("groups", ),
         }), 
         (_("直接权限"), {
             "classes": ("wide",), 
-            "fields": ("url_permissions", )
+            "fields": ("url_permissions", "obj_permissions", )
         }), 
         (_("账号状态"), {
             "classes": ("wide",), 
@@ -111,7 +108,7 @@ class UserAdmin(BaseUserAdmin):
             )
         }),
     )
-    search_fields = ("username",)
+    search_fields = ("username", "is_admin")
     ordering = ("username",)
     filter_horizontal = ()
 
@@ -125,54 +122,63 @@ class UserGroupAdmin(admin.ModelAdmin):
     )
     list_filter = ("ug_id", "name")
     search_fields = ("ug_id", "name")
+    fieldsets = (
+        (None, {"fields": ("ug_id", "name")}), 
+        (_("直接权限"), {"fields": ("url_permissions", "obj_permissions")}), 
+        (_("角色"), {"fields": ("roles", )}),
+    )
+    add_fieldsets = (
+        (None, {"classes": ("wide",), "fields": ("ug_id", "name", ),}),
+        (_("直接权限"), {"classes": ("wide",), "fields": ("url_permissions", "obj_permissions"),}),
+        (_("角色"), {"fields": ("roles", )}),
+    )
 
 admin.site.register(UserGroup, UserGroupAdmin)
 
 
 class URLPermissionAdmin(admin.ModelAdmin):
     list_display = (
-        "name", "url", "codename", "create_time", "perm_group",
+        "name", "url", "codename", "create_time", 
     )
-    list_filter = ("name", "codename", "create_time", "perm_group",)
+    list_filter = ("name", "codename", "create_time", )
     search_fields = ("name", "codename", "url")
 
 admin.site.register(URLPermission, URLPermissionAdmin)
 
 
+class ObjectPermissionAdmin(admin.ModelAdmin):
+    list_display = (
+        "name", "permission", "object_id", "create_time",
+    )
+    list_filter = ("name", "permission", "object_id", "create_time",)
+    search_fields = ("name", "permission", "object_id", )
+
+admin.site.register(ObjectPermission, ObjectPermissionAdmin)
+
+
 class RoleAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "title", "description", "create_time"
+        "title", "description", "create_time"
     )
     list_filter = ("title", "create_time")
     search_fields = ("title", "create_time")
     fieldsets = (
         (None, {"fields": ("title", "description")}),
-        (_("直接权限"), {"fields": ("url_permissions", )}), 
+        (_("直接权限"), {"fields": ("url_permissions", "obj_permissions")}), 
     )
     add_fieldsets = (
         (None, {"classes": ("wide",), "fields": ("title", "description", ),}),
-        (_("直接权限"), {"classes": ("wide",), "fields": ("url_permissions", ),}),
+        (_("直接权限"), {"classes": ("wide",), "fields": ("url_permissions", "obj_permissions"),}),
     )
 
 admin.site.register(Role, RoleAdmin)
 
 
-class PermissionAdmin(admin.ModelAdmin):
+class LoginLogAdmin(admin.ModelAdmin):
     list_display = (
-        "id", "title", "url", "create_time", "perm_code", "perm_group", "pid"
+        "id", "user", "login_time", "ip_address"
     )
-    list_filter = ("title", "perm_code")
-    search_fields = ("create_time", "perm_code", "pid")
+    list_filter = ("user", "login_time", "ip_address")
+    search_fields = ("user", "login_time", "ip_address")
 
-
-class PermGroupAdmin(admin.ModelAdmin):
-    list_display = (
-        "id", "title", "create_time"
-    )
-    list_filter = ("title", )
-    search_fields = ("title", "create_time")
-
-
-# admin.site.register(UserInfo, UserInfoAdmin)
-# admin.site.register(Permission, PermissionAdmin)
-# admin.site.register(PermGroup, PermGroupAdmin)
+admin.site.register(LoginLog, LoginLogAdmin)
