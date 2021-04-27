@@ -1,21 +1,20 @@
+from django.contrib.auth import authenticate, login
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 
-import his.models as his_model
-
-from rbac import models as rbac_models
+from rbac.server.init_permission import init_permission
 
 
 class IndexView(View):
     template_name = "index.html"
 
     def get(self, request):
-        if 'user_name' in request.session:
-            print("session中存在user_name")
+        if request.user.is_authenticated:
             return redirect(reverse("profile"))
-        return render(request, IndexView.template_name)
+        else:
+            return render(request, IndexView.template_name)
 
 
 class LoginView(View):
@@ -23,19 +22,26 @@ class LoginView(View):
     user_type = "staff"
 
     def get(self, request):
-        if 'user_name' in request.session:
-            print("session中存在user_name")
+        if request.user.is_authenticated:
             return redirect(reverse("profile"))
-        return render(request, LoginView.template_name, context={"user_type": "staff"})
+        else:
+            context = {"user_type": "staff"}
+            return render(request, LoginView.template_name, context)
 
     def post(self, request):
+        # 获取用户验证所需信息
         username = request.POST.get("username")
         password = request.POST.get("password")
-        user = rbac_models.UserInfo.objects.filter(username=username, password=password).first()
-        staff = his_model.Staff.objects.filter(user_obj=user).first()
-        if user:
-            request.session["user_name"] = user.username
-            request.session["staff_name"] = staff.name
+        # 用户验证
+        user = authenticate(request, username = username, password = password)
+        # 验证成功，向 Session 中写入信息
+        if user is not None:
+            login(request, user)
+            request.session["username"] = user.get_username()
+            # request.session["is_login"] = True
+            # 初始化，获取用户权限，写入 session 中
+            init_permission(request, user)
+            # print(request.session["url_key"], request.session["obj_key"])
             return redirect(reverse("profile"))
         else:
             context = {"user_type": "staff", "name_or_password_error": True}
@@ -53,33 +59,33 @@ class RegisterView(View):
         return HttpResponse(RegisterView.template_name)
 
 
-class ForgotPassword(View):
+class ForgotPasswordView(View):
     template_name = "page-forgot-password.html"
 
     def get(self, request):
-        return render(request, ForgotPassword.template_name)
+        return render(request, ForgotPasswordView.template_name)
 
     def post(self, request):
         pass
-        return render(request, ForgotPassword.template_name)
+        return render(request, ForgotPasswordView.template_name)
 
 
-class Logout(View):
+class LogoutView(View):
+    template_name = "index"
+
     def get(self, request):
-        del request.session["user_name"]
-        return redirect(reverse("index"))
+        request.session.clear()
+        return redirect(reverse(LogoutView.template_name))
 
 
-class Profile(View):
+class ProfileView(View):
     template_name = 'page-profile.html'
 
     def get(self, request):
-        if 'user_name' not in request.session:
+        print("[Session]", request.session)
+        if not request.user.is_authenticated:
             return redirect(reverse("index"))
-
-        # 根据用户名查询需要的信息，用户名通过login传递?
-        chang_gui = request.GET.get("chang_gui")
-        return render(request, Profile.template_name, locals())
+        return render(request, ProfileView.template_name, locals())
 
     def post(self, request):
         post_dict = dict(request.POST)
@@ -88,8 +94,8 @@ class Profile(View):
         print(post_dict)
 
 
-class Outpatient(View):
+class OutpatientView(View):
     template_name = 'page-outpatient-workspace.html'
 
     def get(self, request):
-        return render(request, Outpatient.template_name)
+        return render(request, OutpatientView.template_name)

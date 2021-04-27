@@ -20,11 +20,11 @@ class PatientLoginView(View):
             return render(request, PatientLoginView.template_name, context)
 
 
-class PatientWorkSpace(View):
+class PatientWorkSpaceView(View):
     template_name = "patient-view.html"
 
     def get(self, request):
-        return render(request, PatientWorkSpace.template_name, context={"user_type": "patient"})
+        return render(request, PatientWorkSpaceView.template_name, context={"user_type": "patient"})
 
     # def post(self, request):
     #     username = request.POST.get("username")
@@ -38,8 +38,8 @@ class PatientWorkSpace(View):
     #         return render(request, PatientLoginView.template_name, context)
 
 
-class PatientWorkMy(View):
+class PatientWorkMyView(View):
     template_name = "patient-my.html"
 
     def get(self, request):
-        return render(request, PatientWorkMy.template_name, context={"user_type": "patient"})
+        return render(request, PatientWorkMyView.template_name, context={"user_type": "patient"})
