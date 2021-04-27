@@ -16,8 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from his.views import IndexView, LoginView, RegisterView, ForgotPassword, Profile, Logout, Outpatient
-from patient.views import PatientLoginView,PatientWorkSpace,PatientWorkMy
+from his.views import IndexView, LoginView, RegisterView, ForgotPassword, Profile, Logout, Outpatient, Nurse, Inspection
+from patient.views import PatientLoginView, PatientWorkSpace, PatientWorkMy
 
 urlpatterns = [
     path('', IndexView.as_view(), name=''),
@@ -37,10 +37,14 @@ urlpatterns = [
     path('logout/', Logout.as_view(), name='logout'),
     # 个人信息页面
     path('profile/', Profile.as_view(), name='profile'),
-    # 工作页面
+    # 门诊医生工作台
     path('outpatient-workspace/', Outpatient.as_view(), name='outpatient-workspace'),
     # 患者未登录首页
     path('patient/', PatientWorkSpace.as_view(), name='patient'),
     # 患者登录后个人界面
     path('patient-user/', PatientWorkMy.as_view(), name='patient-user'),
+    # 护士工作台
+    path('nurse-workspace/', Nurse.as_view(), name='nurse-workspace'),
+    # 检验工作台
+    path('inspection-workspace/', Inspection.as_view(), name='inspection-workspace'),
 ]

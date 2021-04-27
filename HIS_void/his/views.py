@@ -93,3 +93,16 @@ class Outpatient(View):
 
     def get(self, request):
         return render(request, Outpatient.template_name)
+
+
+class Nurse(View):
+    template_name = 'page-nurse-workspace.html'
+
+    def get(self, request):
+        return render(request, Nurse.template_name)
+
+class Inspection(View):
+    template_name = 'page-inspection-workspace.html'
+
+    def get(self, request):
+        return render(request, Inspection.template_name)

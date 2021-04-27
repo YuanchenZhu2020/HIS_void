@@ -143,4 +143,6 @@ SAFE_URL = [
     r"/patient-user/",
     r"/profile/",
     r"/outpatient-workspace/",
+    r"/nurse-workspace/",
+    r"/inspection-workspace/"
 ]

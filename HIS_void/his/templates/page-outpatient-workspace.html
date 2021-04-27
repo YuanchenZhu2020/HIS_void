@@ -3,13 +3,21 @@
 {% block body-context %}
     {# 两侧留白较小的容器 #}
     <div class="container-fluid">
-        {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病例首页，检查检验等 #}
+        {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病历首页，检查检验等 #}
         <div class="row">
-
+            <div class="col-md-12 align-content-center">
+                <div class="page-titles mb-2 mt-0">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url "profile" %}">profile</a></li>
+                        <li class="breadcrumb-item active"><a href="{% url "outpatient-workspace" %}">outpatient</a></li>
+                    </ol>
+                </div>
+            </div>
             {# 第一列宽度为3，用于放置诊中患者信息和待诊患者信息 #}
             <div class="col-md-3">
                 {# 诊中患者信息 #}
                 <div class="container">
+
                     <div class="card">{# 我目前只会使用card（卡片）布局 #}
                         {# 设置卡片头 #}
                         <div class="card-header">诊中患者</div>
@@ -24,7 +32,7 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
+                                <tr onclick="binglishouye()">
                                     <td>肖云冲</td>
                                     <td><span class="badge badge-success">检查完毕</span>
                                     </td>
@@ -103,7 +111,7 @@
                     </div>
                 </div>
             </div>
-            {# 第二列的宽度为9，用于放置分页表格（病例首页、检查检验等） #}
+            {# 第二列的宽度为9，用于放置分页表格（病历首页、检查检验等） #}
             <div class="col-md-9">
                 <div class="card">
                     <div class="card-body">
@@ -150,10 +158,10 @@
                         {# 分页导航栏列表，用于放置分页按钮 #}
                         <div class="default-tab">
                             <ul class="nav nav-tabs justify-content-center" role="tablist">
-                                {# 病例首页按钮 #}
+                                {# 病历首页按钮 #}
                                 <li class="nav-item">
                                     <a href="#bing_li_shou_ye" class="nav-link active" data-toggle="tab"
-                                       aria-expanded="false">病例首页</a>
+                                       aria-expanded="false">病历首页</a>
                                 </li>
                                 {# 检查检验按钮 #}
                                 <li class="nav-item">
@@ -183,50 +191,43 @@
                             </ul>
                             {# 分页页面内容 #}
                             <div class="tab-content">
-                                {# 病例首页页面信息，第一次进入页面默认显示这个 #}
+                                {# 病历首页页面信息，第一次进入页面默认显示这个 #}
                                 <div id="bing_li_shou_ye" class="tab-pane fade show active">
                                     <div class="card-body">
                                         <div class="basic-form">
                                             <form action="#">
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">患者主诉： </label>
+                                                    <label class="col-md-1.5 col-form-label text-right">患者主诉： </label>
                                                     <textarea type="text" class="form-control"
                                                               placeholder=""></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">现病史：</label>
-                                                    <textarea type="text" class="form-control" placeholder=""
-                                                    ></textarea>
-                                                </div>
-                                                <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">现病治疗情况：
+                                                    <label class="col-md-1.5 col-form-label text-right">治疗情况：
                                                     </label> <textarea type="text" class="form-control"
                                                                        placeholder=""
                                                 ></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">既往史：
-                                                    </label> <textarea type="text" class="form-control"
-                                                                       placeholder=""
+                                                    <label class="col-md-1.5 col-form-label text-right">既往病史：
+                                                    </label> <textarea id="jiwangshi" type="text" class="form-control"
+                                                                       readonly
                                                 ></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">过敏史：
-                                                    </label> <textarea type="text" class="form-control"
-                                                                       placeholder=""
-                                                ></textarea>
+                                                    <label class="col-md-1.5 col-form-label text-right">过敏病史：
+                                                    </label> <textarea id="guominshi" type="text" class="form-control"
+                                                                       readonly></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">体格检查：
-                                                    </label> <textarea type="text" class="form-control"
-                                                                       placeholder=""
-                                                ></textarea>
+                                                    <label class="col-md-1.5 col-form-label text-right">体格检查：
+                                                    </label> <textarea id="tigejiancha" type="text" class="form-control"
+                                                                       readonly></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">发病时间：
-                                                    </label> <textarea type="text" class="form-control"
-                                                                       placeholder=""
-                                                ></textarea>
+                                                    <label class="col-md-1.5 col-form-label text-right">发病时间：
+                                                    </label> <textarea id="fabingshijian" type="text"
+                                                                       class="form-control"
+                                                                       readonly></textarea>
                                                 </div>
                                             </form>
                                         </div>
@@ -351,10 +352,14 @@
                                         <div class="card-body">
                                             <div class="basic-form">
                                                 <form action="#">
-                                                    <div class="input-group">
+                                                    <div class="input-group mb-3">
                                                         <textarea class="form-control" rows="18"
                                                                   placeholder="请输入您的判断"></textarea>
-
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="text-right">
+                                                            <button type="submit" class="btn btn-primary">提 交</button>
+                                                        </div>
                                                     </div>
                                                 </form>
                                             </div>
@@ -367,158 +372,16 @@
                                 <div id="chu_fang_kai_ju" class="tab-pane fade">
                                     <div class="container">
                                         <div class="card-body">
-                                            <div class="basic-form">
-                                                <form action="#">
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control"
-                                                               placeholder="请输入药品名">
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-primary"
-                                                                    type="button">搜索
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </form>
+                                            <div class="mb-4">
+                                                <h4 class="card-title">Ajax (remote data)</h4>
+                                                <p>Select2 comes with AJAX support built in, using jQuery's AJAX
+                                                    methods. In this example, we can search for repositories using
+                                                    GitHub's API:</p>
                                             </div>
 
-                                            <div class="basic-form">
-                                                <form action="#">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-bordered verticle-middle table-responsive-sm">
-                                                            <thead>
-                                                            <tr>
-                                                                <th scope="col">药品名</th>
-                                                                <th scope="col">药品数量</th>
-                                                                <th scope="col">单价</th>
-                                                                <th scope="col">总价</th>
-                                                                <th scope="col">Action</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            <tr>
-                                                                <td>Air Conditioner</td>
-                                                                <td>
-                                                                    <div class="progress bgl-primary">
-                                                                        <div class="progress-bar bg-primary"
-                                                                             style="width: 70%;" role="progressbar">
-                                                                            <span class="sr-only">70% Complete</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>Apr 20,2018</td>
-                                                                <td><span class="badge badge-primary light">70%</span>
-                                                                </td>
-                                                                <td>
-                                                                    <span>
-                                                                        <a href="javascript:void(0)" class="mr-4"
-                                                                           data-toggle="tooltip"
-                                                                           data-placement="top" title="Edit"><i
-                                                                                class="fa fa-pencil color-muted"></i> </a>
-                                                                        <a href="javascript:void()"
-                                                                           data-toggle="tooltip"
-                                                                           data-placement="top" title="Close"><i
-                                                                                class="fa fa-close color-danger"></i></a>
-                                                                    </span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Textiles</td>
-                                                                <td>
-                                                                    <div class="progress bgl-success">
-                                                                        <div class="progress-bar bg-success"
-                                                                             style="width: 70%;" role="progressbar">
-                                                                            <span class="sr-only">70% Complete</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>May 27,2018</td>
-                                                                <td><span class="badge badge-success">70%</span>
-                                                                </td>
-                                                                <td><span><a href="javascript:void()" class="mr-4"
-                                                                             data-toggle="tooltip"
-                                                                             data-placement="top" title="Edit"><i
-                                                                        class="fa fa-pencil color-muted"></i> </a><a
-                                                                        href="javascript:void()" data-toggle="tooltip"
-                                                                        data-placement="top" title="Close"><i
-                                                                        class="fa fa-close color-danger"></i></a></span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Milk Powder</td>
-                                                                <td>
-                                                                    <div class="progress bgl-dark">
-                                                                        <div class="progress-bar bg-dark"
-                                                                             style="width: 70%;" role="progressbar">
-                                                                            <span class="sr-only">70% Complete</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>May 18,2018</td>
-                                                                <td><span class="badge badge-dark light">70%</span>
-                                                                </td>
-                                                                <td><span><a href="javascript:void()" class="mr-4"
-                                                                             data-toggle="tooltip"
-                                                                             data-placement="top" title="Edit"><i
-                                                                        class="fa fa-pencil color-muted"></i> </a><a
-                                                                        href="javascript:void()" data-toggle="tooltip"
-                                                                        data-placement="top" title="Close"><i
-                                                                        class="fa fa-close color-danger"></i></a></span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Vehicles</td>
-                                                                <td>
-                                                                    <div class="progress bgl-danger">
-                                                                        <div class="progress-bar bg-danger"
-                                                                             style="width: 70%;" role="progressbar">
-                                                                            <span class="sr-only">70% Complete</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>Mar 27,2018</td>
-                                                                <td><span class="badge badge-danger">70%</span>
-                                                                </td>
-                                                                <td><span><a href="javascript:void()" class="mr-4"
-                                                                             data-toggle="tooltip"
-                                                                             data-placement="top" title="Edit"><i
-                                                                        class="fa fa-pencil color-muted"></i> </a><a
-                                                                        href="javascript:void()" data-toggle="tooltip"
-                                                                        data-placement="top" title="Close"><i
-                                                                        class="fa fa-close color-danger"></i></a></span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Boats</td>
-                                                                <td>
-                                                                    <div class="progress bgl-warning">
-                                                                        <div class="progress-bar bg-warning"
-                                                                             style="width: 70%;" role="progressbar">
-                                                                            <span class="sr-only">70% Complete</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>Jun 28,2018</td>
-                                                                <td><span class="badge badge-warning">70%</span>
-                                                                </td>
-                                                                <td><span><a href="javascript:void()" class="mr-4"
-                                                                             data-toggle="tooltip"
-                                                                             data-placement="top" title="Edit"><i
-                                                                        class="fa fa-pencil color-muted"></i> </a><a
-                                                                        href="javascript:void()" data-toggle="tooltip"
-                                                                        data-placement="top" title="Close"><i
-                                                                        class="fa fa-close color-danger"></i></a></span>
-                                                                </td>
-                                                            </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                            <div class="card">
-                                                <div class="card-body">
+                                            <select class="js-data-example-ajax w-100">
 
-                                                </div>
-                                            </div>
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
@@ -634,4 +497,22 @@
         </div>
     </div>
 
+    <script>
+
+        {# 病历首页提取病人信息函数，参数为病历信息的PK #}
+
+        function binglishouye() {
+            {# 病人信息 #}
+            var jiwangshi = "宣传委员、文艺委员";
+            var guominshi = "强制性活动";
+            var tigejiancha = "等待北医六院的结果";
+            var fabingshijian = Date();
+            document.getElementById("jiwangshi").innerHTML = jiwangshi;
+            document.getElementById("guominshi").innerHTML = guominshi;
+            document.getElementById("tigejiancha").innerHTML = tigejiancha;
+            document.getElementById("fabingshijian").innerHTML = fabingshijian;
+        }
+    </script>
+
 {% endblock %}
+
