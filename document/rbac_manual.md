@@ -50,7 +50,7 @@
 
 
 
-## 使用说明
+## 原理与使用说明
 
 要使用 `HIS.rbac`，请按照以下步骤进行设置：
 
@@ -64,7 +64,75 @@
 - 加入设置：`PERMISSION_OBJ_KEY = "obj_key"`，指定 session 中用户全部对象资源权限的键；
 - 加入设置：`SAFE_URL = [...]`，指定无需登录也可访问的 URL。
 
+在用户登录时，需要使用 `HIS.rbac.server.init_permission` 中的 `init_permission` 函数获取用户所有的URL访问权限和对象资源权限。登录流程及所用函数如下所示：
 
+![](./rbac_manual/HIS-RBAC-Login.png)
+
+权限以字符串嵌套列表的形式储存在 `request.session` 中，如下例所示：
+
+```
+url permissions: [['test_1', '/1/'], ['test_8', '/8/']]
+obj permissions: [['staff', '7', 'change_staff'], ['department', '1', 'change_department']]
+```
+
+> URL Permission 的格式为 `<codename>.<url>`，经 `init_permission()` 处理为 `(<codename>, <url>)` 的格式；
+>
+> Object Permission 的格式为 `<app_label>.<model>.<object_id>.<codename>`，经 `init_permission()` 处理为 `(<model>, <object_id>, <codename>)` 的格式；
+
+每次访问 URL 时，通过 RBAC 中间件鉴权：
+
+![](./rbac_manual/HIS-RBAC-Middleware.png)
+
+对象资源权限相关函数，属于 `UserInfo` 类的实例方法：
+
+- `user_obj.get_user_url_permissions()`
+  - 获取该用户直接拥有的 URL 访问权限。
+  - `@return` 形如 `<codename>.<url>` 的字符串组成的集合。
+- `user_obj.get_group_url_permissions()`
+  - 获取该用户所属用户组拥有的全部 URL 访问权限，包括用户组直接拥有的权限与用户组所属角色拥有的全部权限。
+  - `@return` 形如 `<codename>.<url>` 的字符串组成的集合。
+- `user_obj.get_role_url_permissions()`
+  - 获取该用户所属角色拥有的 URL 访问权限。
+  - `@return` 形如 `<codename>.<url>` 的字符串组成的集合。
+- `user_obj.get_all_url_permissions()`
+  - 获取该用户直接或间接拥有的全部 URL 访问权限。
+  - `@return` 形如 `<codename>.<url>` 的字符串组成的集合。
+- `user_obj.has_urlperm(urlperm)`
+  - 判断用户是否具有给定的 `urlperm`
+  - `@urlperm` 形如 `<codename>.<url>` 的字符串。
+  - `@return` True or False。
+- `user_obj.has_urlperms(urlperm_list)`
+  - 判断用户是否具有给定的 `urlperm_list` 中的所有URL访问权限。
+  - `@urlperm_list` 形如 `<codename>.<url>` 的字符串列表。
+  - `@return` True or False。
+- `user_obj.has_module_urlperms(url_regex)`
+  - 判断用户在指定页面正则表达式上是否具有访问权限。
+  - `@url_regex` 形如 `^/index$` 的 URL 匹配正则表达式。
+  - `@return` True or False。
+- `user_obj.get_user_obj_permissions()`
+  - 获取该用户直接拥有的对象资源权限。
+  - `@return` 形如 `<app_label>.<model>.<object_id>.<codename>` 的字符串组成的集合。
+- `user_obj.get_group_obj_permissions()`
+  - 获取该用户所属用户组拥有的全部对象资源权限，包括用户组直接拥有的权限与用户组所属角色拥有的全部权限。
+  - `@return` 形如 `<app_label>.<model>.<object_id>.<codename>` 的字符串组成的集合。
+- `user_obj.get_role_url_permissions()`
+  - 获取该用户所属角色拥有的对象资源权限。
+  - `@return` 形如 `<app_label>.<model>.<object_id>.<codename>` 的字符串组成的集合。
+- `user_obj.get_all_url_permissions()`
+  - 获取该用户直接或间接拥有的全部对象资源权限。
+  - `@return` 形如 `<app_label>.<model>.<object_id>.<codename>` 的字符串组成的集合。
+- `user_obj.has_objperm(objperm)`
+  - 判断用户是否具有给定的 `objperm`
+  - `@objperm` 形如 `<app_label>.<model>.<object_id>.<codename>` 的字符串。
+  - `@return` True or False。
+- `user_obj.has_urlperms(urlperm_list)`
+  - 判断用户是否具有给定的 `urlperm_list` 中的所有URL访问权限。
+  - `@objperm_list` 形如 `<app_label>.<model>.<object_id>.<codename>` 的字符串列表。
+  - `@return` True or False。
+- `user_obj.has_module_objperms(app_label)`
+  - 判断用户在指定应用上是否具有访问权限。
+  - `@app_label` 应用名称字符串。
+  - `@return` True or False。
 
 ## 测试用例
 
@@ -140,7 +208,6 @@ B---B
 或者加入授权时应遵循的强制性规则，完成动态职责分离（DSD）、静态职责分离（SSD）：
 
 > 例如，一个用户不应该同时具有出纳和会计两个角色的权限。
->
 
 ```mermaid
 graph LR

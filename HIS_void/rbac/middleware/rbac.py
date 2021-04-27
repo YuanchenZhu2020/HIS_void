@@ -73,12 +73,11 @@ class RBACMiddleware:
         # Cond 4: 一般情况
         flag = False
         for code_name, code_url in url_permissions:
-            for url in code_url["urls"]:
-                url_pattern = "^{}$".format(url)
-                if re.match(url_pattern, request_url):
-                    request.session["permission_codes"] = code_url["codes"]
-                    flag = True
-                    break
+            url_pattern = "^{}$".format(code_url)
+            if re.match(url_pattern, request_url):
+                # request.session["permission_codes"] = code_url
+                flag = True
+                break
         if not flag:
             # 测试使用
             if settings.DEBUG:
