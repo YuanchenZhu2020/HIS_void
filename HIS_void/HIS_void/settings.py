@@ -149,3 +149,12 @@ SAFE_URL = [
     r"/profile/",
     r"/outpatient-workspace/",
 ]
+
+# setup session engine to improve performance
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+# set brawser-length sessions
+# SESSION_SAVE_EVERY_REQUEST = True
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# set persistent sessions (1 day = 86400 seconds)
+# SESSION_COOKIE_AGE = 86400
+

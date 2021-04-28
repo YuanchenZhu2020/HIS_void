@@ -1,9 +1,10 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 
+from his.forms import StaffLoginFrom
 from rbac.server.init_permission import init_permission
 
 
@@ -25,27 +26,50 @@ class LoginView(View):
         if request.user.is_authenticated:
             return redirect(reverse("profile"))
         else:
-            context = {"user_type": "staff"}
+            loginform = StaffLoginFrom()
+            context = {"user_type": "staff", "loginform": loginform}
             return render(request, LoginView.template_name, context)
 
     def post(self, request):
-        # 获取用户验证所需信息
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        # 用户验证
-        user = authenticate(request, username = username, password = password)
-        # 验证成功，向 Session 中写入信息
-        if user is not None:
+        # 通过 StaffLoginForm.clean() 方法进行多种验证
+        login_info = StaffLoginFrom(data = request.POST)
+        # 验证成功
+        if login_info.is_valid():
+            # 获取用户对象和是否保持登录的标识
+            user = login_info.get_user()
+            remembered = login_info.remembered
+            # 登录
             login(request, user)
+            # 向 Session 中写入信息
             request.session["username"] = user.get_username()
             # request.session["is_login"] = True
-            # 初始化，获取用户权限，写入 session 中
+            # 获取用户权限，写入 session 中
             init_permission(request, user)
             # print(request.session["url_key"], request.session["obj_key"])
+            # 若选择保持登录，则重新设置 session 保存时间为 1 天 (86400 s)
+            if remembered:
+                request.session.set_expiry(86400)
+            # 浏览器关闭则删除 session
+            else:
+                request.session.set_expiry(0)
             return redirect(reverse("profile"))
         else:
-            context = {"user_type": "staff", "name_or_password_error": True}
+            error_msg = login_info.errors["__all__"][0]
+            loginform = StaffLoginFrom()
+            context = {
+                "user_type": "staff", 
+                "loginform": loginform,
+                "error_message": error_msg,
+            }
             return render(request, LoginView.template_name, context)
+
+
+class LogoutView(View):
+    template_name = "index"
+
+    def get(self, request):
+        logout(request)
+        return redirect(reverse(LogoutView.template_name))
 
 
 class RegisterView(View):
@@ -68,14 +92,6 @@ class ForgotPasswordView(View):
     def post(self, request):
         pass
         return render(request, ForgotPasswordView.template_name)
-
-
-class LogoutView(View):
-    template_name = "index"
-
-    def get(self, request):
-        request.session.clear()
-        return redirect(reverse(LogoutView.template_name))
 
 
 class ProfileView(View):
