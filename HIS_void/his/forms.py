@@ -38,9 +38,9 @@ class StaffLoginFrom(forms.Form):
     )
 
     error_messages = {
-        "wrong_username_or_password": _("账号或密码错误！"),
-        "inactive": _("账户还未激活。"),
-        "username_hint": _("用户名为工号。"),
+        "wrong_username_or_password": _("账号或密码错误"),
+        "inactive": _("账户还未激活"),
+        "username_hint": _("用户名格式错误（6位数字）"),
     }
 
     def __init__(self, request = None, *args, **kwargs):
@@ -94,7 +94,7 @@ class StaffLoginFrom(forms.Form):
         return self.user_cache
 
     @property
-    def remembered(self):
+    def remember_me(self):
         return self._remembered
 
     def get_invalid_login_error(self):

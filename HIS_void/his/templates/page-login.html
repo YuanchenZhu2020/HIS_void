@@ -15,9 +15,9 @@
                                     <h4 class="text-center mb-4">登录您的帐户</h4>
                                     <form action="/login-{{ user_type }}/" method="POST">
                                         {% csrf_token %}
-                                        {% comment %} {% if name_or_password_error %} {% endcomment %}
+                                        {% if error_message %}
                                             <div class="alert alert-danger">{{ error_message }}</div>
-                                        {% comment %} {% endif %} {% endcomment %}
+                                        {% endif %}
                                         <div class="form-group">
                                             <label class="mb-1"><strong>用户名</strong></label>
                                             {% comment %} <input type="text" class="form-control" name="username"> {% endcomment %}
@@ -34,7 +34,7 @@
                                                     {% comment %} <input type="checkbox" class="custom-control-input" id="basic_checkbox_1"> {% endcomment %}
                                                     {{ loginform.remembered }}
                                                     <label class="custom-control-label" for="basic_checkbox_1">
-                                                        保持登录
+                                                        当天保持登录
                                                     </label>
                                                 </div>
                                             </div>

@@ -72,8 +72,8 @@ class RBACMiddleware:
 
         # Cond 4: 一般情况
         flag = False
-        for code_name, code_url in url_permissions:
-            url_pattern = "^{}$".format(code_url)
+        for code_name, url in url_permissions:
+            url_pattern = "^{}$".format(url)
             if re.match(url_pattern, request_url):
                 # request.session["permission_codes"] = code_url
                 flag = True
@@ -81,7 +81,8 @@ class RBACMiddleware:
         if not flag:
             # 测试使用
             if settings.DEBUG:
-                info = "<br/>" + ("<br/>".join(code_url["urls"]))
+                code_urls = [item[-1] for item in url_permissions]
+                info = "<br/>" + ("<br/>".join(code_urls))
                 return HttpResponse("无访问权限，尝试以下网址： {}".format(info))
             else:
                 return HttpResponse("无权限访问")

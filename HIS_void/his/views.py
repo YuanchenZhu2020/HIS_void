@@ -37,7 +37,7 @@ class LoginView(View):
         if login_info.is_valid():
             # 获取用户对象和是否保持登录的标识
             user = login_info.get_user()
-            remembered = login_info.remembered
+            remember_me = login_info.remember_me
             # 登录
             login(request, user)
             # 向 Session 中写入信息
@@ -47,7 +47,7 @@ class LoginView(View):
             init_permission(request, user)
             # print(request.session["url_key"], request.session["obj_key"])
             # 若选择保持登录，则重新设置 session 保存时间为 1 天 (86400 s)
-            if remembered:
+            if remember_me:
                 request.session.set_expiry(86400)
             # 浏览器关闭则删除 session
             else:
@@ -69,6 +69,7 @@ class LogoutView(View):
 
     def get(self, request):
         logout(request)
+        request.session.clear()
         return redirect(reverse(LogoutView.template_name))
 
 
