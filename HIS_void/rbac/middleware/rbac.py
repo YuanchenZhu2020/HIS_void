@@ -47,12 +47,13 @@ class RBACMiddleware:
         request_url = request.path_info
         url_permissions = request.session.get(settings.PERMISSION_URL_KEY)
         obj_permissions = request.session.get(settings.PERMISSION_OBJ_KEY)
+        print("[middleware]", request.user)
         print("[request_url]", request_url)
         print("[url_permissions]", url_permissions)
         print("[obj permissions]", obj_permissions)
 
         # Cond 1: 超级用户，具有完全权限
-        if request.user.is_superuser:
+        if hasattr(request.user, "is_superuser"):
             # print("RBAC Cond 1")
             return None
         # Cond 2: URL 白名单

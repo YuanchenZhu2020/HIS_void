@@ -1,34 +1,45 @@
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 
 from his.forms import StaffLoginFrom
+from patient.models import PatientUser
+from rbac.models import UserInfo
 from rbac.server.init_permission import init_permission
 
 
 class IndexView(View):
     template_name = "index.html"
+    staff_next_url_name = "profile"
+    patient_next_url_name = "patient-user"
 
     def get(self, request):
+        print("[Index View]", request.user)
         if request.user.is_authenticated:
-            return redirect(reverse("profile"))
+            # print(type(request.user))
+            if isinstance(request.user, UserInfo):
+                return redirect(reverse(IndexView.staff_next_url_name))
+            elif isinstance(request.user, PatientUser):
+                return redirect(reverse(IndexView.patient_next_url_name))
+            else:
+                return HttpResponse("Fatal Error!")
         else:
             return render(request, IndexView.template_name)
 
 
-class LoginView(View):
+class StaffLoginView(View):
     template_name = "page-login.html"
-    user_type = "staff"
-
+    staff_next_url_name = "profile"
+    
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect(reverse("profile"))
+            return redirect(reverse(StaffLoginView.staff_next_url_name))
         else:
             loginform = StaffLoginFrom()
             context = {"user_type": "staff", "loginform": loginform}
-            return render(request, LoginView.template_name, context)
+            return render(request, StaffLoginView.template_name, context)
 
     def post(self, request):
         # 通过 StaffLoginForm.clean() 方法进行多种验证
@@ -61,16 +72,16 @@ class LoginView(View):
                 "loginform": loginform,
                 "error_message": error_msg,
             }
-            return render(request, LoginView.template_name, context)
+            return render(request, StaffLoginView.template_name, context)
 
 
-class LogoutView(View):
+class StaffLogoutView(View):
     template_name = "index"
 
     def get(self, request):
         logout(request)
-        request.session.clear()
-        return redirect(reverse(LogoutView.template_name))
+        # request.session.clear()
+        return redirect(reverse(StaffLogoutView.template_name))
 
 
 class RegisterView(View):
@@ -99,7 +110,7 @@ class ProfileView(View):
     template_name = 'page-profile.html'
 
     def get(self, request):
-        print("[Session]", request.session)
+        # print("[Session]", request.session)
         if not request.user.is_authenticated:
             return redirect(reverse("index"))
         return render(request, ProfileView.template_name, locals())

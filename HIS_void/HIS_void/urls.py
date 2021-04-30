@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 
 from his.views import (
-    IndexView, LoginView, RegisterView, ForgotPasswordView, LogoutView, 
+    IndexView, StaffLoginView, RegisterView, ForgotPasswordView, StaffLogoutView, 
     ProfileView, OutpatientView
 )
 from patient.views import (
@@ -31,7 +31,7 @@ urlpatterns = [
     # 主页
     path('index/', IndexView.as_view(), name = "index"),
     # 职工登录页面
-    path("login-staff/", LoginView.as_view(), name = "login-staff"),
+    path("login-staff/", StaffLoginView.as_view(), name = "login-staff"),
     # 患者登录页面
     path("login-patient/", PatientLoginView.as_view(), name = "login-patient"),
     # 注册页面
@@ -39,13 +39,13 @@ urlpatterns = [
     # 找回密码页面
     path('forgot-password/', ForgotPasswordView.as_view(), name = "forgot-password"),
     # 登出页面
-    path('logout/', LogoutView.as_view(), name = "logout"),
+    path('logout/', StaffLogoutView.as_view(), name = "logout"),
     # 个人信息页面
     path('profile/', ProfileView.as_view(), name = "profile"),
-    # 工作页面
+    # 门诊医生工作页面
     path('outpatient-workspace/', OutpatientView.as_view(), name = "outpatient-workspace"),
-    # 患者未登录首页
-    path('patient/', PatientWorkSpaceView.as_view(), name = "patient"),
+    # # 患者未登录首页
+    # path('patient/', PatientWorkSpaceView.as_view(), name = "patient"),
     # 患者登录后个人界面
-    path('patient-user/', PatientWorkMyView.as_view(), name = "patient-user"),
+    path('patient-user/', PatientWorkSpaceView.as_view(), name = "patient-user"),
 ]
