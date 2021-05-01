@@ -1,9 +1,11 @@
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 
 from patient import login, init_patient_url_permission
 from patient.forms import PatientLoginFrom
+from patient.models import PatientUser
 
 
 class PatientLoginView(View):
@@ -53,13 +55,35 @@ class PatientLoginView(View):
             return render(request, PatientLoginView.template_name, context)
 
 
+class RegisterView(View):
+    template_name = "page-register.html"
+
+    def get(self, request):
+        return render(request, RegisterView.template_name)
+
+    def post(self, request):
+        pass
+        return HttpResponse(RegisterView.template_name)
+
+
+class ForgotPasswordView(View):
+    template_name = "page-forgot-password.html"
+
+    def get(self, request):
+        return render(request, ForgotPasswordView.template_name)
+
+    def post(self, request):
+        pass
+        return render(request, ForgotPasswordView.template_name)
+
+
 class PatientWorkSpaceView(View):
     template_name = "patient-view.html"
     patient_next_url_name = "index"
 
     def get(self, request):
         print("[Patient Workspace View]", request.user)
-        if request.user.is_authenticated:
+        if request.user.is_authenticated  and isinstance(request.user, PatientUser):
             context = {"user_type": "patient"}
             return render(request, PatientWorkSpaceView.template_name, context = context)
         else:

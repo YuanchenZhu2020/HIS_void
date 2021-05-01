@@ -121,12 +121,6 @@ class PatientUser(AbstractBaseUser):
         """
         return self.is_admin
 
-    def is_authenticated(self):
-        """
-        如果是
-        """
-        return True
-
     def set_name(self, name):
         self.name = name
     

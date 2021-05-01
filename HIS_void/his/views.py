@@ -83,37 +83,15 @@ class StaffLogoutView(View):
         # request.session.clear()
         return redirect(reverse(StaffLogoutView.template_name))
 
-
-class RegisterView(View):
-    template_name = "page-register.html"
-
-    def get(self, request):
-        return render(request, RegisterView.template_name)
-
-    def post(self, request):
-        pass
-        return HttpResponse(RegisterView.template_name)
-
-
-class ForgotPasswordView(View):
-    template_name = "page-forgot-password.html"
-
-    def get(self, request):
-        return render(request, ForgotPasswordView.template_name)
-
-    def post(self, request):
-        pass
-        return render(request, ForgotPasswordView.template_name)
-
-
 class ProfileView(View):
     template_name = 'page-profile.html'
 
     def get(self, request):
         # print("[Session]", request.session)
-        if not request.user.is_authenticated:
+        if request.user.is_authenticated and isinstance(request.user, UserInfo):
+            return render(request, ProfileView.template_name, locals())
+        else:
             return redirect(reverse("index"))
-        return render(request, ProfileView.template_name, locals())
 
     def post(self, request):
         post_dict = dict(request.POST)

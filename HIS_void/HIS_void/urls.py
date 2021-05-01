@@ -17,11 +17,11 @@ from django.contrib import admin
 from django.urls import path
 
 from his.views import (
-    IndexView, StaffLoginView, RegisterView, ForgotPasswordView, StaffLogoutView, 
+    IndexView, StaffLoginView, StaffLogoutView, 
     ProfileView, OutpatientView
 )
 from patient.views import (
-    PatientLoginView, PatientWorkSpaceView, PatientWorkMyView
+    PatientLoginView, RegisterView, ForgotPasswordView, PatientWorkSpaceView, PatientWorkMyView
 )
 
 urlpatterns = [
