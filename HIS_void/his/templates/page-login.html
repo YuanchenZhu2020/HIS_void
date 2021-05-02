@@ -2,9 +2,7 @@
 {% load static %}
 {% block title %}登录{% endblock %}
 {% block body-context %}
-    <html class="h-100"></html>
-    <body class="h-100">
-    <div class="authincation h-100">
+    <div class="authincation h-100 mt-5">
         <div class="container h-100">
             <div class="row justify-content-center h-100 align-items-center">
                 <div class="col-md-6">
@@ -18,20 +16,23 @@
                                         {% if error_message %}
                                             <div class="alert alert-danger">{{ error_message }}</div>
                                         {% endif %}
-                                        <div class="form-group">
+                                        <div class="form-group {% if user_type == 'staff' %}input-info{% endif %}">
                                             <label class="mb-1"><strong>用户名</strong></label>
-                                            {% comment %} <input type="text" class="form-control" name="username"> {% endcomment %}
+                                            {% comment %}<input type="text" class="form-control"
+                                                                name="username"> {% endcomment %}
                                             {{ loginform.username }}
                                         </div>
-                                        <div class="form-group">
+                                        <div class="form-group {% if user_type == 'staff' %}input-info{% endif %}">
                                             <label class="mb-1"><strong>密码</strong></label>
-                                            {% comment %} <input type="password" class="form-control " name="password"> {% endcomment %}
+                                            {% comment %}<input type="password" class="form-control "
+                                                                name="password"> {% endcomment %}
                                             {{ loginform.password }}
                                         </div>
                                         <div class="form-row d-flex justify-content-between mt-4 mb-2">
                                             <div class="form-group">
-                                                <div class="custom-control custom-checkbox ml-1">
-                                                    {% comment %} <input type="checkbox" class="custom-control-input" id="basic_checkbox_1"> {% endcomment %}
+                                                <div class="custom-control custom-checkbox {% if user_type == 'staff' %}checkbox-info{% endif %} ml-1">
+                                                    {% comment %}<input type="checkbox" class="custom-control-input"
+                                                                        id="basic_checkbox_1"> {% endcomment %}
                                                     {{ loginform.remembered }}
                                                     <label class="custom-control-label" for="basic_checkbox_1">
                                                         当天保持登录
@@ -70,6 +71,4 @@
             </div>
         </div>
     </div>
-    </body>
-
 {% endblock %}
