@@ -1,85 +1,97 @@
+from django.contrib.auth import login, logout
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
 
-import his.models as his_model
-
-from rbac import models as rbac_models
+from his.forms import StaffLoginFrom
+from patient.models import PatientUser
+from rbac.models import UserInfo
+from rbac.server.init_permission import init_permission
 
 
 class IndexView(View):
     template_name = "index.html"
+    staff_next_url_name = "profile"
+    patient_next_url_name = "patient-user"
 
     def get(self, request):
-        if 'user_name' in request.session:
-            print("session中存在user_name")
-            return redirect(reverse("profile"))
-        return render(request, IndexView.template_name)
+        print("[Index View]", request.user)
+        if request.user.is_authenticated:
+            # print(type(request.user))
+            if isinstance(request.user, UserInfo):
+                return redirect(reverse(IndexView.staff_next_url_name))
+            elif isinstance(request.user, PatientUser):
+                return redirect(reverse(IndexView.patient_next_url_name))
+            else:
+                return HttpResponse("Fatal Error!")
+        else:
+            return render(request, IndexView.template_name)
 
 
-class LoginView(View):
+class StaffLoginView(View):
     template_name = "page-login.html"
-    user_type = "staff"
-
+    staff_next_url_name = "profile"
+    
     def get(self, request):
-        if 'user_name' in request.session:
-            print("session中存在user_name")
-            return redirect(reverse("profile"))
-        return render(request, LoginView.template_name, context={"user_type": "staff"})
+        if request.user.is_authenticated:
+            return redirect(reverse(StaffLoginView.staff_next_url_name))
+        else:
+            loginform = StaffLoginFrom()
+            context = {"user_type": "staff", "loginform": loginform}
+            return render(request, StaffLoginView.template_name, context)
 
     def post(self, request):
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = rbac_models.UserInfo.objects.filter(username=username, password=password).first()
-        staff = his_model.Staff.objects.filter(user_obj=user).first()
-        if user:
-            request.session["user_name"] = user.username
-            request.session["staff_name"] = staff.name
+        # 通过 StaffLoginForm.clean() 方法进行多种验证
+        login_info = StaffLoginFrom(data = request.POST)
+        # 验证成功
+        if login_info.is_valid():
+            # 获取用户对象和是否保持登录的标识
+            user = login_info.get_user()
+            remember_me = login_info.remember_me
+            # 登录
+            login(request, user)
+            # 向 Session 中写入信息
+            request.session["username"] = user.get_username()
+            # request.session["is_login"] = True
+            # 获取用户权限，写入 session 中
+            init_permission(request, user)
+            # print(request.session["url_key"], request.session["obj_key"])
+            # 若选择保持登录，则重新设置 session 保存时间为 1 天 (86400 s)
+            if remember_me:
+                request.session.set_expiry(86400)
+            # 浏览器关闭则删除 session
+            else:
+                request.session.set_expiry(0)
             return redirect(reverse("profile"))
         else:
-            context = {"user_type": "staff", "name_or_password_error": True}
-            return render(request, LoginView.template_name, context)
+            error_msg = login_info.errors["__all__"][0]
+            loginform = StaffLoginFrom()
+            context = {
+                "user_type": "staff", 
+                "loginform": loginform,
+                "error_message": error_msg,
+            }
+            return render(request, StaffLoginView.template_name, context)
 
 
-class RegisterView(View):
-    template_name = "page-register.html"
-
-    def get(self, request):
-        return render(request, RegisterView.template_name)
-
-    def post(self, request):
-        pass
-        return HttpResponse(RegisterView.template_name)
-
-
-class ForgotPassword(View):
-    template_name = "page-forgot-password.html"
+class StaffLogoutView(View):
+    template_name = "index"
 
     def get(self, request):
-        return render(request, ForgotPassword.template_name)
+        logout(request)
+        # request.session.clear()
+        return redirect(reverse(StaffLogoutView.template_name))
 
-    def post(self, request):
-        pass
-        return render(request, ForgotPassword.template_name)
-
-
-class Logout(View):
-    def get(self, request):
-        del request.session["user_name"]
-        return redirect(reverse("index"))
-
-
-class Profile(View):
+class ProfileView(View):
     template_name = 'page-profile.html'
 
     def get(self, request):
-        if 'user_name' not in request.session:
+        # print("[Session]", request.session)
+        if request.user.is_authenticated and isinstance(request.user, UserInfo):
+            return render(request, ProfileView.template_name, locals())
+        else:
             return redirect(reverse("index"))
-
-        # 根据用户名查询需要的信息，用户名通过login传递?
-        chang_gui = request.GET.get("chang_gui")
-        return render(request, Profile.template_name, locals())
 
     def post(self, request):
         post_dict = dict(request.POST)
@@ -88,21 +100,8 @@ class Profile(View):
         print(post_dict)
 
 
-class Outpatient(View):
+class OutpatientView(View):
     template_name = 'page-outpatient-workspace.html'
 
     def get(self, request):
-        return render(request, Outpatient.template_name)
-
-
-class Nurse(View):
-    template_name = 'page-nurse-workspace.html'
-
-    def get(self, request):
-        return render(request, Nurse.template_name)
-
-class Inspection(View):
-    template_name = 'page-inspection-workspace.html'
-
-    def get(self, request):
-        return render(request, Inspection.template_name)
+        return render(request, OutpatientView.template_name)

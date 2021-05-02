@@ -23,7 +23,7 @@ SECRET_KEY = 'rx*$9b3=cd$a=&9p9e1t7k%*r0-sjxanaawmofpg-q-q5pz^k%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "39.97.170.255"]
+ALLOWED_HOSTS = ["127.0.0.1", "39.97.170.255", "82.156.22.48"]
 
 # Application definition
 
@@ -36,6 +36,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Role-Based Access Control
     'rbac',
+    # 外部接口
+    'externalapi',
     # Hospital Iinformation System Gate
     'his',
     # 病人页面
@@ -50,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # Patient User Middleware
+    "patient.middleware.PatientUserMiddleware",
     # RBAC Middleware
     "rbac.middleware.rbac.RBACMiddleware",
 ]
@@ -125,13 +129,19 @@ STATICFILES_DIRS = (
 
 
 # Auth user model
-# AUTH_USER_MODEL = "rbac.UserInfo"
+AUTH_USER_MODEL = "rbac.UserInfo"
+# Auth backends
+AUTHENTICATION_BACKENDS = (
+    "rbac.backends.CustomBackends",
+)
 
 # Role-Based Access Control
 PERMISSION_URL_KEY = "url_key"
+PERMISSION_OBJ_KEY = "obj_key"
 # PERMISSION_MENU_KEY = "menu_key"
 
 SAFE_URL = [
+    r"",
     r"/index/",
     r"/login-staff/",
     r"/login-patient/",
@@ -146,3 +156,15 @@ SAFE_URL = [
     r"/nurse-workspace/",
     r"/inspection-workspace/"
 ]
+
+# setup session engine to improve performance
+SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
+# set brawser-length sessions
+# SESSION_SAVE_EVERY_REQUEST = True
+# SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# set persistent sessions (1 day = 86400 seconds)
+# SESSION_COOKIE_AGE = 86400
+
+# set length of patient id
+PATIENT_ID_LEN = 6
+# PATIENT_AUTH_USER_MODEL = "patient.PatientUser"

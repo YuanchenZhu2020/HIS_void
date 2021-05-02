@@ -16,35 +16,36 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from his.views import IndexView, LoginView, RegisterView, ForgotPassword, Profile, Logout, Outpatient, Nurse, Inspection
-from patient.views import PatientLoginView, PatientWorkSpace, PatientWorkMy
+from his.views import (
+    IndexView, StaffLoginView, StaffLogoutView, 
+    ProfileView, OutpatientView
+)
+from patient.views import (
+    PatientLoginView, RegisterView, ForgotPasswordView, PatientWorkSpaceView, PatientWorkMyView
+)
 
 urlpatterns = [
-    path('', IndexView.as_view(), name=''),
+    path('', IndexView.as_view(), name = ''),
     # 管理员
     path('admin/', admin.site.urls),
     # 主页
-    path('index/', IndexView.as_view(), name="index"),
+    path('index/', IndexView.as_view(), name = "index"),
     # 职工登录页面
-    path("login-staff/", LoginView.as_view(), name="login-staff"),
+    path("login-staff/", StaffLoginView.as_view(), name = "login-staff"),
     # 患者登录页面
-    path("login-patient/", PatientLoginView.as_view(), name="login-patient"),
+    path("login-patient/", PatientLoginView.as_view(), name = "login-patient"),
     # 注册页面
-    path('register/', RegisterView.as_view(), name='register'),
+    path('register/', RegisterView.as_view(), name = "register"),
     # 找回密码页面
-    path('forgot-password/', ForgotPassword.as_view(), name="forgot-password"),
+    path('forgot-password/', ForgotPasswordView.as_view(), name = "forgot-password"),
     # 登出页面
-    path('logout/', Logout.as_view(), name='logout'),
+    path('logout/', StaffLogoutView.as_view(), name = "logout"),
     # 个人信息页面
-    path('profile/', Profile.as_view(), name='profile'),
-    # 门诊医生工作台
-    path('outpatient-workspace/', Outpatient.as_view(), name='outpatient-workspace'),
-    # 患者未登录首页
-    path('patient/', PatientWorkSpace.as_view(), name='patient'),
+    path('profile/', ProfileView.as_view(), name = "profile"),
+    # 门诊医生工作页面
+    path('outpatient-workspace/', OutpatientView.as_view(), name = "outpatient-workspace"),
+    # # 患者未登录首页
+    # path('patient/', PatientWorkSpaceView.as_view(), name = "patient"),
     # 患者登录后个人界面
-    path('patient-user/', PatientWorkMy.as_view(), name='patient-user'),
-    # 护士工作台
-    path('nurse-workspace/', Nurse.as_view(), name='nurse-workspace'),
-    # 检验工作台
-    path('inspection-workspace/', Inspection.as_view(), name='inspection-workspace'),
+    path('patient-user/', PatientWorkSpaceView.as_view(), name = "patient-user"),
 ]
