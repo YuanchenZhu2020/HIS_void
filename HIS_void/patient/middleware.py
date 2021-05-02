@@ -39,8 +39,8 @@ class PatientUserMiddleware:
             "'django.contrib.sessions.middleware.SessionMiddleware' before "
             "'django.contrib.auth.middleware.AuthenticationMiddleware'."
         )
-        print(request.user)
-        print(type(request.user))
-        print(isinstance(request.user, AnonymousUser))
+        # print(request.user)
+        # print(type(request.user))
+        # print(isinstance(request.user, AnonymousUser))
         if isinstance(request.user, AnonymousUser):
             request.user = get_user(request)

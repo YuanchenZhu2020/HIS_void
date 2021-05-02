@@ -21,7 +21,8 @@ from his.views import (
     ProfileView, OutpatientView
 )
 from patient.views import (
-    PatientLoginView, RegisterView, ForgotPasswordView, PatientWorkSpaceView, PatientWorkMyView
+    PatientLoginView, PatientRegisterView, ForgotPasswordView, 
+    PatientWorkSpaceView, PatientWorkMyView
 )
 
 urlpatterns = [
@@ -35,7 +36,7 @@ urlpatterns = [
     # 患者登录页面
     path("login-patient/", PatientLoginView.as_view(), name = "login-patient"),
     # 注册页面
-    path('register/', RegisterView.as_view(), name = "register"),
+    path('register/', PatientRegisterView.as_view(), name = "register"),
     # 找回密码页面
     path('forgot-password/', ForgotPasswordView.as_view(), name = "forgot-password"),
     # 登出页面

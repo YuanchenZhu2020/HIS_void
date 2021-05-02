@@ -12,21 +12,38 @@
                                     <h4 class="text-center mb-4">注册您的账户</h4>
                                     {# 这里不太清楚应该action到哪 cation='#'似乎是提交到当前页 #}
                                     <form action="#" method="POST">
-                                        <div class="form-group input-group-sm">
+                                    {% csrf_token %}
+                                        {% if error_message %}
+                                            <div class="alert alert-danger">{{ error_message }}</div>
+                                        {% endif %}
+                                        {% comment %} <div class="form-group input-group-sm">
                                             <label class="mb-1"><strong>姓名</strong></label>
                                             <input type="text" class="form-control " name="username" placeholder="">
+                                        </div> {% endcomment %}
+                                        <div class="form-group input-group-sm">
+                                            <label class="mb-1"><strong>证件类型</strong></label>
+                                            {% comment %} <input type="text" class="form-control" name="IDCard" placeholder=""> {% endcomment %}
+                                            {{ registerform.id_type }}
                                         </div>
                                         <div class="form-group input-group-sm">
                                             <label class="mb-1"><strong>身份证号</strong></label>
-                                            <input type="text" class="form-control" name="IDCard" placeholder="">
+                                            {% comment %} <input type="text" class="form-control" name="IDCard" placeholder=""> {% endcomment %}
+                                            {{ registerform.id_number }}
                                         </div>
                                         <div class="form-group input-group-sm">
                                             <label class="mb-1"><strong>密码</strong></label>
-                                            <input type="password" class="form-control" name="password" placeholder="">
+                                            {% comment %} <input type="password" class="form-control" name="password" placeholder=""> {% endcomment %}
+                                            {{ registerform.password1 }}
+                                        </div>
+                                        <div class="form-group input-group-sm">
+                                            <label class="mb-1"><strong>密码确认</strong></label>
+                                            {% comment %} <input type="password" class="form-control" name="new-password" placeholder=""> {% endcomment %}
+                                            {{ registerform.password2 }}
                                         </div>
                                         <div class="form-group input-group-sm">
                                             <label class="mb-1"><strong>手机号码</strong></label>
-                                            <input type="text" class="form-control" name="telephone" placeholder="">
+                                            {% comment %} <input type="text" class="form-control" name="telephone" placeholder=""> {% endcomment %}
+                                            {{ registerform.phone }}
                                         </div>
                                         <label class="mb-1"><strong>验证码</strong></label>
                                         <div class="row">
@@ -48,7 +65,7 @@
                                         </div>
                                     </form>
                                     <div class="new-account mt-3 text-center">
-                                        <p>已拥有帐号？<a class="text-primary" href="{% url 'patient' %}">登录</a></p>
+                                        <p>已拥有帐号？<a class="text-primary" href="{% url 'login-patient' %}">登录</a></p>
                                     </div>
                                 </div>
                             </div>

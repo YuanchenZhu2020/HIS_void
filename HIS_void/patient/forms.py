@@ -5,9 +5,11 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from patient import authenticate
+from patient.models import PatientUser
+from patient.validators import IDNumberValidator
 
 
-class PatientLoginFrom(forms.Form):
+class PatientLoginForm(forms.Form):
     username = forms.CharField(
         max_length = settings.PATIENT_ID_LEN,
         widget = forms.widgets.TextInput(
@@ -45,12 +47,6 @@ class PatientLoginFrom(forms.Form):
         "inactive": _("账户还未激活"),
         "username_hint": _("用户名格式错误"),
     }
-
-    def __init__(self, request = None, *args, **kwargs):
-        self.request = request
-        self.user_cache = None
-        self._remembered = False
-        super().__init__(*args, **kwargs)
 
     def clean(self):
         """
@@ -99,3 +95,75 @@ class PatientLoginFrom(forms.Form):
             self.error_messages["username_hint"],
             code = "username_hint"
         )
+
+
+class PatientRegisterForm(forms.ModelForm):
+    """
+    e.g.
+    533123196503251703
+    653123197909264899
+    210105196008253066
+    """
+    id_number = forms.CharField(
+        max_length = 18,
+        validators = [IDNumberValidator(),],
+        widget = forms.widgets.TextInput(
+            attrs = {
+                "class": "form-control",
+                "name": "username",
+                "autofocus": True,
+                "required": True,
+            }
+        )
+    )
+    password1 = forms.CharField(
+        strip = False,
+        widget = forms.widgets.PasswordInput(
+            attrs = {
+                "class": "form-control",
+                "name": "password",
+                "required": True,
+            }
+        )
+    )
+    password2 = forms.CharField(
+        strip = False,
+        widget = forms.widgets.PasswordInput(
+            attrs = {
+                "class": "form-control",
+                "name": "new-password",
+                "required": True,
+            }
+        ),
+        help_text = _("请输入与之前相同的密码"),
+    )
+    phone = forms.CharField(
+        # 非必填字段，默认值为 ''
+        required = False,
+        max_length = 11, 
+        widget = forms.widgets.TextInput(
+            attrs = {
+                "class": "form-control",
+                "name": "telephone",
+            }
+        )
+    )
+
+    error_messages = {
+        "password_mismatch": _("两次输入的密码不一致"),
+    }
+
+    class Meta:
+        model = PatientUser
+        fields = (
+            "id_type", "id_number", "phone",
+        )
+
+    def clean(self):
+        password1 = self.cleaned_data.get("password1")
+        password2 = self.cleaned_data.get("password2")
+        if password1 and password2 and password1 != password2:
+            raise ValidationError(
+                self.error_messages['password_mismatch'],
+                code = "password_mismatch",
+            )

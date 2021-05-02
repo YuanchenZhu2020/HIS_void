@@ -4,8 +4,9 @@ from django.urls import reverse
 from django.views import View
 
 from patient import login, init_patient_url_permission
-from patient.forms import PatientLoginFrom
+from patient.forms import PatientLoginForm, PatientRegisterForm
 from patient.models import PatientUser
+from externalapi.external_api import IDInfoQuery
 
 
 class PatientLoginView(View):
@@ -16,13 +17,13 @@ class PatientLoginView(View):
         if request.user.is_authenticated:
             return redirect(reverse(PatientLoginView.patient_next_url_name))
         else:
-            loginform = PatientLoginFrom()
+            loginform = PatientLoginForm()
             context = {"user_type": "patient", "loginform": loginform}
             return render(request, PatientLoginView.template_name, context)
 
     def post(self, request):
         # 通过 PatientLoginForm.clean() 方法进行多种验证
-        login_info = PatientLoginFrom(data = request.POST)
+        login_info = PatientLoginForm(data = request.POST)
         # 验证成功
         if login_info.is_valid():
             # 获取用户对象和是否保持登录的标识
@@ -46,7 +47,7 @@ class PatientLoginView(View):
             return redirect(reverse(PatientLoginView.patient_next_url_name))
         else:
             error_msg = login_info.errors["__all__"][0]
-            loginform = PatientLoginFrom()
+            loginform = PatientLoginForm()
             context = {
                 "user_type": "patient", 
                 "loginform": loginform,
@@ -55,15 +56,53 @@ class PatientLoginView(View):
             return render(request, PatientLoginView.template_name, context)
 
 
-class RegisterView(View):
+class PatientRegisterView(View):
     template_name = "page-register.html"
+    patient_next_url_name = "login-patient"
 
     def get(self, request):
-        return render(request, RegisterView.template_name)
+        registerform = PatientRegisterForm()
+        context = {"registerform": registerform}
+        return render(request, PatientRegisterView.template_name, context = context)
 
     def post(self, request):
-        pass
-        return HttpResponse(RegisterView.template_name)
+        register_info = PatientRegisterForm(data = request.POST)
+        if register_info.is_valid():
+            # print(register_info.__dict__)
+            data = register_info.cleaned_data
+            id_type = data.get("id_type")
+            id_number = data.get("id_number")
+            phone = data.get("phone")
+            user = PatientUser.objects.filter(
+                id_type = id_type, 
+                id_number = id_number
+            ).first()
+            if not user:
+                user = PatientUser(
+                    id_type = id_type,
+                    id_number = id_number,
+                    phone = phone
+                )
+                user.set_password(data.get("password1"))
+                id_info_query = IDInfoQuery(user.id_number)
+                user.set_name(id_info_query.get_name())
+                user.set_gender(id_info_query.get_gender())
+                user.set_birthday(id_info_query.get_birthday())
+                user.save()
+                return redirect(reverse(PatientRegisterView.patient_next_url_name))
+        # 表单数据验证失败
+        if not register_info.is_valid():
+            # print(register_info.__dict__)
+            error_msg = list(register_info.errors.values())[0]
+        # 已存在与已填写信息对应的患者用户
+        if user:
+            error_msg = "用户已注册"
+        loginform = PatientRegisterForm()
+        context = {
+            "registerform": loginform,
+            "error_message": error_msg,
+        }
+        return render(request, PatientRegisterView.template_name, context)
 
 
 class ForgotPasswordView(View):
@@ -89,17 +128,6 @@ class PatientWorkSpaceView(View):
         else:
             # print(type(request.user))
             return redirect(reverse(PatientWorkSpaceView.patient_next_url_name))
-
-    # def post(self, request):
-    #     username = request.POST.get("username")
-    #     password = request.POST.get("password")
-    #     # 测试用
-    #     print(username, password)
-    #     if username == "test" and password == "123456":
-    #         return redirect(reverse("index"))
-    #     else:
-    #         context = {"user_type": "patient", "name_or_password_error": True}
-    #         return render(request, PatientLoginView.template_name, context)
 
 
 class PatientWorkMyView(View):

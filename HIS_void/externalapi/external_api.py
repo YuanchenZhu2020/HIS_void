@@ -3,7 +3,7 @@ from django.utils import dateparse
 import random
 
 
-random.seed(36814)
+# random.seed(36814)
 
 
 class IDInfoQuery:
