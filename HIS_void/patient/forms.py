@@ -48,6 +48,12 @@ class PatientLoginForm(forms.Form):
         "username_hint": _("用户名格式错误"),
     }
 
+    def __init__(self, request = None, *args, **kwargs):
+        self.request = request
+        self.user_cache = None
+        self._remembered = False
+        super().__init__(*args, **kwargs)
+
     def clean(self):
         """
         进行：

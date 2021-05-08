@@ -22,7 +22,7 @@ class Department(models.Model):
         verbose_name_plural = verbose_name
     
     def __str__(self) -> str:
-        return "<Department {}>".format(self.dept)
+        return "<Department {} | UserGroup {}>".format(self.dept.name, self.dept.ug_id)
 
 # UserGroup 添加新对象后，Department 会自动添加该对象
 @receiver(post_save, sender = UserGroup)
@@ -76,3 +76,33 @@ def create_userinfo_staff(sender, instance, created, **kwargs):
     else:
         # print(Staff.objects.filter(user__username = instance.username))
         Staff.objects.filter(user__username = instance.username).update(user = instance)
+
+
+class Notice(models.Model):
+    """
+    科室部门通知表
+    """
+    dept = models.ForeignKey(
+        Department, 
+        on_delete = models.CASCADE,
+        related_name = 'not_dept',
+        verbose_name = _("科室部门"),
+    )
+    send_time = models.DateTimeField(
+        auto_now_add = True, 
+        editable = False, 
+        verbose_name = _("发送时间"),
+    )
+    content = models.TextField(
+        null = True,
+        blank = True, 
+        verbose_name = _("通知正文")
+    )
+
+    class Meta:
+        verbose_name = _("部门通知")
+        verbose_name_plural = verbose_name
+        unique_together = ["dept", "send_time"]
+
+    def __str__(self) -> str:
+        return "<通知 {} | {}>".format(self.dept.dept.name, self.send_time)
