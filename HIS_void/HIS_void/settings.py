@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'his',
     # 病人页面
     'patient',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -77,6 +78,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'HIS_void.wsgi.application'
+ASGI_APPLICATION = 'HIS_void.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -126,7 +128,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     str(Path(BASE_DIR, "his/static")),
 )
-
 
 # Auth user model
 AUTH_USER_MODEL = "rbac.UserInfo"

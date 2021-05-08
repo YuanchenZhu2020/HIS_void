@@ -1,5 +1,5 @@
 from django.contrib.auth import login, logout
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.views import View
@@ -32,7 +32,7 @@ class IndexView(View):
 class StaffLoginView(View):
     template_name = "page-login.html"
     staff_next_url_name = "profile"
-    
+
     def get(self, request):
         if request.user.is_authenticated:
             return redirect(reverse(StaffLoginView.staff_next_url_name))
@@ -43,7 +43,7 @@ class StaffLoginView(View):
 
     def post(self, request):
         # 通过 StaffLoginForm.clean() 方法进行多种验证
-        login_info = StaffLoginFrom(data = request.POST)
+        login_info = StaffLoginFrom(data=request.POST)
         # 验证成功
         if login_info.is_valid():
             # 获取用户对象和是否保持登录的标识
@@ -68,7 +68,7 @@ class StaffLoginView(View):
             error_msg = login_info.errors["__all__"][0]
             loginform = StaffLoginFrom()
             context = {
-                "user_type": "staff", 
+                "user_type": "staff",
                 "loginform": loginform,
                 "error_message": error_msg,
             }
@@ -82,6 +82,7 @@ class StaffLogoutView(View):
         logout(request)
         # request.session.clear()
         return redirect(reverse(StaffLogoutView.template_name))
+
 
 class ProfileView(View):
     template_name = 'page-profile.html'
@@ -105,3 +106,55 @@ class OutpatientView(View):
 
     def get(self, request):
         return render(request, OutpatientView.template_name)
+
+
+class NurseView(View):
+    template_name = 'page-nurse-workspace.html'
+
+    def get(self, request):
+        return render(request, OutpatientView.template_name)
+
+
+class InspectionView(View):
+    template_name = 'page-inspection-workspace.html'
+
+    def get(self, request):
+        return render(request, InspectionView.template_name)
+
+
+class QueryInspectingView(View):
+    def get(self, request):
+        query_information = request.GET.get('information')
+
+        # 数据库查询操作
+        if query_information == "InspectingInformation":
+            p_no = request.GET.get('p_no')
+            print(p_no)
+            data = {
+                "JYMC": "血常规",
+                "KJSJ": "2021.05.1 20：00",
+                "KJYS": "肖云冲"
+            }
+        elif query_information == "InspectingPatient":
+            data = [
+                {
+                    "p_no": "183771**",
+                    "name": "李国铭",
+                    "ststus": "危机",
+                },
+                {
+                    "p_no": "183771--",
+                    "name": "肖云冲",
+                    "ststus": "普通",
+                },
+                {
+                    "p_no": "183771++",
+                    "name": "朱元琛",
+                    "ststus": "安全",
+                },
+            ]
+            # 传入医生主键，这样可以有选择的返回病人信息
+            d_no = request.GET.get('d_no')
+            print(d_no)
+
+        return JsonResponse(data, safe=False)
