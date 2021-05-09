@@ -4,9 +4,10 @@
         <img class="logo-abbr" src="{% static 'images/logo.png' %}" alt="">
         <img class="brand-title" src="{% static 'images/logo-text-01.png' %}" alt="">
     </a>
-    {% if  request.session.user_name %}
+    {% if  request.session.username %}
         <nav class="navbar navbar-expand">
             <ul class="navbar-nav header-right">
+                <!--
                 {#                <li class="nav-item dropdown notification_dropdown">#}
                 {#                    <a class="nav-link  ai-icon" href="javascript:;" role="button" data-toggle="dropdown">#}
                 {#                        <svg width="26" height="26" viewBox="0 0 26 26" fill="none"#}
@@ -105,11 +106,12 @@
                 {#                        <span class="badge light text-white bg-primary">5</span>#}
                 {#                    </a>#}
                 {#                </li>#}
+                -->
                 <li class="nav-item dropdown header-profile">
                     <a class="nav-link" href="javascript:;" role="button" data-toggle="dropdown">
                         <img src="{% static 'images/avatar/noavatar.png' %}" width="20" alt=""/>
                         <div class="header-info">
-                            <span>Hello,<strong>{{ request.session.staff_name }}</strong></span>
+                            <span>Hello, <strong>{{ request.session.username }}</strong></span>
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">

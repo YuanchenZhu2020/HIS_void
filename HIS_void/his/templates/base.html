@@ -104,7 +104,12 @@
 <!-- Pickdate -->
 <script src="{% static 'js/plugins-init/pickadate-init.js' %}"></script>
 <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
-
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    function submitAlert() {
+        swal("提交成功", "", "success");
+    }
+</script>
 {% include 'footer.html' %}
 </body>
 </html>

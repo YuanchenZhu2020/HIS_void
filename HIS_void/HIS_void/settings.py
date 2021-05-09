@@ -152,10 +152,10 @@ SAFE_URL = [
     r"/admin/.*",
     r"/patient/",
     r"/patient-user/",
-    r"/profile/",
-    r"/outpatient-workspace/",
-    r"/nurse-workspace/",
-    r"/inspection-workspace/"
+    #     r"/profile/",
+    #     r"/nurse-workspace/",
+    #     r"/inspection-workspace/"
+    # ]
 ]
 
 # setup session engine to improve performance

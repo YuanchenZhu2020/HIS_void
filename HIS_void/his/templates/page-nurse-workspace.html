@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
-{% block title %}门诊医生工作台{% endblock %}
+{% load static %}
+{% block title %}护士工作台{% endblock %}
 {% block body-context %}
     {# 两侧留白较小的容器 #}
     <div class="container-fluid">
         <div class="page-titles mb-2 mt-0">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item"><a href="{% url "profile" %}">profile</a></li>
-                <li class="breadcrumb-item active"><a href="{% url "outpatient-workspace" %}">outpatient</a></li>
+                <li class="breadcrumb-item active"><a href="{% url "nurse-workspace" %}">nurse-workspace</a></li>
             </ol>
         </div>
         {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为住院患者和待收患者信息，右边为分页表格（病历首页，体征记录等 #}
@@ -28,27 +29,7 @@
                                     <th>状态</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr>
-                                    <td>肖云冲</td>
-                                    <td><span class="badge badge-success">检查完毕</span>
-                                    </td>
-                                </tr>
-                                <script>
-                                    function displayDate() {
-                                        window.alert(5 + 6);
-                                    }
-                                </script>
-                                <tr onclick="displayDate()">
-                                    <td>云冲肖</td>
-                                    <td><span class="badge badge-primary light">检查中</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>冲云肖</td>
-                                    <td><span class="badge badge-primary light">检查中</span>
-                                    </td>
-                                </tr>
+                                <tbody id="ZYHZ">
                                 </tbody>
                             </table>
                         </div>
@@ -66,47 +47,7 @@
                                     <th>紧急程度</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr>
-                                    <td>李国铭</td>
-                                    <td><span class="badge badge-primary light">普通</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>特狼普</td>
-                                    <td><span class="badge badge-danger light">危急</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>好可怕</td>
-                                    <td><span class="badge badge-primary light">普通</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>两只老虎</td>
-                                    <td><span class="badge badge-primary light">Sale</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Kolor Tea Shirt</td>
-                                    <td><span class="badge badge-primary light">Sale</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Kolor Tea Shirt</td>
-                                    <td><span class="badge badge-primary light">Sale</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Kolor Tea Shirt</td>
-                                    <td><span class="badge badge-success">Tax</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Blue Backpack</td>
-                                    <td><span class="badge badge-danger light">Extended</span>
-                                    </td>
-                                </tr>
+                                <tbody id="DSHZ">
                                 </tbody>
                             </table>
                         </div>
@@ -249,28 +190,25 @@
                                 <div class="card-body">
                                     {# 检验表单 #}
                                     <div class="basic-form">
-                                        <form action="{% url 'profile' %}" method="POST">
+                                        <form action="{% url 'NurseAPI' %}" method="POST">
                                             {% csrf_token %}
                                             <div class="input-group input-group-lg mb-3">
                                                 <label class="col-md-1.5 col-form-label text-right">收缩压：
-                                                </label> <input type="text" class="form-control"
-                                                                placeholder="">
+                                                </label> <input type="text" name="SSY" class="form-control">
                                             </div>
                                             <div class="input-group input-group-lg mb-3">
                                                 <label class="col-md-1.5 col-form-label text-right">舒张压：
-                                                </label> <input type="text" class="form-control"
-                                                                placeholder="">
+                                                </label> <input type="text" name="SZY" class="form-control">
                                             </div>
                                             <div class="input-group input-group-lg mb-3">
                                                 <label class="col-md-1.5 col-form-label text-right">体&emsp;温：
-                                                </label> <input type="text" class="form-control"
-                                                                placeholder="">
+                                                </label> <input type="text" name="TW" class="form-control">
                                             </div>
                                             <textarea class="form-control mb-3" rows="10"
                                                       placeholder="如有其他情况，请在此说明"></textarea>
 
                                             <div class="col-md-12 text-right">
-                                                <button type="submit"
+                                                <button type="submit" onclick="submitAlert()"
                                                         class="form-group btn btn-outline-primary btn-sm">
                                                     提交记录
                                                 </button>
@@ -287,7 +225,7 @@
                                 <div class="container">
                                     <div class="card-body">
                                         <div class="basic-form">
-                                            <form action="#">
+                                            <form action="">
                                                 <div class="input-group">
                                                         <textarea class="form-control" rows="18"
                                                                   placeholder="请输入您的判断"></textarea>
@@ -305,12 +243,12 @@
                                 <div class="container">
                                     <div class="card-body">
                                         <div class="basic-form">
-                                            <form action="{% url 'profile' %}" method="POST">
+                                            <form action="{% url 'NurseAPI' %}" method="POST">
                                                 {% csrf_token %}
                                                 <div class="form-group">
                                                     <div class="input-group input-group-lg mb-4">
                                                         <label class="col-md-1.5 col-form-label text-right">入院日期： </label>
-                                                        <input name="datepicker"
+                                                        <input name="RYRQ"
                                                                class="col-md-10.5 datepicker-default form-control form-control-lg"
                                                                id="datepicker"/>
                                                     </div>
@@ -318,8 +256,8 @@
                                                 <div class="form-group">
                                                     <div class="input-group mb-3">
                                                         <label class="col-md-1.5 col-form-label text-right">护理级别： </label>
-                                                        <select class="form-control form-control-lg"
-                                                                name='chang_gui'>
+                                                        <select class="form-control"
+                                                                name='HLJB'>
                                                             <option></option>
                                                             <option>1</option>
                                                             <option>2</option>
@@ -332,8 +270,8 @@
                                                 <div class="form-group">
                                                     <div class="input-group mb-3">
                                                         <label class="col-md-1.5 col-form-label text-right">病区选择： </label>
-                                                        <select class="form-control form-control-lg"
-                                                                name='chang_gui'>
+                                                        <select class="form-control"
+                                                                name='BQXZ'>
                                                             <option></option>
                                                             <option>A</option>
                                                             <option>B</option>
@@ -342,22 +280,22 @@
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <div class="input-group input-group-lg mb-4">
+                                                    <div class="input-group input-group-lg mb-3">
                                                         <label class="col-md-1.5 col-form-label text-right">床位编号：</label>
                                                         <input class="form-control form-control-lg"
-                                                               name='chang_gui'>
+                                                               name='CWBH'>
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <div class="input-group input-group-lg mb-auto">
+                                                    <div class="input-group input-group-lg mb-3">
                                                         <label class="=col-md-1.5 col-form-label text-right">家属电话：</label>
                                                         <input class="form-control form-control-lg" type="tel"
-                                                               name="tel">
+                                                               name="JSDH">
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
                                                     <div class="text-right">
-                                                        <button type="submit" class="btn btn-primary">提 交</button>
+                                                        <button type="submit" onclick="submitAlert()" class="btn btn-primary">提 交</button>
                                                     </div>
                                                 </div>
                                             </form>
@@ -373,5 +311,6 @@
     </div>
 
 
-
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/his/nurse.js' %}"></script>
 {% endblock %}

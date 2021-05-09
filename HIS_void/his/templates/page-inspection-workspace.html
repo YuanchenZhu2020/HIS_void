@@ -4,6 +4,8 @@
 {% block body-context %}
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/his/inspection.js' %}"></script>
+
+
     {#    <script>jqueryInspectedPatient()</script>#}
     {# 未实现的Websocket #}
     <!--
@@ -25,6 +27,15 @@
     <div class="container-fluid">
         {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为检中患者和待检患者信息，右边为分页表格（病历首页，报告生成等 #}
         <div class="row">
+            <div class="col-md-12 align-content-center">
+                <div class="page-titles mb-2 mt-0">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url "profile" %}">profile</a></li>
+                        <li class="breadcrumb-item active"><a href="{% url "inspection-workspace" %}">Inspection</a>
+                        </li>
+                    </ol>
+                </div>
+            </div>
             {# 第一列宽度为3，用于放置检中患者信息和待检患者信息 #}
             <div class="col-md-3">
                 {# 检中患者信息 #}
@@ -127,7 +138,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">病历号</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="114514">
+                                            <input type="text" id="no" class="form-control" readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -135,7 +146,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">姓名</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="肖云冲">
+                                            <input type="text" id="name" class="form-control" readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -143,7 +154,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">性别</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="男">
+                                            <input type="text" id="gender" class="form-control" readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -151,7 +162,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">年龄</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="18">
+                                            <input type="text" id="age" class="form-control" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -203,28 +214,23 @@
                                 <div class="card-body">
                                     {# 检验表单 #}
                                     <div class="basic-form">
-                                        {#                                        <form action="{% url 'profile' %}" method="POST">#}
-                                        <form>
+                                        <form action="{% url 'InspectionAPI' %}" method="POST">
                                             {% csrf_token %}
                                             <div align="center">
                                                 <img src="{% static 'images/ct.jpg' %}">
                                             </div>
                                             <div class="input-group mt-3 mb-3">
-                                                        <textarea id="panduan" class="form-control" rows="6" placeholder="请输入您的判断">
-                                                        </textarea>
+                                                <textarea name="PDXX" class="form-control"
+                                                          rows="6" placeholder="请输入您的判断"></textarea>
                                             </div>
                                             <div class="col-md-12 text-right">
-                                                <button type="submit" onclick="jqueryInspectingPatient()"
+
+                                                <button type="submit" onclick='submitAlert()'
                                                         class="form-group btn btn-outline-primary btn-sm">
                                                     提交结果
                                                 </button>
                                             </div>
                                         </form>
-                                        <button onclick="jqueryInspectingPatient()"
-                                                class="form-group btn btn-outline-primary btn-sm">
-                                            提交结果1
-                                        </button>
-
                                     </div>
                                 </div>
                             </div>

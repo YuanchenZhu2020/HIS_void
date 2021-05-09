@@ -18,7 +18,8 @@ from django.urls import path
 
 from his.views import (
     IndexView, StaffLoginView, StaffLogoutView,
-    ProfileView, OutpatientView, NurseView, InspectionView, QueryInspectingView
+    ProfileView, OutpatientView, NurseView, InspectionView, InspectionAPI, OutpatientAPI,
+    NurseAPI,
 )
 from patient.views import (
     PatientLoginView, RegisterView, ForgotPasswordView, PatientWorkSpaceView, PatientWorkMyView,
@@ -52,6 +53,10 @@ urlpatterns = [
     path('nurse-workspace/', NurseView.as_view(), name="nurse-workspace"),
     # 检查检验
     path('inspection-workspace/', InspectionView.as_view(), name="inspection-workspace"),
-    # 检查检验
-    path('QueryInspectingView/', QueryInspectingView.as_view(), name="QueryInspectingView"),
+    # 查询机器检验的各种信息
+    path('InspectionAPI/', InspectionAPI.as_view(), name="InspectionAPI"),
+    # 查询门诊医生的各种信息
+    path('OutpatientAPI/', OutpatientAPI.as_view(), name="OutpatientAPI"),
+    # 保存体征记录的各种信息
+    path('NurseAPI/', NurseAPI.as_view(), name="NurseAPI"),
 ]

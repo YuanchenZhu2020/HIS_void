@@ -1,6 +1,31 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}门诊医生工作台{% endblock %}
 {% block body-context %}
+    <script>
+        let JCJY = '<div class="card">\
+<div class="card-header border-0 pb-0">\
+<h5 class="card-title">检查结果</h5>\
+</div>\
+<div class="card-body">\
+<p class="card-text">He lay on his armour-like back, and if\
+he\
+lifted his head a little he could see his brown\
+belly, slightly domed and divided by arches into stiff\
+<br>\
+sections. The bedding was hardly able to cover\
+it and seemed ready to\
+slide off any moment.\
+</p>\
+</div>\
+<div class="card-footer border-0 pt-0">\
+<p class="card-text d-inline">Card footer</p>\
+<a href="javascript:void()" class="card-link float-right">Card\
+link</a>\
+</div>\
+</div>'
+
+    </script>
     {# 两侧留白较小的容器 #}
     <div class="container-fluid">
         {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病历首页，检查检验等 #}
@@ -9,7 +34,8 @@
                 <div class="page-titles mb-2 mt-0">
                     <ol class="breadcrumb">
                         <li class="breadcrumb-item"><a href="{% url "profile" %}">profile</a></li>
-                        <li class="breadcrumb-item active"><a href="{% url "outpatient-workspace" %}">outpatient</a></li>
+                        <li class="breadcrumb-item active"><a href="{% url "outpatient-workspace" %}">outpatient</a>
+                        </li>
                     </ol>
                 </div>
             </div>
@@ -31,22 +57,7 @@
                                     <th>状态</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr onclick="binglishouye()">
-                                    <td>肖云冲</td>
-                                    <td><span class="badge badge-success">检查完毕</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>云冲肖</td>
-                                    <td><span class="badge badge-primary light">检查中</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>冲云肖</td>
-                                    <td><span class="badge badge-primary light">检查中</span>
-                                    </td>
-                                </tr>
+                                <tbody id="ZZHZ">
                                 </tbody>
                             </table>
                         </div>
@@ -64,48 +75,7 @@
                                     <th>紧急程度</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr>
-                                    <td>李国铭</td>
-                                    <td><span class="badge badge-primary light">普通</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>特狼普</td>
-                                    <td><span class="badge badge-danger light">危急</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>好可怕</td>
-                                    <td><span class="badge badge-primary light">普通</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>两只老虎</td>
-                                    <td><span class="badge badge-primary light">Sale</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Kolor Tea Shirt</td>
-                                    <td><span class="badge badge-primary light">Sale</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Kolor Tea Shirt</td>
-                                    <td><span class="badge badge-primary light">Sale</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Kolor Tea Shirt</td>
-                                    <td><span class="badge badge-success">Tax</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Blue Backpack</td>
-                                    <td><span class="badge badge-danger light">Extended</span>
-                                    </td>
-                                </tr>
-                                </tbody>
+                                <tbody id="DZHZ"></tbody>
                             </table>
                         </div>
                     </div>
@@ -124,7 +94,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">会诊号</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="114514">
+                                            <input type="text" id="no" class="form-control" readonly">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -132,7 +102,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">姓名</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="肖云冲">
+                                            <input type="text" id="name" class="form-control" readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -140,7 +110,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">性别</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="男">
+                                            <input type="text" id="gender" class="form-control" readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -148,7 +118,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">年龄</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="18">
+                                            <input type="text" id="age" class="form-control" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -198,34 +168,33 @@
                                             <form action="#">
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-1.5 col-form-label text-right">患者主诉： </label>
-                                                    <textarea type="text" class="form-control"
+                                                    <textarea id="HZZS" type="text" class="form-control" readonly
                                                               placeholder=""></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-1.5 col-form-label text-right">治疗情况：
-                                                    </label> <textarea type="text" class="form-control"
-                                                                       placeholder=""
-                                                ></textarea>
+                                                    </label> <textarea id="ZLQK" type="text" class="form-control"
+                                                                       readonly></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-1.5 col-form-label text-right">既往病史：
-                                                    </label> <textarea id="jiwangshi" type="text" class="form-control"
+                                                    </label> <textarea id="JWBS" type="text" class="form-control"
                                                                        readonly
                                                 ></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-1.5 col-form-label text-right">过敏病史：
-                                                    </label> <textarea id="guominshi" type="text" class="form-control"
+                                                    </label> <textarea id="GMBS" type="text" class="form-control"
                                                                        readonly></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-1.5 col-form-label text-right">体格检查：
-                                                    </label> <textarea id="tigejiancha" type="text" class="form-control"
+                                                    </label> <textarea id="TGJC" type="text" class="form-control"
                                                                        readonly></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="col-md-1.5 col-form-label text-right">发病时间：
-                                                    </label> <textarea id="fabingshijian" type="text"
+                                                    </label> <textarea id="FBSJ" type="text"
                                                                        class="form-control"
                                                                        readonly></textarea>
                                                 </div>
@@ -239,12 +208,12 @@
                                     <div class="card-body">
                                         {# 检验表单 #}
                                         <div class="basic-form">
-                                            <form action="{% url 'profile' %}" method="POST">
+                                            <form action="{% url 'OutpatientAPI' %}" method="POST">
                                                 {% csrf_token %}
                                                 <div class="form-group">
                                                     <div class="input-group input-group-sm mb-3">
                                                         <label class="col-md-1.5 col-form-label text-right">常规检验： </label>
-                                                        <select class="form-control form-control-lg" name='chang_gui'>
+                                                        <select class="form-control form-control-lg" name='CGJY'>
                                                             <option>无</option>
                                                             <option>血常规</option>
                                                             <option>尿常规</option>
@@ -313,7 +282,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 text-right">
-                                                    <button type="submit"
+                                                    <button type="submit" onclick="submitAlert()"
                                                             class="form-group btn btn-outline-primary btn-sm">
                                                         提交检验
                                                     </button>
@@ -351,14 +320,18 @@
                                     <div class="container">
                                         <div class="card-body">
                                             <div class="basic-form">
-                                                <form action="#">
+                                                <form action="{% url 'OutpatientAPI' %}" method="post">
+                                                    {% csrf_token %}
                                                     <div class="input-group mb-3">
-                                                        <textarea class="form-control" rows="18"
+                                                        <textarea class="form-control" rows="18" name="MZQZ"
                                                                   placeholder="请输入您的判断"></textarea>
                                                     </div>
                                                     <div class="form-group">
                                                         <div class="text-right">
-                                                            <button type="submit" class="btn btn-primary">提 交</button>
+                                                            <button type="submit" onclick="submitAlert()"
+                                                                    class="form-group btn btn-outline-primary btn-bg">
+                                                                提 交
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </form>
@@ -370,19 +343,28 @@
 
                                 {# 处方开具页面信息 #}
                                 <div id="chu_fang_kai_ju" class="tab-pane fade">
-                                    <div class="container">
-                                        <div class="card-body">
-                                            <div class="mb-4">
-                                                <h4 class="card-title">Ajax (remote data)</h4>
-                                                <p>Select2 comes with AJAX support built in, using jQuery's AJAX
-                                                    methods. In this example, we can search for repositories using
-                                                    GitHub's API:</p>
+                                    <div class="card-body">
+                                        <!--<div class="container">
+                                            <div class="card-body justify-content-center">
+                                                <h3 class="text-center">请输入药品名</h3>
+                                                <form action="" method="post">
+                                                    <div class="navbar-form navbar-left">
+                                                        <div class="form-group">
+                                                            <input type="text" id="txtSearch" name="txtSearch"
+                                                                   class="form-control" placeholder="Search"
+                                                                   autocomplete="off"/>
+{#                                                            <input type="hidden" value="selectstock" name="method">#}
+                                                            <div id="search-result" class="form-control" style="border: none"></div>
+                                                        </div>
+                                                    </div>
+                                                </form>
                                             </div>
+                                        </div>-->
+                                        <select id="single-select">
+                                            <option value="AL">Alabama</option>
+                                            <option value="WY">Wyoming</option>
+                                        </select>
 
-                                            <select class="js-data-example-ajax w-100">
-
-                                            </select>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -496,23 +478,7 @@
             </div>
         </div>
     </div>
-
-    <script>
-
-        {# 病历首页提取病人信息函数，参数为病历信息的PK #}
-
-        function binglishouye() {
-            {# 病人信息 #}
-            var jiwangshi = "宣传委员、文艺委员";
-            var guominshi = "强制性活动";
-            var tigejiancha = "等待北医六院的结果";
-            var fabingshijian = Date();
-            document.getElementById("jiwangshi").innerHTML = jiwangshi;
-            document.getElementById("guominshi").innerHTML = guominshi;
-            document.getElementById("tigejiancha").innerHTML = tigejiancha;
-            document.getElementById("fabingshijian").innerHTML = fabingshijian;
-        }
-    </script>
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/his/outpatient.js' %}"></script>
 
 {% endblock %}
-
