@@ -90,25 +90,6 @@ class nursing_records(models.Model):    #护理记录
         db_table = 'nursing_records'
         unique_together = ['msid', 'pid', 'nursing_date']
 
-class patient_register(models.Model):    #挂号信息
-    RCLASS_CHOICE = (
-        ('门诊', '门诊'),
-        ('急诊', '急诊'),
-    )
-    pid = models.ForeignKey(patient_information, on_delete=models.CASCADE, related_name = 'pat_pid')
-    msid = models.ForeignKey(medical_staff, on_delete=models.CASCADE, related_name = 'pat_msid')
-    rid = models.PositiveIntegerField()
-    reservedate = models.DateField()
-    rdate = models.DateTimeField()   #点击“挂号”的时间
-    rclass = models.CharField(max_length=4, choices=RCLASS_CHOICE)
-    rdepartment = models.CharField(max_length=20)    #原科室名称，感觉删了也行……
-    pstartdate = models.DateField(blank=True)
-    pstate = models.TextField(max_length=512, blank=True)
-    pconfirm = models.TextField(max_length=512, blank=True)
-    class Meta:
-        db_table = 'patient_register'
-        unique_together = ['pid', 'rid']
-
 class register_information(models.Model):    #入院登记信息文件
     REGION_CHOICES = (
         ('A', 'A'),
@@ -135,32 +116,6 @@ class register_information(models.Model):    #入院登记信息文件
         db_table = 'register_information'
         unique_together = ['pid', 'rid']
 
-class test_item_dic(models.Model):    #检验项目字典
-    TYPE_CHOICES = (
-        ('临床', '临床'), 
-        ('生物化学', '生物化学'),
-        ('微生物', '微生物'),
-        ('寄生虫', '寄生虫'),
-        ('免疫', '免疫'),
-    )
-    iid = models.CharField(max_length = 6, primary_key=True)
-    itype = models.CharField(max_length = 10, choices = TYPE_CHOICES)
-    iname = models.CharField(max_length = 30)
-    iprice = models.FloatField()
-
-class test_items(models.Model):    #病人检验项目
-    pid = models.ForeignKey(patient_register, on_delete=models.CASCADE, related_name='tes_pid')
-    msid = models.ForeignKey(medical_staff, on_delete=models.CASCADE, related_name='tes_msid')   #同理？
-    rid = models.ForeignKey(patient_register, on_delete=models.CASCADE, related_name = 'tes_rid')
-    tid = models.PositiveIntegerField()
-    iid = models.ForeignKey(test_item_dic, on_delete=models.CASCADE, related_name = 'tes_iid')
-    issuetime = models.DateTimeField()
-    test_results = models.TextField(max_length=400, blank=True)
-    t_paystate = models.BooleanField(default=False)
-    class Meta:
-        db_table = 'test_items'
-        unique_together = ['pid', 'rid', 'tid']
-
 class operation_information(models.Model):    #手术信息文件
     LEVEL_CHOICES = (
         (1, '一级手术'),    #手术过程简单、技术难度较低、风险度较小的各种手术。
@@ -182,60 +137,6 @@ class operation_information(models.Model):    #手术信息文件
     class Meta:
         db_table = 'operation_information'
         unique_together = ['pid', 'rid', 'oid']
-
-class prescription(models.Model):    #患者处方文件
-    predate = models.DateTimeField()
-    pid = models.OneToOneField(patient_register, on_delete=models.CASCADE, related_name = 'pre_pid')
-    rid = models.OneToOneField(patient_register, on_delete=models.CASCADE, related_name = 'pre_rid')
-    quantity = models.PositiveIntegerField(blank=True)
-    order = models.TextField(max_length=400)
-    p_paystate = models.BooleanField(default=False)
-    class Meta:
-        db_table = 'prescription'
-        unique_together = ['predate', 'pid', 'rid']
-
-class medicine_information(models.Model):    #药品信息
-    SPECIAL_CHOICES = (
-        (1, '麻醉药品'),
-        (2, '精神药品'),
-        (3, '毒性药品'),
-        (4, '放射性药品'),
-        (0, '普通药品'),
-    )
-    batch_num = models.PositiveIntegerField()
-    mid = models.CharField(max_length=6)
-    mname = models.CharField(max_length=20)
-    specification = models.CharField(max_length=30)
-    cost = models.FloatField()
-    price = models.FloatField()
-    stock_num = models.PositiveIntegerField()
-    overdue_date = models.DateField()
-    special = models.IntegerField(default=0, choices=SPECIAL_CHOICES)
-    OTC = models.BooleanField(default=False)
-    class Meta:
-        db_table = 'medicine_information'
-        unique_together = ['batch_num', 'mid']
-
-class order_detail(models.Model):    #患者处方细节
-    predate = models.ForeignKey(prescription, on_delete = models.CASCADE, related_name='ord_predate')
-    pid = models.ForeignKey(prescription, on_delete=models.CASCADE, related_name = 'ord_pid')
-    rid = models.ForeignKey(prescription, on_delete=models.CASCADE, related_name='ord_rid')
-    batch_num = models.ForeignKey(medicine_information, on_delete=models.CASCADE, related_name = 'ord_batch_num')
-    mid = models.ForeignKey(medicine_information, on_delete=models.CASCADE, related_name='ord_mid')
-    did = models.PositiveIntegerField()
-    oquantity = models.PositiveIntegerField()
-    class Meta:
-        db_table = 'order_detail'
-        unique_together = ['predate', 'pid', 'rid', 'did']
-
-class medicine_purchase(models.Model):    #药品采购记录
-    batch_num = models.ForeignKey(medicine_information, on_delete=models.CASCADE, related_name = 'med_batch_num')
-    mid = models.ForeignKey(medicine_information, on_delete=models.CASCADE, related_name = 'med_mid')
-    mpdate = models.DateField()
-    mpquantity = models.PositiveIntegerField()
-    class Meta:
-        db_table = 'medicine_purchase'
-        unique_together = ['batch_num', 'mid']
 
 class narcotic_information(models.Model):    #麻醉信息反馈
     msid = models.ForeignKey(medical_staff, on_delete=models.CASCADE, related_name = 'nar_msid')
