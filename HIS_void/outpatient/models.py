@@ -18,7 +18,6 @@ class RegistrationInfo(models.Model):
     patient = models.ForeignKey(
         PatientUser, 
         on_delete = models.CASCADE,
-        unique = True,
         related_name = "registration_set",
         related_query_name = "registrations",
         verbose_name = _("患者")
@@ -28,7 +27,6 @@ class RegistrationInfo(models.Model):
     medical_staff = models.ForeignKey(
         Staff, 
         on_delete = models.CASCADE, 
-        unique = True,
         related_name = "registration_set",
         related_query_name = "registrations",
         verbose_name = _("医生"),
@@ -38,7 +36,7 @@ class RegistrationInfo(models.Model):
         editable = False,
         verbose_name = _("预约时间")
     )
-    registraton_date = models.DateTimeField(
+    registration_date = models.DateTimeField(
         auto_created = True,
         editable = False,
         verbose_name = _("挂号时间")
@@ -62,7 +60,7 @@ class RegistrationInfo(models.Model):
     )
 
     class Meta:
-        verbose_name = "挂号信息"
+        verbose_name = _("挂号信息")
         verbose_name_plural = verbose_name
         unique_together = ["patient", "reg_id"]
 
@@ -74,7 +72,7 @@ class Prescription(models.Model):
     """
     患者处方文件
     """
-    registration_info = models.OneToOneField(
+    registration_info = models.ForeignKey(
         RegistrationInfo, 
         on_delete = models.CASCADE, 
         related_name = "prescription_set",
@@ -96,8 +94,8 @@ class Prescription(models.Model):
     payment_status = models.BooleanField(default = False, verbose_name = _("缴费状态"))
 
     class Meta:
-        verbose_name = _("患者处方"),
-        verbose_name_plural = verbose_name,
+        verbose_name = _("患者处方")
+        verbose_name_plural = verbose_name
         unique_together = ["registration_info", "prescription_date"]
 
     def __str__(self) -> str:
@@ -112,7 +110,7 @@ class PrescriptionDetail(models.Model):
     """
     患者处方细节
     """
-    prescription_info = models.OneToOneField(
+    prescription_info = models.ForeignKey(
         Prescription, 
         on_delete = models.CASCADE, 
         related_name = "prescription_detail_set",
@@ -121,7 +119,7 @@ class PrescriptionDetail(models.Model):
     )
     detail_id = models.PositiveIntegerField(unique = True, verbose_name = _("细节编号"))
 
-    medicine_info = models.OneToOneField(
+    medicine_info = models.ForeignKey(
         MedicineInfo, 
         on_delete = models.CASCADE,
         related_name = "prescription_detail_set",
@@ -131,8 +129,8 @@ class PrescriptionDetail(models.Model):
     medicine_quantity = models.PositiveIntegerField(verbose_name = _("药品数量"))
 
     class Meta:
-        verbose_name = _("处方细节"),
-        verbose_name_plural = verbose_name,
+        verbose_name = _("处方细节")
+        verbose_name_plural = verbose_name
         unique_together = ["prescription_info", "detail_id"]
 
     def __str__(self) -> str:

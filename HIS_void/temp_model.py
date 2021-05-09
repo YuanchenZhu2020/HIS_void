@@ -25,28 +25,6 @@ class title_register_map(models.Model):    #职称-挂号数对应表（我觉�
     titleid = models.IntegerField(primary_key=True, choices=TITLE_CHOICES)
     register_limit = models.IntegerField() #感觉没有必要是主码就没写
 
-class medical_staff(models.Model):    #医护人员信息
-    SEX_CHOICE = (
-        (0, '男'),
-        (1, '女'),
-    )
-    JOB_CHOICES = (    #虽然写了两个但是按道理只有一个医生就够了？加了一个设备号
-        (1, '门诊医生'),
-        (2, '住院医生'),
-        (3, '护士'),
-        (4, '药房医生'),
-        (5, '检验医生'),
-        (6, '财务'),
-        (7, '检验设备')
-    )
-    msid = models.CharField(primary_key=True, max_length=6)
-    deptid = models.ForeignKey(departments, on_delete=models.CASCADE, related_name = 'meds_deptid')
-    msname = models.CharField(max_length=10)  #应该不是bit叭……
-    mssex = models.IntegerField(choices=SEX_CHOICE)   #bit我改了
-    msidnumber = models.CharField(max_length=18)
-    titleid = models.ForeignKey(title_register_map, on_delete=models.CASCADE, related_name='meds_titleid')   #多设置了个外键职称对应的挂号限额？
-    job_type = models.IntegerField(choices=JOB_CHOICES)
-    mpassword = models.CharField(max_length=20, blank=True)
 
 class remaining_quantity(models.Model):    #医生剩余挂号数
     msid = models.ForeignKey(medical_staff, on_delete=models.CASCADE, related_name = 'rem_msid')

@@ -42,6 +42,12 @@ INSTALLED_APPS = [
     'his',
     # 病人页面
     'patient',
+    # 门诊
+    'outpatient',
+    # 药房
+    'pharmacy',
+    # 检验科
+    'laboratory',
 ]
 
 MIDDLEWARE = [
