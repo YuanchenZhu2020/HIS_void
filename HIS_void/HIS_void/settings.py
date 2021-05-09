@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'his',
     # 病人页面
     'patient',
+    # 住院
+    'inpatient',
     # 门诊
     'outpatient',
     # 药房

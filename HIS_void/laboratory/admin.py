@@ -1,6 +1,9 @@
 from django.contrib import admin
 
-from .models import TestItemType, TestItem, PatientTestItem
+from laboratory.models import (
+    TestItemType, TestItem, PatientTestItem, 
+    EquipmentTypeInfo, EquipmentInfo,
+)
 
 
 class TestItemTypeAdmin(admin.ModelAdmin):
@@ -34,3 +37,22 @@ class PatientTestItemAdmin(admin.ModelAdmin):
     )
 
 admin.site.register(PatientTestItem, PatientTestItemAdmin)
+
+
+class EquipmentTypeInfoAdmin(admin.ModelAdmin):
+    list_display = ("eq_type_id", "eq_type_name",)
+    list_filter = ("eq_type_id", "eq_type_name",)
+    search_fields = ("eq_type_id", "eq_type_name",)
+
+admin.site.register(EquipmentTypeInfo, EquipmentTypeInfoAdmin)
+
+
+class EquipmentInfoAdmin(admin.ModelAdmin):
+    list_display = (
+        "equipment_id", "equipment_type", "equipment_model", 
+        "purchase_date", "start_using", "lifetime",
+    )
+    list_filter = ("equipment_id", "equipment_type", "equipment_model", )
+    search_fields = ("equipment_id", "equipment_type", "equipment_model", )
+
+admin.site.register(EquipmentInfo, EquipmentInfoAdmin)

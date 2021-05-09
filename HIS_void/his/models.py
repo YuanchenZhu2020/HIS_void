@@ -6,6 +6,26 @@ from django.utils.translation import gettext_lazy as _
 from rbac.models import UserInfo, UserGroup
 
 
+class InpatientArea(models.Model):
+    """
+    病区
+
+    INPATIENT_AREA_ITEMS = [
+        ('A', 'A'),
+        ('B', 'B'),
+        ('C', 'C'),
+    ]
+    """
+    area_id = models.CharField(max_length = 2, unique = True, verbose_name = _("病区"))
+
+    class Meta:
+        verbose_name = _("病区")
+        verbose_name_plural = verbose_name
+    
+    def __str__(self) -> str:
+        return "<Inpatient Area {}>".format(self.area_id)
+
+
 class Department(models.Model):
     """
     医院科室和部门。其编号范围为 [1, Inf)
@@ -67,6 +87,12 @@ class Notice(models.Model):
 class HospitalTitle(models.Model):
     """
     医院职称
+    TITLE_CHOICES = (
+        (1, '住院医师'),
+        (2, '主治医师'),
+        (3, '副主任医师'),
+        (4, '主任医师'),
+    )
     """
     title_id = models.BigAutoField(primary_key = True, verbose_name = _("职称ID"))
     title_name = models.CharField(max_length = 20, verbose_name = _("职称名称"))
@@ -149,3 +175,45 @@ def create_userinfo_staff(sender, instance, created, **kwargs):
         # print(Staff.objects.filter(user__username = instance.username))
         Staff.objects.filter(user__username = instance.username).update(user = instance)
 
+
+class DutyRoster(models.Model):
+    """
+    医务人员排班表
+    """
+    WEEKDAY_ITEMS = [
+        (1, '星期一'),
+        (2, '星期二'),
+        (3, '星期三'),
+        (4, '星期四'),
+        (5, '星期五'),
+        (6, '星期六'),
+        (7, '星期日'),
+    ]
+
+    medical_staff = models.OneToOneField(
+        Staff, 
+        on_delete = models.CASCADE, 
+        related_name = "duty_roster_set",
+        related_query_name = "duty_rosters",
+        verbose_name = _("医务人员"),
+    )
+    working_day = models.PositiveIntegerField(
+        choices = WEEKDAY_ITEMS,
+        verbose_name = _("工作日"),
+    )
+    duty_area = models.ForeignKey(
+        InpatientArea,
+        null = True, 
+        on_delete = models.SET_NULL,
+        related_name = "duty_roster_set",
+        related_query_name = "duty_rosters",
+        verbose_name = _("负责病区"),
+    )
+
+    class Meta:
+        verbose_name = _("医务人员排班表")
+        verbose_name_plural = verbose_name
+        unique_together = ["medical_staff", "working_day"]
+    
+    def __str__(self) -> str:
+        return "<Duty Roster {} {}>".format(self.medical_staff, self.working_day)

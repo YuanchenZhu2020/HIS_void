@@ -20,7 +20,6 @@ class MedicineInfo(models.Model):
         unique = True,
         verbose_name = _("药品编号"),
     )
-    batch_num = models.PositiveIntegerField(unique = True, verbose_name = _("批次编号"))
 
     medicine_name = models.CharField(max_length = 100, verbose_name = _("药品名称"))
     content_spec = models.CharField(max_length = 20, verbose_name = _("含量规格"))
@@ -34,7 +33,7 @@ class MedicineInfo(models.Model):
         verbose_name = _("零售价")
     )
     stock_num = models.PositiveIntegerField(default = 0, verbose_name = _("库存数量"))
-    overdue_date = models.DateField(verbose_name = _("过期日期"))
+    shelf_day = models.PositiveIntegerField(verbose_name = _("保质期"))
     special = models.IntegerField(
         choices = SPECIAL_ITEMS, 
         default = 0, 
@@ -45,7 +44,6 @@ class MedicineInfo(models.Model):
     class Meta:
         verbose_name = _("药品信息")
         verbose_name_plural = verbose_name
-        unique_together = ["medicine_id", "batch_num"]
     
     def __str__(self) -> str:
         return "<Medicine {} | batch-{}>".format(self.medicine_id, self.batch_num)
@@ -62,13 +60,15 @@ class MedicinePurchase(models.Model):
         related_query_name = "medicine_purchases",
         verbose_name = _("药品信息")
     )
+    batch_num = models.PositiveIntegerField(verbose_name = _("批次编号"))
+
     purchase_date = models.DateField(unique = True, verbose_name = _("采购日期"))
     purchase_quantity = models.PositiveIntegerField(verbose_name = _("采购数量"))
 
     class Meta:
         verbose_name = _("药品采购记录")
         verbose_name_plural = verbose_name
-        unique_together = ["medicine_info", "purchase_date"]
+        unique_together = ["medicine_info", "batch_num"]
     
     def __str__(self) -> str:
         return "<Medicine Purchase {}-{}>".format(self.medicine_info, self.purchase_date)

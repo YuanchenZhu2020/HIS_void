@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from his.models import Staff
 from outpatient.models import RegistrationInfo
 
+
 class TestItemType(models.Model):
     """
     检验项目类型
@@ -100,3 +101,48 @@ class PatientTestItem(models.Model):
             self.test_id,
             self.test_item
         )
+
+
+class EquipmentTypeInfo(models.Model):
+    """
+    设备类型信息
+    """
+    eq_type_id = models.BigAutoField(primary_key = True, verbose_name = _("设备类型编号"))
+    eq_type_name = models.CharField(max_length = 100, verbose_name = _("设备类型名称"))
+
+    class Meta:
+        verbose_name = _("设备类型信息")
+        verbose_name_plural = verbose_name
+    
+    def __str__(self) -> str:
+        return "<Equipment Type {}-{}>".format(self.eq_type_id, self.eq_type_name)
+
+
+class EquipmentInfo(models.Model):
+    """
+    设备信息
+    """
+    equipment_id = models.BigAutoField(primary_key = True, verbose_name = _("设备全局编号"))
+    equipment_type = models.ForeignKey(
+        EquipmentTypeInfo, 
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = "equipment_info_set",
+        related_query_name = "equipment_infos",
+        verbose_name = _("设备类型"),
+    )
+    equipment_model = models.CharField(max_length = 20, verbose_name = _("设备型号"))
+    purchase_date = models.DateField(
+        auto_created = True,
+        editable = False,
+        verbose_name = _("采购日期"),
+    )
+    start_using = models.DateField(verbose_name = _("启用日期"))
+    lifetime = models.PositiveIntegerField(verbose_name = _("理论使用寿命"))
+
+    class Meta:
+        verbose_name = _("设备信息")
+        verbose_name_plural = verbose_name
+    
+    def __str__(self) -> str:
+        return "<Equipment {}-{}>".format(self.equipment_id, self.equipment_model)

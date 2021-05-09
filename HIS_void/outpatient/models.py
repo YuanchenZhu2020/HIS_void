@@ -2,8 +2,57 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from patient.models import PatientUser
-from his.models import Staff
+from his.models import HospitalTitle, Staff
 from pharmacy.models import MedicineInfo
+
+
+class TitleRegisterNumber(models.Model):
+    """
+    职称-挂号数对应表
+    """
+    title = models.OneToOneField(
+        HospitalTitle, 
+        on_delete = models.CASCADE,
+        verbose_name = _("职称")
+    )
+    register_number = models.PositiveIntegerField(verbose_name = _("挂号数限额"))
+
+    class Meta:
+        verbose_name = _("职称-挂号数")
+        verbose_name_plural = verbose_name
+    
+    def __str__(self) -> str:
+        return "<Title {} | RegNum {}>".format(self.title, self.register_number)
+
+
+class RemainingRegistration(models.Model):
+    """
+    医生剩余挂号数
+    """
+    medical_staff = models.OneToOneField(
+        Staff, 
+        on_delete = models.CASCADE, 
+        related_name = "remaining_registration_set",
+        related_query_name = "remaining_registrations",
+        verbose_name = _("剩余挂号数"),
+    )
+    register_date = models.DateField(
+        verbose_name = _("挂号日期"),
+    )
+    remain_quantity = models.PositiveIntegerField(
+        blank = True,
+        verbose_name = _("当日剩余挂号数")
+    )
+
+    class Meta:
+        verbose_name = _("医生剩余挂号数")
+        verbose_name_plural = verbose_name
+        unique_together = ["medical_staff", "register_date"]
+    
+    def __str__(self) -> str:
+        return "<RemRegNum {} | {} | {}>".format(
+            self.medical_staff, self.register_date, self.remain_quantity
+        )
 
 
 class RegistrationInfo(models.Model):
