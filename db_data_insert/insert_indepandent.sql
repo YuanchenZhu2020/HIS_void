@@ -11,3 +11,4 @@ insert into rbac_usergroup values
     (13, '信息部', '2021-05-10 11:12:59');
 insert into his_hospitaltitle values (1, '住院医师'),(2, '主治医师'),(3, '副主任医师'),(4, '主任医师');
 insert into his_jobtype values (1, '医生'),(2, '护士'),(3, '药房医生'),(4, '检验医生'),(5, '财务'),(6, '运维');
+commit;
