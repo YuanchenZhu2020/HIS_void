@@ -114,7 +114,13 @@ class NurseView(View):
     template_name = 'page-nurse-workspace.html'
 
     def get(self, request):
-        return render(request, NurseView.template_name)
+        data = [
+            {"BQ": "A",
+             "CW": [1, 3, 4, 5, 6, 7, 8]},
+            {"BQ": "B",
+             "CW": [2, 3, 4, 5, 6, 7, 8]},
+        ]
+        return render(request, NurseView.template_name, context={'data': data})
 
 
 class InspectionView(View):
@@ -330,6 +336,20 @@ class NurseAPI(View):
             # 传入医生主键，这样可以有选择的返回病人信息
             d_no = request.GET.get('d_no')
             print(d_no)
+
+        elif query_information == "RYDJ":
+            data = {
+                "no": 114514,
+                "name": "代收患者姓名",
+                "gender": "男",
+                "age": 18,
+                "HZZS": "患者主诉文本",
+                "ZLQK": "治疗情况文本",
+                "JWBS": "既往病史文本",
+                "GMBS": "过敏病史文本",
+                "TGJC": "体格检查文本",
+                "FBSJ": "发病事件文本",
+            }
 
         # 待收患者信息查询
         elif query_information == "DSHZ":

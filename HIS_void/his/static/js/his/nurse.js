@@ -41,14 +41,13 @@ function QueryZYHZ() {
             information: 'ZYHZ'
         },
         success: function (data) {
-            alert('住院患者信息已更新');
             console.log(data);
             for (let i = 0; i < data.length; i++) {
                 let patient = data[i];
                 let td = '<td>' + patient.name + '</td>';
                 let p_no = patient.p_no
                 console.log(p_no)
-                let tr = $("<tr onclick='ZYHZ(this.p_no)'></tr>");
+                let tr = $("<tr onclick='QueryYZCL(this.p_no)'></tr>");
                 tr.append(td);
                 $("#ZYHZ").append(tr);
             }
@@ -59,6 +58,7 @@ function QueryZYHZ() {
         }
     });
 }
+
 // 待收患者 Ajax 查询
 function QueryDSHZ() {
     let URL = '/NurseAPI';
@@ -72,14 +72,13 @@ function QueryDSHZ() {
             information: 'DSHZ'
         },
         success: function (data) {
-            alert('待收患者信息已更新');
             console.log(data);
             for (let i = 0; i < data.length; i++) {
                 let patient = data[i];
                 let td = '<td>' + patient.name + '</td>';
                 let p_no = patient.p_no
                 console.log(p_no)
-                let tr = $("<tr onclick='ZYHZ(this.p_no)'></tr>");
+                let tr = $("<tr onclick='QueryRYDJ(this.p_no)'></tr>");
                 tr.append(td);
                 $("#DSHZ").append(tr);
             }
@@ -90,6 +89,34 @@ function QueryDSHZ() {
         }
     });
 }
+
+// 床位查询
+function QueryRYDJ(p_no) {
+    let URL = '/NurseAPI';
+
+    console.log(URL);
+    $.ajax({
+        type: "get",
+        url: URL,
+        dataType: 'json',
+        data: {
+            p_no: p_no,
+            information: 'RYDJ'
+        },
+        success: function (data) {
+            console.log(data);
+            document.getElementById("no").setAttribute('placeholder', data.no);
+            document.getElementById("name").setAttribute('placeholder', data.name);
+            document.getElementById("gender").setAttribute('placeholder', data.gender);
+            document.getElementById("age").setAttribute('placeholder', data.age);
+        },
+        error: function (err) {
+            alert("请求服务器失败！");
+            console.log(err);
+        },
+    })
+}
+
 
 QueryDSHZ()
 QueryZYHZ()

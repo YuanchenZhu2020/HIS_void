@@ -2,6 +2,42 @@
 {% load static %}
 {% block title %}护士工作台{% endblock %}
 {% block body-context %}
+    <script>
+        function CWXZ() {
+            let CW = $("input[name='CW']:checked").val();
+            console.log(CW);
+            console.log(document.getElementById('BQCW'));
+            document.getElementById('BQCW').value = CW;
+
+
+        }
+    </script>
+    {#  sweet alert 2  #}
+    <!--
+    <script src="{% static 'vendor\sweetalert2\sweetalert2.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'vendor\sweetalert2\sweetalert2.min.css' %}">
+    <button id="btnn" type="button" class="btn btn-outline-primary">test</button>
+    <script>
+
+        $("#btnn").click(function () {
+            Swal.fire({
+                title: '请选择科室和病区',
+                html:
+                    'You can use <b>bold text</b>, ' +
+                    '<a href="//sweetalert2.github.io">links</a> ' +
+                    'and other HTML tags',
+                showCloseButton: true,
+                showCancelButton: true,
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                showLoaderOnConfirm: true,
+                reverseButtons: true,
+            })
+        });
+    </script>
+    -->
+
+
     {# 两侧留白较小的容器 #}
     <div class="container-fluid">
         <div class="page-titles mb-2 mt-0">
@@ -67,7 +103,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">病历号</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="114514">
+                                            <input id="no" type="text" class="form-control" readonly placeholder="">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -75,7 +111,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">姓名</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="肖云冲">
+                                            <input id="name" type="text" class="form-control" readonly placeholder="">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -83,7 +119,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">性别</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="男">
+                                            <input id="gender" type="text" class="form-control" readonly placeholder="">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -91,7 +127,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">年龄</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="18">
+                                            <input id="age" type="text" class="form-control" readonly placeholder="">
                                         </div>
                                     </div>
                                 </div>
@@ -111,16 +147,82 @@
                                     <a href="#ti_zheng_ji_lu" class="nav-link" data-toggle="tab"
                                        aria-expanded="false">体征记录</a>
                                 </li>
-                                {# 门诊确诊按钮 #}
-                                <li class="nav-item">
-                                    <a href="#men_zhen_que_zhen" class="nav-link" data-toggle="tab"
-                                       aria-expanded="true">床位查询</a>
-                                </li>
                                 {# 入院登记按钮 #}
                                 <li class="nav-item">
                                     <a href="#chu_fang_kai_ju" class="nav-link" data-toggle="tab"
                                        aria-expanded="true">入院登记</a>
                                 </li>
+                                <li class="ml-3 mb-0">
+                                    <button type="button" id="CWCX" class="btn btn-primary btn-xs" data-toggle="modal"
+                                            data-target=".bd-example-modal-lg">床位查询
+                                    </button>
+                                    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+                                         aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h3 class="modal-title">病床选择</h3>
+                                                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    {# 分页导航栏列表，用于放置分页按钮 #}
+                                                    <div class="default-tab">
+                                                        <ul class="nav nav-tabs justify-content-center" role="tablist">
+                                                            {# 医嘱处理按钮 #}
+                                                            <!--
+                                                            <li class="nav-item">
+                                                                <a href="#yi_zhu_chu_li" class="nav-link active" data-toggle="tab"
+                                                                   aria-expanded="false">医嘱处理</a>
+                                                            </li>
+                                                            -->
+                                                            {% for item in data %}
+                                                                <li class="nav-item">
+                                                                    <a href="#{{ item.BQ }}"
+                                                                       class="nav-link {% if forloop.counter == 1 %}active{% endif %}"
+                                                                       data-toggle="tab"
+                                                                       aria-expanded="false">病区 {{ item.BQ }}</a>
+                                                                </li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                    {# 分页页面内容 #}
+                                                    <div class="tab-content">
+                                                        {# 病历首页页面信息，第一次进入页面默认显示这个 #}
+                                                        {#                        <form>#}
+
+                                                        {% for item in data %}
+                                                            <div id="{{ item.BQ }}"
+                                                                 class="tab-pane fade {% if forloop.counter == 1 %}show active{% endif %}">
+                                                                <div class="card-body">
+                                                                    <div class="form-group mb-0">
+                                                                        {% for CW in item.CW %}
+                                                                            <label class="radio-inline mr-3">
+                                                                                <input type="radio"
+                                                                                       value="{{ item.BQ }}{{ CW }}"
+                                                                                       name="CW">
+                                                                                {{ item.BQ }}{{ CW }}</label>
+                                                                        {% endfor %}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        {% endfor %}
+                                                        {#                        </form>#}
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-danger light"
+                                                            data-dismiss="modal">取消
+                                                    </button>
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                                            onclick='CWXZ()'>选择
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+
                                 {# 手术申请按钮 #}
                                 {#                                <li class="nav-item">#}
                                 {#                                    <a href="#shou_shu_shen_qing" class="nav-link" data-toggle="tab"#}
@@ -220,23 +322,6 @@
                                 </div>
                             </div>
 
-                            {# 门诊确诊页面信息 #}
-                            <div id="men_zhen_que_zhen" class="tab-pane fade">
-                                <div class="container">
-                                    <div class="card-body">
-                                        <div class="basic-form">
-                                            <form action="">
-                                                <div class="input-group">
-                                                        <textarea class="form-control" rows="18"
-                                                                  placeholder="请输入您的判断"></textarea>
-
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
 
                             {# 入院登记页面信息 #}
                             <div id="chu_fang_kai_ju" class="tab-pane fade">
@@ -256,7 +341,7 @@
                                                 <div class="form-group">
                                                     <div class="input-group mb-3">
                                                         <label class="col-md-1.5 col-form-label text-right">护理级别： </label>
-                                                        <select class="form-control"
+                                                        <select class="form-control form-control-lg"
                                                                 name='HLJB'>
                                                             <option></option>
                                                             <option>1</option>
@@ -268,22 +353,11 @@
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <div class="input-group mb-3">
-                                                        <label class="col-md-1.5 col-form-label text-right">病区选择： </label>
-                                                        <select class="form-control"
-                                                                name='BQXZ'>
-                                                            <option></option>
-                                                            <option>A</option>
-                                                            <option>B</option>
-                                                            <option>C</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="form-group">
-                                                    <div class="input-group input-group-lg mb-3">
-                                                        <label class="col-md-1.5 col-form-label text-right">床位编号：</label>
-                                                        <input class="form-control form-control-lg"
-                                                               name='CWBH'>
+                                                    <div class="input-group input-group-lg mb-4">
+                                                        <label class="col-md-1.5 col-form-label text-right">病区床位：</label>
+                                                        <input id="BQCW" class="form-control form-control-lg"
+                                                               onfocus="document.getElementById('CWCX').click()"
+                                                               name='BQCW'>
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
@@ -295,7 +369,9 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <div class="text-right">
-                                                        <button type="submit" onclick="submitAlert()" class="btn btn-primary">提 交</button>
+                                                        <button type="submit" onclick="submitAlert()"
+                                                                class="btn btn-outline-primary">提 交
+                                                        </button>
                                                     </div>
                                                 </div>
                                             </form>

@@ -41,7 +41,6 @@ function jqueryInspectingPatient() {
             information: 'InspectingPatient'
         },
         success: function (data) {
-            alert('检中患者信息已更新');
             console.log(data);
             for (let i = 0; i < data.length; i++) {
                 let patient = data[i];

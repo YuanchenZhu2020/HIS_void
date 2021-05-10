@@ -43,7 +43,6 @@ function QueryZZHZ() {
             information: 'DZHZ'
         },
         success: function (data) {
-            alert('弹出对话框.');
             console.log(data);
             for (let i = 0; i < data.length; i++) {
                 let patient = data[i];
@@ -78,7 +77,6 @@ function QueryDZHZ() {
             information: 'ZZHZ'
         },
         success: function (data) {
-            alert('弹出对话框.');
             console.log(data);
             for (let i = 0; i < data.length; i++) {
                 let patient = data[i];
