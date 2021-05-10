@@ -25,8 +25,9 @@ from patient.views import (
     PatientWorkSpaceView, PatientWorkMyView
 )
 
+
 urlpatterns = [
-    path('', IndexView.as_view(), name = ''),
+    path('', IndexView.as_view(), name = 'index-alias'),
     # 管理员
     path('admin/', admin.site.urls),
     # 主页
@@ -50,3 +51,27 @@ urlpatterns = [
     # 患者登录后个人界面
     path('patient-user/', PatientWorkSpaceView.as_view(), name = "patient-user"),
 ]
+
+# 通过 HIS_void.url 自动添加 URL Permissions
+def create_urlpermissions():
+    from rbac.models import URLPermission
+    from django.utils import timezone
+
+    create_time = timezone.now()
+    urlnames = URLPermission.objects.all().values_list("name")
+    urlnames = list(utuple[0] for utuple in urlnames)
+    url_objs = [
+        URLPermission(
+            name = urlp.pattern.name,
+            url = '/' + urlp.pattern._route,
+            codename = "access-" + urlp.pattern.name,
+            create_time = create_time
+        )
+        for urlp in urlpatterns
+            if urlp.pattern.name 
+                and urlp.pattern.name not in urlnames
+    ]
+    if len(url_objs) > 0:
+        URLPermission.objects.bulk_create(url_objs)
+
+create_urlpermissions()
