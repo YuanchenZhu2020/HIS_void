@@ -181,9 +181,14 @@ class UserGroup(models.Model):
         - URL访问权限
         - （行级资源权限）
     """
-    ug_id = models.IntegerField(
-        validators = [MinValueValidator(1)], 
-        unique = True,
+    # ug_id = models.IntegerField(
+    #     validators = [MinValueValidator(1)], 
+    #     unique = True,
+    #     verbose_name = _("用户组编号"),
+    #     help_text = _("用户组编号，取值范围为 1 ~ Inf。"),
+    # )
+    ug_id = models.BigAutoField(
+        primary_key = True,
         verbose_name = _("用户组编号"),
         help_text = _("用户组编号，取值范围为 1 ~ Inf。"),
     )

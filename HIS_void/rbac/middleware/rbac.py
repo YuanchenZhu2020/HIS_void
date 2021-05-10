@@ -47,7 +47,7 @@ class RBACMiddleware:
         request_url = request.path_info
         url_permissions = request.session.get(settings.PERMISSION_URL_KEY)
         obj_permissions = request.session.get(settings.PERMISSION_OBJ_KEY)
-        print("[middleware]", request.user)
+        # print("[middleware]", request.user)
         print("[request_url]", request_url)
         print("[url_permissions]", url_permissions)
         print("[obj permissions]", obj_permissions)

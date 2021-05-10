@@ -42,7 +42,14 @@ INSTALLED_APPS = [
     'his',
     # 病人页面
     'patient',
-    'channels',
+    # 住院
+    'inpatient',
+    # 门诊
+    'outpatient',
+    # 药房
+    'pharmacy',
+    # 检验科
+    'laboratory',
 ]
 
 MIDDLEWARE = [
@@ -125,9 +132,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = Path(BASE_DIR, "static/")
 STATICFILES_DIRS = (
     str(Path(BASE_DIR, "his/static")),
 )
+
 
 # Auth user model
 AUTH_USER_MODEL = "rbac.UserInfo"
