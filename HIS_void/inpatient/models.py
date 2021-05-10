@@ -72,6 +72,7 @@ class HospitalRegistration(models.Model):
 
     registration_info = models.OneToOneField(
         RegistrationInfo, 
+        primary_key = True,
         on_delete = models.CASCADE, 
         verbose_name = _("挂号信息"),
     )
@@ -172,6 +173,7 @@ class NarcoticInfo(models.Model):
     """
     operation_info = models.OneToOneField(
         OperationInfo, 
+        primary_key = True,
         on_delete = models.CASCADE, 
         related_name = "narcotic_set",
         related_query_name = "narcotics",

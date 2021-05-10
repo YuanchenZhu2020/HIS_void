@@ -16,7 +16,7 @@ class InpatientArea(models.Model):
         ('C', 'C'),
     ]
     """
-    area_id = models.CharField(max_length = 2, unique = True, verbose_name = _("病区"))
+    area_id = models.CharField(max_length = 2, primary_key = True, verbose_name = _("病区"))
 
     class Meta:
         verbose_name = _("病区")
@@ -32,6 +32,7 @@ class Department(models.Model):
     """
     dept = models.OneToOneField(
         UserGroup, 
+        primary_key = True,
         on_delete = models.CASCADE, 
         verbose_name = _("科室部门"),
     )
@@ -61,7 +62,8 @@ class Notice(models.Model):
     dept = models.ForeignKey(
         Department, 
         on_delete = models.CASCADE,
-        related_name = 'not_dept',
+        related_name = "notice_set",
+        related_query_name = "notices",
         verbose_name = _("科室部门"),
     )
     send_time = models.DateTimeField(
@@ -108,6 +110,15 @@ class HospitalTitle(models.Model):
 class JobType(models.Model):
     """
     工种
+
+    JOB_CHOICES = (
+        (1, '医生'),
+        (2, '护士'),
+        (3, '药房医生'),
+        (4, '检验医生'),
+        (5, '财务'),
+        (6, '运维'),
+    )
     """
     job_id = models.BigAutoField(primary_key = True, verbose_name = _("工种编号"))
     job_name = models.CharField(max_length = 20, verbose_name = _("工种名称"))

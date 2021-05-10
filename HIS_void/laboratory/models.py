@@ -10,11 +10,11 @@ class TestItemType(models.Model):
     """
     检验项目类型
     TEST_TYPE_ITEMS = (
-        (1, '临床'), 
+        (1, '临床检查'), 
         (2, '生物化学'),
-        (3, '微生物'),
-        (4, '寄生虫'),
-        (5, '免疫'),
+        (3, '微生物学'),
+        (4, '寄生虫学'),
+        (5, '风湿免疫'),
     )
     """
     inspect_type_id = models.BigAutoField(primary_key = True, verbose_name = _("检验项目类型编号"))
@@ -93,7 +93,7 @@ class PatientTestItem(models.Model):
     class Meta:
         verbose_name = _("患者检验项目")
         verbose_name_plural = verbose_name
-        unique_together = ["registration_info", "test_id", "test_item"]
+        unique_together = ["registration_info", "test_id"]
     
     def __str__(self) -> str:
         return "<Patient Test Item {}-{}-{}>".format(

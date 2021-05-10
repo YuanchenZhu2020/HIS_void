@@ -17,6 +17,7 @@ class MedicineInfo(models.Model):
 
     medicine_id = models.CharField(
         max_length = 6,
+        primary_key = True,
         unique = True,
         verbose_name = _("药品编号"),
     )
