@@ -63,7 +63,7 @@ class MedicinePurchase(models.Model):
     )
     batch_num = models.PositiveIntegerField(verbose_name = _("批次编号"))
 
-    purchase_date = models.DateField(unique = True, verbose_name = _("采购日期"))
+    purchase_date = models.DateField(verbose_name = _("采购日期"))
     purchase_quantity = models.PositiveIntegerField(verbose_name = _("采购数量"))
 
     class Meta:
