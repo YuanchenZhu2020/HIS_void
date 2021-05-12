@@ -13,8 +13,6 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="https://cdn.lineicons.com/2.0/LineIcons.css" rel="stylesheet">
     <!-- 调整左上角Logo位置 -->
-    {#    <style type="text/css">#}
-
     <style type="text/css">
         body {
             {#position: relative;#}
@@ -60,6 +58,11 @@
 <script src="{% static 'vendor/bootstrap-select/js/bootstrap-select.min.js' %}"></script>
 <script src="{% static 'js/custom.min.js' %}"></script>
 <script src="{% static 'js/deznav-init.js' %}"></script>
+<script type="text/javascript">
+    function confirm_account() {
+        document.getElementById("confirm_account_btn").disabled = !document.getElementById("basic_checkbox_1").checked;
+    }
+</script>
 
 {% include 'footer.html' %}
 </body>

@@ -161,6 +161,7 @@ SAFE_URL = [
     # r"/patient-user/",
     # r"/profile/",
     # r"/outpatient-workspace/",
+    r"/register-success/",
 ]
 
 # setup session engine to improve performance

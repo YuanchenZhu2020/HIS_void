@@ -22,7 +22,7 @@ from his.views import (
 )
 from patient.views import (
     PatientLoginView, PatientRegisterView, ForgotPasswordView, 
-    PatientWorkSpaceView, PatientWorkMyView
+    PatientWorkSpaceView, PatientWorkMyView, PatientRegisterSuccessView
 )
 
 
@@ -38,6 +38,7 @@ urlpatterns = [
     path("login-patient/", PatientLoginView.as_view(), name = "login-patient"),
     # 注册页面
     path('register/', PatientRegisterView.as_view(), name = "register"),
+    path('register-success/', PatientRegisterSuccessView.as_view(), name = "register-success"),
     # 找回密码页面
     path('forgot-password/', ForgotPasswordView.as_view(), name = "forgot-password"),
     # 登出页面
@@ -58,20 +59,25 @@ def create_urlpermissions():
     from django.utils import timezone
 
     create_time = timezone.now()
-    urlnames = URLPermission.objects.all().values_list("name")
-    urlnames = list(utuple[0] for utuple in urlnames)
-    url_objs = [
-        URLPermission(
-            name = urlp.pattern.name,
-            url = '/' + urlp.pattern._route,
-            codename = "access-" + urlp.pattern.name,
-            create_time = create_time
-        )
-        for urlp in urlpatterns
-            if urlp.pattern.name 
-                and urlp.pattern.name not in urlnames
-    ]
-    if len(url_objs) > 0:
-        URLPermission.objects.bulk_create(url_objs)
+    old_urlps = set(URLPermission.objects.all().values_list("name", "url"))
+    new_urlps = set((urlp.pattern.name, urlp.pattern._route) for urlp in urlpatterns)
+    # 删除被删除的URL对应的URL访问权限
+    delete_urlperms = old_urlps - new_urlps
+    delete_urls = [nu[1] for nu in delete_urlperms]
+    URLPermission.objects.filter(url__in = delete_urls).delete()
+    # 添加新增的URL对应的URL访问权限
+    add_urlps = new_urlps - old_urlps
+    if len(add_urlps) > 0:
+        add_url_objs = [
+            URLPermission(
+                name = urlp[0],
+                url = '/' + urlp[1],
+                codename = "access-" + urlp[0],
+                create_time = create_time
+            )
+            for urlp in add_urlps 
+                if urlp[0] is not None
+        ]
+        URLPermission.objects.bulk_create(add_url_objs)
 
 create_urlpermissions()
