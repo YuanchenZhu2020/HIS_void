@@ -1,7 +1,6 @@
-// 医嘱处理 Ajax 查询
+// 医嘱处理查询
 function QueryYZCL(p_no) {
     let URL = '/NurseAPI';
-
     console.log(URL);
     $.ajax({
         type: "get",
@@ -20,6 +19,7 @@ function QueryYZCL(p_no) {
             document.getElementById("name").setAttribute('placeholder', data.name);
             document.getElementById("gender").setAttribute('placeholder', data.gender);
             document.getElementById("age").setAttribute('placeholder', data.age);
+            document.getElementById("YZCL_a").click();
         },
         error: function (err) {
             alert("请求服务器失败！");
@@ -28,7 +28,7 @@ function QueryYZCL(p_no) {
     })
 }
 
-// 住院患者 Ajax 查询
+// 住院患者查询
 function QueryZYHZ() {
     let URL = '/NurseAPI';
     console.log(URL);
@@ -59,7 +59,7 @@ function QueryZYHZ() {
     });
 }
 
-// 待收患者 Ajax 查询
+// 待收患者查询
 function QueryDSHZ() {
     let URL = '/NurseAPI';
     console.log(URL);
@@ -90,7 +90,7 @@ function QueryDSHZ() {
     });
 }
 
-// 床位查询
+// 入院登记查询
 function QueryRYDJ(p_no) {
     let URL = '/NurseAPI';
 
@@ -109,6 +109,7 @@ function QueryRYDJ(p_no) {
             document.getElementById("name").setAttribute('placeholder', data.name);
             document.getElementById("gender").setAttribute('placeholder', data.gender);
             document.getElementById("age").setAttribute('placeholder', data.age);
+            document.getElementById("RYDJ_a").click();
         },
         error: function (err) {
             alert("请求服务器失败！");
@@ -117,6 +118,86 @@ function QueryRYDJ(p_no) {
     })
 }
 
-
 QueryDSHZ()
 QueryZYHZ()
+
+// 床位查询
+function QueryCWXZ() {
+    let CW = $("input[name='CW']:checked").val();
+    console.log(document.getElementById('BQCW'));
+    if (CW !== undefined) {
+        document.getElementById('BQCW').value = CW;
+    } else {
+        document.getElementById('BQCW').value = '';
+    }
+}
+
+// 取消选择
+/*
+function QueryQXXZ() {
+
+    let x = document.getElementsByName("CW");  //获取所有name=brand的元素
+    for (let i = 0; i < x.length; i++) { //对所有结果进行遍历，如果状态是被选中的，则将其选择取消
+        if (x[i].checked === true) {
+            x[i].checked = false;
+            document.getElementById('BQCW').value = '';
+            break;
+        }
+    }
+}
+*/
+
+// 床位信息
+function QueryCWXX() {
+    let URL = '/NurseAPI';
+    console.log(URL);
+    $.ajax({
+        type: "get",
+        url: URL,
+        dataType: 'json',
+        data: {
+            d_no: '000000',
+            information: 'CWXX'
+        },
+        success: function (data) {
+            $("#BQ_head").empty();
+            // 生成病区分页按钮
+            for (let i in data) {
+                BQ_html = '';
+                BQ_html += '<li class="nav-item"> ';
+                BQ_html += '<a href="#' + data[i].BQ + '"';
+                BQ_html += ' class="nav-link ';
+                if (i == 0) {
+                    BQ_html += 'active ';
+                }
+                BQ_html += '" ' + 'data-toggle="tab" aria-expanded="false">病区' + data[i].BQ;
+                BQ_html += '</a></li>'
+                $("#BQ_head").append(BQ_html);
+            }
+            $("#BQ_content").empty();
+            // 生成病区分页页面
+            for (let i in data) {
+                let content_html = '';
+                content_html += '<div id="' + data[i].BQ + '"';
+                content_html += 'class="tab-pane fade ';
+                if (i == 0) {
+                    content_html += 'show active'
+                }
+                content_html += '">';
+                content_html += '<div class="card-body"><div class="form-group mb-0">';
+                for (let CW in data[i].CW) {
+                    content_html += '<label class="radio-inline mr-3">';
+                    content_html += '<input type="radio" value="';
+                    content_html += data[i].BQ + CW + '" name="CW">';
+                    content_html += data[i].BQ + CW + '</label>'
+                }
+                content_html += "</div></div></div>"
+                $("#BQ_content").append(content_html);
+            }
+        },
+        error: function (err) {
+            alert("请求服务器失败！");
+            console.log(err);
+        }
+    });
+}

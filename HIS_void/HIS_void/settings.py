@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'pharmacy',
     # 检验科
     'laboratory',
+    'channels',
 ]
 
 MIDDLEWARE = [

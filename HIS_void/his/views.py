@@ -107,7 +107,18 @@ class OutpatientView(View):
     template_name = 'page-outpatient-workspace.html'
 
     def get(self, request):
-        return render(request, OutpatientView.template_name)
+        # 检验信息数据
+        JYXX = [
+            {
+                'name': "临床检查",
+                'content': ['临床检查1', '临床检查2', ]
+            },
+            {
+                'name': "生物化学",
+                'content': ['生物化学1', '生物化学2', ]
+            },
+        ]
+        return render(request, OutpatientView.template_name, context={"JYXX": JYXX})
 
 
 class NurseView(View):
@@ -243,12 +254,12 @@ class OutpatientAPI(View):
                 {
                     "p_no": "183771**",
                     "name": "李国铭",
-                    "status": "危机",
+                    "status": "检验完成",
                 },
                 {
                     "p_no": "183771--",
                     "name": "肖云冲",
-                    "status": "普通",
+                    "status": "待检验",
                 },
                 {
                     "p_no": "183771++",
@@ -373,6 +384,14 @@ class NurseAPI(View):
             # 传入医生主键，这样可以有选择的返回病人信息
             d_no = request.GET.get('d_no')
             print(d_no)
+
+        elif query_information == "CWXX":
+            data = [
+                {"BQ": "A",
+                 "CW": [1, 3, 4, 5, 6, 7, 8]},
+                {"BQ": "B",
+                 "CW": [2, 3, 4, 5, 6, 7, 8]},
+            ]
 
         return JsonResponse(data, safe=False)
 

@@ -174,7 +174,7 @@
                             <ul class="nav nav-tabs justify-content-center" role="tablist">
                                 {# 检验信息按钮 #}
                                 <li class="nav-item">
-                                    <a href="#yi_zhu_chu_li" class="nav-link active" data-toggle="tab"
+                                    <a id="JYXX_a" href="#yi_zhu_chu_li" class="nav-link active" data-toggle="tab"
                                        aria-expanded="false">检验信息</a>
                                 </li>
                                 {# 报告生成按钮 #}
@@ -192,15 +192,15 @@
                                     <div class="basic-form">
                                         <form action="#">
                                             <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-2 col-form-label text-right">检验名称：</label>
+                                                <label class="col-md-1.5 col-form-label text-right">检验名称：</label>
                                                 <input id="JianYanMingCheng" type="text" class="form-control" readonly>
                                             </div>
                                             <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-2 col-form-label text-right">开具时间：</label>
+                                                <label class="col-md-1.5 col-form-label text-right">开具时间：</label>
                                                 <input id="KaiJuShiJian" type="text" class="form-control" readonly>
                                             </div>
                                             <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-2 col-form-label text-right">开具医师：
+                                                <label class="col-md-1.5 col-form-label text-right">开具医师：
                                                 </label> <input id="KaiJuYiShi" type="text" class="form-control"
                                                                 readonly>
                                             </div>
@@ -216,8 +216,15 @@
                                     <div class="basic-form">
                                         <form action="{% url 'InspectionAPI' %}" method="POST">
                                             {% csrf_token %}
-                                            <div align="center">
-                                                <img src="{% static 'images/ct.jpg' %}">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h6 id="BGSCId"></h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div align="center">
+                                                        <img src="{% static 'images/ct.jpg' %}" style="width: max-content">
+                                                    </div>
+                                                </div>
                                             </div>
                                             <div class="input-group mt-3 mb-3">
                                                 <textarea name="PDXX" class="form-control"

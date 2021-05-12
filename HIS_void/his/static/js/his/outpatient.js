@@ -1,7 +1,6 @@
-// 病历首页 Ajax 查询
+// 病历首页查询
 function QueryBLSY(p_no) {
     let URL = '/OutpatientAPI';
-
     $.ajax({
         type: "get",
         url: URL,
@@ -11,7 +10,6 @@ function QueryBLSY(p_no) {
             information: 'BLSY'
         },
         success: function (data) {
-            console.log(data);
             document.getElementById("HZZS").setAttribute('placeholder', data.HZZS);
             document.getElementById("ZLQK").setAttribute('placeholder', data.ZLQK);
             document.getElementById("JWBS").setAttribute('placeholder', data.JWBS);
@@ -22,6 +20,7 @@ function QueryBLSY(p_no) {
             document.getElementById("name").setAttribute('placeholder', data.name);
             document.getElementById("gender").setAttribute('placeholder', data.gender);
             document.getElementById("age").setAttribute('placeholder', data.age);
+            document.getElementById("BLSY_a").click();
         },
         error: function (err) {
             alert("请求服务器失败！");
@@ -31,7 +30,7 @@ function QueryBLSY(p_no) {
 }
 
 // 查询待诊患者
-function QueryZZHZ() {
+function QueryDZHZ() {
     let URL = '/OutpatientAPI';
     console.log(URL);
     $.ajax({
@@ -65,7 +64,7 @@ function QueryZZHZ() {
 
 
 // 查询诊中患者
-function QueryDZHZ() {
+function QueryZZHZ() {
     let URL = '/OutpatientAPI';
     console.log(URL);
     $.ajax({
@@ -84,7 +83,7 @@ function QueryDZHZ() {
                 let td1 = '<td>' + patient.status + '</td>';
                 let p_no = patient.p_no
                 console.log(p_no)
-                let tr = $("<tr onclick='QueryBLSY(this.p_no)'></tr>");
+                let tr = $("<tr onclick='QueryJCJG(this.p_no)'></tr>");
                 tr.append(td);
                 tr.append(td1);
                 $("#ZZHZ").append(tr);
@@ -111,7 +110,7 @@ function QueryJCJG(p_no) {
             p_no: p_no,
             information: 'BLSY'
         },
-        success: function (data) {
+        success: function (d
             console.log(data);
             document.getElementById("HZZS").setAttribute('placeholder', data.HZZS);
             document.getElementById("ZLQK").setAttribute('placeholder', data.ZLQK);
@@ -123,6 +122,7 @@ function QueryJCJG(p_no) {
             document.getElementById("name").setAttribute('placeholder', data.name);
             document.getElementById("gender").setAttribute('placeholder', data.gender);
             document.getElementById("age").setAttribute('placeholder', data.age);
+            document.getElementById("JCJY_a").click();
         },
         error: function (err) {
             alert("请求服务器失败！");

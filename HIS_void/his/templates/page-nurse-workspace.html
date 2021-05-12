@@ -3,41 +3,8 @@
 {% block title %}护士工作台{% endblock %}
 {% block body-context %}
     <script>
-        function CWXZ() {
-            let CW = $("input[name='CW']:checked").val();
-            console.log(CW);
-            console.log(document.getElementById('BQCW'));
-            document.getElementById('BQCW').value = CW;
 
-
-        }
     </script>
-    {#  sweet alert 2  #}
-    <!--
-    <script src="{% static 'vendor\sweetalert2\sweetalert2.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'vendor\sweetalert2\sweetalert2.min.css' %}">
-    <button id="btnn" type="button" class="btn btn-outline-primary">test</button>
-    <script>
-
-        $("#btnn").click(function () {
-            Swal.fire({
-                title: '请选择科室和病区',
-                html:
-                    'You can use <b>bold text</b>, ' +
-                    '<a href="//sweetalert2.github.io">links</a> ' +
-                    'and other HTML tags',
-                showCloseButton: true,
-                showCancelButton: true,
-                confirmButtonText: '确定',
-                cancelButtonText: '取消',
-                showLoaderOnConfirm: true,
-                reverseButtons: true,
-            })
-        });
-    </script>
-    -->
-
-
     {# 两侧留白较小的容器 #}
     <div class="container-fluid">
         <div class="page-titles mb-2 mt-0">
@@ -139,7 +106,7 @@
                             <ul class="nav nav-tabs justify-content-center" role="tablist">
                                 {# 医嘱处理按钮 #}
                                 <li class="nav-item">
-                                    <a href="#yi_zhu_chu_li" class="nav-link active" data-toggle="tab"
+                                    <a id="YZCL_a" href="#yi_zhu_chu_li" class="nav-link active" data-toggle="tab"
                                        aria-expanded="false">医嘱处理</a>
                                 </li>
                                 {# 体征记录按钮 #}
@@ -149,11 +116,12 @@
                                 </li>
                                 {# 入院登记按钮 #}
                                 <li class="nav-item">
-                                    <a href="#chu_fang_kai_ju" class="nav-link" data-toggle="tab"
+                                    <a id="RYDJ_a" href="#chu_fang_kai_ju" class="nav-link" data-toggle="tab"
                                        aria-expanded="true">入院登记</a>
                                 </li>
                                 <li class="ml-3 mb-0">
-                                    <button type="button" id="CWCX" class="btn btn-primary btn-xs" data-toggle="modal"
+                                    <button onclick="QueryCWXX()" type="button" id="CWCX" class="btn btn-primary btn-xs"
+                                            data-toggle="modal"
                                             data-target=".bd-example-modal-lg">床位查询
                                     </button>
                                     <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
@@ -162,77 +130,31 @@
                                             <div class="modal-content">
                                                 <div class="modal-header">
                                                     <h3 class="modal-title">病床选择</h3>
-                                                    <button type="button" class="close" data-dismiss="modal"><span>&times;</span>
+                                                    <button type="button" class="close"
+                                                            data-dismiss="modal"><span>&times;</span>
                                                     </button>
                                                 </div>
                                                 <div class="modal-body">
                                                     {# 分页导航栏列表，用于放置分页按钮 #}
                                                     <div class="default-tab">
-                                                        <ul class="nav nav-tabs justify-content-center" role="tablist">
-                                                            {# 医嘱处理按钮 #}
-                                                            <!--
-                                                            <li class="nav-item">
-                                                                <a href="#yi_zhu_chu_li" class="nav-link active" data-toggle="tab"
-                                                                   aria-expanded="false">医嘱处理</a>
-                                                            </li>
-                                                            -->
-                                                            {% for item in data %}
-                                                                <li class="nav-item">
-                                                                    <a href="#{{ item.BQ }}"
-                                                                       class="nav-link {% if forloop.counter == 1 %}active{% endif %}"
-                                                                       data-toggle="tab"
-                                                                       aria-expanded="false">病区 {{ item.BQ }}</a>
-                                                                </li>
-                                                            {% endfor %}
-                                                        </ul>
+                                                        <ul id="BQ_head" class="nav nav-tabs justify-content-center"
+                                                            role="tablist"></ul>
                                                     </div>
                                                     {# 分页页面内容 #}
-                                                    <div class="tab-content">
-                                                        {# 病历首页页面信息，第一次进入页面默认显示这个 #}
-                                                        {#                        <form>#}
-
-                                                        {% for item in data %}
-                                                            <div id="{{ item.BQ }}"
-                                                                 class="tab-pane fade {% if forloop.counter == 1 %}show active{% endif %}">
-                                                                <div class="card-body">
-                                                                    <div class="form-group mb-0">
-                                                                        {% for CW in item.CW %}
-                                                                            <label class="radio-inline mr-3">
-                                                                                <input type="radio"
-                                                                                       value="{{ item.BQ }}{{ CW }}"
-                                                                                       name="CW">
-                                                                                {{ item.BQ }}{{ CW }}</label>
-                                                                        {% endfor %}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        {% endfor %}
-                                                        {#                        </form>#}
-                                                    </div>
+                                                    <div id="BQ_content" class="tab-content"></div>
                                                 </div>
                                                 <div class="modal-footer">
                                                     <button type="button" class="btn btn-danger light"
-                                                            data-dismiss="modal">取消
+                                                            data-dismiss="modal" onclick="QueryQXXZ()">取消
                                                     </button>
                                                     <button type="button" class="btn btn-primary" data-dismiss="modal"
-                                                            onclick='CWXZ()'>选择
+                                                            onclick='QueryCWXZ()'>选择
                                                     </button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
                                 </li>
-
-                                {# 手术申请按钮 #}
-                                {#                                <li class="nav-item">#}
-                                {#                                    <a href="#shou_shu_shen_qing" class="nav-link" data-toggle="tab"#}
-                                {#                                       aria-expanded="true">手术申请</a>#}
-                                {#                                </li>#}
-                                {# 患者账单按钮 #}
-                                {#                                <li class="nav-item">#}
-                                {#                                    <a href="#huan_zhe_zhang_dan" class="nav-link" data-toggle="tab"#}
-                                {#                                       aria-expanded="true">患者账单</a>#}
-                                {#                                </li>#}
                             </ul>
                         </div>
                         {# 分页页面内容 #}
