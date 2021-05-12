@@ -110,7 +110,7 @@ function QueryJCJG(p_no) {
             p_no: p_no,
             information: 'BLSY'
         },
-        success: function (d
+        success: function (data) {
             console.log(data);
             document.getElementById("HZZS").setAttribute('placeholder', data.HZZS);
             document.getElementById("ZLQK").setAttribute('placeholder', data.ZLQK);
