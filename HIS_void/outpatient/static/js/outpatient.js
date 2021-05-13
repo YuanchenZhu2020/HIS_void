@@ -83,7 +83,7 @@ function QueryZZHZ() {
                 let td1 = '<td>' + patient.status + '</td>';
                 let p_no = patient.p_no
                 console.log(p_no)
-                let tr = $("<tr onclick='QueryJCJG(this.p_no)'></tr>");
+                let tr = $("<tr onclick='QueryJCJY(this.p_no)'></tr>");
                 tr.append(td);
                 tr.append(td1);
                 $("#ZZHZ").append(tr);

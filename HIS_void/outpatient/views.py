@@ -95,7 +95,7 @@ class OutpatientAPI(View):
             print(d_no)
 
         # 检查结果信息查询
-        elif query_information == "JCJG":
+        elif query_information == "JCJY":
             data = [
 
             ]
