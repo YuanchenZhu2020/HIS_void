@@ -123,6 +123,12 @@ class InspectionView(View):
     def get(self, request):
         return render(request, InspectionView.template_name)
 
+class HospitalDoctorView(View):
+    template_name = 'page-inhospital-doctor.html'
+
+    def get(self, request):
+        return render(request, HospitalDoctorView.template_name)
+
 
 """
 ***************************
@@ -285,16 +291,16 @@ class OutpatientAPI(View):
 护士工作台数据API
 """
 
-
 class NurseAPI(View):
     def get(self, request):
         # 获取需要查询的信息类型
         query_information = request.GET.get('information')
 
         # 医嘱处理信息查询
-        if query_information == "YZCL":
+        if query_information == "QZXQ":
             p_no = request.GET.get('p_no')
             print(p_no)
+            # 数据库查询语句
             data = {
                 "no": 114514,
                 "name": "肖云冲",
@@ -307,62 +313,31 @@ class NurseAPI(View):
                 "TGJC": "体格检查文本",
                 "FBSJ": "发病事件文本",
             }
-
-        # 住院患者信息查询
-        elif query_information == "ZYHZ":
-            data = [
-                {
-                    "p_no": "183771**",
-                    "name": "李国铭",
-                    "status": "危机",
-                },
-                {
-                    "p_no": "183771--",
-                    "name": "肖云冲",
-                    "status": "普通",
-                },
-                {
-                    "p_no": "183771++",
-                    "name": "朱元琛",
-                    "status": "安全",
-                },
-            ]
-            # 传入医生主键，这样可以有选择的返回病人信息
-            d_no = request.GET.get('d_no')
-            print(d_no)
-
-        # 待收患者信息查询
-        elif query_information == "DSHZ":
-            data = [
-                {
-                    "p_no": "183771**",
-                    "name": "李国铭（待收患者）",
-                    "status": "危机",
-                },
-                {
-                    "p_no": "183771--",
-                    "name": "肖云冲（待收患者）",
-                    "status": "普通",
-                },
-                {
-                    "p_no": "183771++",
-                    "name": "朱元琛（待收患者）",
-                    "status": "安全",
-                },
-            ]
-            # 传入医生主键，这样可以有选择的返回病人信息
-            d_no = request.GET.get('d_no')
-            print(d_no)
-
         return JsonResponse(data, safe=False)
 
-    def post(self, request):
-        print("================================")
-        print(request.POST.get('SZY'))
-        print("================================")
 
-        print("================================")
-        print(request.POST.get('RYRQ'))
-        print("================================")
-        sleep(1)
-        return redirect(reverse("nurse-workspace"))
+# 住院医生工作台数据
+class InhospitalAPI(View):
+    def get(self, request):
+        # 获取需要查询的信息类型
+        query_information = request.GET.get('information')
+
+        #
+        if query_information == "ZZHZ":
+            p_no = request.GET.get('p_no')
+            print(p_no)
+            # 数据库查询语句
+            data = [{
+                "p_no": 114514,
+                "name": "发多冲",
+                "bed":123,
+            },{
+                "p_no": 11343,
+                "name": "肖大赛",
+                "bed":543,
+            },{
+                "p_no": 114424,
+                "name": "阿凡达",
+                "bed":64,
+            }]
+        return JsonResponse(data, safe=False)

@@ -4,60 +4,60 @@
 {% block title %}患者{% endblock %}
 
 {% block body-context %}
-{{ '' }}
-    <body> <!--data-spy="scroll"  data-offset="40" data-target="#myScrollspy" -->
+
+        <script src="{% static 'js/patient-user.js' %}"></script>
+{#        <button onclick="Details('444')">123</button>  {# 传不进去怎么回事 #}
+
     <div class="container-fluid">
         <div class="row">
             <!-- 左边栏信息 -->
             <div id="myScrollspy" class="col-sm-3"> <!-- class="col-sm-3" -->
                 <div class="container-fluid">
                     <div class="container-fluid">
-                        <ul class="nav nav-pills nav-stacked">
-                            <div>
-                                <br/><br/>
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="widget-timeline-icon2">
-                                            <ul class="timeline">
-                                                <li>
-                                                    <div class="icon bg-primary"><i class="las la-stethoscope"></i>
-                                                    </div>
-                                                    <a class="timeline-panel text-muted" href="#future">
-                                                        <h4 class="mb-2 mt-1">待诊信息</h4>
-                                                        <p class="fs-15 mb-0 ">z</p>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <div class="icon bg-primary"><i class="las la-stethoscope"></i>
-                                                    </div>
-                                                    <a class="timeline-panel text-muted" href="#now">
-                                                        <h4 class="mb-2 mt-1">当前就诊</h4>
-                                                        <p class="fs-15 mb-0 ">z</p>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <div class="icon bg-primary"><i class="las la-stethoscope"></i>
-                                                    </div>
-                                                    <a class="timeline-panel text-muted" href="#past">
-                                                        <h4 class="mb-2 mt-1">就诊记录</h4>
-                                                        <p class="fs-15 mb-0 ">his</p>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <div class="icon bg-primary las"><i class="las la-stethoscope"></i>
-                                                    </div>
-                                                    <a class="timeline-panel text-muted" href="#settings">
-                                                        <h4 class="mb-2 mt-1">个人设置</h4>
-                                                        <p class="fs-15 mb-0 ">name</p>
-                                                    </a>
-                                                </li>
+                        <div>
+                            <br/><br/>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="widget-timeline-icon2">
+                                        <ul class="timeline">
+                                            <li>
+                                                <div class="icon bg-primary"><i class="las la-stethoscope"></i>
+                                                </div>
+                                                <a class="timeline-panel text-muted" href="#future">
+                                                    <h4 class="mb-2 mt-1">待诊信息</h4>
+                                                    <p class="fs-15 mb-0 ">z</p>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <div class="icon bg-primary"><i class="las la-stethoscope"></i>
+                                                </div>
+                                                <a class="timeline-panel text-muted" href="#now">
+                                                    <h4 class="mb-2 mt-1">当前就诊</h4>
+                                                    <p class="fs-15 mb-0 ">z</p>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <div class="icon bg-primary"><i class="las la-stethoscope"></i>
+                                                </div>
+                                                <a class="timeline-panel text-muted" href="#past">
+                                                    <h4 class="mb-2 mt-1">就诊记录</h4>
+                                                    <p class="fs-15 mb-0 ">his</p>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <div class="icon bg-primary las"><i class="las la-stethoscope"></i>
+                                                </div>
+                                                <a class="timeline-panel text-muted" href="#settings">
+                                                    <h4 class="mb-2 mt-1">个人设置</h4>
+                                                    <p class="fs-15 mb-0 ">name</p>
+                                                </a>
+                                            </li>
 
-                                            </ul>
-                                        </div>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
-                        </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -102,7 +102,7 @@
                                 <table class="table table-responsive-md">
                                     <thead>
                                     <tr>
-                                        <th><p><strong>#</strong></p></th>
+                                        {#                                        <th><p><strong>#</strong></p></th>#}
                                         <th><p><strong>序号</strong></p></th>
                                         <th><p style="width: 40px"><strong>科室</strong></p></th>
                                         <th><p style="width: 60px"><strong>门诊</strong></p></th>
@@ -113,22 +113,23 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr>
-                                        <td><strong>01</strong></td>
-                                        <td>1234</td>
-                                        <td>内科</td>
-                                        <td>呼吸门诊</td>
-                                        <td>A医生</td>
-                                        <td>2021-04-09</td>
-                                        <td>13:00</td>
-                                        <td>
-                                            <button type="button" class="btn btn-success light sharp" href="#"
-                                                    style="width: 80px">
-                                                再次预约
-                                            </button>
-                                        </td>
-                                    </tr>
-
+                                    {% for item in DZdata %}
+                                        <tr>
+                                            {#                                        <td><strong>01</strong></td>#}
+                                            <td>{{ item.number }}</td>
+                                            <td>{{ item.keshi }}</td>
+                                            <td>{{ item.menzhen }}</td>
+                                            <td>{{ item.doctor_name }}</td>
+                                            <td>{{ item.date }}</td>
+                                            <td>{{ item.time }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-success light sharp" href="#"
+                                                        style="width: 80px">
+                                                    再次预约
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
@@ -147,7 +148,7 @@
                                 <table class="table table-responsive-md">
                                     <thead>
                                     <tr>
-                                        <th><p><strong>#</strong></p></th>
+                                        {#                                        <th><p><strong>#</strong></p></th>#}
                                         <th><p><strong>名称</strong></p></th>
                                         <th><p style="width: 60px"><strong>地点</strong></p></th>
                                         <th><p style="width: 30px"><strong>序号</strong></p></th>
@@ -156,23 +157,23 @@
                                     </tr>
                                     </thead>
                                     <tbody>
-                                    <tr>
-                                        <td><strong>01</strong></td>
-                                        <td>CT</td>
-                                        <td>综合二层102</td>
-                                        <td>189</td>
-
-                                        <td><span class="badge light badge-danger">等待检查</span></td>
-                                        {#                                                <td><span class="badge light badge-warning">等待结果</span></td>#}
-                                        {#                                                <td><span class="badge light badge-success">已出结果</span></td>#}
-                                        <td>
-                                            <button type="button" class="btn btn-success light sharp" href="#"
-                                                    style="width: 80px">
-                                                详细信息
-                                            </button>
-                                        </td>
-                                    </tr>
-
+                                    {% for item in DQJZdata %}
+                                        <tr>
+                                            {#                                            <td><strong>01</strong></td>#}
+                                            <td>{{ item.name }}</td>
+                                            <td>{{ item.location }}</td>
+                                            <td>{{ item.order }}</td>
+                                            <td>{{ item.status }}</td>
+                                            {#                                                <td><span class="badge light badge-warning">等待结果</span></td>#}
+                                            {#                                                <td><span class="badge light badge-success">已出结果</span></td>#}
+                                            <td>
+                                                <button type="button" class="btn btn-success light sharp" href="#"
+                                                        style="width: 80px">
+                                                    详细信息
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
                                     </tbody>
                                 </table>
                             </div>
@@ -201,7 +202,6 @@
                                     <!-- 下部展示信息，包括以下内容 -->
                                     <div class="tab-content">
 
-
                                         <!-- 确诊记录 -->
                                         <div id="all-record" class="tab-pane fade show active">
                                             <div class="profile-all-record">
@@ -210,7 +210,7 @@
                                                         <table class="table table-responsive-md">
                                                             <thead>
                                                             <tr>
-                                                                <th><p><strong>#</strong></p></th>
+                                                                {#                                                            <th><p><strong>#</strong></p></th>#}
                                                                 <th><p style="width: 100px"><strong>日期</strong></p></th>
                                                                 <th><p style="width: 60px"><strong>医生</strong></p></th>
                                                                 <th><p style="width: 60px"><strong>确诊</strong></p></th>
@@ -219,27 +219,33 @@
                                                             </tr>
                                                             </thead>
                                                             <tbody>
-                                                            <tr>
-                                                                <td><strong>01</strong></td>
-                                                                <td>2020-04-09</td>
-                                                                <td>A医生</td>
-                                                                <td>肺炎</td>
-                                                                <td>
-                                                                    <button type="button"
-                                                                            class="btn btn-success light sharp" href="#"
-                                                                            style="width: 80px">
-                                                                        再次预约
-                                                                    </button>
-                                                                </td>
-                                                                <td>
-                                                                    <button type="button"
-                                                                            class="btn btn-success light sharp" href="#"
-                                                                            style="width: 80px">
-                                                                        确诊详情
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
+                                                            {% for item in QZdata %}
+                                                                <tr>
+                                                                    {#                                                                <td><strong>01</strong></td>#}
+                                                                    <td>{{ item.date }}</td>
+                                                                    <td>{{ item.doctor }}</td>
+                                                                    <td>{{ item.quezhen }}</td>
+                                                                    <td>
+                                                                        <button type="button"
+                                                                                class="btn btn-success light sharp"
+                                                                                href="#"
+                                                                                style="width: 80px">
+                                                                            再次预约
+                                                                        </button>
+                                                                    </td>
+                                                                    <td>
+                                                                        <button onclick="Details({{ item.id }})"
+                                                                                type="button"
+                                                                                class="btn btn-success light sharp"
+                                                                                data-toggle="modal"
+{#                                                                              data-target="#QZXQModal"#}
+                                                                                style="width: 80px">
+                                                                            确诊详情{{ item.id }}
+                                                                        </button>
+                                                                    </td>
 
+                                                                </tr>
+                                                            {% endfor %}
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -255,28 +261,29 @@
                                                         <table class="table table-responsive-md">
                                                             <thead>
                                                             <tr>
-                                                                <th><p><strong>#</strong></p></th>
+                                                                {#                                                                <th><p><strong>#</strong></p></th>#}
                                                                 <th><p style="width: 60px"><strong>名称</strong></p></th>
                                                                 <th><p style="width: 60px"><strong>价格</strong></p></th>
                                                                 <th></th>
                                                             </tr>
                                                             </thead>
                                                             <tbody>
-                                                            <tr>
-                                                                <td><strong>01</strong></td>
-                                                                <td>B超</td>
-                                                                <td>130</td>
-                                                                <td>
-                                                                    <button type="button"
-                                                                            class="btn btn-success light sharp"
-                                                                            data-toggle="modal"
-                                                                            data-target="#myModal"
-                                                                            style="width: 80px">
-                                                                        结果详情
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-
+                                                            {% for item in JCdata %}
+                                                                <tr>
+                                                                    {#                                                                <td><strong>01</strong></td>#}
+                                                                    <td>{{ item.name }}</td>
+                                                                    <td>{{ item.price }}</td>
+                                                                    <td>
+                                                                        <button type="button"
+                                                                                class="btn btn-success light sharp"
+                                                                                data-toggle="modal"
+                                                                                data-target="#JGXQModal"
+                                                                                style="width: 80px">
+                                                                            结果详情
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            {% endfor %}
                                                             </tbody>
                                                         </table>
                                                     </div>
@@ -285,16 +292,36 @@
                                         </div>
 
                                         <!-- 弹出框 需要进行一些简单的配置即可-->
-                                        <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
-                                             aria-labelledby="myModalLabel" aria-hidden="true">
+                                        <!-- 确诊详情弹窗 -->
+                                        <!-- 确诊详情弹窗 -->
+                                        <div class="modal fade" id="QZXQModal">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
-                                                        <button type="button" class="close" data-dismiss="modal"
-                                                                aria-hidden="true">
-                                                            &times;
+                                                        <h4 class="modal-title"
+                                                            id="JGXQModalLabel">
+                                                            检查结果{{ item.doctor }}
+                                                        </h4>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        在这里添加一些文本
+                                                        写下很多很多很多结果信息，或许可以放图片
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button"
+                                                                class="btn btn-primary"
+                                                                data-dismiss="modal">确定
                                                         </button>
-                                                        <h4 class="modal-title" id="myModalLabel">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- 检查详情弹窗 -->
+                                        <div class="modal fade" id="JGXQModal">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title" id="JGXQModalLabel">
                                                             检查结果
                                                         </h4>
                                                     </div>
@@ -306,12 +333,9 @@
                                                         <button type="button" class="btn btn-primary"
                                                                 data-dismiss="modal">确定
                                                         </button>
-{#                                                        <button type="button" class="btn btn-default">#}
-{#                                                            确定#}
-{#                                                        </button>#}
                                                     </div>
-                                                </div><!-- /.modal-content -->
-                                            </div><!-- /.modal -->
+                                                </div>
+                                            </div>
                                         </div>
 
                                     </div>
@@ -321,13 +345,14 @@
                     </div>
                 </div>
 
-
                 <!--个人的设置信息（包括修改电话号码、邮箱、密码等等）-->
                 <div class="col-lg-12" id="settings">
                     <div class="card">
                         <div class="card-body">
                             <div class="profile-tab">
                                 <div class="custom-tab-1">
+
+                                    <!-- 上边栏信息 -->
                                     <ul class="nav nav-tabs">
                                         <li class="nav-item"><a href="#about-me" data-toggle="tab"
                                                                 class="nav-link active show">当前设置信息</a>
@@ -335,8 +360,9 @@
                                         <li class="nav-item"><a href="#personal-settings" data-toggle="tab"
                                                                 class="nav-link">修改信息</a>
                                         </li>
-
                                     </ul>
+
+                                    <!-- 上边栏信息 -->
                                     <div class="tab-content">
 
                                         <div id="about-me" class="tab-pane fade active show">
@@ -453,137 +479,5 @@
             </div>
         </div>
     </div>
-
-
-    <!-- 觉得maybe可以用上的组件 -->
-    {#                <div class="d-md-flex d-block mb-3 align-items-center">#}
-    {#                    <div class="widget-timeline-icon py-3 py-md-2 px-1 overflow-auto">#}
-    {#                        <ul class="timeline">#}
-    {#                            <li>#}
-    {#                                <div class="icon bg-warning"></div>#}
-    {#                                <a class="timeline-panel text-muted" href="javascript:void(0);">#}
-    {#                                    <h4 class="mb-2 mt-0 text-warning fs-16 font-w600">Pending</h4>#}
-    {#                                    <p class="fs-14 mb-0 ">21/08/2020, 12:45 AM</p>#}
-    {#                                </a>#}
-    {#                            </li>#}
-    {#                            <li class="border-info">#}
-    {#                                <div class="icon bg-info"></div>#}
-    {#                                <a class="timeline-panel text-muted" href="javascript:void(0);">#}
-    {#                                    <h4 class="mb-2 mt-0 text-info fs-16 font-w600">On Recovery</h4>#}
-    {#                                    <p class="fs-14 mb-0 ">21/08/2020, 12:45 AM</p>#}
-    {#                                </a>#}
-    {#                            </li>#}
-    {#                            <li>#}
-    {#                                <div class="icon bg-primary"></div>#}
-    {#                                <a class="timeline-panel text-muted" href="javascript:void(0);">#}
-    {#                                    <h4 class="mb-2 text-primary mt-0 fs-16 font-w600">Recovered</h4>#}
-    {#                                    <p class="fs-14 mb-0 ">21/08/2020, 12:45 AM</p>#}
-    {#                                </a>#}
-    {#                            </li>#}
-    {#                        </ul>#}
-    {#                    </div>#}
-    {#                </div>#}
-
-
-    {#    <div class="col-lg-12" id="record">#}
-    {#                        <div class="card">#}
-    {#                            <div class="card-body">#}
-    {#                                <div class="profile-tab">#}
-    {#                                    <div class="custom-tab-1">#}
-    {#                                        <ul class="nav nav-tabs">#}
-    {#                                            <li class="nav-item"><a href="#allergy" data-toggle="tab"#}
-    {#                                                                    class="nav-link active show">过敏史</a>#}
-    {#                                            </li>#}
-    {#                                            <li class="nav-item"><a href="#others" data-toggle="tab"#}
-    {#                                                                    class="nav-link">其他说明</a>#}
-    {#                                            </li>#}
-    {#                                        </ul>#}
-    {##}
-    {##}
-    {#                                        <div class="tab-content">#}
-    {##}
-    {#                                            <div id="allergy" class="tab-pane fade active show">#}
-    {#                                                <div class="profile-allergy">#}
-    {#                                                    <div id="accordion-two" class="accordion accordion-danger-solid">#}
-    {#                                                        <div class="accordion__item">#}
-    {#                                                            <div class="accordion__header" data-toggle="collapse"#}
-    {#                                                                 data-target="#bordered_collapseOne"><span#}
-    {#                                                                    class="accordion__header--text">抗生素A过敏</span>#}
-    {#                                                                <span class="accordion__header--indicator"></span>#}
-    {#                                                            </div>#}
-    {#                                                            <div id="bordered_collapseOne"#}
-    {#                                                                 class="collapse accordion__body show"#}
-    {#                                                                 data-parent="#accordion-two">#}
-    {#                                                                <div class="accordion__body--text">#}
-    {#                                                                    主要症状为长红斑#}
-    {#                                                                </div>#}
-    {#                                                            </div>#}
-    {#                                                        </div>#}
-    {#                                                        <div class="accordion__item">#}
-    {#                                                            <div class="accordion__header collapsed"#}
-    {#                                                                 data-toggle="collapse"#}
-    {#                                                                 data-target="#bordered_collapseTwo"><span#}
-    {#                                                                    class="accordion__header--text">菠萝过敏</span>#}
-    {#                                                                <span class="accordion__header--indicator"></span>#}
-    {#                                                            </div>#}
-    {#                                                            <div id="bordered_collapseTwo"#}
-    {#                                                                 class="collapse accordion__body"#}
-    {#                                                                 data-parent="#accordion-two">#}
-    {#                                                                <div class="accordion__body--text">#}
-    {#                                                                    主要症状为发烧，起水泡#}
-    {#                                                                </div>#}
-    {#                                                            </div>#}
-    {#                                                        </div>#}
-    {#                                                        <div class="accordion__item">#}
-    {#                                                            <div class="accordion__header collapsed"#}
-    {#                                                                 data-toggle="collapse"#}
-    {#                                                                 data-target="#bordered_collapseThree"><span#}
-    {#                                                                    class="accordion__header--text">先天性心脏病</span>#}
-    {#                                                                <span class="accordion__header--indicator"></span>#}
-    {#                                                            </div>#}
-    {#                                                            <div id="bordered_collapseThree"#}
-    {#                                                                 class="collapse accordion__body"#}
-    {#                                                                 data-parent="#accordion-two">#}
-    {#                                                                <div class="accordion__body--text">#}
-    {#                                                                    曾有一次昏厥症状#}
-    {#                                                                </div>#}
-    {#                                                            </div>#}
-    {#                                                        </div>#}
-    {#                                                    </div>#}
-    {#                                                </div>#}
-    {#                                            </div>#}
-    {#                                            <div id="others" class="tab-pane fade">#}
-    {#                                                <div class="profile-others">#}
-    {#                                                    <div class="pt-4 border-bottom-1 pb-3">#}
-    {#                                                        <h4 class="text-primary">其他说明</h4>#}
-    {#                                                        <p class="mb-2">A wonderful serenity has taken possession of my#}
-    {#                                                            entire soul, like these sweet mornings of spring which I#}
-    {#                                                            enjoy#}
-    {#                                                            with my whole heart. I am alone, and feel the charm of#}
-    {#                                                            existence#}
-    {#                                                            was created for the bliss of souls like mine.I am so happy,#}
-    {#                                                            my#}
-    {#                                                            dear friend, so absorbed in the exquisite sense of mere#}
-    {#                                                            tranquil#}
-    {#                                                            existence, that I neglect my talents.</p>#}
-    {#                                                        <p>A collection of textile samples lay spread out on the table -#}
-    {#                                                            Samsa was a travelling salesman - and above it there hung a#}
-    {#                                                            picture that he had recently cut out of an illustrated#}
-    {#                                                            magazine#}
-    {#                                                            and housed in a nice, gilded frame.</p>#}
-    {#                                                    </div>#}
-    {#                                                </div>#}
-    {#                                            </div>#}
-    {##}
-    {#                                        </div>#}
-    {#                                    </div>#}
-    {#                                </div>#}
-    {#                            </div>#}
-    {#                        </div>#}
-    {#                    </div>#}
-
-
-    </body>
-
 
 {% endblock %}

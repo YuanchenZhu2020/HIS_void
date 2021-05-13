@@ -127,6 +127,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     str(Path(BASE_DIR, "his/static")),
+    str(Path(BASE_DIR, "patient/static")),
 )
 
 # Auth user model

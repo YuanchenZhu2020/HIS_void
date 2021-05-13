@@ -18,11 +18,12 @@ from django.urls import path
 
 from his.views import (
     IndexView, StaffLoginView, StaffLogoutView,
-    ProfileView, OutpatientView, NurseView, InspectionView, InspectionAPI, OutpatientAPI,
-    NurseAPI,
+    ProfileView, OutpatientView, NurseView, InspectionView,HospitalDoctorView, InspectionAPI, OutpatientAPI,
+    NurseAPI,InhospitalAPI,
 )
 from patient.views import (
     PatientLoginView, RegisterView, ForgotPasswordView, PatientWorkSpaceView, PatientWorkMyView,
+PatientAPI,
 )
 
 urlpatterns = [
@@ -45,18 +46,29 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name="profile"),
     # 门诊医生工作页面
     path('outpatient-workspace/', OutpatientView.as_view(), name="outpatient-workspace"),
-    # # 患者未登录首页
-    # path('patient/', PatientWorkSpaceView.as_view(), name = "patient"),
+    # 患者未登录首页
+    path('patient/', PatientWorkSpaceView.as_view(), name = "patient"),
     # 患者登录后个人界面
-    path('patient-user/', PatientWorkSpaceView.as_view(), name="patient-user"),
+    path('patient-user/', PatientWorkMyView.as_view(), name="patient-user"),
     # 护士门诊
     path('nurse-workspace/', NurseView.as_view(), name="nurse-workspace"),
     # 检查检验
     path('inspection-workspace/', InspectionView.as_view(), name="inspection-workspace"),
+    # 住院医生
+    path('inhospital-doctor/', HospitalDoctorView.as_view(), name="inhospital-doctor"),
+
     # 查询机器检验的各种信息
     path('InspectionAPI/', InspectionAPI.as_view(), name="InspectionAPI"),
     # 查询门诊医生的各种信息
     path('OutpatientAPI/', OutpatientAPI.as_view(), name="OutpatientAPI"),
     # 保存体征记录的各种信息
     path('NurseAPI/', NurseAPI.as_view(), name="NurseAPI"),
+    # 保存个人信息
+    path('PatientAPI/', PatientAPI.as_view(), name="PatientAPI"),
+    # 挂号API 保存挂号信息
+
+    # 保存住院医生能查询到的住院人信息
+    path('InhospitalAPI/', InhospitalAPI.as_view(), name="InhospitalAPI"),
+
+
 ]
