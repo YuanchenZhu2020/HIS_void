@@ -53,6 +53,10 @@ class StaffLoginView(View):
             login(request, user)
             # 向 Session 中写入信息
             request.session["username"] = user.get_username()
+            request.session["staff_name"] = user.staff.name
+            request.session["dept_name"] = user.staff.dept.name
+            request.session["title_name"] = user.staff.title.title_name
+            request.session["job_name"] = user.staff.job.job_name
             # request.session["is_login"] = True
             # 获取用户权限，写入 session 中
             init_permission(request, user)
@@ -83,13 +87,14 @@ class StaffLogoutView(View):
         # request.session.clear()
         return redirect(reverse(StaffLogoutView.template_name))
 
+
 class ProfileView(View):
     template_name = 'page-profile.html'
 
     def get(self, request):
         # print("[Session]", request.session)
         if request.user.is_authenticated and isinstance(request.user, UserInfo):
-            return render(request, ProfileView.template_name, locals())
+            return render(request, ProfileView.template_name)
         else:
             return redirect(reverse("index"))
 
