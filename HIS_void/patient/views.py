@@ -58,7 +58,8 @@ class PatientLoginView(View):
 
 class PatientRegisterView(View):
     template_name = "page-register.html"
-    patient_next_url_name = "login-patient"
+    # patient_next_url_name = "login-patient"
+    patient_next_url_name = "register-success"
 
     def get(self, request):
         registerform = PatientRegisterForm()
@@ -67,17 +68,19 @@ class PatientRegisterView(View):
 
     def post(self, request):
         register_info = PatientRegisterForm(data = request.POST)
+        # 表单数据验证成功
         if register_info.is_valid():
             # print(register_info.__dict__)
             data = register_info.cleaned_data
             id_type = data.get("id_type")
             id_number = data.get("id_number")
             phone = data.get("phone")
-            user = PatientUser.objects.filter(
+            user_reg = PatientUser.objects.filter(
                 id_type = id_type, 
                 id_number = id_number
             ).first()
-            if not user:
+            # 没有找到注册用户（即能够注册）
+            if not user_reg:
                 user = PatientUser(
                     id_type = id_type,
                     id_number = id_number,
@@ -89,14 +92,25 @@ class PatientRegisterView(View):
                 user.set_gender(id_info_query.get_gender())
                 user.set_birthday(id_info_query.get_birthday())
                 user.save()
+                # 注册成功，将必要信息写入session，跳转到账户信息页面
+                request.session["register_user_info"] = {
+                    "就诊号": user.patient_id,
+                    "证件类型": user.get_id_type_display(),
+                    "证件号": user.id_number,
+                    "姓名": user.name,
+                    "性别": user.get_gender_display(),
+                    "出生日期": user.birthday.strftime("%Y-%m-%d"),
+                    "手机号码": user.phone,
+                    "注册时间": user.create_time.strftime("%Y-%m-%d %H:%M:%S")
+                }
                 return redirect(reverse(PatientRegisterView.patient_next_url_name))
+            # 已存在与已填写信息对应的患者用户
+            else:
+                error_msg = "用户已注册"
         # 表单数据验证失败
-        if not register_info.is_valid():
+        else:
             # print(register_info.__dict__)
             error_msg = list(register_info.errors.values())[0]
-        # 已存在与已填写信息对应的患者用户
-        if user:
-            error_msg = "用户已注册"
         loginform = PatientRegisterForm()
         context = {
             "registerform": loginform,
@@ -135,3 +149,21 @@ class PatientWorkMyView(View):
 
     def get(self, request):
         return render(request, PatientWorkMyView.template_name, context={"user_type": "patient"})
+
+
+class PatientRegisterSuccessView(View):
+    template_name = "register-success.html"
+
+    def get(self, request):
+        account_info = request.session.get("register_user_info")
+        login_name = None
+        if account_info:
+            login_name = str(account_info["就诊号"]).rjust(6, '0')
+        context = {
+            "account_info": account_info,
+            "login_name": login_name
+        }
+        # 清除 session 中的账户信息
+        if context["account_info"]:
+            del request.session["register_user_info"]
+        return render(request, PatientRegisterSuccessView.template_name, context = context)

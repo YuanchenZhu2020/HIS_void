@@ -152,7 +152,6 @@ PERMISSION_OBJ_KEY = "obj_key"
 # PERMISSION_MENU_KEY = "menu_key"
 
 SAFE_URL = [
-    r"",
     r"/index/",
     r"/login-staff/",
     r"/login-patient/",
@@ -160,12 +159,11 @@ SAFE_URL = [
     r"/register/",
     r"/forgot-password/",
     r"/admin/.*",
-    r"/patient/",
-    r"/patient-user/",
-    #     r"/profile/",
-    #     r"/nurse-workspace/",
-    #     r"/inspection-workspace/"
-    # ]
+    # r"/patient/",
+    # r"/patient-user/",
+    # r"/profile/",
+    # r"/outpatient-workspace/",
+    r"/register-success/",
 ]
 
 # setup session engine to improve performance

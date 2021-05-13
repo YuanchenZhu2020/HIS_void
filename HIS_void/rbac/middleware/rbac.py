@@ -53,22 +53,23 @@ class RBACMiddleware:
         print("[obj permissions]", obj_permissions)
 
         # Cond 1: 超级用户，具有完全权限
-        if hasattr(request.user, "is_superuser"):
-            # print("RBAC Cond 1")
+        if hasattr(request.user, "is_superuser") \
+            and request.user.is_superuser:
+            print("RBAC Cond 1")
             return None
         # Cond 2: URL 白名单
         for url in settings.SAFE_URL:
             if re.match(url, request_url):
                 # print("第", self.count, "调用中间件")
                 # print("··········匹配成功·············")
-                # print("RBAC Cond 2")
+                print("RBAC Cond 2")
                 return None
 
         # Cond 3: 用户未登入
         if not url_permissions:
             # print("第", self.count, "调用中间件")
             # print("重定向到index")
-            # print("RBAC Cond 3")
+            print("RBAC Cond 3")
             return redirect(reverse("index"))
 
         # Cond 4: 一般情况

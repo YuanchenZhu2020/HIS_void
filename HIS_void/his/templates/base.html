@@ -28,8 +28,6 @@
     <link href="{% static 'vendor/bootstrap-select/dist/css/bootstrap-select.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <!-- 调整左上角Logo位置 -->
-    {#    <style type="text/css">#}
-
     <style type="text/css">
         body {
         {#position: relative;#} background-repeat: no-repeat;
@@ -74,6 +72,11 @@
 <script src="{% static 'vendor/bootstrap-select/js/bootstrap-select.min.js' %}"></script>
 <script src="{% static 'js/custom.min.js' %}"></script>
 <script src="{% static 'js/deznav-init.js' %}"></script>
+<script type="text/javascript">
+    function confirm_account() {
+        document.getElementById("confirm_account_btn").disabled = !document.getElementById("basic_checkbox_1").checked;
+    }
+</script>
 
 <!-- Daterangepicker -->
 <!-- momment js is must -->
