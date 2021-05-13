@@ -159,11 +159,16 @@ SAFE_URL = [
     r"/register/",
     r"/forgot-password/",
     r"/admin/.*",
-    # r"/patient/",
-    # r"/patient-user/",
-    # r"/profile/",
-    # r"/outpatient-workspace/",
+    r"/profile/",
+    r"/patient/",
+    r"/patient-user/",
+    r"/nurse-workspace/",
+    r"/outpatient-workspace/",
+    r"/inspection-workspace/",
     r"/register-success/",
+    r"/InspectionAPI/",
+    r"/OutpatientAPI/",
+    r"/NurseAPI/",
 ]
 
 # setup session engine to improve performance

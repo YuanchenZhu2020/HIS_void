@@ -4,7 +4,7 @@
     Name                 : Eres
     Author               : DexignZone
     更多精品模板：http://www.bootstrapmb.com
-    
+
 
 
     Table of Sass Contents
@@ -16,7 +16,7 @@
         _mixin
         _variable
 
-    2. bootstrap 
+    2. bootstrap
         -Here goes all official bootstrap scss files
 
     3. Global/Base
@@ -16506,7 +16506,7 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 [data-primary="color_3"] .custom-dropdown .dropdown-menu .dropdown-item:hover {
   color: #36C95F; }
 [data-primary="color_3"] .card-action .custom-dropdown {
-  background: #afe9bf; }
+  background: #36C95F; }
   [data-primary="color_3"] .card-action .custom-dropdown.show, [data-primary="color_3"] .card-action .custom-dropdown:focus, [data-primary="color_3"] .card-action .custom-dropdown:hover {
     background: #36C95F; }
 [data-primary="color_3"] .label-primary {
@@ -16556,8 +16556,8 @@ Fixing Order => Base + Typography >> General Layout + Grid >> Page Layout + Comp
 [data-primary="color_3"] .social-icon3 ul li a:hover i {
   color: #36C95F; }
 [data-primary="color_3"] .bgl-primary {
-  background: #afe9bf;
-  border-color: #afe9bf;
+  background: #36C95F;
+  border-color: #36C95F;
   color: #36C95F; }
 [data-primary="color_3"] .tdl-holder input[type=checkbox]:checked + i {
   background: #36C95F; }
@@ -24973,7 +24973,7 @@ button {
 
 .card-action .custom-dropdown {
   margin: 0px;
-  background: #afe9bf; }
+  background: #36C95F; }
   .card-action .custom-dropdown.show, .card-action .custom-dropdown:focus, .card-action .custom-dropdown:hover {
     background: #36C95F;
     color: #fff; }
@@ -26388,7 +26388,7 @@ code {
           font-size: 22px; }
         .picker .picker__frame .picker__box .picker__header .picker__nav--prev:hover,
         .picker .picker__frame .picker__box .picker__header .picker__nav--next:hover {
-          background-color: #afe9bf !important;
+          background-color: #36C95F !important;
           color: #36C95F !important; }
       .picker .picker__frame .picker__box .picker__header .picker__nav--prev {
         left: 0; }
@@ -26415,13 +26415,13 @@ code {
       .picker .picker__frame .picker__box .picker__table .picker__day.picker__day--highlighted {
         border: 0 !important;
         padding: 0;
-        background-color: #afe9bf !important;
+        background-color: #36C95F !important;
         color: #fff !important; }
       .picker .picker__frame .picker__box .picker__table .picker__day:hover {
-        background-color: #afe9bf !important;
+        background-color: #36C95F !important;
         color: #fff !important; }
     .picker .picker__frame .picker__box .picker__footer .picker__button--today {
-      background-color: #afe9bf !important;
+      background-color: #36C95F !important;
       color: #fff !important; }
       .picker .picker__frame .picker__box .picker__footer .picker__button--today:before {
         content: none !important; }
@@ -26434,8 +26434,12 @@ code {
       .picker .picker__frame .picker__box .picker__footer .picker__button--clear:hover,
       .picker .picker__frame .picker__box .picker__footer .picker__button--close:hover,
       .picker .picker__frame .picker__box .picker__footer .picker__button--today:hover {
-        background-color: #afe9bf !important;
+        background-color: #f46b68 !important;
         color: #fff !important; }
+      .picker .picker__frame .picker__box .picker__footer .picker__button--today:hover {
+                background-color: #36C95F !important;
+
+      }
   @media only screen and (max-width: 575px) {
     .picker .picker__frame {
       min-width: 100% !important;
