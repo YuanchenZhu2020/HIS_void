@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Channels App for WebSocket
+    'channels',
     # Role-Based Access Control
     'rbac',
     # 外部接口
@@ -51,7 +53,6 @@ INSTALLED_APPS = [
     'pharmacy',
     # 检验科
     'laboratory',
-    'channels',
 ]
 
 MIDDLEWARE = [

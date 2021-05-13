@@ -17,18 +17,15 @@ from django.contrib import admin
 from django.urls import path
 
 from his.views import (
-    IndexView, StaffLoginView, StaffLogoutView,
-    ProfileView,
+    IndexView, StaffLoginView, StaffLogoutView, ProfileView,
 )
-
 from patient.views import (
-    PatientLoginView, PatientRegisterView, ForgotPasswordView, PatientWorkSpaceView, PatientWorkMyView,
+    PatientLoginView, PatientRegisterView, ForgotPasswordView, 
+    PatientWorkSpaceView, PatientWorkMyView,
 )
-
 from outpatient.views import (
     OutpatientView, OutpatientAPI
 )
-
 from inpatient.views import (
     NurseView, NurseAPI
 )
@@ -37,8 +34,11 @@ from laboratory.views import (
     InspectionView, InspectionAPI,
 )
 
+from rbac.management import create_urlpermissions
+
+
 urlpatterns = [
-    path('', IndexView.as_view(), name=''),
+    path('', IndexView.as_view(), name='index-alias'),
     # 管理员
     path('admin/', admin.site.urls),
     # 主页
@@ -74,32 +74,9 @@ urlpatterns = [
 ]
 
 
-# 通过 HIS_void.url 自动添加 URL Permissions
-def create_urlpermissions():
-    from rbac.models import URLPermission
-    from django.utils import timezone
+# 每次执行 makemigrations, migrate, runserver 等命令时会执行以下过程，
+# 用于及时更新 urlpatterns 的更改，更新 URL 访问权限记录。
+from django.apps import apps as global_apps
 
-    create_time = timezone.now()
-    old_urlps = set(URLPermission.objects.all().values_list("name", "url"))
-    new_urlps = set((urlp.pattern.name, urlp.pattern._route) for urlp in urlpatterns)
-    # 删除被删除的URL对应的URL访问权限
-    delete_urlperms = old_urlps - new_urlps
-    delete_urls = [nu[1] for nu in delete_urlperms]
-    URLPermission.objects.filter(url__in=delete_urls).delete()
-    # 添加新增的URL对应的URL访问权限
-    add_urlps = new_urlps - old_urlps
-    if len(add_urlps) > 0:
-        add_url_objs = [
-            URLPermission(
-                name=urlp[0],
-                url='/' + urlp[1],
-                codename="access-" + urlp[0],
-                create_time=create_time
-            )
-            for urlp in add_urlps
-            if urlp[0] is not None
-        ]
-        URLPermission.objects.bulk_create(add_url_objs)
-
-
-create_urlpermissions()
+app_config = global_apps.get_app_config("rbac")
+create_urlpermissions(app_config)
