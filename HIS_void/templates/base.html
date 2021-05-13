@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>{% block title %}{% endblock %} - 医院信息管理系统</title>
+    <!-- Favicon icon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon.png' %}">
+    <link href="{% static 'vendor/owl-carousel/owl.carousel.css' %}" rel="stylesheet">
+    <link href="{% static 'vendor/bootstrap-select/css/bootstrap-select.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="https://cdn.lineicons.com/2.0/LineIcons.css" rel="stylesheet">
+    <!-- Daterange picker -->
+    <link href="{% static 'vendor/bootstrap-daterangepicker/daterangepicker.css' %}" rel="stylesheet">
+    <!-- Clockpicker -->
+    <link href="{% static 'vendor/clockpicker/css/bootstrap-clockpicker.min.css' %}" rel="stylesheet">
+    <!-- asColorpicker -->
+    <link href="{% static 'vendor/jquery-asColorPicker/css/asColorPicker.min.css' %}" rel="stylesheet">
+    <!-- Material color picker -->
+    <link href="{% static 'vendor/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css' %}"
+          rel="stylesheet">
+    <!-- Pick date -->
+    <link rel="stylesheet" href="{% static 'vendor/pickadate/themes/default.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/pickadate/themes/default.date.css' %}">
+    <!-- Custom Stylesheet -->
+    <link href="{% static 'vendor/bootstrap-select/dist/css/bootstrap-select.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <!-- 调整左上角Logo位置 -->
+    <style type="text/css">
+        body {
+        {#position: relative;#} background-repeat: no-repeat;
+            background-size: 100% 100%;
+            background-attachment: fixed;
+        {#background-image: url({% static 'images/background.png' %});#}{#background-image: url('.{% static 'static/images/background.png'); #}
+        }
+
+        .nav {
+            /* 上 右 下 左 */
+        {#margin: 30px 0px 30px 30px;#}
+        }
+
+        .container {
+        {#opacity: 0.8;#}
+        }
+
+        .table th {
+            padding: 10px 12px;
+        }
+
+        ul.nav-pills {
+            top: 20px;
+            position: fixed;
+        }
+
+    </style>
+
+</head>
+<body>
+{% include 'header.html' %}
+
+{% block body-context %}
+
+{% endblock %}
+<!--**********************************
+    Scripts
+***********************************-->
+<!-- Required vendors -->
+<script src="{% static 'vendor/global/global.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap-select/js/bootstrap-select.min.js' %}"></script>
+<script src="{% static 'js/custom.min.js' %}"></script>
+<script src="{% static 'js/deznav-init.js' %}"></script>
+<script type="text/javascript">
+    function confirm_account() {
+        document.getElementById("confirm_account_btn").disabled = !document.getElementById("basic_checkbox_1").checked;
+    }
+</script>
+
+<!-- Daterangepicker -->
+<!-- momment js is must -->
+<script src="{% static 'vendor/moment/moment.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+<!-- clockpicker -->
+<script src="{% static 'vendor/clockpicker/js/bootstrap-clockpicker.min.js' %}"></script>
+<!-- asColorPicker -->
+<script src="{% static 'vendor/jquery-asColor/jquery-asColor.min.js' %}"></script>
+<script src="{% static 'vendor/jquery-asGradient/jquery-asGradient.min.js' %}"></script>
+<script src="{% static 'vendor/jquery-asColorPicker/js/jquery-asColorPicker.min.js' %}"></script>
+<!-- Material color picker -->
+<script src="{% static 'vendor/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js' %}"></script>
+<!-- pickdate -->
+<script src="{% static 'vendor/pickadate/picker.js' %}"></script>
+<script src="{% static 'vendor/pickadate/picker.time.js' %}"></script>
+<script src="{% static 'vendor/pickadate/picker.date.js' %}"></script>
+
+
+<!-- Daterangepicker -->
+<script src="{% static 'js/plugins-init/bs-daterange-picker-init.js' %}"></script>
+<!-- Clockpicker init -->
+<script src="{% static 'js/plugins-init/clock-picker-init.js' %}"></script>
+<!-- asColorPicker init -->
+<script src="{% static 'js/plugins-init/jquery-asColorPicker.init.js' %}"></script>
+<!-- Material color picker init -->
+<script src="{% static 'js/plugins-init/material-date-picker-init.js' %}"></script>
+<!-- Pickdate -->
+<script src="{% static 'js/plugins-init/pickadate-init.js' %}"></script>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    function submitAlert() {
+        swal("提交成功", "", "success");
+    }
+</script>
+{% include 'footer.html' %}
+</body>
+</html>

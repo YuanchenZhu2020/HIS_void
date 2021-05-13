@@ -18,11 +18,23 @@ from django.urls import path
 
 from his.views import (
     IndexView, StaffLoginView, StaffLogoutView,
-    ProfileView, OutpatientView, NurseView, InspectionView, InspectionAPI, OutpatientAPI,
-    NurseAPI,
+    ProfileView,
 )
+
 from patient.views import (
     PatientLoginView, PatientRegisterView, ForgotPasswordView, PatientWorkSpaceView, PatientWorkMyView,
+)
+
+from outpatient.views import (
+    OutpatientView, OutpatientAPI
+)
+
+from inpatient.views import (
+    NurseView, NurseAPI
+)
+
+from laboratory.views import (
+    InspectionView, InspectionAPI,
 )
 
 urlpatterns = [

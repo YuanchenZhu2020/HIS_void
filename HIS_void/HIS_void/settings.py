@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -72,7 +73,7 @@ ROOT_URLCONF = 'HIS_void.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -84,6 +85,20 @@ TEMPLATES = [
         },
     },
 ]
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.1/howto/static-files/
+
+STATIC_ROOT = 'static'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static_share'),
+    os.path.join(BASE_DIR, "his/static"),
+    os.path.join(BASE_DIR, "inpatient/static"),
+    os.path.join(BASE_DIR, "laboratory/static"),
+    os.path.join(BASE_DIR, "outpatient/static"),
+    os.path.join(BASE_DIR, "pharmacy/static"),
+)
 
 WSGI_APPLICATION = 'HIS_void.wsgi.application'
 ASGI_APPLICATION = 'HIS_void.asgi.application'
@@ -128,16 +143,6 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
-
-STATIC_URL = '/static/'
-STATIC_ROOT = Path(BASE_DIR, "static/")
-STATICFILES_DIRS = (
-    str(Path(BASE_DIR, "his/static")),
-)
-
 
 # Auth user model
 AUTH_USER_MODEL = "rbac.UserInfo"

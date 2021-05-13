@@ -1,0 +1,45 @@
+<!DOCTYPEhtml>
+<html>
+<head>
+    <title></title>
+    <meta charset="utf-8"/>
+<body>
+<div style="margin-top:300px;margin-left:520px;">
+    <form action="/Fsearch/" method="get" style="margin: auto;">
+        请输入英文名：<br/>
+        <input type="text" id="search-text" name="q">
+        <button type="button" id='search-button'>搜索
+        </button>
+        <p>
+            <span id='search-result'></span></p>
+    </form>
+</div>
+<script src="http://apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#search-text").keyup(function () {
+            varq = $("#search-text").val();
+//获取搜索框输入的值
+            $.get("/Fsearch/", {
+                    'q': q
+                },
+
+                function (data) {
+//参数：发送的url；传入的数据；请求成功后的调用函数（data即是试图函数返回的json格式数据）详情
+                    for (vari = data.length - 1; i >= 0; i--) {
+                        $('#search-result').append(data[i] + '<br/>')
+//加入到search-result部分显示
+                    }
+                }
+            )
+        });
+        $('#search-text').keydown(function () {
+            $('#search-result').empty();
+        })
+        $('#search-text').blur(function () {
+            $('#search-result').empty();
+        })
+    });
+</script>
+</body>
+</html>
