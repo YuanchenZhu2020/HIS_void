@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}门诊医生工作台{% endblock %}
+{% block body-context %}
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/his/inspection.js' %}"></script>
+
+
+    {#    <script>jqueryInspectedPatient()</script>#}
+    {# 未实现的Websocket #}
+    <!--
+            <script>
+                let socket = new WebSocket('ws://localhost:8000/ws/some_url/');
+                socket.onmessage = function (event) {
+                    let data = JSON.parse(event.data);
+                    for (let i = 0; i < data.length; i++) {
+                        let tr = $("<tr></tr>");
+                        let patient = data[i];
+                        let td = '<td>' + patient.name + '</td>';
+                        tr.append(td);
+                        $("#inspectingPatient").append(tr);
+                    }
+                }
+            </script>
+            -->
+    {#    两侧留白较小的容器  #}
+    <div class="container-fluid">
+        {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为检中患者和待检患者信息，右边为分页表格（病历首页，报告生成等 #}
+        <div class="row">
+            <div class="col-md-12 align-content-center">
+                <div class="page-titles mb-2 mt-0">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url "profile" %}">profile</a></li>
+                        <li class="breadcrumb-item active"><a href="{% url "inspection-workspace" %}">Inspection</a>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            {# 第一列宽度为3，用于放置检中患者信息和待检患者信息 #}
+            <div class="col-md-3">
+                {# 检中患者信息 #}
+                <div class="container">
+                    <div class="card">{# 我目前只会使用card（卡片）布局 #}
+                        {# 设置卡片头 #}
+                        <div class="card-header">待检患者</div>
+                        {# 固定卡片大小，使得患者过多时可以滚动 #}
+                        <div style="overflow-x: auto; overflow-y: auto; height: 500px; ">
+                            {# 设置检中患者表（试一试就知道了 #}
+                            <table class="table table-hover small text-center">
+                                <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>状态</th>
+                                </tr>
+                                </thead>
+                                <tbody id="inspectingPatient">
+
+                                <td>冲云肖</td>
+                                <td><span class="badge badge-primary light">检查中</span>
+                                </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {# 待检患者信息 #}
+                <!--
+                <div class="container">
+                    <div class="card">
+                        <div class="card-header">待检患者</div>
+                        <div style="overflow-x: auto; overflow-y: auto; height: 300px; ">
+                            <table class="table table-hover small text-center">
+                                <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>紧急程度</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>李国铭</td>
+                                    <td><span class="badge badge-primary light">普通</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>特狼普</td>
+                                    <td><span class="badge badge-danger light">危急</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>好可怕</td>
+                                    <td><span class="badge badge-primary light">普通</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>两只老虎</td>
+                                    <td><span class="badge badge-primary light">Sale</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Kolor Tea Shirt</td>
+                                    <td><span class="badge badge-primary light">Sale</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Kolor Tea Shirt</td>
+                                    <td><span class="badge badge-primary light">Sale</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Kolor Tea Shirt</td>
+                                    <td><span class="badge badge-success">Tax</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Blue Backpack</td>
+                                    <td><span class="badge badge-danger light">Extended</span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                -->
+            </div>
+            {# 第二列的宽度为9，用于放置分页表格（病历首页、报告生成等） #}
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-body">
+                        {# 这里时当前患者的信息，放在了最上面 #}
+                        <div class="basic-form">
+                            <form>
+                                <div class="form-row justify-content-center">
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">病历号</span>
+                                            </div>
+                                            <input type="text" id="no" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">姓名</span>
+                                            </div>
+                                            <input type="text" id="name" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">性别</span>
+                                            </div>
+                                            <input type="text" id="gender" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">年龄</span>
+                                            </div>
+                                            <input type="text" id="age" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        {# 分页导航栏列表，用于放置分页按钮 #}
+                        <div class="default-tab">
+                            <ul class="nav nav-tabs justify-content-center" role="tablist">
+                                {# 检验信息按钮 #}
+                                <li class="nav-item">
+                                    <a id="JYXX_a" href="#yi_zhu_chu_li" class="nav-link active" data-toggle="tab"
+                                       aria-expanded="false">检验信息</a>
+                                </li>
+                                {# 报告生成按钮 #}
+                                <li class="nav-item">
+                                    <a href="#ti_zheng_ji_lu" class="nav-link" data-toggle="tab"
+                                       aria-expanded="false">报告生成</a>
+                                </li>
+                            </ul>
+                        </div>
+                        {# 分页页面内容 #}
+                        <div class="tab-content">
+                            {# 病历首页页面信息，第一次进入页面默认显示这个 #}
+                            <div id="yi_zhu_chu_li" class="tab-pane fade show active">
+                                <div class="card-body">
+                                    <div class="basic-form">
+                                        <form action="#">
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-1.5 col-form-label text-right">检验名称：</label>
+                                                <input id="JianYanMingCheng" type="text" class="form-control" readonly>
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-1.5 col-form-label text-right">开具时间：</label>
+                                                <input id="KaiJuShiJian" type="text" class="form-control" readonly>
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-1.5 col-form-label text-right">开具医师：
+                                                </label> <input id="KaiJuYiShi" type="text" class="form-control"
+                                                                readonly>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# 报告生成页面信息 #}
+                            <div id="ti_zheng_ji_lu" class="tab-pane fade">
+                                <div class="card-body">
+                                    {# 检验表单 #}
+                                    <div class="basic-form">
+                                        <form action="{% url 'InspectionAPI' %}" method="POST">
+                                            {% csrf_token %}
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h6 id="BGSCId"></h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div align="center">
+                                                        <img src="{% static 'images/ct.jpg' %}" style="width: max-content">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="input-group mt-3 mb-3">
+                                                <textarea name="PDXX" class="form-control"
+                                                          rows="6" placeholder="请输入您的判断"></textarea>
+                                            </div>
+                                            <div class="col-md-12 text-right">
+
+                                                <button type="submit" onclick='submitAlert()'
+                                                        class="form-group btn btn-outline-primary btn-sm">
+                                                    提交结果
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

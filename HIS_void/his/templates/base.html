@@ -12,15 +12,28 @@
     <link href="{% static 'vendor/bootstrap-select/css/bootstrap-select.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="https://cdn.lineicons.com/2.0/LineIcons.css" rel="stylesheet">
+    <!-- Daterange picker -->
+    <link href="{% static 'vendor/bootstrap-daterangepicker/daterangepicker.css' %}" rel="stylesheet">
+    <!-- Clockpicker -->
+    <link href="{% static 'vendor/clockpicker/css/bootstrap-clockpicker.min.css' %}" rel="stylesheet">
+    <!-- asColorpicker -->
+    <link href="{% static 'vendor/jquery-asColorPicker/css/asColorPicker.min.css' %}" rel="stylesheet">
+    <!-- Material color picker -->
+    <link href="{% static 'vendor/bootstrap-material-datetimepicker/css/bootstrap-material-datetimepicker.css' %}"
+          rel="stylesheet">
+    <!-- Pick date -->
+    <link rel="stylesheet" href="{% static 'vendor/pickadate/themes/default.css' %}">
+    <link rel="stylesheet" href="{% static 'vendor/pickadate/themes/default.date.css' %}">
+    <!-- Custom Stylesheet -->
+    <link href="{% static 'vendor/bootstrap-select/dist/css/bootstrap-select.min.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <!-- 调整左上角Logo位置 -->
     <style type="text/css">
         body {
-            {#position: relative;#}
-            background-repeat: no-repeat;
+        {#position: relative;#} background-repeat: no-repeat;
             background-size: 100% 100%;
             background-attachment: fixed;
-            {#background-image: url({% static 'images/background.png' %});#}
-            {#background-image: url('../static/images/background.png'); #}
+        {#background-image: url({% static 'images/background.png' %});#}{#background-image: url('.{% static 'static/images/background.png'); #}
         }
 
         .nav {
@@ -29,7 +42,7 @@
         }
 
         .container {
-            {#opacity: 0.8;#}
+        {#opacity: 0.8;#}
         }
 
         .table th {
@@ -37,9 +50,9 @@
         }
 
         ul.nav-pills {
-			top: 20px;
-			position: fixed;
-		}
+            top: 20px;
+            position: fixed;
+        }
 
     </style>
 
@@ -54,6 +67,7 @@
     Scripts
 ***********************************-->
 <!-- Required vendors -->
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'vendor/global/global.min.js' %}"></script>
 <script src="{% static 'vendor/bootstrap-select/js/bootstrap-select.min.js' %}"></script>
 <script src="{% static 'js/custom.min.js' %}"></script>
@@ -64,6 +78,41 @@
     }
 </script>
 
+<!-- Daterangepicker -->
+<!-- momment js is must -->
+<script src="{% static 'vendor/moment/moment.min.js' %}"></script>
+<script src="{% static 'vendor/bootstrap-daterangepicker/daterangepicker.js' %}"></script>
+<!-- clockpicker -->
+<script src="{% static 'vendor/clockpicker/js/bootstrap-clockpicker.min.js' %}"></script>
+<!-- asColorPicker -->
+<script src="{% static 'vendor/jquery-asColor/jquery-asColor.min.js' %}"></script>
+<script src="{% static 'vendor/jquery-asGradient/jquery-asGradient.min.js' %}"></script>
+<script src="{% static 'vendor/jquery-asColorPicker/js/jquery-asColorPicker.min.js' %}"></script>
+<!-- Material color picker -->
+<script src="{% static 'vendor/bootstrap-material-datetimepicker/js/bootstrap-material-datetimepicker.js' %}"></script>
+<!-- pickdate -->
+<script src="{% static 'vendor/pickadate/picker.js' %}"></script>
+<script src="{% static 'vendor/pickadate/picker.time.js' %}"></script>
+<script src="{% static 'vendor/pickadate/picker.date.js' %}"></script>
+
+
+<!-- Daterangepicker -->
+<script src="{% static 'js/plugins-init/bs-daterange-picker-init.js' %}"></script>
+<!-- Clockpicker init -->
+<script src="{% static 'js/plugins-init/clock-picker-init.js' %}"></script>
+<!-- asColorPicker init -->
+<script src="{% static 'js/plugins-init/jquery-asColorPicker.init.js' %}"></script>
+<!-- Material color picker init -->
+<script src="{% static 'js/plugins-init/material-date-picker-init.js' %}"></script>
+<!-- Pickdate -->
+<script src="{% static 'js/plugins-init/pickadate-init.js' %}"></script>
+<script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    function submitAlert() {
+        swal("提交成功", "", "success");
+    }
+</script>
 {% include 'footer.html' %}
 </body>
 </html>

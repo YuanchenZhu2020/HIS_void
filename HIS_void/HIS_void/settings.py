@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'pharmacy',
     # 检验科
     'laboratory',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -85,6 +86,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'HIS_void.wsgi.application'
+ASGI_APPLICATION = 'HIS_void.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -157,11 +159,16 @@ SAFE_URL = [
     r"/register/",
     r"/forgot-password/",
     r"/admin/.*",
+    r"/profile/",
     r"/patient/",
     r"/patient-user/",
-    r"/profile/",
+    r"/nurse-workspace/",
     r"/outpatient-workspace/",
+    r"/inspection-workspace/",
     r"/register-success/",
+    r"/InspectionAPI/",
+    r"/OutpatientAPI/",
+    r"/NurseAPI/",
 ]
 
 # setup session engine to improve performance

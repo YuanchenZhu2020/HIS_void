@@ -1,15 +1,49 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block title %}门诊医生工作台{% endblock %}
 {% block body-context %}
+    <script>
+        let JCJY = '<div class="card">\
+<div class="card-header border-0 pb-0">\
+<h5 class="card-title">检查结果</h5>\
+</div>\
+<div class="card-body">\
+<p class="card-text">He lay on his armour-like back, and if\
+he\
+lifted his head a little he could see his brown\
+belly, slightly domed and divided by arches into stiff\
+<br>\
+sections. The bedding was hardly able to cover\
+it and seemed ready to\
+slide off any moment.\
+</p>\
+</div>\
+<div class="card-footer border-0 pt-0">\
+<p class="card-text d-inline">Card footer</p>\
+<a href="javascript:void()" class="card-link float-right">Card\
+link</a>\
+</div>\
+</div>'
+
+    </script>
     {# 两侧留白较小的容器 #}
     <div class="container-fluid">
-        {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病例首页，检查检验等 #}
+        {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病历首页，检查检验等 #}
         <div class="row">
-
+            <div class="col-md-12 align-content-center">
+                <div class="page-titles mb-2 mt-0">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url "profile" %}">profile</a></li>
+                        <li class="breadcrumb-item active"><a href="{% url "outpatient-workspace" %}">outpatient</a>
+                        </li>
+                    </ol>
+                </div>
+            </div>
             {# 第一列宽度为3，用于放置诊中患者信息和待诊患者信息 #}
             <div class="col-md-3">
                 {# 诊中患者信息 #}
                 <div class="container">
+
                     <div class="card">{# 我目前只会使用card（卡片）布局 #}
                         {# 设置卡片头 #}
                         <div class="card-header">诊中患者</div>
@@ -23,22 +57,7 @@
                                     <th>状态</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr>
-                                    <td>肖云冲</td>
-                                    <td><span class="badge badge-success">检查完毕</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>云冲肖</td>
-                                    <td><span class="badge badge-primary light">检查中</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>冲云肖</td>
-                                    <td><span class="badge badge-primary light">检查中</span>
-                                    </td>
-                                </tr>
+                                <tbody id="ZZHZ">
                                 </tbody>
                             </table>
                         </div>
@@ -56,54 +75,13 @@
                                     <th>紧急程度</th>
                                 </tr>
                                 </thead>
-                                <tbody>
-                                <tr>
-                                    <td>李国铭</td>
-                                    <td><span class="badge badge-primary light">普通</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>特狼普</td>
-                                    <td><span class="badge badge-danger light">危急</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>好可怕</td>
-                                    <td><span class="badge badge-primary light">普通</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>两只老虎</td>
-                                    <td><span class="badge badge-primary light">Sale</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Kolor Tea Shirt</td>
-                                    <td><span class="badge badge-primary light">Sale</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Kolor Tea Shirt</td>
-                                    <td><span class="badge badge-primary light">Sale</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Kolor Tea Shirt</td>
-                                    <td><span class="badge badge-success">Tax</span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Blue Backpack</td>
-                                    <td><span class="badge badge-danger light">Extended</span>
-                                    </td>
-                                </tr>
-                                </tbody>
+                                <tbody id="DZHZ"></tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
-            {# 第二列的宽度为9，用于放置分页表格（病例首页、检查检验等） #}
+            {# 第二列的宽度为9，用于放置分页表格（病历首页、检查检验等） #}
             <div class="col-md-9">
                 <div class="card">
                     <div class="card-body">
@@ -116,7 +94,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">会诊号</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="114514">
+                                            <input type="text" id="no" class="form-control" readonly">
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -124,7 +102,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">姓名</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="肖云冲">
+                                            <input type="text" id="name" class="form-control" readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -132,7 +110,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">性别</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="男">
+                                            <input type="text" id="gender" class="form-control" readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -140,7 +118,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">年龄</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="18">
+                                            <input type="text" id="age" class="form-control" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -150,14 +128,14 @@
                         {# 分页导航栏列表，用于放置分页按钮 #}
                         <div class="default-tab">
                             <ul class="nav nav-tabs justify-content-center" role="tablist">
-                                {# 病例首页按钮 #}
+                                {# 病历首页按钮 #}
                                 <li class="nav-item">
-                                    <a href="#bing_li_shou_ye" class="nav-link active" data-toggle="tab"
-                                       aria-expanded="false">病例首页</a>
+                                    <a id="BLSY_a" href="#bing_li_shou_ye" class="nav-link active" data-toggle="tab"
+                                       aria-expanded="false">病历首页</a>
                                 </li>
                                 {# 检查检验按钮 #}
                                 <li class="nav-item">
-                                    <a href="#jian_cha_jian_yan" class="nav-link" data-toggle="tab"
+                                    <a id="JCJY_a" href="#jian_cha_jian_yan" class="nav-link" data-toggle="tab"
                                        aria-expanded="false">检查检验</a>
                                 </li>
                                 {# 门诊确诊按钮 #}
@@ -183,50 +161,42 @@
                             </ul>
                             {# 分页页面内容 #}
                             <div class="tab-content">
-                                {# 病例首页页面信息，第一次进入页面默认显示这个 #}
+                                {# 病历首页页面信息，第一次进入页面默认显示这个 #}
                                 <div id="bing_li_shou_ye" class="tab-pane fade show active">
                                     <div class="card-body">
                                         <div class="basic-form">
                                             <form action="#">
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">患者主诉： </label>
-                                                    <textarea type="text" class="form-control"
+                                                    <label class="col-md-1.5 col-form-label text-right">患者主诉： </label>
+                                                    <textarea id="HZZS" type="text" class="form-control" readonly
                                                               placeholder=""></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">现病史：</label>
-                                                    <textarea type="text" class="form-control" placeholder=""
-                                                    ></textarea>
+                                                    <label class="col-md-1.5 col-form-label text-right">治疗情况：
+                                                    </label> <textarea id="ZLQK" type="text" class="form-control"
+                                                                       readonly></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">现病治疗情况：
-                                                    </label> <textarea type="text" class="form-control"
-                                                                       placeholder=""
+                                                    <label class="col-md-1.5 col-form-label text-right">既往病史：
+                                                    </label> <textarea id="JWBS" type="text" class="form-control"
+                                                                       readonly
                                                 ></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">既往史：
-                                                    </label> <textarea type="text" class="form-control"
-                                                                       placeholder=""
-                                                ></textarea>
+                                                    <label class="col-md-1.5 col-form-label text-right">过敏病史：
+                                                    </label> <textarea id="GMBS" type="text" class="form-control"
+                                                                       readonly></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">过敏史：
-                                                    </label> <textarea type="text" class="form-control"
-                                                                       placeholder=""
-                                                ></textarea>
+                                                    <label class="col-md-1.5 col-form-label text-right">体格检查：
+                                                    </label> <textarea id="TGJC" type="text" class="form-control"
+                                                                       readonly></textarea>
                                                 </div>
                                                 <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">体格检查：
-                                                    </label> <textarea type="text" class="form-control"
-                                                                       placeholder=""
-                                                ></textarea>
-                                                </div>
-                                                <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-2 col-form-label text-right">发病时间：
-                                                    </label> <textarea type="text" class="form-control"
-                                                                       placeholder=""
-                                                ></textarea>
+                                                    <label class="col-md-1.5 col-form-label text-right">发病时间：
+                                                    </label> <textarea id="FBSJ" type="text"
+                                                                       class="form-control"
+                                                                       readonly></textarea>
                                                 </div>
                                             </form>
                                         </div>
@@ -238,12 +208,12 @@
                                     <div class="card-body">
                                         {# 检验表单 #}
                                         <div class="basic-form">
-                                            <form action="{% url 'profile' %}" method="POST">
+                                            <form action="{% url 'OutpatientAPI' %}" method="POST">
                                                 {% csrf_token %}
                                                 <div class="form-group">
                                                     <div class="input-group input-group-sm mb-3">
                                                         <label class="col-md-1.5 col-form-label text-right">常规检验： </label>
-                                                        <select class="form-control form-control-lg" name='chang_gui'>
+                                                        <select class="form-control form-control-lg" name='CGJY'>
                                                             <option>无</option>
                                                             <option>血常规</option>
                                                             <option>尿常规</option>
@@ -312,7 +282,7 @@
                                                     </div>
                                                 </div>
                                                 <div class="col-md-12 text-right">
-                                                    <button type="submit"
+                                                    <button type="submit" onclick="submitAlert()"
                                                             class="form-group btn btn-outline-primary btn-sm">
                                                         提交检验
                                                     </button>
@@ -350,11 +320,19 @@
                                     <div class="container">
                                         <div class="card-body">
                                             <div class="basic-form">
-                                                <form action="#">
-                                                    <div class="input-group">
-                                                        <textarea class="form-control" rows="18"
+                                                <form action="{% url 'OutpatientAPI' %}" method="post">
+                                                    {% csrf_token %}
+                                                    <div class="input-group mb-3">
+                                                        <textarea class="form-control" rows="18" name="MZQZ"
                                                                   placeholder="请输入您的判断"></textarea>
-
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="text-right">
+                                                            <button type="submit" onclick="submitAlert()"
+                                                                    class="form-group btn btn-outline-primary btn-bg">
+                                                                提 交
+                                                            </button>
+                                                        </div>
                                                     </div>
                                                 </form>
                                             </div>
@@ -365,161 +343,28 @@
 
                                 {# 处方开具页面信息 #}
                                 <div id="chu_fang_kai_ju" class="tab-pane fade">
-                                    <div class="container">
-                                        <div class="card-body">
-                                            <div class="basic-form">
-                                                <form action="#">
-                                                    <div class="input-group">
-                                                        <input type="text" class="form-control"
-                                                               placeholder="请输入药品名">
-                                                        <div class="input-group-append">
-                                                            <button class="btn btn-primary"
-                                                                    type="button">搜索
-                                                            </button>
+                                    <div class="card-body">
+                                        <!--<div class="container">
+                                            <div class="card-body justify-content-center">
+                                                <h3 class="text-center">请输入药品名</h3>
+                                                <form action="" method="post">
+                                                    <div class="navbar-form navbar-left">
+                                                        <div class="form-group">
+                                                            <input type="text" id="txtSearch" name="txtSearch"
+                                                                   class="form-control" placeholder="Search"
+                                                                   autocomplete="off"/>
+{#                                                            <input type="hidden" value="selectstock" name="method">#}
+                                                            <div id="search-result" class="form-control" style="border: none"></div>
                                                         </div>
                                                     </div>
                                                 </form>
                                             </div>
+                                        </div>-->
+                                        <select id="single-select">
+                                            <option value="AL">Alabama</option>
+                                            <option value="WY">Wyoming</option>
+                                        </select>
 
-                                            <div class="basic-form">
-                                                <form action="#">
-                                                    <div class="table-responsive">
-                                                        <table class="table table-bordered verticle-middle table-responsive-sm">
-                                                            <thead>
-                                                            <tr>
-                                                                <th scope="col">药品名</th>
-                                                                <th scope="col">药品数量</th>
-                                                                <th scope="col">单价</th>
-                                                                <th scope="col">总价</th>
-                                                                <th scope="col">Action</th>
-                                                            </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                            <tr>
-                                                                <td>Air Conditioner</td>
-                                                                <td>
-                                                                    <div class="progress bgl-primary">
-                                                                        <div class="progress-bar bg-primary"
-                                                                             style="width: 70%;" role="progressbar">
-                                                                            <span class="sr-only">70% Complete</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>Apr 20,2018</td>
-                                                                <td><span class="badge badge-primary light">70%</span>
-                                                                </td>
-                                                                <td>
-                                                                    <span>
-                                                                        <a href="javascript:void(0)" class="mr-4"
-                                                                           data-toggle="tooltip"
-                                                                           data-placement="top" title="Edit"><i
-                                                                                class="fa fa-pencil color-muted"></i> </a>
-                                                                        <a href="javascript:void()"
-                                                                           data-toggle="tooltip"
-                                                                           data-placement="top" title="Close"><i
-                                                                                class="fa fa-close color-danger"></i></a>
-                                                                    </span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Textiles</td>
-                                                                <td>
-                                                                    <div class="progress bgl-success">
-                                                                        <div class="progress-bar bg-success"
-                                                                             style="width: 70%;" role="progressbar">
-                                                                            <span class="sr-only">70% Complete</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>May 27,2018</td>
-                                                                <td><span class="badge badge-success">70%</span>
-                                                                </td>
-                                                                <td><span><a href="javascript:void()" class="mr-4"
-                                                                             data-toggle="tooltip"
-                                                                             data-placement="top" title="Edit"><i
-                                                                        class="fa fa-pencil color-muted"></i> </a><a
-                                                                        href="javascript:void()" data-toggle="tooltip"
-                                                                        data-placement="top" title="Close"><i
-                                                                        class="fa fa-close color-danger"></i></a></span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Milk Powder</td>
-                                                                <td>
-                                                                    <div class="progress bgl-dark">
-                                                                        <div class="progress-bar bg-dark"
-                                                                             style="width: 70%;" role="progressbar">
-                                                                            <span class="sr-only">70% Complete</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>May 18,2018</td>
-                                                                <td><span class="badge badge-dark light">70%</span>
-                                                                </td>
-                                                                <td><span><a href="javascript:void()" class="mr-4"
-                                                                             data-toggle="tooltip"
-                                                                             data-placement="top" title="Edit"><i
-                                                                        class="fa fa-pencil color-muted"></i> </a><a
-                                                                        href="javascript:void()" data-toggle="tooltip"
-                                                                        data-placement="top" title="Close"><i
-                                                                        class="fa fa-close color-danger"></i></a></span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Vehicles</td>
-                                                                <td>
-                                                                    <div class="progress bgl-danger">
-                                                                        <div class="progress-bar bg-danger"
-                                                                             style="width: 70%;" role="progressbar">
-                                                                            <span class="sr-only">70% Complete</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>Mar 27,2018</td>
-                                                                <td><span class="badge badge-danger">70%</span>
-                                                                </td>
-                                                                <td><span><a href="javascript:void()" class="mr-4"
-                                                                             data-toggle="tooltip"
-                                                                             data-placement="top" title="Edit"><i
-                                                                        class="fa fa-pencil color-muted"></i> </a><a
-                                                                        href="javascript:void()" data-toggle="tooltip"
-                                                                        data-placement="top" title="Close"><i
-                                                                        class="fa fa-close color-danger"></i></a></span>
-                                                                </td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>Boats</td>
-                                                                <td>
-                                                                    <div class="progress bgl-warning">
-                                                                        <div class="progress-bar bg-warning"
-                                                                             style="width: 70%;" role="progressbar">
-                                                                            <span class="sr-only">70% Complete</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td>Jun 28,2018</td>
-                                                                <td><span class="badge badge-warning">70%</span>
-                                                                </td>
-                                                                <td><span><a href="javascript:void()" class="mr-4"
-                                                                             data-toggle="tooltip"
-                                                                             data-placement="top" title="Edit"><i
-                                                                        class="fa fa-pencil color-muted"></i> </a><a
-                                                                        href="javascript:void()" data-toggle="tooltip"
-                                                                        data-placement="top" title="Close"><i
-                                                                        class="fa fa-close color-danger"></i></a></span>
-                                                                </td>
-                                                            </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                            <div class="card">
-                                                <div class="card-body">
-
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -633,5 +478,7 @@
             </div>
         </div>
     </div>
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/his/outpatient.js' %}"></script>
 
 {% endblock %}

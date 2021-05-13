@@ -17,41 +17,50 @@ from django.contrib import admin
 from django.urls import path
 
 from his.views import (
-    IndexView, StaffLoginView, StaffLogoutView, 
-    ProfileView, OutpatientView
+    IndexView, StaffLoginView, StaffLogoutView,
+    ProfileView, OutpatientView, NurseView, InspectionView, InspectionAPI, OutpatientAPI,
+    NurseAPI,
 )
 from patient.views import (
-    PatientLoginView, PatientRegisterView, ForgotPasswordView, 
-    PatientWorkSpaceView, PatientWorkMyView, PatientRegisterSuccessView
+    PatientLoginView, PatientRegisterView, ForgotPasswordView, PatientWorkSpaceView, PatientWorkMyView,
 )
 
-
 urlpatterns = [
-    path('', IndexView.as_view(), name = 'index-alias'),
+    path('', IndexView.as_view(), name=''),
     # 管理员
     path('admin/', admin.site.urls),
     # 主页
-    path('index/', IndexView.as_view(), name = "index"),
+    path('index/', IndexView.as_view(), name="index"),
     # 职工登录页面
-    path("login-staff/", StaffLoginView.as_view(), name = "login-staff"),
+    path("login-staff/", StaffLoginView.as_view(), name="login-staff"),
     # 患者登录页面
-    path("login-patient/", PatientLoginView.as_view(), name = "login-patient"),
+    path("login-patient/", PatientLoginView.as_view(), name="login-patient"),
     # 注册页面
-    path('register/', PatientRegisterView.as_view(), name = "register"),
-    path('register-success/', PatientRegisterSuccessView.as_view(), name = "register-success"),
+    path('register/', PatientRegisterView.as_view(), name="register"),
     # 找回密码页面
-    path('forgot-password/', ForgotPasswordView.as_view(), name = "forgot-password"),
+    path('forgot-password/', ForgotPasswordView.as_view(), name="forgot-password"),
     # 登出页面
-    path('logout/', StaffLogoutView.as_view(), name = "logout"),
+    path('logout/', StaffLogoutView.as_view(), name="logout"),
     # 个人信息页面
-    path('profile/', ProfileView.as_view(), name = "profile"),
+    path('profile/', ProfileView.as_view(), name="profile"),
     # 门诊医生工作页面
-    path('outpatient-workspace/', OutpatientView.as_view(), name = "outpatient-workspace"),
+    path('outpatient-workspace/', OutpatientView.as_view(), name="outpatient-workspace"),
     # # 患者未登录首页
     # path('patient/', PatientWorkSpaceView.as_view(), name = "patient"),
     # 患者登录后个人界面
-    path('patient-user/', PatientWorkSpaceView.as_view(), name = "patient-user"),
+    path('patient-user/', PatientWorkSpaceView.as_view(), name="patient-user"),
+    # 护士门诊
+    path('nurse-workspace/', NurseView.as_view(), name="nurse-workspace"),
+    # 检查检验
+    path('inspection-workspace/', InspectionView.as_view(), name="inspection-workspace"),
+    # 查询机器检验的各种信息
+    path('InspectionAPI/', InspectionAPI.as_view(), name="InspectionAPI"),
+    # 查询门诊医生的各种信息
+    path('OutpatientAPI/', OutpatientAPI.as_view(), name="OutpatientAPI"),
+    # 保存体征记录的各种信息
+    path('NurseAPI/', NurseAPI.as_view(), name="NurseAPI"),
 ]
+
 
 # 通过 HIS_void.url 自动添加 URL Permissions
 def create_urlpermissions():
@@ -64,20 +73,21 @@ def create_urlpermissions():
     # 删除被删除的URL对应的URL访问权限
     delete_urlperms = old_urlps - new_urlps
     delete_urls = [nu[1] for nu in delete_urlperms]
-    URLPermission.objects.filter(url__in = delete_urls).delete()
+    URLPermission.objects.filter(url__in=delete_urls).delete()
     # 添加新增的URL对应的URL访问权限
     add_urlps = new_urlps - old_urlps
     if len(add_urlps) > 0:
         add_url_objs = [
             URLPermission(
-                name = urlp[0],
-                url = '/' + urlp[1],
-                codename = "access-" + urlp[0],
-                create_time = create_time
+                name=urlp[0],
+                url='/' + urlp[1],
+                codename="access-" + urlp[0],
+                create_time=create_time
             )
-            for urlp in add_urlps 
-                if urlp[0] is not None
+            for urlp in add_urlps
+            if urlp[0] is not None
         ]
         URLPermission.objects.bulk_create(add_url_objs)
+
 
 create_urlpermissions()

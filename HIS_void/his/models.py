@@ -21,7 +21,7 @@ class InpatientArea(models.Model):
     class Meta:
         verbose_name = _("病区")
         verbose_name_plural = verbose_name
-    
+
     def __str__(self) -> str:
         return "<Inpatient Area {}>".format(self.area_id)
 
@@ -31,9 +31,9 @@ class Department(models.Model):
     医院科室和部门。其编号范围为 [1, Inf)
     """
     dept = models.OneToOneField(
-        UserGroup, 
+        UserGroup,
         primary_key = True,
-        on_delete = models.CASCADE, 
+        on_delete = models.CASCADE,
         verbose_name = _("科室部门"),
     )
     description = models.TextField(verbose_name = _("简介"))
@@ -41,7 +41,7 @@ class Department(models.Model):
     class Meta:
         verbose_name = _("科室部门")
         verbose_name_plural = verbose_name
-    
+
     def __str__(self) -> str:
         return "<Department {} | UserGroup {}>".format(self.dept.name, self.dept.ug_id)
 
@@ -52,7 +52,7 @@ def create_usergroup_department(sender, instance, created, **kwargs):
         Department.objects.create(dept = instance)
     else:
         # print(Department.objects.filter(dept__ug_id = instance.ug_id))
-        Department.objects.filter(dept__ug_id = instance.ug_id).update(dept = instance)    
+        Department.objects.filter(dept__ug_id = instance.ug_id).update(dept = instance)
 
 
 class Notice(models.Model):
@@ -60,20 +60,20 @@ class Notice(models.Model):
     科室部门通知表
     """
     dept = models.ForeignKey(
-        Department, 
+        Department,
         on_delete = models.CASCADE,
         related_name = "notice_set",
         related_query_name = "notices",
         verbose_name = _("科室部门"),
     )
     send_time = models.DateTimeField(
-        auto_now_add = True, 
-        editable = False, 
+        auto_now_add = True,
+        editable = False,
         verbose_name = _("发送时间"),
     )
     content = models.TextField(
         null = True,
-        blank = True, 
+        blank = True,
         verbose_name = _("通知正文")
     )
 
@@ -102,7 +102,7 @@ class HospitalTitle(models.Model):
     class Meta:
         verbose_name = _("医院职称")
         verbose_name_plural = verbose_name
-    
+
     def __str__(self) -> str:
         return "<Title {}-{}>".format(self.title_id, self.title_name)
 
@@ -126,7 +126,7 @@ class JobType(models.Model):
     class Meta:
         verbose_name = _("工种")
         verbose_name_plural = verbose_name
-    
+
     def __str__(self) -> str:
         return "<Job Type {}-{}>".format(self.job_id, self.job_name)
 
@@ -138,27 +138,27 @@ class Staff(models.Model):
         (1, _("女")),
         (2, _("未知")),
     ]
-    
+
     # null: 数据库中可以为空
     # blank: 表单显示
     user    = models.OneToOneField(
-        UserInfo, 
-        on_delete = models.CASCADE, 
-        null = True, 
-        blank = True, 
+        UserInfo,
+        on_delete = models.CASCADE,
+        null = True,
+        blank = True,
         verbose_name = _("登录信息")
     )
     name    = models.CharField(max_length = 128, verbose_name = _("职工姓名"))
     gender  = models.IntegerField(choices = SEX_ITEMS, default = 2, verbose_name = _("性别"))
     id_num  = models.CharField(max_length = 18, verbose_name = _("身份证号"))
     dept    = models.ForeignKey(
-        UserGroup, 
-        null = True, 
+        UserGroup,
+        null = True,
         on_delete = models.SET_NULL,
         verbose_name = _("科室部门")
     )
     title   = models.ForeignKey(
-        HospitalTitle, 
+        HospitalTitle,
         null = True,
         on_delete = models.SET_NULL,
         verbose_name = _("职称"),
@@ -173,7 +173,7 @@ class Staff(models.Model):
     class Meta:
         verbose_name = _("职工")
         verbose_name_plural = verbose_name
-    
+
     def __str__(self) -> str:
         return "<Staff {}>".format(self.name)
 
@@ -202,8 +202,8 @@ class DutyRoster(models.Model):
     ]
 
     medical_staff = models.OneToOneField(
-        Staff, 
-        on_delete = models.CASCADE, 
+        Staff,
+        on_delete = models.CASCADE,
         related_name = "duty_roster_set",
         related_query_name = "duty_rosters",
         verbose_name = _("医务人员"),
@@ -214,7 +214,7 @@ class DutyRoster(models.Model):
     )
     duty_area = models.ForeignKey(
         InpatientArea,
-        null = True, 
+        null = True,
         on_delete = models.SET_NULL,
         related_name = "duty_roster_set",
         related_query_name = "duty_rosters",
@@ -225,6 +225,6 @@ class DutyRoster(models.Model):
         verbose_name = _("医务人员排班表")
         verbose_name_plural = verbose_name
         unique_together = ["medical_staff", "working_day"]
-    
+
     def __str__(self) -> str:
         return "<Duty Roster {} {}>".format(self.medical_staff, self.working_day)
