@@ -12,13 +12,6 @@ function QueryYZCL(p_no) {
         },
         success: function (data) {
             console.log(data);
-            document.getElementById("JianYanMingCheng").setAttribute('placeholder', data.JYMC);
-            document.getElementById("KaiJuShiJian").setAttribute('placeholder', data.KJSJ);
-            document.getElementById("KaiJuYiShi").setAttribute('placeholder', data.KJYS);
-            document.getElementById("no").setAttribute('placeholder', data.no);
-            document.getElementById("name").setAttribute('placeholder', data.name);
-            document.getElementById("gender").setAttribute('placeholder', data.gender);
-            document.getElementById("age").setAttribute('placeholder', data.age);
             document.getElementById("YZCL_a").click();
         },
         error: function (err) {
