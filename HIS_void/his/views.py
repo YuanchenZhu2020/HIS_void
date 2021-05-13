@@ -9,6 +9,7 @@ from django.views import View
 from his.forms import StaffLoginFrom
 from patient.models import PatientUser
 from rbac.models import UserInfo
+from laboratory.models import TestItemType, TestItem
 from rbac.server.init_permission import init_permission
 
 
@@ -108,21 +109,27 @@ class ProfileView(View):
 
 
 class OutpatientView(View):
-    template_name = 'page-outpatient-workspace.html'
+    template_name = "page-outpatient-workspace.html"
 
     def get(self, request):
         # 检验信息数据
-        JYXX = [
-            {
-                'name': "临床检查",
-                'content': ['临床检查1', '临床检查2', ]
-            },
-            {
-                'name': "生物化学",
-                'content': ['生物化学1', '生物化学2', ]
-            },
-        ]
-        return render(request, OutpatientView.template_name, context={"JYXX": JYXX})
+        # 数据格式示例：
+        #  [{
+        #      "name": "临床检查",
+        #      "content": ['临床检查1', '临床检查2', ]
+        #  },...]
+        inspect_items_info = []
+        for ito in TestItemType.objects.all():
+            inspect_items_info.append(
+                {
+                    "name": ito.inspect_type_name,
+                    "content": [
+                        itn[0] 
+                        for itn in ito.testitem_set.all().values_list("inspect_name")]
+                }
+            )
+        context = {"JYXX": inspect_items_info}
+        return render(request, OutpatientView.template_name, context = context)
 
 
 class NurseView(View):
