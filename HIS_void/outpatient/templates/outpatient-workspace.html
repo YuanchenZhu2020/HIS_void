@@ -2,30 +2,8 @@
 {% load static %}
 {% block title %}门诊医生工作台{% endblock %}
 {% block body-context %}
-    <script>
-        let JCJY = '<div class="card">\
-<div class="card-header border-0 pb-0">\
-<h5 class="card-title">检查结果</h5>\
-</div>\
-<div class="card-body">\
-<p class="card-text">He lay on his armour-like back, and if\
-he\
-lifted his head a little he could see his brown\
-belly, slightly domed and divided by arches into stiff\
-<br>\
-sections. The bedding was hardly able to cover\
-it and seemed ready to\
-slide off any moment.\
-</p>\
-</div>\
-<div class="card-footer border-0 pt-0">\
-<p class="card-text d-inline">Card footer</p>\
-<a href="javascript:void()" class="card-link float-right">Card\
-link</a>\
-</div>\
-</div>'
+    <link rel="stylesheet" type="text/css" href="{% static 'css/outpatient.css' %}">
 
-    </script>
     {# 两侧留白较小的容器 #}
     <div class="container-fluid">
         {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病历首页，检查检验等 #}
@@ -288,53 +266,45 @@ link</a>\
                                 {# 处方开具页面信息 #}
                                 <div id="chu_fang_kai_ju" class="tab-pane fade">
                                     <div class="card-body">
-                                        <div class="card">
-                                            <button type="button" class="btn btn-primary" onclick="addMedicine(
-                                                {
-                                                'name': '布洛芬',
-                                                'price': 38,
-                                                'no': 1
-                                            }, 2
-                                            )">测试药品1插入
-                                            </button>
-                                            <button type="button" class="btn btn-primary" onclick="addMedicine(
-                                                {
-                                                'name': '褪黑素',
-                                                'price': 32,
-                                                'no': 2
-                                            }, 2
-                                            )">测试药品2插入
-                                            </button>
-                                            <div class="card-header">
-                                                <h4 class="card-title">已选药品</h4>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
-                                                        <thead>
-                                                        <tr>
-                                                            <th scope="col">药品名</th>
-                                                            <th scope="col">数量</th>
-                                                            <th scope="col">单价</th>
-                                                            <th scope="col">总价</th>
-                                                            <th scope="col" style="width: 75px">编辑</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody id="medicine_body"></tbody>
-                                                        <tfoot>
-                                                        <tr>
-                                                            <th>合计</th>
-                                                            <th></th>
-                                                            <th></th>
-                                                            <th id="medicine_count"></th>
-                                                            <th></th>
-                                                        </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
+                                        <div class="row">
+                                            <div class="offset-3 col-md-2 mt-2"><h5>药品名</h5></div>
+                                            <div class="offset-1 col-md-6 mt-2"><h5>数量</h5></div>
+                                        </div>
+                                        <div id="box" class="row mb-0">
+                                            <input class="form-control col-md-4 offset-2" type="text" name=""
+                                                   id="txt" onblur="setTimeout(display_none, 100)"
+                                                   onkeyup="QueryMedicine()"/>
+                                            &nbsp;<input class="form-control col-md-1" type="text" name=""
+                                                         id="num"/>
+                                            &nbsp;<button class="btn btn-outline-primary col-md-1.5"
+                                                          onclick="collect_medicine()" id="btn">添加
+                                        </button>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
+                                                    <thead>
+                                                    <tr>
+                                                        <th scope="col">药品名</th>
+                                                        <th scope="col">数量</th>
+                                                        <th scope="col">单价</th>
+                                                        <th scope="col">总价</th>
+                                                        <th scope="col" style="width: 75px">编辑</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody id="medicine_body"></tbody>
+                                                    <tfoot>
+                                                    <tr>
+                                                        <th>合计</th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th id="medicine_count"></th>
+                                                        <th></th>
+                                                    </tr>
+                                                    </tfoot>
+                                                </table>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
 
@@ -449,5 +419,4 @@ link</a>\
         </div>
     </div>
     <script src="{% static 'js/outpatient.js' %}"></script>
-
 {% endblock %}

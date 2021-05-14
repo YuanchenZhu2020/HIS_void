@@ -66,6 +66,7 @@ class NurseAPI(View):
             d_no = request.GET.get('d_no')
             print(d_no)
 
+        # 入院登记信息查询
         elif query_information == "RYDJ":
             data = {
                 "no": 114514,
@@ -103,6 +104,7 @@ class NurseAPI(View):
             d_no = request.GET.get('d_no')
             print(d_no)
 
+        # 床位信息
         elif query_information == "CWXX":
             data = [
                 {"BQ": "A",

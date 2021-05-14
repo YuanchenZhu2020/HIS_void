@@ -1,45 +1,82 @@
-<!DOCTYPEhtml>
-<html>
+<!DOCTYPE html>
+<html lang="zh">
 <head>
-    <title></title>
-    <meta charset="utf-8"/>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
 <body>
-<div style="margin-top:300px;margin-left:520px;">
-    <form action="/Fsearch/" method="get" style="margin: auto;">
-        请输入英文名：<br/>
-        <input type="text" id="search-text" name="q">
-        <button type="button" id='search-button'>搜索
-        </button>
-        <p>
-            <span id='search-result'></span></p>
-    </form>
-</div>
-<script src="http://apps.bdimg.com/libs/jquery/1.11.1/jquery.min.js"></script>
-<script>
-    $(document).ready(function () {
-        $("#search-text").keyup(function () {
-            varq = $("#search-text").val();
-//获取搜索框输入的值
-            $.get("/Fsearch/", {
-                    'q': q
-                },
 
-                function (data) {
-//参数：发送的url；传入的数据；请求成功后的调用函数（data即是试图函数返回的json格式数据）详情
-                    for (vari = data.length - 1; i >= 0; i--) {
-                        $('#search-result').append(data[i] + '<br/>')
-//加入到search-result部分显示
-                    }
-                }
-            )
-        });
-        $('#search-text').keydown(function () {
-            $('#search-result').empty();
-        })
-        $('#search-text').blur(function () {
-            $('#search-result').empty();
-        })
-    });
+
+<ul>
+    <li data-key="冲的多音字组词" class="bdsug-overflow">冲<b>的多音字组词</b></li>
+    <li data-key="冲组词" class="bdsug-overflow">冲<b>组词</b></li>
+    <li data-key="冲的拼音" class="bdsug-overflow">冲<b>的拼音</b></li>
+    <li data-key="冲绳" class="bdsug-overflow">冲<b>绳</b></li>
+    <li data-key="冲煞是什么意思" class="bdsug-overflow">冲<b>煞是什么意思</b></li>
+    <li data-key="冲锋衣哥伦比亚户外" class="bdsug-overflow">冲<b>锋衣哥伦比亚户外</b></li>
+    <li data-key="冲正存入是什么意思?钱到底转没转到账" class="bdsug-overflow">冲<b>正存入是什么意思?钱到底转没转到账</b></li>
+    <li data-key="冲矢昴" class="bdsug-overflow">冲<b>矢昴</b></li>
+    <li data-key="冲锋衣" class="bdsug-overflow">冲<b>锋衣</b></li>
+    <li data-key="冲是什么意思" class="bdsug-overflow">冲<b>是什么意思</b></li>
+</ul>
+<style>
+    #box {
+        width: 450px;
+        margin: 200px auto;
+    }
+
+    #txt {
+        width: 350px;
+    }
+</style>
+<div id="box">
+    <input type="text" name="" id="txt"/>
+    <input type="button" value="搜索" id="btn"/>
+</div>
+<script>
+    var keyWords = ["我喜欢孤独的天才", "孤独的天才是我", "我爱的人很多", "程序员的惨淡人生", "什么叫帅", "我现在就很特别"];//要出现在搜索框下面的提示文字
+    document.getElementById("txt").onkeyup = function () {//定义键盘抬起事件进行追踪
+        if (document.getElementById("dv")) {//每次按下抬起时都要先清除一下div以免乜有数据时扔存在div边框
+            document.getElementById("box").removeChild(document.getElementById("dv"));
+        }
+        var tempArr = [];//定义临时数组用来存储用户与之相匹配的句子
+        var text = this.value;//获取用户所输入的文本框内容
+        for (var i = 0; i < keyWords.length; i++) {
+            if (keyWords[i].indexOf(text) == 0) {//将用户输入的文本框内容与数组进行比对，输入内容在数组中匹配到，并且开头的值存入临时数组中
+                tempArr.push(keyWords[i]);
+            }
+        }
+        console.log(tempArr);
+        var dvObj = document.createElement("div");//创建一个div用来放提示的语句
+        document.getElementById("box").appendChild(dvObj);
+        dvObj.id = "dv";
+        dvObj.style.width = "350px";
+        dvObj.style.border = "1px solid green";
+        if (this.value.length == 0 || tempArr.length == 0) {//当文本框中乜有内容或者临时数组中没有元素是将div进行删除
+            if (document.getElementById("dv")) {
+                document.getElementById("box").removeChild(document.getElementById("dv"));
+            }
+//					return;
+        }
+        for (var i = 0; i < tempArr.length; i++) {//创建临时数组长度个的p元素用来显示提示的语句
+            var pObj = document.createElement("p");
+            dvObj.appendChild(pObj);
+            pObj.style.margin = "0";
+            pObj.style.padding = "0";
+            pObj.style.marginTop = "5px";
+            pObj.style.marginLeft = "5px";
+            pObj.style.cursor = "pointer";
+            pObj.innerHTML = tempArr[i];
+            pObj.function()
+            {
+                this.style.backgroundColor = "yellow";
+            }
+            pObj.function()
+            {
+                this.style.backgroundColor = "";
+            }
+        }
+    }
 </script>
 </body>
 </html>

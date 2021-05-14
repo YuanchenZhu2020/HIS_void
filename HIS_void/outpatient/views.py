@@ -96,19 +96,29 @@ class OutpatientAPI(View):
 
         # 检查结果信息查询
         elif query_information == "JCJY":
-            data = [
-
-            ]
-
-        # 药品检索
+            data = {
+                "no": 114514,
+                "name": "肖云冲",
+                "gender": "男",
+                "age": 18,
+                "HZZS": "患者主诉文本",
+                "ZLQK": "治疗情况文本",
+                "JWBS": "既往病史文本",
+                "GMBS": "过敏病史文本",
+                "TGJC": "体格检查文本",
+                "FBSJ": "发病事件文本",
+            }
+        # 处方开具
         elif query_information == "CFKJ":
             data = [
-                {'name': "多塞平", 'price': 41, 'number': 100, },
-                {'name': "艾司西酞普兰", 'price': 42, 'number': 100, },
-                {'name': "帕罗西汀", 'price': 43, 'number': 100, },
-                {'name': "氟西汀", 'price': 44, 'number': 100, },
-                {'name': "度洛西汀", 'price': 45, 'number': 100, },
-                {'name': "氟伏沙明", 'price': 46, 'number': 100, },
+                {'name': "多塞平", 'price': 41, 'no': 1, },
+                {'name': "多塞平1", 'price': 41, 'no': 2, },
+                {'name': "多塞平2", 'price': 41, 'no': 3, },
+                {'name': "艾司西酞普兰", 'price': 42, 'no': 4, },
+                {'name': "帕罗西汀", 'price': 43, 'no': 5, },
+                {'name': "氟西汀", 'price': 44, 'no': 6, },
+                {'name': "度洛西汀", 'price': 45, 'no': 7, },
+                {'name': "氟伏沙明", 'price': 46, 'no': 8, },
             ]
 
         return JsonResponse(data, safe=False)

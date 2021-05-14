@@ -134,53 +134,82 @@ function QueryJCJY(p_no) {
 QueryZZHZ()
 QueryDZHZ()
 
-/*
-$(document).ready(function () {
-    $("#txtSearch").keyup(function () {
-        if ($("#txtSearch").val() == "") {
-            $("#search-result").hide();
-        } else {
-            $.ajax({
-                type: "get",
-                url: "/QueryMZYSView",
-                dataType: 'json',
-                cache: true,
-                data: {
-                    information: 'CFKJ'
-                },
-                success: function (data) {
-                    console.log(data);
-                    var lists = "<ul class='list-group list-group-flush' style='list-style:none;text-align:left;'>";
-                    if (data.length > 0) {
-                        for (i = 0; i < data.length; i++) {
-                            lists += "<li style='padding: 0px 5px' class='list-group-item' onclick='liClick(this)'>" + data[i].name + "</li>";//遍历出每一条返回的数据
-                        }
-                        lists += "</ul>";
-                        $("#search-result").html(lists).show();//将搜索到的结果展示出来
-                    }
-                },
-                error: function (XMLHttpRequest, textStatus, errorThrown) {
-                    // 状态码
-                    alert(XMLHttpRequest.status);
-                }
-            })
-        }
-    });
-    $('#txtSearch').keydown(function () {
-        $("#search-result").hide();
-        $('#search-result').empty();
-
-    })
-    $('#search').blur(function () {
-        $('#search-result').empty();
-    })
-});
-
-function liClick(data) {
-    $("#search-result").hide();
-    $("#txtSearch").val($(data).text());
+function display_none() {
+    document.getElementById('dv').style.display = 'none';
+    $("#txt").attr("style", '');
 }
-*/
+
+function display_delete() {
+    document.getElementById("box").removeChild(document.getElementById("dv"));
+    $("#txt").attr("style", '');
+}
+
+function add_name(e) {
+    console.log(e)
+    document.getElementById('txt').value = e.innerText.trim();
+    display_delete();
+}
+
+function QueryMedicine() {
+    $.ajax({
+        type: "get",
+        url: "/OutpatientAPI",
+        dataType: 'json',
+        cache: true,
+        data: {
+            information: 'CFKJ'
+        },
+        success: function (data) {
+            // console.log(data);
+            if (data.length > 0) {
+                let keyWords = [];
+                // 获取所有的药品名
+                for (let i = 0; i < data.length; i++) {
+                    keyWords[i] = data[i]['name'];
+                }
+                //每次按下抬起时都要先清除一下div以免乜有数据时扔存在div边框
+                if (document.getElementById("dv")) {
+                    display_delete()
+                }
+                let txt = document.getElementById('txt');
+                let tempArr = [];//定义临时数组用来存储用户与之相匹配的句子
+                let text = txt.value;//获取用户所输入的文本框内容
+                for (let i = 0; i < keyWords.length; i++) {
+                    if (keyWords[i].indexOf(text) !== -1) {//将用户输入的文本框内容与数组进行比对，输入内容在数组中匹配到，并且开头的值存入临时数组中
+                        tempArr.push(keyWords[i]);
+                    }
+                }
+                // console.log(tempArr);
+                let dvObj = document.createElement("div");//创建一个div用来放提示的语句
+                dvObj.setAttribute('class', 'offset-2 basic-list-group col-md-4');
+                document.getElementById("box").appendChild(dvObj);
+                dvObj.id = "dv";
+                if (txt.value.length === 0 || tempArr.length === 0) {//当文本框中乜有内容或者临时数组中没有元素是将div进行删除
+                    if (document.getElementById("dv")) {
+                        display_delete();
+                    }
+                } else {
+                    document.getElementById('txt').setAttribute("style", "border-radius: 0.7rem 0.7rem 0 0; border-bottom:none");
+                    let ulObj = document.createElement("ul");
+                    ulObj.setAttribute('class', 'list-group');
+                    dvObj.append(ulObj);
+                    for (let i = 0; i < tempArr.length; i++) {//创建临时数组长度个的p元素用来显示提示的语句
+                        let liObj = document.createElement("li");
+                        liObj.setAttribute('class', 'list-group-item');
+                        liObj.setAttribute('onclick', 'add_name(this)');
+                        ulObj.appendChild(liObj);
+                        liObj.innerHTML = '&emsp;' + tempArr[i];
+                    }
+                }
+            }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            // 状态码
+            alert(XMLHttpRequest.status);
+        }
+    })
+}
+
 
 // 删除药品
 function deleteMedicine(e) {
@@ -221,4 +250,38 @@ function totalPrice() {
         console.log(total_prices[i]);
     }
     $("#medicine_count").text(total);
+}
+
+function collect_medicine() {
+    $.ajax({
+        type: "get",
+        url: "/OutpatientAPI",
+        dataType: 'json',
+        cache: true,
+        data: {
+            information: 'CFKJ'
+        },
+        success: function (data) {
+            let medicine_name = document.getElementById('txt').value;            // console.log(data);
+            let num = document.getElementById('num').value;            // console.log(data);
+            let medicine;
+            if (data.length > 0) {
+                // 获取所有的药品名
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i]["name"] === medicine_name) {//将用户输入的文本框内容与数组进行比对，输入内容在数组中匹配到，并且开头的值存入临时数组中
+                        addMedicine(data[i], num);
+                        console.log(data[i]);
+                        document.getElementById('txt').value = '';            // console.log(data);
+                        document.getElementById('num').value = '';
+                        return;
+                    }
+                }
+            }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            // 状态码
+            alert(XMLHttpRequest.status);
+        }
+    })
+
 }
