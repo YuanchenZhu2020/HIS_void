@@ -1,12 +1,24 @@
+// 字符串格式化函数
+function StringFormat() {
+    if (arguments.length == 0)
+        return null;
+    var str = arguments[0];
+    for (var i = 1; i < arguments.length; i++) {
+        var re = new RegExp('\\{' + (i - 1) + '\\}', 'gm');
+        str = str.replace(re, arguments[i]);
+    }
+    return str;
+}
+
 // 病历首页查询
-function QueryBLSY(p_no) {
+function QueryBLSY(patient_id) {
     let URL = '/OutpatientAPI';
     $.ajax({
         type: "get",
         url: URL,
         dataType: 'json',
         data: {
-            p_no: p_no,
+            patient_id: patient_id,
             information: 'BLSY'
         },
         success: function (data) {
@@ -62,7 +74,6 @@ function QueryDZHZ() {
     });
 }
 
-
 // 查询诊中患者
 function QueryZZHZ() {
     let URL = '/OutpatientAPI';
@@ -96,7 +107,6 @@ function QueryZZHZ() {
     });
     self.location = '#jian_cha_jian_yan'
 }
-
 
 // 检查结果查询
 function QueryJCJY(p_no) {
@@ -191,7 +201,6 @@ function deleteMedicine(e) {
     tag.parentNode.removeChild(tag);
     totalPrice();
 }
-
 
 // 添加药品
 function addMedicine(medicine_obj, num) {

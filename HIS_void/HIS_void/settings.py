@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     'pharmacy',
     # 检验科
     'laboratory',
+    # 内部接口
+    'internalapi',
 ]
 
 MIDDLEWARE = [
@@ -99,6 +101,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "laboratory/static"),
     os.path.join(BASE_DIR, "outpatient/static"),
     os.path.join(BASE_DIR, "pharmacy/static"),
+    os.path.join(BASE_DIR, "internalapi/static"),
 )
 
 WSGI_APPLICATION = 'HIS_void.wsgi.application'

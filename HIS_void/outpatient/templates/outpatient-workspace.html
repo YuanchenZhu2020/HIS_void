@@ -210,7 +210,7 @@ link</a>\
                                         <div class="basic-form">
                                             <form action="{% url 'OutpatientAPI' %}" method="POST">
                                                 {% csrf_token %}
-                                                {% for item in JYXX %}
+                                                {% for item in TestItems %}
                                                     <div class="form-group">
                                                         <div class="input-group input-group-sm mb-3">
                                                             <label class="col-md-1.5 col-form-label text-right">{{ item.name }}：</label>
@@ -448,6 +448,6 @@ link</a>\
             </div>
         </div>
     </div>
-    <script src="{% static 'js/outpatient.js' %}"></script>
+    <script src="{% static 'js/outpatient_query.js' %}"></script>
 
 {% endblock %}

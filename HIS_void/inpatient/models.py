@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from his.models import Staff, InpatientArea
+from his.models import Staff, Department, InpatientArea
 from patient.models import PatientUser
 from outpatient.models import RegistrationInfo
 from pharmacy.models import MedicineInfo
@@ -76,7 +76,12 @@ class HospitalRegistration(models.Model):
         on_delete = models.CASCADE, 
         verbose_name = _("挂号信息"),
     )
-    region = models.ForeignKey(
+    dept = models.ForeignKey(
+        Department,
+        on_delete = models.CASCADE,
+        verbose_name = _("所属科室"),
+    )
+    area = models.ForeignKey(
         InpatientArea, 
         null = True,
         on_delete = models.SET_NULL,

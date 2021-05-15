@@ -23,16 +23,10 @@ from patient.views import (
     PatientLoginView, PatientRegisterView, ForgotPasswordView, 
     PatientWorkSpaceView, PatientWorkMyView,
 )
-from outpatient.views import (
-    OutpatientView, OutpatientAPI
-)
-from inpatient.views import (
-    NurseView, NurseAPI
-)
-
-from laboratory.views import (
-    InspectionView, InspectionAPI,
-)
+from outpatient.views import OutpatientView
+from inpatient.views import NurseView
+from laboratory.views import InspectionView
+from internalapi.views import NurseAPI, OutpatientAPI, InspectionAPI
 
 from rbac.management import create_urlpermissions
 
@@ -57,8 +51,6 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name="profile"),
     # 门诊医生工作页面
     path('outpatient-workspace/', OutpatientView.as_view(), name="outpatient-workspace"),
-    # # 患者未登录首页
-    # path('patient/', PatientWorkSpaceView.as_view(), name = "patient"),
     # 患者登录后个人界面
     path('patient-user/', PatientWorkSpaceView.as_view(), name="patient-user"),
     # 护士门诊
