@@ -5,8 +5,8 @@
 
 {% block body-context %}
 
-        <script src="{% static 'js/patient-user.js' %}"></script>
-{#        <button onclick="Details('444')">123</button>  {# 传不进去怎么回事 #}
+    <script src="{% static 'js/patient-user.js' %}"></script>
+    {#        <button onclick="Details('444')">123</button>  {# 传不进去怎么回事#}
 
     <div class="container-fluid">
         <div class="row">
@@ -167,10 +167,35 @@
                                             {#                                                <td><span class="badge light badge-warning">等待结果</span></td>#}
                                             {#                                                <td><span class="badge light badge-success">已出结果</span></td>#}
                                             <td>
-                                                <button type="button" class="btn btn-success light sharp" href="#"
+                                                <button type="button"
+                                                        class="btn btn-success light sharp"
+                                                        data-toggle="modal"
+                                                        data-target="#XXXXModal{{ item.id }}"
                                                         style="width: 80px">
                                                     详细信息
                                                 </button>
+                                                <!-- 详细信息弹窗 -->
+                                                <div class="modal fade" id="XXXXModal{{ item.id }}">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h4 class="modal-title">
+                                                                    详细信息{{ item.id }}
+                                                                </h4>
+                                                            </div>
+                                                            <div class="modal-body">
+                                                                在这里添加一些文本
+                                                                写下很多很多很多结果信息，或许可以放图片
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button"
+                                                                        class="btn btn-primary"
+                                                                        data-dismiss="modal">确定
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -232,16 +257,42 @@
                                                                                 style="width: 80px">
                                                                             再次预约
                                                                         </button>
+
                                                                     </td>
                                                                     <td>
-                                                                        <button onclick="Details({{ item.id }})"
+                                                                        <button
+                                                                                {#onclick="Details({{ item.id }})"#}
                                                                                 type="button"
                                                                                 class="btn btn-success light sharp"
                                                                                 data-toggle="modal"
-{#                                                                              data-target="#QZXQModal"#}
+                                                                                data-target="#QZXQModal{{ item.id }}"
                                                                                 style="width: 80px">
-                                                                            确诊详情{{ item.id }}
+                                                                            确诊详情
                                                                         </button>
+                                                                        <!-- 确诊详情弹窗 -->
+                                                                        <div class="modal fade"
+                                                                             id="QZXQModal{{ item.id }}">
+                                                                            <div class="modal-dialog">
+                                                                                <div class="modal-content">
+                                                                                    <div class="modal-header">
+                                                                                        <h4 class="modal-title"
+                                                                                            id="JGXQModalLabel">
+                                                                                            确诊详情{{ item.id }}
+                                                                                        </h4>
+                                                                                    </div>
+                                                                                    <div class="modal-body">
+                                                                                        在这里添加一些文本
+                                                                                        写下很多很多很多结果信息，或许可以放图片
+                                                                                    </div>
+                                                                                    <div class="modal-footer">
+                                                                                        <button type="button"
+                                                                                                class="btn btn-primary"
+                                                                                                data-dismiss="modal">确定
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                     </td>
 
                                                                 </tr>
@@ -261,7 +312,7 @@
                                                         <table class="table table-responsive-md">
                                                             <thead>
                                                             <tr>
-                                                                {#                                                                <th><p><strong>#</strong></p></th>#}
+                                                                {#  <th><p><strong>#</strong></p></th>#}
                                                                 <th><p style="width: 60px"><strong>名称</strong></p></th>
                                                                 <th><p style="width: 60px"><strong>价格</strong></p></th>
                                                                 <th></th>
@@ -270,69 +321,45 @@
                                                             <tbody>
                                                             {% for item in JCdata %}
                                                                 <tr>
-                                                                    {#                                                                <td><strong>01</strong></td>#}
+                                                                    {#    <td><strong>01</strong></td>#}
                                                                     <td>{{ item.name }}</td>
                                                                     <td>{{ item.price }}</td>
                                                                     <td>
                                                                         <button type="button"
                                                                                 class="btn btn-success light sharp"
                                                                                 data-toggle="modal"
-                                                                                data-target="#JGXQModal"
+                                                                                data-target="#JGXQModal{{ item.id }}"
                                                                                 style="width: 80px">
                                                                             结果详情
                                                                         </button>
+                                                                        <!-- 检查详情弹窗 -->
+                                                                        <div class="modal fade"
+                                                                             id="JGXQModal{{ item.id }}">
+                                                                            <div class="modal-dialog">
+                                                                                <div class="modal-content">
+                                                                                    <div class="modal-header">
+                                                                                        <h4 class="modal-title" id="">
+                                                                                            检查结果{{ item.id }}
+                                                                                        </h4>
+                                                                                    </div>
+                                                                                    <div class="modal-body">
+                                                                                        在这里添加一些文本
+                                                                                        写下很多很多很多结果信息，或许可以放图片
+                                                                                    </div>
+                                                                                    <div class="modal-footer">
+                                                                                        <button type="button"
+                                                                                                class="btn btn-primary"
+                                                                                                data-dismiss="modal">确定
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
                                                                     </td>
                                                                 </tr>
                                                             {% endfor %}
                                                             </tbody>
                                                         </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- 弹出框 需要进行一些简单的配置即可-->
-                                        <!-- 确诊详情弹窗 -->
-                                        <!-- 确诊详情弹窗 -->
-                                        <div class="modal fade" id="QZXQModal">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h4 class="modal-title"
-                                                            id="JGXQModalLabel">
-                                                            检查结果{{ item.doctor }}
-                                                        </h4>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        在这里添加一些文本
-                                                        写下很多很多很多结果信息，或许可以放图片
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button"
-                                                                class="btn btn-primary"
-                                                                data-dismiss="modal">确定
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <!-- 检查详情弹窗 -->
-                                        <div class="modal fade" id="JGXQModal">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h4 class="modal-title" id="JGXQModalLabel">
-                                                            检查结果
-                                                        </h4>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        在这里添加一些文本
-                                                        写下很多很多很多结果信息，或许可以放图片
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-primary"
-                                                                data-dismiss="modal">确定
-                                                        </button>
                                                     </div>
                                                 </div>
                                             </div>

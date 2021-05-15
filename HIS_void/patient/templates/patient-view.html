@@ -4,64 +4,66 @@
 {% block title %}患者{% endblock %}
 
 {% block body-context %}
-<style type="text/css">
-.widget-timeline-icon2 li {
-    padding-bottom: 73px;
-}
 
-</style>
+    <style type="text/css">
+        .widget-timeline-icon2 li {
+            padding-bottom: 73px;
+        }
+
+    </style>
     <body> <!--data-spy="scroll"  data-offset="40" data-target="#myScrollspy" -->
 
     <div class="container-fluid">
         <div class="row">
             <!-- 左边栏信息 -->
-            <div id="myScrollspy" class="col-sm-3"> <!-- class="col-sm-3" -->
-{#                <div class="container-fluid">#}
-                    <div class="container-fluid">
-                        <ul class="nav nav-pills nav-stacked">
-                            <div>  <!--style="display: fixed"  class="col-xl-3 col-xxl-4 col-md-6"-->
-                                <br/><br/>
-                                <div class="card">
-                                    <div class="card-header border-0 pb-0">
-                                        <a type="button" href="{% url 'patient-user' %}" class="btn tp-btn btn-primary fs-20 font-w600">我的主页
-                                        </a>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="widget-timeline-icon2">
-                                            <ul class="timeline">
-                                                <li>
-                                                    <div class="icon bg-primary"><i class="las la-stethoscope"></i>
-                                                    </div>
-                                                    <a class="timeline-panel text-muted" href="#register">
-                                                        <h4 class="mb-2 mt-1">预约&挂号</h4>
-                                                        <p class="fs-15 mb-0 ">z</p>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <div class="icon bg-primary"><i class="las la-stethoscope"></i>
-                                                    </div>
-                                                    <a class="timeline-panel text-muted" href="#navigation">
-                                                        <h4 class="mb-2 mt-1">院内导航</h4>
-                                                        <p class="fs-15 mb-0 ">Sat,</p>
-                                                    </a>
-                                                </li>
-                                                <li>
-                                                    <div class="icon bg-primary las"><i class="las la-stethoscope"></i>
-                                                    </div>
-                                                    <a class="timeline-panel text-muted" href="#instruction">
-                                                        <h4 class="mb-2 mt-1">就医须知</h4>
-                                                        <p class="fs-15 mb-0 ">Sat, </p>
-                                                    </a>
-                                                </li>
+            <div id="myScrollspy" class="col-sm-3">
+                {#                <div class="container-fluid">#}
+                <div class="container-fluid">
+                    <ul class="nav nav-pills nav-stacked">
+                        <div>  <!--style="display: fixed"  class="col-xl-3 col-xxl-4 col-md-6"-->
+                            <br/><br/>
+                            <div class="card">
+                                <div class="card-header border-0 pb-0">
+                                    <a type="button" href="{% url 'patient-user' %}"
+                                       class="btn tp-btn btn-primary fs-20 font-w600">我的主页
+                                    </a>
+                                </div>
+                                <div class="card-body">
+                                    <div class="widget-timeline-icon2">
+                                        <ul class="timeline">
+                                            <li>
+                                                <div class="icon bg-primary"><i class="las la-stethoscope"></i>
+                                                </div>
+                                                <a class="timeline-panel text-muted" href="#register">
+                                                    <h4 class="mb-2 mt-1">预约&挂号</h4>
+                                                    <p class="fs-15 mb-0 ">z</p>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <div class="icon bg-primary"><i class="las la-stethoscope"></i>
+                                                </div>
+                                                <a class="timeline-panel text-muted" href="#navigation">
+                                                    <h4 class="mb-2 mt-1">院内导航</h4>
+                                                    <p class="fs-15 mb-0 ">Sat,</p>
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <div class="icon bg-primary las"><i class="las la-stethoscope"></i>
+                                                </div>
+                                                <a class="timeline-panel text-muted" href="#instruction">
+                                                    <h4 class="mb-2 mt-1">就医须知</h4>
+                                                    <p class="fs-15 mb-0 ">Sat, </p>
+                                                </a>
+                                            </li>
 
-                                            </ul>
-                                        </div>
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
-                        </ul>
-                    </div>
-{#                </div>#}
+                        </div>
+                    </ul>
+                </div>
+                {#                </div>#}
             </div>
 
             <!-- 右边滚动栏信息，包括以下几部分 -->
@@ -143,239 +145,142 @@
                 <!--预约挂号（包括各种部门的挂号，这个需要选择）-->
                 <div class="col-lg-12" id="register">
                     <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title">预约挂号</h4>
+                        </div>
                         <div class="card-body">
-                            <div class="profile-tab">
-                                <div class="custom-tab-1">
-                                    <ul class="nav nav-tabs">
-                                        <li class="nav-item"><a href="#my-posts" data-toggle="tab"
-                                                                class="nav-link active show">科室</a>
-                                        </li>
-                                        <li class="nav-item"><a href="#about-me" data-toggle="tab"
-                                                                class="nav-link">时间</a>
-                                        </li>
-                                        <li class="nav-item"><a href="#profile-settings" data-toggle="tab"
-                                                                class="nav-link">医生</a>
-                                        </li>
-                                    </ul>
-                                    <div class="tab-content">
-                                        <div id="my-posts" class="tab-pane fade active show">
-                                            <div class="my-post-content pt-3">
-                                                <div class="post-input">
-                                                    <textarea name="textarea" id="textarea" cols="30" rows="5"
-                                                              class="form-control bg-transparent"
-                                                              placeholder="Please type what you want...."></textarea>
-                                                    <a href="javascript:void()" class="btn btn-primary light px-3"><i
-                                                            class="fa fa-link"></i> </a>
-                                                    <a href="javascript:void()" class="btn btn-primary light mr-1 px-3"><i
-                                                            class="fa fa-camera"></i> </a><a href="javascript:void()"
-                                                                                             class="btn btn-primary">Post</a>
-                                                </div>
-                                                <div class="profile-uoloaded-post border-bottom-1 pb-5">
-                                                    <img src="images/profile/8.jpg" alt="" class="img-fluid">
-                                                    <a class="post-title" href="javascript:void()">
-                                                        <h4>Collection of textile samples lay spread</h4>
-                                                    </a>
-                                                    <p>A wonderful serenity has take possession of my entire soul like
-                                                        these sweet morning of spare which enjoy whole heart.A wonderful
-                                                        serenity has take possession of my entire soul like these sweet
-                                                        morning
-                                                        of spare which enjoy whole heart.</p>
-                                                    <button class="btn btn-primary mr-2"><span class="mr-2"><i
-                                                            class="fa fa-heart"></i></span>Like
-                                                    </button>
-                                                    <button class="btn btn-secondary"><span class="mr-2"><i
-                                                            class="fa fa-reply"></i></span>Reply
-                                                    </button>
-                                                </div>
-                                                <div class="profile-uoloaded-post border-bottom-1 pb-5">
-                                                    <img src="images/profile/9.jpg" alt="" class="img-fluid">
-                                                    <a class="post-title" href="javascript:void()">
-                                                        <h4>Collection of textile samples lay spread</h4>
-                                                    </a>
-                                                    <p>A wonderful serenity has take possession of my entire soul like
-                                                        these sweet morning of spare which enjoy whole heart.A wonderful
-                                                        serenity has take possession of my entire soul like these sweet
-                                                        morning
-                                                        of spare which enjoy whole heart.</p>
-                                                    <button class="btn btn-primary mr-2"><span class="mr-2"><i
-                                                            class="fa fa-heart"></i></span>Like
-                                                    </button>
-                                                    <button class="btn btn-secondary"><span class="mr-2"><i
-                                                            class="fa fa-reply"></i></span>Reply
-                                                    </button>
-                                                </div>
-                                                <div class="profile-uoloaded-post pb-5">
-                                                    <img src="images/profile/8.jpg" alt="" class="img-fluid">
-                                                    <a class="post-title" href="javascript:void()">
-                                                        <h4>Collection of textile samples lay spread</h4>
-                                                    </a>
-                                                    <p>A wonderful serenity has take possession of my entire soul like
-                                                        these sweet morning of spare which enjoy whole heart.A wonderful
-                                                        serenity has take possession of my entire soul like these sweet
-                                                        morning
-                                                        of spare which enjoy whole heart.</p>
-                                                    <button class="btn btn-primary mr-2"><span class="mr-2"><i
-                                                            class="fa fa-heart"></i></span>Like
-                                                    </button>
-                                                    <button class="btn btn-secondary"><span class="mr-2"><i
-                                                            class="fa fa-reply"></i></span>Reply
-                                                    </button>
-                                                </div>
-                                                <div class="text-center mb-2"><a href="javascript:void()"
-                                                                                 class="btn btn-primary">Load More</a>
-                                                </div>
-                                            </div>
+                            <div class="basic-list-group">
+                                <div class="row">
+                                    <div class="col-lg-6 col-xl-2">
+                                        <div class="list-group mb-4 " id="list-tab" role="tablist">
+                                            {% for item in KSdata %}
+                                                <a class="list-group-item list-group-item-action"
+                                                   id="list-home-list"
+                                                   data-toggle="list"
+                                                   href="#show{{ item.id }}"
+                                                   role="tab">{{ item.name }}</a>
+                                            {% endfor %}
                                         </div>
-                                        <div id="about-me" class="tab-pane fade">
-                                            <div class="profile-about-me">
-                                                <div class="pt-4 border-bottom-1 pb-3">
-                                                    <h4 class="text-primary">About Me</h4>
-                                                    <p class="mb-2">A wonderful serenity has taken possession of my
-                                                        entire soul, like these sweet mornings of spring which I enjoy
-                                                        with my whole heart. I am alone, and feel the charm of existence
-                                                        was created for the bliss of souls like mine.I am so happy, my
-                                                        dear friend, so absorbed in the exquisite sense of mere tranquil
-                                                        existence, that I neglect my talents.</p>
-                                                    <p>A collection of textile samples lay spread out on the table -
-                                                        Samsa was a travelling salesman - and above it there hung a
-                                                        picture that he had recently cut out of an illustrated magazine
-                                                        and housed in a nice, gilded frame.</p>
-                                                </div>
+                                    </div>
+                                    <div class="col-lg-6 col-xl-10">
+                                        <div class="tab-content">
+                                            <div class="tab-pane fade show active">
+                                                <h4 class="mb-4">请选择一个科室</h4>
+                                                <p>请您根据自己的病情和严重程度合理选择。balbal</p>
                                             </div>
-                                            <div class="profile-skills mb-5">
-                                                <h4 class="text-primary mb-2">Skills</h4>
-                                                <a href="javascript:void()" class="btn btn-primary light btn-xs mb-1">Admin</a>
-                                                <a href="javascript:void()" class="btn btn-primary light btn-xs mb-1">Dashboard</a>
-                                                <a href="javascript:void()" class="btn btn-primary light btn-xs mb-1">Photoshop</a>
-                                                <a href="javascript:void()" class="btn btn-primary light btn-xs mb-1">Bootstrap</a>
-                                                <a href="javascript:void()" class="btn btn-primary light btn-xs mb-1">Responsive</a>
-                                                <a href="javascript:void()" class="btn btn-primary light btn-xs mb-1">Crypto</a>
-                                            </div>
-                                            <div class="profile-lang  mb-5">
-                                                <h4 class="text-primary mb-2">Language</h4>
-                                                <a href="javascript:void()" class="text-muted pr-3 f-s-16"><i
-                                                        class="flag-icon flag-icon-us"></i> English</a>
-                                                <a href="javascript:void()" class="text-muted pr-3 f-s-16"><i
-                                                        class="flag-icon flag-icon-fr"></i> French</a>
-                                                <a href="javascript:void()" class="text-muted pr-3 f-s-16"><i
-                                                        class="flag-icon flag-icon-bd"></i> Bangla</a>
-                                            </div>
-                                            <div class="profile-personal-info">
-                                                <h4 class="text-primary mb-4">Personal Information</h4>
-                                                <div class="row mb-2">
-                                                    <div class="col-3">
-                                                        <h5 class="f-w-500">Name <span class="pull-right">:</span>
-                                                        </h5>
-                                                    </div>
-                                                    <div class="col-9"><span>Mitchell C.Shay</span>
-                                                    </div>
-                                                </div>
-                                                <div class="row mb-2">
-                                                    <div class="col-3">
-                                                        <h5 class="f-w-500">Email <span class="pull-right">:</span>
-                                                        </h5>
-                                                    </div>
-                                                    <div class="col-9"><span>example@examplel.com</span>
-                                                    </div>
-                                                </div>
-                                                <div class="row mb-2">
-                                                    <div class="col-3">
-                                                        <h5 class="f-w-500">Availability <span
-                                                                class="pull-right">:</span></h5>
-                                                    </div>
-                                                    <div class="col-9"><span>Full Time (Free Lancer)</span>
-                                                    </div>
-                                                </div>
-                                                <div class="row mb-2">
-                                                    <div class="col-3">
-                                                        <h5 class="f-w-500">Age <span class="pull-right">:</span>
-                                                        </h5>
-                                                    </div>
-                                                    <div class="col-9"><span>27</span>
-                                                    </div>
-                                                </div>
-                                                <div class="row mb-2">
-                                                    <div class="col-3">
-                                                        <h5 class="f-w-500">Location <span class="pull-right">:</span>
-                                                        </h5>
-                                                    </div>
-                                                    <div class="col-9"><span>Rosemont Avenue Melbourne,
-                                                                Florida</span>
-                                                    </div>
-                                                </div>
-                                                <div class="row mb-2">
-                                                    <div class="col-3">
-                                                        <h5 class="f-w-500">Year Experience <span
-                                                                class="pull-right">:</span></h5>
-                                                    </div>
-                                                    <div class="col-9"><span>07 Year Experiences</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div id="profile-settings" class="tab-pane fade">
-                                            <div class="pt-3">
-                                                <div class="settings-form">
-                                                    <h4 class="text-primary">Account Setting</h4>
-                                                    <form>
-                                                        <div class="form-row">
-                                                            <div class="form-group col-md-6">
-                                                                <label>Email</label>
-                                                                <input type="email" placeholder="Email"
-                                                                       class="form-control">
-                                                            </div>
-                                                            <div class="form-group col-md-6">
-                                                                <label>Password</label>
-                                                                <input type="password" placeholder="Password"
-                                                                       class="form-control">
+                                            {% for item in KSdata %}
+                                                <div class="tab-pane fade" id="show{{ item.id }}">
+                                                    <ul class="nav nav-tabs">
+                                                        {% for date in ALTDates %}
+                                                            <li class="nav-item">
+                                                                <a href="#week{{ item.name }}{{ date }}"
+                                                                   data-toggle="tab"
+                                                                   class="nav-link"
+                                                                    onclick="QueryGH('{{ date }}',{{ item.id }})">
+{#                                                                    <script>#}
+{#                                                                        console.log('{{ date }}');#}
+{#                                                                        console.log(123123123);#}
+{#                                                                    </script>#}
+                                                                    {{ date }}
+                                                                </a>
+                                                            </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                    <div class="tab-content">
+                                                        <div class="tab-pane fade active show">
+                                                            <div class="profile-outpatient">
+                                                                <div class="counter">
+                                                                    <p></p>
+                                                                    <h4>请选择一个时间</h4>
+                                                                    <p>请您根据自己的病情和严重程度合理选择。balbal</p>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div class="form-group">
-                                                            <label>Address</label>
-                                                            <input type="text" placeholder="1234 Main St"
-                                                                   class="form-control">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label>Address 2</label>
-                                                            <input type="text" placeholder="Apartment, studio, or floor"
-                                                                   class="form-control">
-                                                        </div>
-                                                        <div class="form-row">
-                                                            <div class="form-group col-md-6">
-                                                                <label>City</label>
-                                                                <input type="text" class="form-control">
+                                                        {% for date in ALTDates %}
+                                                            <div id="week{{ item.name }}{{ date }}"
+                                                                 class="tab-pane fade">
+                                                                <div class="profile-outpatient">
+                                                                    <div class="counter">
+                                                                        <div class="table-responsive">
+                                                                            <table class="table table-responsive-md">
+                                                                                <thead>
+                                                                                <tr>
+                                                                                    <th><p><strong>主治医生</strong></p>
+                                                                                    </th>
+                                                                                    <th><p>
+                                                                                        <strong>上午(9:00-11:00)</strong>
+                                                                                    </p>
+                                                                                    </th>
+                                                                                    <th><p>
+                                                                                        <strong>下午(14:00-18:00)</strong>
+                                                                                    </p>
+                                                                                    </th>
+                                                                                </tr>
+                                                                                </thead>
+                                                                                <tbody id="GH">
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div>
-                                                            <div class="form-group col-md-4">
-                                                                <label>State</label>
-                                                                <select class="form-control" id="inputState">
-                                                                    <option selected="">Choose...</option>
-                                                                    <option>Option 1</option>
-                                                                    <option>Option 2</option>
-                                                                    <option>Option 3</option>
-                                                                </select>
-                                                            </div>
-                                                            <div class="form-group col-md-2">
-                                                                <label>Zip</label>
-                                                                <input type="text" class="form-control">
-                                                            </div>
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <div class="custom-control custom-checkbox">
-                                                                <input type="checkbox" class="custom-control-input"
-                                                                       id="gridCheck">
-                                                                <label class="custom-control-label" for="gridCheck">
-                                                                    Check me out</label>
-                                                            </div>
-                                                        </div>
-                                                        <button class="btn btn-primary" type="submit">Sign
-                                                            in
-                                                        </button>
-                                                    </form>
+                                                        {% endfor %}
+
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            {% endfor %}
+
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 医生介绍弹窗 -->
+                <div class="modal fade"
+                     id="DoctorModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">
+                                    医生介绍
+                                </h4>
+                                <button type="button"
+                                        class="close"
+                                        data-dismiss="modal">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                在这里添加一些文本
+                                写下很多很多很多结果信息，或许可以放图片
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button"
+                                        class="btn btn-primary"
+                                        data-dismiss="modal">
+                                    确定
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 挂号询问弹窗 -->
+                <div class="modal fade" id="GHask">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">是否确定挂号</h5>
+                                <button type="button" class="close" data-dismiss="modal"><span>&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <p>sectetur et. Donec sed odio</p>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger light" data-dismiss="modal">取消</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
                             </div>
                         </div>
                     </div>
@@ -600,5 +505,34 @@
     </div>
 
     </body>
+    <script src="{% static 'js/patient-view.js' %}"></script>
 
 {% endblock %}
+         {% comment %}                                                                      <tr>
+                                                                                    <td>
+                                                                                        <button type="button"
+                                                                                                class="btn tp-btn btn-light"
+                                                                                                data-toggle="modal"
+                                                                                                data-target="#DoctorModal"
+                                                                                                onclick="">
+                                                                                            Light
+                                                                                        </button>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <button type="button"
+                                                                                                class="btn tp-btn-light btn-success"
+                                                                                                data-toggle="modal"
+                                                                                                data-target="#GHask"
+                                                                                                style="width: 80px">3
+                                                                                        </button>
+                                                                                    </td>
+                                                                                    <td>
+                                                                                        <button type="button"
+                                                                                                class="btn tp-btn-light btn-success"
+                                                                                                data-toggle="modal"
+                                                                                                data-target="#GHask"
+                                                                                                style="width: 80px">4
+                                                                                        </button>
+                                                                                    </td>
+
+                                                                                </tr>{% endcomment %}

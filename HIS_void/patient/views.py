@@ -7,7 +7,6 @@ from patient import login, init_patient_url_permission
 from patient.forms import PatientLoginFrom
 from patient.models import PatientUser
 
-
 class PatientLoginView(View):
     template_name = "page-login.html"
     patient_next_url_name = "patient-user"
@@ -54,7 +53,6 @@ class PatientLoginView(View):
             }
             return render(request, PatientLoginView.template_name, context)
 
-
 class RegisterView(View):
     template_name = "page-register.html"
 
@@ -64,7 +62,6 @@ class RegisterView(View):
     def post(self, request):
         pass
         return HttpResponse(RegisterView.template_name)
-
 
 class ForgotPasswordView(View):
     template_name = "page-forgot-password.html"
@@ -76,31 +73,83 @@ class ForgotPasswordView(View):
         pass
         return render(request, ForgotPasswordView.template_name)
 
-
 class PatientWorkSpaceView(View):
     template_name = "patient-view.html"
     patient_next_url_name = "index"
 
     def get(self, request):
-        print("[Patient Workspace View]", request.user)
-        if request.user.is_authenticated and isinstance(request.user, PatientUser):
-            context = {"user_type": "patient"}
-            return render(request, PatientWorkSpaceView.template_name, context=context)
-        else:
-            # print(type(request.user))
-            return redirect(reverse(PatientWorkSpaceView.patient_next_url_name))
+        context = {"user_type": "patient"}
 
-    # def post(self, request):
-    #     username = request.POST.get("username")
-    #     password = request.POST.get("password")
-    #     # 测试用
-    #     print(username, password)
-    #     if username == "test" and password == "123456":
-    #         return redirect(reverse("index"))
-    #     else:
-    #         context = {"user_type": "patient", "name_or_password_error": True}
-    #         return render(request, PatientLoginView.template_name, context)
+        '''
+        需要所有可以用于挂号的科室信息
+        '''
+        KSdata = [{
+            "id": "1",  # 挂号的序号
+            "name": "内科",
+        }, {
+            "id": "2",  # 挂号的序号
+            "name": "呼吸科",
+        },{
+            "id": "3",  # 挂号的序号
+            "name": "小儿科",
+        },{
+            "id": "4",  # 挂号的序号
+            "name": "牙科",
+        },{
+            "id": "5",  # 挂号的序号
+            "name": "精神科",
+        },{
+            "id": "6",  # 挂号的序号
+            "name": "外科",
+        },]
 
+        '''
+        需要可选的所有挂号日期
+        '''
+        ALTDates = ["5-15","5-16",'5-17','5-18','5-19','5-20','5-21']
+        return render(request, PatientWorkSpaceView.template_name, locals())
+        # print("[Patient Workspace View]", request.user)
+        # if request.user.is_authenticated and isinstance(request.user, PatientUser):
+        #     context = {"user_type": "patient"}
+        #     return render(request, PatientWorkSpaceView.template_name, context=context)
+        # else:
+        #     # print(type(request.user))
+        #     return redirect(reverse(PatientWorkSpaceView.patient_next_url_name))
+
+class PatientViewAPI(View):
+    def get(self, request):
+        # 获取需要查询的信息类型
+        query_information = request.GET.get('information')
+        data = {}
+        # 挂号信息查询
+        if query_information == "GH":
+            date = request.GET.get('date')
+            KS_id = request.GET.get('KS_id')
+            print("--------------------")
+            print(date)
+            print(KS_id)
+            print("--------------------")
+            # 查询出date那天，KS_id科室所有的医生以及医生的剩余名额
+            data = [{
+                "doctor_id": "999",
+                "doctor_name": "lisa",
+                "AM": 3,
+                "PM": 4,
+            }, {
+                "doctor_id": "888",
+                "doctor_name": "YYY",
+                "AM": 7,
+                "PM": 8,
+            }, ]
+
+        # 检查详情查询
+        elif query_information == "JCXQ":
+            pass
+
+        elif query_information == "XXXX":
+            pass
+
+        return JsonResponse(data, safe=False)
 
 class PatientWorkMyView(View):
     template_name = "patient-user.html"
@@ -135,11 +184,13 @@ class PatientWorkMyView(View):
         需要当前就诊的主键信息
         '''
         DQJZdata = [{
+            "id": "123",
             "name": "CT1",
             "location": "综合二层102",
             "order": 189,
             "status": "等待检查",
         }, {
+            "id": "444",
             "name": "CT2",
             "location": "综合二层102",
             "order": 199,
@@ -152,7 +203,7 @@ class PatientWorkMyView(View):
         需要确诊记录的主键信息；医生的主键信息（用于再次预约）
         '''
         QZdata = [{
-            "id":"123",
+            "id": "123",
             "date": "2020-4-9",
             "doctor": "A医生",
             "quezhen": "肺炎",
@@ -168,9 +219,11 @@ class PatientWorkMyView(View):
         需要检查记录的主键信息
         '''
         JCdata = [{
+            "id": "111",
             "name": "B超",
             "price": "199",
         }, {
+            "id": "222",
             "name": "CT",
             "price": "199",
         }, ]
@@ -178,15 +231,14 @@ class PatientWorkMyView(View):
         # 登录人个人信息
         return render(request, PatientWorkMyView.template_name, locals())
 
-
-class PatientAPI(View):
+class PatientUserAPI(View):
     def get(self, request):
         # 获取需要查询的信息类型
         query_information = request.GET.get('information')
-
+        data = {}
         # 确诊详情信息查询
         if query_information == "QZXQ":
-            quezhen_no = request.GET.get('quezhen_no')
+            quezhen_no = request.GET.get('p_no')
             print("--------------------")
             print(quezhen_no)
             print("--------------------")
@@ -199,7 +251,7 @@ class PatientAPI(View):
                 "HZZS": "患者主诉文本",
                 "TGJC": "体格检查文本",
                 "FBSJ": "发病事件文本",
-                "QZ":"确诊文本",
+                "QZ": "确诊文本",
             }
 
         # 检查详情查询
@@ -209,4 +261,4 @@ class PatientAPI(View):
         elif query_information == "XXXX":
             pass
 
-        return JsonResponse(data, safe=False) # 这里是要干什么呀
+        return JsonResponse(data, safe=False)

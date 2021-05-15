@@ -23,7 +23,7 @@ from his.views import (
 )
 from patient.views import (
     PatientLoginView, RegisterView, ForgotPasswordView, PatientWorkSpaceView, PatientWorkMyView,
-PatientAPI,
+PatientUserAPI,PatientViewAPI,
 )
 
 urlpatterns = [
@@ -64,9 +64,9 @@ urlpatterns = [
     # 保存体征记录的各种信息
     path('NurseAPI/', NurseAPI.as_view(), name="NurseAPI"),
     # 保存个人信息
-    path('PatientAPI/', PatientAPI.as_view(), name="PatientAPI"),
+    path('PatientUserAPI/', PatientUserAPI.as_view(), name="PatientUserAPI"),
     # 挂号API 保存挂号信息
-
+    path('PatientViewAPI/', PatientViewAPI.as_view(), name="PatientViewAPI"),
     # 保存住院医生能查询到的住院人信息
     path('InhospitalAPI/', InhospitalAPI.as_view(), name="InhospitalAPI"),
 

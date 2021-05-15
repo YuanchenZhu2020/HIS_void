@@ -12,7 +12,8 @@ function QueryBLSY(p_no) {
         },
         success: function (data) {
             console.log(data);
-            document.getElementById("HZZS").setAttribute('placeholder', data.HZZS);
+            // document.getElementById("HZZS").setAttribute('placeholder', data.HZZS);
+            document.getElementById("HZZS").value = data.HZZS;
             document.getElementById("ZLQK").setAttribute('placeholder', data.ZLQK);
             document.getElementById("JWBS").setAttribute('placeholder', data.JWBS);
             document.getElementById("GMBS").setAttribute('placeholder', data.GMBS);
