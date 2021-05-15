@@ -16,11 +16,11 @@ admin.site.register(NursingRecord, NursingRecordAdmin)
 
 class HospitalRegistrationAdmin(admin.ModelAdmin):
     list_display = (
-        "registration_info", "region", "bed_id", 
+        "registration_info", "area", "bed_id", 
         "reg_date", "care_level", "duration", 
         "kin_phone", "discharge_status",
     )
-    list_filter = ("registration_info", "region", "bed_id", )
+    list_filter = ("registration_info", "area", "bed_id", )
     search_fields = (
         "registration_info", "bed_id", "reg_date", "care_level", 
         "discharge_status",

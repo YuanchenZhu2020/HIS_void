@@ -4,7 +4,7 @@
         <img class="logo-abbr" src="{% static 'images/logo.png' %}" alt="">
         <img class="brand-title" src="{% static 'images/logo-text-01.png' %}" alt="">
     </a>
-    {% if  request.session.username %}
+    {% if request.session.username %}
         <nav class="navbar navbar-expand">
             <ul class="navbar-nav header-right">
                 <!--

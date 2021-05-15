@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -26,6 +27,24 @@ class InpatientArea(models.Model):
         return "<Inpatient Area {}>".format(self.area_id)
 
 
+class DepartmentManager(models.Manager):
+    use_in_migrations = True
+    
+    def get_by_dept_id(self, ug_id):
+        try:
+            dept = self.get(dept__ug_id = ug_id)
+        except Department.DoesNotExist:
+            dept = None
+        return dept
+    
+    def get_by_dept_name(self, name):
+        try:
+            ug = self.get(dept__name = name)
+        except Department.DoesNotExist:
+            ug = None
+        return ug
+
+   
 class Department(models.Model):
     """
     医院科室和部门。其编号范围为 [1, Inf)
@@ -37,6 +56,8 @@ class Department(models.Model):
         verbose_name = _("科室部门"),
     )
     description = models.TextField(verbose_name = _("简介"))
+
+    objects = DepartmentManager()
 
     class Meta:
         verbose_name = _("科室部门")
@@ -53,6 +74,40 @@ def create_usergroup_department(sender, instance, created, **kwargs):
     else:
         # print(Department.objects.filter(dept__ug_id = instance.ug_id))
         Department.objects.filter(dept__ug_id = instance.ug_id).update(dept = instance)
+
+
+class DeptAreaBed(models.Model):
+    """
+    科室-病区-床位表
+    """
+    dept = models.ForeignKey(
+        Department,
+        on_delete = models.CASCADE,
+        related_name = "dept_set",
+        related_query_name = "depts",
+        verbose_name = _("科室"),
+    )
+    area = models.ForeignKey(
+        InpatientArea,
+        null = True,
+        on_delete = models.SET_NULL,
+        related_name = "area_set",
+        related_query_name = "areas",
+        verbose_name = _("病区"),
+    )
+    bed_id = models.PositiveIntegerField(
+        validators = [MinValueValidator(1),],
+        verbose_name = _("床位号"),
+        help_text = _("指定病区的第 n 个病床。"),
+    )
+
+    class Meta:
+        verbose_name = _("科室-病区-床位")
+        verbose_name_plural = verbose_name
+        unique_together = ["dept", "area", "bed_id"]
+    
+    def __str__(self) -> str:
+        return "<Bed {}-{}-{}>".format(self.dept.dept.name, self.area.area_id, self.bed_id)
 
 
 class Notice(models.Model):

@@ -35,6 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Channels App for WebSocket
+    'channels',
     # Role-Based Access Control
     'rbac',
     # 外部接口
@@ -51,7 +53,8 @@ INSTALLED_APPS = [
     'pharmacy',
     # 检验科
     'laboratory',
-    'channels',
+    # 内部接口
+    'internalapi',
 ]
 
 MIDDLEWARE = [
@@ -98,6 +101,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "laboratory/static"),
     os.path.join(BASE_DIR, "outpatient/static"),
     os.path.join(BASE_DIR, "pharmacy/static"),
+    os.path.join(BASE_DIR, "internalapi/static"),
 )
 
 WSGI_APPLICATION = 'HIS_void.wsgi.application'
