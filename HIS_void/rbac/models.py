@@ -174,10 +174,18 @@ class GroupManager(models.Manager):
         return self.get(ug_id = ug_id, name = name)
     
     def get_by_usergroup_id(self, ug_id):
-        return self.get(ug_id = ug_id)
+        try:
+            ug = self.get(ug_id = ug_id)
+        except UserGroup.DoesNotExist:
+            ug = None
+        return ug
     
     def get_by_usergroup_name(self, name):
-        return self.get(name = name)
+        try:
+            ug = self.get(name = name)
+        except UserGroup.DoesNotExist:
+            ug = None
+        return ug
 
 
 class UserGroup(models.Model):

@@ -27,6 +27,24 @@ class InpatientArea(models.Model):
         return "<Inpatient Area {}>".format(self.area_id)
 
 
+class DepartmentManager(models.Manager):
+    use_in_migrations = True
+    
+    def get_by_dept_id(self, ug_id):
+        try:
+            dept = self.get(dept__ug_id = ug_id)
+        except Department.DoesNotExist:
+            dept = None
+        return dept
+    
+    def get_by_dept_name(self, name):
+        try:
+            ug = self.get(dept__name = name)
+        except Department.DoesNotExist:
+            ug = None
+        return ug
+
+   
 class Department(models.Model):
     """
     医院科室和部门。其编号范围为 [1, Inf)
@@ -38,6 +56,8 @@ class Department(models.Model):
         verbose_name = _("科室部门"),
     )
     description = models.TextField(verbose_name = _("简介"))
+
+    objects = DepartmentManager()
 
     class Meta:
         verbose_name = _("科室部门")
