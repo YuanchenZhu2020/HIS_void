@@ -117,8 +117,8 @@ class Notice(models.Model):
     dept = models.ForeignKey(
         Department,
         on_delete = models.CASCADE,
-        related_name = "notice_set",
-        related_query_name = "notices",
+        related_name = "notice_set_send",
+        related_query_name = "notices_send",
         verbose_name = _("科室部门"),
     )
     send_time = models.DateTimeField(
@@ -130,6 +130,12 @@ class Notice(models.Model):
         null = True,
         blank = True,
         verbose_name = _("通知正文")
+    )
+    target_dept = models.ManyToManyField(
+        Department,
+        related_name = "notice_set_recv",
+        related_query_name = "notices_recv",
+        verbose_name = _("目标科室部门"),
     )
 
     class Meta:

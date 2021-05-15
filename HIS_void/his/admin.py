@@ -46,8 +46,8 @@ admin.site.register(Department, DeptAdmin)
 
 class NoticeAdmin(admin.ModelAdmin):
     list_display = ("dept", "send_time",)
-    list_filter = ("dept", "send_time",)
-    search_fields = ("dept", "send_time", )
+    list_filter = ("dept", "send_time", "target_dept")
+    search_fields = ("dept", "send_time", "target_dept")
 admin.site.register(Notice, NoticeAdmin)
 
 

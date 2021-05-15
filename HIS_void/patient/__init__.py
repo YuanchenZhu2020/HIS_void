@@ -49,6 +49,7 @@ def _get_user_session_key(request):
     return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
 
 def _authenticate(request, username = None, password = None, **kwargs):
+    print("[]", username, password)
     if username is None:
         username = kwargs.get(get_user_model().USERNAME_FIELD)
     if username is None or password is None:
@@ -58,7 +59,7 @@ def _authenticate(request, username = None, password = None, **kwargs):
     except get_user_model().DoesNotExist:
         # Run the default password hasher once to reduce the timing
         # difference between an existing and a nonexistent user (#20760).
-        get_user_model().set_password(password)
+        get_user_model()().set_password(password)
     else:
         if user.check_password(password):
             return user

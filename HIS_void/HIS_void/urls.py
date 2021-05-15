@@ -21,7 +21,7 @@ from his.views import (
 )
 from patient.views import (
     PatientLoginView, PatientRegisterView, ForgotPasswordView, 
-    PatientWorkSpaceView, PatientWorkMyView,
+    PatientWorkSpaceView, PatientRegisterSuccessView,
 )
 from outpatient.views import OutpatientView
 from inpatient.views import NurseView
@@ -43,6 +43,8 @@ urlpatterns = [
     path("login-patient/", PatientLoginView.as_view(), name="login-patient"),
     # 注册页面
     path('register/', PatientRegisterView.as_view(), name="register"),
+    # 注册成功页面
+    path('register-success/', PatientRegisterSuccessView.as_view(), name="register-success"),
     # 找回密码页面
     path('forgot-password/', ForgotPasswordView.as_view(), name="forgot-password"),
     # 登出页面

@@ -33,7 +33,6 @@ class PatientLoginView(View):
             login(request, user)
             # 向 Session 中写入信息
             request.session["patient_id"] = user.get_patient_id()
-            # request.session["is_login"] = True
             # 获取用户权限，写入 session 中
             init_patient_url_permission(request, user)
             # print(request.session["url_key"], request.session["obj_key"])
@@ -58,7 +57,6 @@ class PatientLoginView(View):
 
 class PatientRegisterView(View):
     template_name = "page-register.html"
-    # patient_next_url_name = "login-patient"
     patient_next_url_name = "register-success"
 
     def get(self, request):

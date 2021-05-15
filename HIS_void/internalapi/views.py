@@ -249,8 +249,8 @@ class InspectionAPI(View):
     """
     def get(self, request):
         query_key_to_func = {
-            "InspectingInformation": self.query_,
-            "InspectingPatient": self.query_
+            "InspectingInformation": self.query_inspecting_info,
+            "InspectingPatient": self.query_inspecting_patient
         }
         query_information = request.GET.get('information')
         data = query_key_to_func.get(query_information)(request)
