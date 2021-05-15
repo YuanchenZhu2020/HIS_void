@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.views import View
 
 from his.forms import StaffLoginFrom
+from his.models import DeptAreaBed
 from patient.models import PatientUser
 from rbac.models import UserInfo
 from laboratory.models import TestItemType, TestItem
@@ -57,10 +58,9 @@ class StaffLoginView(View):
             # 向 Session 中写入信息
             request.session["username"] = user.get_username()
             request.session["staff_name"] = user.staff.name
-            request.session["dept_name"] = user.staff.dept.name
+            request.session["dept_id"] = user.staff.dept.dept.ug_id
             request.session["title_name"] = user.staff.title.title_name
             request.session["job_name"] = user.staff.job.job_name
-            # request.session["is_login"] = True
             # 获取用户权限，写入 session 中
             init_permission(request, user)
             # print(request.session["url_key"], request.session["obj_key"])
@@ -136,13 +136,16 @@ class NurseView(View):
     template_name = 'page-nurse-workspace.html'
 
     def get(self, request):
-        data = [
+        inpatient_area_info = [
             {"BQ": "A",
              "CW": [1, 3, 4, 5, 6, 7, 8]},
             {"BQ": "B",
              "CW": [2, 3, 4, 5, 6, 7, 8]},
         ]
-        return render(request, NurseView.template_name, context={'data': data})
+        
+        # DeptAreaBed.objects.filter(dept = request.session["dept_id"])
+        contex = {"inpatient_area_beds": inpatient_area_info}
+        return render(request, NurseView.template_name, context = contex)
 
 
 class InspectionView(View):

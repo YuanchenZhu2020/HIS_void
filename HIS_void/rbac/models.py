@@ -172,6 +172,12 @@ class GroupManager(models.Manager):
 
     def get_by_natural_key(self, ug_id, name):
         return self.get(ug_id = ug_id, name = name)
+    
+    def get_by_usergroup_id(self, ug_id):
+        return self.get(ug_id = ug_id)
+    
+    def get_by_usergroup_name(self, name):
+        return self.get(name = name)
 
 
 class UserGroup(models.Model):
