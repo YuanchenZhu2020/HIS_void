@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 
 from his.views import (
-    IndexView, StaffLoginView, StaffLogoutView,
+    IndexView, StaffLoginView, StaffLogoutView, NewsView,
     ProfileView,
 )
 
@@ -71,6 +71,8 @@ urlpatterns = [
     path('OutpatientAPI/', OutpatientAPI.as_view(), name="OutpatientAPI"),
     # 保存体征记录的各种信息
     path('NurseAPI/', NurseAPI.as_view(), name="NurseAPI"),
+    # 近期新闻
+    path('news/', NewsView.as_view(), name="news"),
 ]
 
 

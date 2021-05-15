@@ -29,6 +29,11 @@
     <!-- Custom Stylesheet -->
     <link href="{% static 'vendor/bootstrap-select/dist/css/bootstrap-select.min.css' %}" rel="stylesheet">
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
+
+
+    <link rel="stylesheet" href="{% static 'vendor/toastr/css/toastr.min.css' %}">
+
+
     <!-- 调整左上角Logo位置 -->
     <style type="text/css">
         body {
@@ -114,6 +119,13 @@
         swal("提交成功", "", "success");
     }
 </script>
+
+<!-- Toastr -->
+<script src="{% static 'vendor/toastr/js/toastr.min.js' %}"></script>
+
+<!-- All init script -->
+<script src="{% static 'js/plugins-init/toastr-init.js' %}"></script>
+
 {% include 'footer.html' %}
 </body>
 </html>

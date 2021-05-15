@@ -134,22 +134,22 @@ function QueryJCJY(p_no) {
 QueryZZHZ()
 QueryDZHZ()
 
-function display_none() {
-    document.getElementById('dv').style.display = 'none';
-    $("#txt").attr("style", '');
-}
-
+// 删除提示框，用于选定药品后或者输入框失去焦点后
 function display_delete() {
-    document.getElementById("box").removeChild(document.getElementById("dv"));
-    $("#txt").attr("style", '');
+    if (document.getElementById("dv")) {
+        document.getElementById("box").removeChild(document.getElementById("dv"));
+        $("#txt").attr("style", '');
+    }
 }
 
+// 通过点击提示框中<li>元素将药品名添加到input中
 function add_name(e) {
     console.log(e)
     document.getElementById('txt').value = e.innerText.trim();
     display_delete();
 }
 
+// 搜索框中查询药品
 function QueryMedicine() {
     $.ajax({
         type: "get",
@@ -160,7 +160,6 @@ function QueryMedicine() {
             information: 'CFKJ'
         },
         success: function (data) {
-            // console.log(data);
             if (data.length > 0) {
                 let keyWords = [];
                 // 获取所有的药品名
@@ -168,9 +167,7 @@ function QueryMedicine() {
                     keyWords[i] = data[i]['name'];
                 }
                 //每次按下抬起时都要先清除一下div以免乜有数据时扔存在div边框
-                if (document.getElementById("dv")) {
-                    display_delete()
-                }
+                display_delete();
                 let txt = document.getElementById('txt');
                 let tempArr = [];//定义临时数组用来存储用户与之相匹配的句子
                 let text = txt.value;//获取用户所输入的文本框内容
@@ -185,9 +182,7 @@ function QueryMedicine() {
                 document.getElementById("box").appendChild(dvObj);
                 dvObj.id = "dv";
                 if (txt.value.length === 0 || tempArr.length === 0) {//当文本框中乜有内容或者临时数组中没有元素是将div进行删除
-                    if (document.getElementById("dv")) {
-                        display_delete();
-                    }
+                    display_delete();
                 } else {
                     document.getElementById('txt').setAttribute("style", "border-radius: 0.7rem 0.7rem 0 0; border-bottom:none");
                     let ulObj = document.createElement("ul");
@@ -219,6 +214,7 @@ function deleteMedicine(e) {
 //删除
     tag.parentNode.removeChild(tag);
     totalPrice();
+
 }
 
 
@@ -241,47 +237,121 @@ function addMedicine(medicine_obj, num) {
 
 // 计算总价
 function totalPrice() {
+    if (document.getElementById("medicine_copy")) {
+        document.getElementById("JEXZ").removeChild(document.getElementById("medicine_copy"));
+        console.log("删除")
+    }
     let total_prices = document.getElementsByName('total_price');
-    console.log(total_prices);
     let total = 0;
     for (let i = 0; i < total_prices.length; i++) {
-        console.log(i);
         total += parseFloat(total_prices[i].innerText);
-        console.log(total_prices[i]);
     }
     $("#medicine_count").text(total);
+    copyMedicine();
 }
 
+// 添加药品按钮，收集药品名和药品数量
 function collect_medicine() {
     $.ajax({
-        type: "get",
-        url: "/OutpatientAPI",
-        dataType: 'json',
-        cache: true,
-        data: {
-            information: 'CFKJ'
-        },
-        success: function (data) {
-            let medicine_name = document.getElementById('txt').value;            // console.log(data);
-            let num = document.getElementById('num').value;            // console.log(data);
-            let medicine;
-            if (data.length > 0) {
-                // 获取所有的药品名
-                for (let i = 0; i < data.length; i++) {
-                    if (data[i]["name"] === medicine_name) {//将用户输入的文本框内容与数组进行比对，输入内容在数组中匹配到，并且开头的值存入临时数组中
-                        addMedicine(data[i], num);
-                        console.log(data[i]);
-                        document.getElementById('txt').value = '';            // console.log(data);
-                        document.getElementById('num').value = '';
-                        return;
+            type: "get",
+            url: "/OutpatientAPI",
+            dataType: 'json',
+            cache: true,
+            data: {
+                information: 'CFKJ'
+            },
+            success: function (data) {
+                let medicine_name = document.getElementById('txt').value;
+                let num = document.getElementById('num').value;
+                let medicine;
+                if (data.length > 0) {
+                    // 获取所有的药品名
+                    for (let i = 0; i < data.length; i++) {
+                        if (data[i]["name"] === medicine_name) {
+                            if ((/(^[1-9]\d*$)/.test(num))) {
+                                addMedicine(data[i], num);
+                                document.getElementById('txt').value = '';
+                                document.getElementById('num').value = '';
+                                return;
+                            } else {
+                                numError();
+                                return;
+                            }
+                        }
                     }
+                    medicineError();
                 }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                // 状态码
+                alert(XMLHttpRequest.status);
             }
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            // 状态码
-            alert(XMLHttpRequest.status);
         }
-    })
+    );
 
+}
+
+
+// 复制检查结果元素
+function copyJCJG() {
+    let ss = $('#inspect_content');
+    let tt = ss.clone(false);
+    $("#MZQZ_id").prepend(tt);
+}
+
+// 复制药品结果到患者账单处
+function copyMedicine() {
+    let ss = $('#medicine_hole');
+    let tt = ss.clone(false);
+    tt.attr('id', 'medicine_copy');
+    if (document.getElementById("medicine_copy")) {
+        document.getElementById("JEXZ").removeChild(document.getElementById("medicine_copy"));
+        console.log("删除")
+    }
+    console.log(tt)
+    $("#JEXZ").prepend(tt);
+}
+
+// 药品数量错误（不是正整数）
+function numError() {
+    toastr.error("请输入正整数", "药品数量无效！", {
+        positionClass: "toast-top-right",
+        timeOut: 5e3,
+        closeButton: !0,
+        debug: !1,
+        newestOnTop: !0,
+        progressBar: !0,
+        preventDuplicates: !0,
+        onclick: null,
+        showDuration: "300",
+        hideDuration: "1000",
+        extendedTimeOut: "1000",
+        showEasing: "swing",
+        hideEasing: "linear",
+        showMethod: "fadeIn",
+        hideMethod: "fadeOut",
+        tapToDismiss: !1
+    })
+}
+
+// 药品名称错误
+function medicineError() {
+    toastr.error("请检查药品名是否正确", "药品不存在！", {
+        positionClass: "toast-top-right",
+        timeOut: 5e3,
+        closeButton: !0,
+        debug: !1,
+        newestOnTop: !0,
+        progressBar: !0,
+        preventDuplicates: !0,
+        onclick: null,
+        showDuration: "300",
+        hideDuration: "1000",
+        extendedTimeOut: "1000",
+        showEasing: "swing",
+        hideEasing: "linear",
+        showMethod: "fadeIn",
+        hideMethod: "fadeOut",
+        tapToDismiss: !1
+    })
 }

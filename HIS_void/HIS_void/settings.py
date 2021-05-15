@@ -174,6 +174,7 @@ SAFE_URL = [
     r"/InspectionAPI/",
     r"/OutpatientAPI/",
     r"/NurseAPI/",
+    r"/news/",
 ]
 
 # setup session engine to improve performance
