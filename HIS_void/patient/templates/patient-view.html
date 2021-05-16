@@ -176,11 +176,11 @@
                                                                 <a href="#week{{ item.name }}{{ date }}"
                                                                    data-toggle="tab"
                                                                    class="nav-link"
-                                                                    onclick="QueryGH('{{ date }}',{{ item.id }})">
-{#                                                                    <script>#}
-{#                                                                        console.log('{{ date }}');#}
-{#                                                                        console.log(123123123);#}
-{#                                                                    </script>#}
+                                                                   onclick="QueryGH('{{ date }}',{{ item.id }})">
+                                                                    {#                                                                    <script>#}
+                                                                    {#                                                                        console.log('{{ date }}');#}
+                                                                    {#                                                                        console.log(123123123);#}
+                                                                    {#                                                                    </script>#}
                                                                     {{ date }}
                                                                 </a>
                                                             </li>
@@ -205,19 +205,19 @@
                                                                             <table class="table table-responsive-md">
                                                                                 <thead>
                                                                                 <tr>
-                                                                                    <th><p><strong>主治医生</strong></p>
+                                                                                    <th><strong>主治医生</strong>
                                                                                     </th>
-                                                                                    <th><p>
+                                                                                    <th>
                                                                                         <strong>上午(9:00-11:00)</strong>
-                                                                                    </p>
+
                                                                                     </th>
-                                                                                    <th><p>
+                                                                                    <th>
                                                                                         <strong>下午(14:00-18:00)</strong>
-                                                                                    </p>
+
                                                                                     </th>
                                                                                 </tr>
                                                                                 </thead>
-                                                                                <tbody id="GH">
+                                                                                <tbody id="{{ item.id }}_{{ date }}">
                                                                                 </tbody>
                                                                             </table>
                                                                         </div>
@@ -275,8 +275,8 @@
                                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span>
                                 </button>
                             </div>
-                            <div class="modal-body">
-                                <p>sectetur et. Donec sed odio</p>
+                            <div id="modal-body" class="modal-body">
+
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-danger light" data-dismiss="modal">取消</button>
@@ -508,7 +508,7 @@
     <script src="{% static 'js/patient-view.js' %}"></script>
 
 {% endblock %}
-         {% comment %}                                                                      <tr>
+{% comment %}                                                                      <tr>
                                                                                     <td>
                                                                                         <button type="button"
                                                                                                 class="btn tp-btn btn-light"
