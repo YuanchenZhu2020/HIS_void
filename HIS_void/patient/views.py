@@ -131,12 +131,12 @@ class PatientWorkSpaceView(View):
 
     def get(self, request):
         print("[Patient Workspace View]", request.user)
-        if request.user.is_authenticated  and isinstance(request.user, PatientUser):
-            context = {"user_type": "patient"}
-            return render(request, PatientWorkSpaceView.template_name, context = context)
-        else:
-            # print(type(request.user))
-            return redirect(reverse(PatientWorkSpaceView.patient_next_url_name))
+        # if request.user.is_authenticated  and isinstance(request.user, PatientUser):
+        #     context = {"user_type": "patient"}
+        #     return render(request, PatientWorkSpaceView.template_name, context = context)
+        # else:
+        #     # print(type(request.user))
+        #     return redirect(reverse(PatientWorkSpaceView.patient_next_url_name))
 
         '''
         需要所有可以用于挂号的科室信息

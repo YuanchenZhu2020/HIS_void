@@ -151,11 +151,6 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    str(Path(BASE_DIR, "his/static")),
-    str(Path(BASE_DIR, "patient/static")),
-)
 
 # Auth user model
 AUTH_USER_MODEL = "rbac.UserInfo"
@@ -187,6 +182,9 @@ SAFE_URL = [
     r"/InspectionAPI/",
     r"/OutpatientAPI/",
     r"/NurseAPI/",
+    r"/patient/",
+    r"/PatientViewAPI/",
+
 ]
 
 # setup session engine to improve performance

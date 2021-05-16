@@ -24,8 +24,7 @@ from his.views import (
 )
 from patient.views import (
     PatientLoginView, PatientRegisterView, ForgotPasswordView,
-    PatientWorkSpaceView, PatientRegisterSuccessView,
-    PatientLoginView, RegisterView, ForgotPasswordView, PatientWorkSpaceView, PatientWorkMyView,
+    PatientWorkSpaceView, PatientRegisterSuccessView,PatientWorkMyView,
 PatientUserAPI,PatientViewAPI,
 )
 from outpatient.views import OutpatientView

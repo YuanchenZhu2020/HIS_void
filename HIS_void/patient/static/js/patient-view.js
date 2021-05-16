@@ -103,5 +103,5 @@ function registration(department_id, regis_date, regis_AM_PM, doctor_id) {
     let doctor_id_input = $("<input>");
     doctor_id_input.attr('name', 'doctor_id');
     doctor_id_input.attr('value', doctor_id);
-    regis_form.submit();s
+    regis_form.submit();
 }
