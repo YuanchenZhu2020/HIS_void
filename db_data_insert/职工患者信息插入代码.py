@@ -29,16 +29,30 @@ for item in sheet.col_values(2,1):
 
 
 #  职工信息插入代码
-from rbac.models import UserInfo
+from rbac.models import UserInfo, UserGroup
+from his.models import JobType, HospitalTitle, Department
 import xlrd
 
-data = xlrd.open_workbook(r'./db_data_insert/职工信息.xlsx')
+data = xlrd.open_workbook(r'./db_data_insert/职工信息.xls')
 sheet = data.sheet_by_index(0)
 sid = sheet.col_values(0,1)
-staff_lis = []
+name = sheet.col_values(1,1)
+gender = sheet.col_values(2,1)
+idnum = sheet.col_values(3,1)
+jobtype = sheet.col_values(4,1)
+title = sheet.col_values(5,1)
+dept = sheet.col_values(6,1)
 
-for item in sid:
-   ui =  UserInfo.objects.create(username = item)
-   ui.set_password('123456')
-   
-
+for i in range(len(sid)):
+    ui =  UserInfo.objects.create(username = sid[i])
+    ui.set_password('123456')
+    ui.save()
+    staff = ui.staff
+    staff.name = str(name[i])
+    staff.gender = int(gender[i])
+    staff.id_num = str(idnum[i])
+    staff.dept = Department.objects.get_by_dept_id(int(dept[i]))
+    if title[i] != '':
+        staff.title = HospitalTitle.objects.get_by_title_id(int(title[i]))
+    staff.job = JobType.objects.get_by_job_id(jobtype[i])
+    staff.save()

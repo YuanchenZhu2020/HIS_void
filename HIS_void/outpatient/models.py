@@ -73,7 +73,6 @@ class RegistrationInfo(models.Model):
         verbose_name = _("患者")
     )
     reg_id = models.PositiveIntegerField(
-        unique = True, 
         verbose_name = _("患者挂号编号"),
         help_text = _("该患者此生挂的第n个号")
     )
@@ -85,13 +84,15 @@ class RegistrationInfo(models.Model):
         related_query_name = "registrations",
         verbose_name = _("医生"),
     )
-    appointment_date = models.DateField(
+    appointment_date = models.DateTimeField(
         auto_created = True,
         editable = False,
-        verbose_name = _("预约时间")
+        verbose_name = _("预约时间"),
+        help_text = _("通过网页预约挂号的时间"),
     )
     registration_date = models.DateTimeField(
-        verbose_name = _("挂号时间")
+        verbose_name = _("挂号时间"),
+        help_text = _("预约就诊的时间"),
     )
     reg_class = models.IntegerField(
         choices = RCLASS_ITEMS, 

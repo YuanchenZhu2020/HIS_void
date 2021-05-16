@@ -151,7 +151,7 @@ class OperationInfo(models.Model):
         blank = True,
         verbose_name = _("手术结果")
     )
-    operation_duration = models.TimeField(
+    operation_duration = models.PositiveBigIntegerField(
         null = True,
         blank = True,
         verbose_name = _("手术持续时间"),
