@@ -30,7 +30,7 @@ class RemainingRegistration(models.Model):
     """
     医生剩余挂号数
     """
-    medical_staff = models.OneToOneField(
+    medical_staff = models.ForeignKey(
         Staff, 
         on_delete = models.CASCADE, 
         related_name = "remaining_registration_set",
@@ -41,7 +41,6 @@ class RemainingRegistration(models.Model):
         verbose_name = _("挂号日期"),
     )
     remain_quantity = models.PositiveIntegerField(
-        blank = True,
         verbose_name = _("当日剩余挂号数")
     )
 
