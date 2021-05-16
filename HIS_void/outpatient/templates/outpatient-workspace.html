@@ -1,0 +1,452 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}门诊医生工作台{% endblock %}
+{% block body-context %}
+    <script>
+        let JCJY = '<div class="card">\
+<div class="card-header border-0 pb-0">\
+<h5 class="card-title">检查结果</h5>\
+</div>\
+<div class="card-body">\
+<p class="card-text">He lay on his armour-like back, and if\
+he\
+lifted his head a little he could see his brown\
+belly, slightly domed and divided by arches into stiff\
+<br>\
+sections. The bedding was hardly able to cover\
+it and seemed ready to\
+slide off any moment.\
+</p>\
+</div>\
+<div class="card-footer border-0 pt-0">\
+<p class="card-text d-inline">Card footer</p>\
+<a href="javascript:void()" class="card-link float-right">Card\
+link</a>\
+</div>\
+</div>'
+
+    </script>
+    {# 两侧留白较小的容器 #}
+    <div class="container-fluid">
+        {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病历首页，检查检验等 #}
+        <div class="row">
+            <div class="col-md-12 align-content-center">
+                <div class="page-titles mb-2 mt-0">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url "profile" %}">profile</a></li>
+                        <li class="breadcrumb-item active"><a href="{% url "outpatient-workspace" %}">outpatient</a>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+            {# 第一列宽度为3，用于放置诊中患者信息和待诊患者信息 #}
+            <div class="col-md-3">
+                {# 诊中患者信息 #}
+                <div class="container">
+
+                    <div class="card">{# 我目前只会使用card（卡片）布局 #}
+                        {# 设置卡片头 #}
+                        <div class="card-header">诊中患者</div>
+                        {# 固定卡片大小，使得患者过多时可以滚动 #}
+                        <div style="overflow-x: auto; overflow-y: auto; height: 250px; ">
+                            {# 设置诊中患者表（试一试就知道了 #}
+                            <table class="table table-hover small text-center">
+                                <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>状态</th>
+                                </tr>
+                                </thead>
+                                <tbody id="ZZHZ">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {# 待诊患者信息 #}
+                <div class="container">
+                    <div class="card">
+                        <div class="card-header">待诊患者</div>
+                        <div style="overflow-x: auto; overflow-y: auto; height: 300px; ">
+                            <table class="table table-hover small text-center">
+                                <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>紧急程度</th>
+                                </tr>
+                                </thead>
+                                <tbody id="DZHZ"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {# 第二列的宽度为9，用于放置分页表格（病历首页、检查检验等） #}
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-body">
+                        {# 这里时当前患者的信息，放在了最上面 #}
+                        <div class="basic-form">
+                            <form>
+                                <div class="form-row justify-content-center">
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">会诊号</span>
+                                            </div>
+                                            <input type="text" id="no" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">姓名</span>
+                                            </div>
+                                            <input type="text" id="name" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">性别</span>
+                                            </div>
+                                            <input type="text" id="gender" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">年龄</span>
+                                            </div>
+                                            <input type="text" id="age" class="form-control" readonly>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        {# 分页导航栏列表，用于放置分页按钮 #}
+                        <div class="default-tab">
+                            <ul class="nav nav-tabs justify-content-center" role="tablist">
+                                {# 病历首页按钮 #}
+                                <li class="nav-item">
+                                    <a id="BLSY_a" href="#bing_li_shou_ye" class="nav-link active" data-toggle="tab"
+                                       aria-expanded="false">病历首页</a>
+                                </li>
+                                {# 检查检验按钮 #}
+                                <li class="nav-item">
+                                    <a id="JCJY_a" href="#jian_cha_jian_yan" class="nav-link" data-toggle="tab"
+                                       aria-expanded="false">检查检验</a>
+                                </li>
+                                {# 门诊确诊按钮 #}
+                                <li class="nav-item">
+                                    <a href="#men_zhen_que_zhen" class="nav-link" data-toggle="tab"
+                                       aria-expanded="true">门诊确诊</a>
+                                </li>
+                                {# 处方开具按钮 #}
+                                <li class="nav-item">
+                                    <a href="#chu_fang_kai_ju" class="nav-link" data-toggle="tab"
+                                       aria-expanded="true">处方开具</a>
+                                </li>
+                                {# 手术申请按钮 #}
+                                <li class="nav-item">
+                                    <a href="#shou_shu_shen_qing" class="nav-link" data-toggle="tab"
+                                       aria-expanded="true">手术申请</a>
+                                </li>
+                                {# 患者账单按钮 #}
+                                <li class="nav-item">
+                                    <a href="#huan_zhe_zhang_dan" class="nav-link" data-toggle="tab"
+                                       aria-expanded="true">患者账单</a>
+                                </li>
+                            </ul>
+                            {# 分页页面内容 #}
+                            <div class="tab-content">
+                                {# 病历首页页面信息，第一次进入页面默认显示这个 #}
+                                <div id="bing_li_shou_ye" class="tab-pane fade show active">
+                                    <div class="card-body">
+                                        <div class="basic-form">
+                                            <form action="#">
+                                                <div class="input-group input-group-lg mb-3">
+                                                    <label class="col-md-1.5 col-form-label text-right">患者主诉： </label>
+                                                    <textarea id="HZZS" type="text" class="form-control"></textarea>
+                                                </div>
+                                                <div class="input-group input-group-lg mb-3">
+                                                    <label class="col-md-1.5 col-form-label text-right">治疗情况：
+                                                    </label> <textarea id="ZLQK" type="text" class="form-control"
+                                                                       readonly></textarea>
+                                                </div>
+                                                <div class="input-group input-group-lg mb-3">
+                                                    <label class="col-md-1.5 col-form-label text-right">既往病史：
+                                                    </label> <textarea id="JWBS" type="text" class="form-control"
+                                                                       readonly
+                                                ></textarea>
+                                                </div>
+                                                <div class="input-group input-group-lg mb-3">
+                                                    <label class="col-md-1.5 col-form-label text-right">过敏病史：
+                                                    </label> <textarea id="GMBS" type="text" class="form-control"
+                                                                       readonly></textarea>
+                                                </div>
+                                                <div class="input-group input-group-lg mb-3">
+                                                    <label class="col-md-1.5 col-form-label text-right">体格检查：
+                                                    </label> <textarea id="TGJC" type="text" class="form-control"
+                                                                       readonly></textarea>
+                                                </div>
+                                                <div class="input-group input-group-lg mb-3">
+                                                    <label class="col-md-1.5 col-form-label text-right">发病时间：
+                                                    </label> <textarea id="FBSJ" type="text"
+                                                                       class="form-control"
+                                                                       readonly></textarea>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {# 检查检验页面信息 #}
+                                <div id="jian_cha_jian_yan" class="tab-pane fade">
+                                    <div class="card-body">
+                                        {# 检验表单 #}
+                                        <div class="basic-form">
+                                            <form action="{% url 'OutpatientAPI' %}" method="POST">
+                                                {% csrf_token %}
+                                                {% for item in TestItems %}
+                                                    <div class="form-group">
+                                                        <div class="input-group input-group-sm mb-3">
+                                                            <label class="col-md-1.5 col-form-label text-right">{{ item.name }}：</label>
+                                                            <select class="form-control form-control-lg">
+                                                                name='{{ forloop.counter }}'>
+                                                                <option>无</option>
+                                                                {% for content in item.content %}
+                                                                    <option>{{ content }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                                <div class="col-md-12 text-right">
+                                                    <button type="submit" onclick="submitAlert()"
+                                                            class="form-group btn btn-outline-primary btn-sm">
+                                                        提交检验
+                                                    </button>
+                                                </div>
+
+                                            </form>
+                                            <div class="card">
+                                                <div class="card-header border-0 pb-0">
+                                                    <h5 class="card-title">检查结果</h5>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="card-text">He lay on his armour-like back, and if
+                                                        he
+                                                        lifted his head a little he could see his brown
+                                                        belly, slightly domed and divided by arches into stiff
+                                                        <br>
+                                                        sections. The bedding was hardly able to cover
+                                                        it and seemed ready to
+                                                        slide off any moment.
+                                                    </p>
+                                                </div>
+                                                <div class="card-footer border-0 pt-0">
+                                                    <p class="card-text d-inline">Card footer</p>
+                                                    <a href="javascript:void(0)" class="card-link float-right">Card
+                                                        link</a>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                {# 门诊确诊页面信息 #}
+                                <div id="men_zhen_que_zhen" class="tab-pane fade">
+                                    <div class="container">
+                                        <div class="card-body">
+                                            <div class="basic-form">
+                                                <form action="{% url 'OutpatientAPI' %}" method="post">
+                                                    {% csrf_token %}
+                                                    <div class="input-group mb-3">
+                                                        <textarea class="form-control" rows="18" name="MZQZ"
+                                                                  placeholder="请输入您的判断"></textarea>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <div class="text-right">
+                                                            <button type="submit" onclick="submitAlert()"
+                                                                    class="form-group btn btn-outline-primary btn-bg">
+                                                                提 交
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                {# 处方开具页面信息 #}
+                                <div id="chu_fang_kai_ju" class="tab-pane fade">
+                                    <div class="card-body">
+                                        <div class="card">
+                                            <button type="button" class="btn btn-primary" onclick="addMedicine(
+                                                {
+                                                'name': '布洛芬',
+                                                'price': 38,
+                                                'no': 1
+                                            }, 2
+                                            )">测试药品1插入
+                                            </button>
+                                            <button type="button" class="btn btn-primary" onclick="addMedicine(
+                                                {
+                                                'name': '褪黑素',
+                                                'price': 32,
+                                                'no': 2
+                                            }, 2
+                                            )">测试药品2插入
+                                            </button>
+                                            <div class="card-header">
+                                                <h4 class="card-title">已选药品</h4>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
+                                                        <thead>
+                                                        <tr>
+                                                            <th scope="col">药品名</th>
+                                                            <th scope="col">数量</th>
+                                                            <th scope="col">单价</th>
+                                                            <th scope="col">总价</th>
+                                                            <th scope="col" style="width: 75px">编辑</th>
+                                                        </tr>
+                                                        </thead>
+                                                        <tbody id="medicine_body"></tbody>
+                                                        <tfoot>
+                                                        <tr>
+                                                            <th>合计</th>
+                                                            <th></th>
+                                                            <th></th>
+                                                            <th id="medicine_count"></th>
+                                                            <th></th>
+                                                        </tr>
+                                                        </tfoot>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                {# 手术申请页面信息 #}
+                                <div id="shou_shu_shen_qing" class="tab-pane fade">
+                                    <div class="container">
+                                        <div class="card-body">
+                                            <div class="basic-form">
+                                                <form action="#">
+                                                    手术申请页面未完成
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {# 患者账单页面信息 #}
+                                <div id="huan_zhe_zhang_dan" class="tab-pane fade">
+                                    <div class="container">
+                                        <div class="card-body">
+                                            <div class="basic-form">
+                                                <form action="#">
+                                                    <div class="card">
+                                                        <div class="card-header border-0 pb-0">
+                                                            <h5 class="card-title">金额细则</h5>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-hover small">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>药品名</th>
+                                                                        <th>单价</th>
+                                                                        <th>数量</th>
+                                                                        <th>总价</th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    <tr>
+                                                                        <td>Kolor Tea Shirt For Man</td>
+                                                                        <td><span
+                                                                                class="badge badge-primary light">Sale</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Kolor Tea Shirt For Women</td>
+                                                                        <td><span
+                                                                                class="badge badge-success">Tax</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Blue Backpack For Baby</td>
+                                                                        <td><span
+                                                                                class="badge badge-danger light">Extended</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-body">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-hover small">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>检查项目</th>
+                                                                        <th>金额</th>
+                                                                        <th>数量</th>
+                                                                        <th>总价</th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                    <tr>
+                                                                        <td>Kolor Tea Shirt For Man</td>
+                                                                        <td><span
+                                                                                class="badge badge-primary light">Sale</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Kolor Tea Shirt For Women</td>
+                                                                        <td><span
+                                                                                class="badge badge-success">Tax</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    <tr>
+                                                                        <td>Blue Backpack For Baby</td>
+                                                                        <td><span
+                                                                                class="badge badge-danger light">Extended</span>
+                                                                        </td>
+                                                                    </tr>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-footer border-0 pt-0">
+                                                            <p class="card-text d-inline">Card footer</p>
+                                                            <a href="javascript:void(0)"
+                                                               class="card-link float-right">Card
+                                                                link</a>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/outpatient_query.js' %}"></script>
+
+{% endblock %}

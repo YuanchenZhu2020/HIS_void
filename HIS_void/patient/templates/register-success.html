@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}注册账号信息{% endblock %}
+{% block body-context %}
+<div class="container h-100">
+    <div class="row justify-content-center h-100 align-items-center">
+        <div class="col-md-6">
+            <div class="row no-gutters">
+                <div class="col-xl-12">
+                    <div class="account-info">
+                        <h3 class="text-center text-black mb-4">您的账户信息</h3>
+                        <div class="card overflow-hidden">
+                            <div class="text-center p-3 overlay-box "
+                                style="background-image: url(images/big/img1.jpg);">
+                                <!-- <div class="profile-photo">
+                                    <img src="images/profile/profile.png" width="100" class="img-fluid rounded-circle"
+                                        alt="">
+                                </div> -->
+                                <h3 class="mt-3 mb-1 text-white">{{ account_info.姓名 }}</h3>
+                                <p class="text-white mb-0">患者</p>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                {% for name, value in account_info.items %}
+                                <li class="list-group-item d-flex justify-content-between">
+                                    <span class="mb-0">{{ name }}</span>
+                                    <strong class="text-muted">{{ value }}</strong>
+                                </li>
+                                {% endfor %}
+                                <li class="list-group-item d-flex justify-content-between active">
+                                    <span class="mb-0">您的登录名</span>
+                                    <strong>{{ login_name }}</strong>
+                                </li>
+                            </ul>
+                            <div class="card-footer border-0 mt-0">
+                                <div class="custom-control custom-checkbox mt-2 mb-4">
+                                    <input type="checkbox" class="custom-control-input" id="basic_checkbox_1"
+                                        onclick="confirm_account();">
+                                    <label class="custom-control-label" for="basic_checkbox_1">
+                                        我已保存好账户登录信息
+                                    </label>
+                                </div>
+                                <a href="{% url 'login-patient' %}">
+                                    <button class="btn btn-primary btn-lg btn-block" id="confirm_account_btn" disabled>
+                                        确认
+                                    </button>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

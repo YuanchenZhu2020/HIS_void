@@ -9,6 +9,7 @@ from django.views import View
 from his.forms import StaffLoginFrom
 from patient.models import PatientUser
 from rbac.models import UserInfo
+from laboratory.models import TestItemType, TestItem
 from rbac.server.init_permission import init_permission
 
 
@@ -55,7 +56,10 @@ class StaffLoginView(View):
             login(request, user)
             # 向 Session 中写入信息
             request.session["username"] = user.get_username()
-            # request.session["is_login"] = True
+            request.session["staff_name"] = user.staff.name
+            request.session["dept_id"] = user.staff.dept.ug_id
+            request.session["title_name"] = user.staff.title.title_name
+            request.session["job_name"] = user.staff.job.job_name
             # 获取用户权限，写入 session 中
             init_permission(request, user)
             # print(request.session["url_key"], request.session["obj_key"])
@@ -92,7 +96,7 @@ class ProfileView(View):
     def get(self, request):
         # print("[Session]", request.session)
         if request.user.is_authenticated and isinstance(request.user, UserInfo):
-            return render(request, ProfileView.template_name, locals())
+            return render(request, ProfileView.template_name)
         else:
             return redirect(reverse("index"))
 

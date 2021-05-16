@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from .models import PatientURLPermission, PatientUser
 from externalapi.external_api import IDInfoQuery
 
+
 class PatientUserCreationForm(forms.ModelForm):
     """
     Admin 中，患者创建新用户所需要的全部字段。包括密码重复输入字段。

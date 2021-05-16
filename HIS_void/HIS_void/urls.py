@@ -20,14 +20,24 @@ from his.views import (
     IndexView, StaffLoginView, StaffLogoutView,
     ProfileView, OutpatientView, NurseView, InspectionView,HospitalDoctorView, InspectionAPI, OutpatientAPI,
     NurseAPI,InhospitalAPI,
+    IndexView, StaffLoginView, StaffLogoutView, ProfileView,
 )
 from patient.views import (
+    PatientLoginView, PatientRegisterView, ForgotPasswordView,
+    PatientWorkSpaceView, PatientRegisterSuccessView,
     PatientLoginView, RegisterView, ForgotPasswordView, PatientWorkSpaceView, PatientWorkMyView,
 PatientUserAPI,PatientViewAPI,
 )
+from outpatient.views import OutpatientView
+from inpatient.views import NurseView
+from laboratory.views import InspectionView
+from internalapi.views import NurseAPI, OutpatientAPI, InspectionAPI
+
+from rbac.management import create_urlpermissions
+
 
 urlpatterns = [
-    path('', IndexView.as_view(), name=''),
+    path('', IndexView.as_view(), name='index-alias'),
     # 管理员
     path('admin/', admin.site.urls),
     # 主页
@@ -37,7 +47,9 @@ urlpatterns = [
     # 患者登录页面
     path("login-patient/", PatientLoginView.as_view(), name="login-patient"),
     # 注册页面
-    path('register/', RegisterView.as_view(), name="register"),
+    path('register/', PatientRegisterView.as_view(), name="register"),
+    # 注册成功页面
+    path('register-success/', PatientRegisterSuccessView.as_view(), name="register-success"),
     # 找回密码页面
     path('forgot-password/', ForgotPasswordView.as_view(), name="forgot-password"),
     # 登出页面
@@ -72,3 +84,11 @@ urlpatterns = [
 
 
 ]
+
+
+# 每次执行 makemigrations, migrate, runserver 等命令时会执行以下过程，
+# 用于及时更新 urlpatterns 的更改，更新 URL 访问权限记录。
+from django.apps import apps as global_apps
+
+app_config = global_apps.get_app_config("rbac")
+create_urlpermissions(app_config)

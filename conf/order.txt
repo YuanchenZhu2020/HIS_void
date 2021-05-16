@@ -1,0 +1,2 @@
+gunicorn -c ../conf/gunicorn.conf.py HIS_void.wsgi:application
+nginx -t
