@@ -364,3 +364,5 @@ function medicineError() {
         tapToDismiss: !1
     })
 }
+
+copyJCJG()
