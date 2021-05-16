@@ -46,11 +46,11 @@ admin.site.register(OperationInfo, OperationInfoAdmin)
 
 class NarcoticInfoAdmin(admin.ModelAdmin):
     list_display = (
-        "operation_info", "medicin_info", "medical_staff", 
+        "operation_info", "medicine_info", "medical_staff", 
     )
-    list_filter = ("operation_info", "medicin_info", "medical_staff", )
+    list_filter = ("operation_info", "medicine_info", "medical_staff", )
     search_fields = (
-        "operation_info", "medicin_info", "medical_staff", 
+        "operation_info", "medicine_info", "medical_staff", 
     )
 
 admin.site.register(NarcoticInfo, NarcoticInfoAdmin)

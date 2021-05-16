@@ -184,7 +184,7 @@ class NarcoticInfo(models.Model):
         related_query_name = "narcotics",
         verbose_name = _("手术信息"),
     )
-    medicin_info = models.ForeignKey(
+    medicine_info = models.ForeignKey(
         MedicineInfo, 
         null = True,
         on_delete = models.SET_NULL, 

@@ -170,7 +170,7 @@ class PrescriptionDetail(models.Model):
         related_query_name = "prescription_details",
         verbose_name = _("处方"),
     )
-    detail_id = models.PositiveIntegerField(unique = True, verbose_name = _("细节编号"))
+    detail_id = models.PositiveIntegerField(verbose_name = _("细节编号"))
 
     medicine_info = models.ForeignKey(
         MedicineInfo, 

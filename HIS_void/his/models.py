@@ -302,7 +302,7 @@ class DutyRoster(models.Model):
         (7, '星期日'),
     ]
 
-    medical_staff = models.OneToOneField(
+    medical_staff = models.ForeignKey(
         Staff,
         on_delete = models.CASCADE,
         related_name = "duty_roster_set",
