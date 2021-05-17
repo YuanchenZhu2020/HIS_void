@@ -1,6 +1,5 @@
 from django import forms
 from django.conf import settings
-# from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 

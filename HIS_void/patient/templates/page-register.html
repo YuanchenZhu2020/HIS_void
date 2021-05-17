@@ -1,4 +1,4 @@
-{% extends '../../templates/base.html' %}
+{% extends 'base.html' %}
 {% block title %}注册{% endblock %}
 {% block body-context %}
     <div class="authincation h-100">
@@ -10,7 +10,6 @@
                             <div class="col-xl-12">
                                 <div class="auth-form">
                                     <h4 class="text-center mb-4">注册您的账户</h4>
-                                    {# cation='#'似乎是提交到当前页 #}
                                     <form action="#" method="POST">
                                     {% csrf_token %}
                                         {% if error_message %}

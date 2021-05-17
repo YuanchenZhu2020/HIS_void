@@ -161,24 +161,28 @@ PERMISSION_OBJ_KEY = "obj_key"
 # PERMISSION_MENU_KEY = "menu_key"
 
 SAFE_URL = [
-    r"/index/",
-    r"/login-staff/",
-    r"/login-patient/",
-    r"/logout/",
-    r"/register/",
-    r"/forgot-password/",
-    r"/admin/.*",
-    r"/profile/",
-    r"/patient/",
-    r"/patient-user/",
-    r"/nurse-workspace/",
-    r"/outpatient-workspace/",
-    r"/inspection-workspace/",
-    r"/register-success/",
-    r"/InspectionAPI/",
-    r"/OutpatientAPI/",
-    r"/NurseAPI/",
+    r"/index/",  # 主页
+    r"/login-staff/",  # 职工登录
+    r"/login-patient/",  # 医生登录
+    r"/logout/",  # 注销
+    r"/register/",  # 注册
+    r"/register-success/",  # 注册成功页面
+    r"/forgot-password/",  # 忘记密码
+    r"/admin/.*",  # 后台管理？
+    r"/profile/",  # 医生主页
+    r"/patient/",  # 病人主页
+    r"/patient-details/",  # 病人详细页面
+    r"/nurse-workspace/",  # 护士工作台
+    r"/outpatient-workspace/",  # 门诊医生工作台
+    r"/inpatient-workspace/",  # 住院医生工作台
+    r"/inspection-workspace/",  # 检验医生工作台
+    r"/InspectionAPI/",  # 检验医生数据API
+    r"/OutpatientAPI/",  # 门诊医生数据API
+    r"/NurseAPI/",  # 护士医生数据API
+    r"/PatientViewAPI/",  # 病人数据API
+    r"/InpatientAPI/",  # 住院医生数据API
     r"/news/",
+
 ]
 
 # setup session engine to improve performance

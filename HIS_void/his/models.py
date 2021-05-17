@@ -117,8 +117,8 @@ class Notice(models.Model):
     dept = models.ForeignKey(
         Department,
         on_delete = models.CASCADE,
-        related_name = "notice_set",
-        related_query_name = "notices",
+        related_name = "notice_set_send",
+        related_query_name = "notices_send",
         verbose_name = _("科室部门"),
     )
     send_time = models.DateTimeField(
@@ -131,6 +131,12 @@ class Notice(models.Model):
         blank = True,
         verbose_name = _("通知正文")
     )
+    target_dept = models.ManyToManyField(
+        Department,
+        related_name = "notice_set_recv",
+        related_query_name = "notices_recv",
+        verbose_name = _("目标科室部门"),
+    )
 
     class Meta:
         verbose_name = _("部门通知")
@@ -139,6 +145,24 @@ class Notice(models.Model):
 
     def __str__(self) -> str:
         return "<通知 {} | {}>".format(self.dept.dept.name, self.send_time)
+
+
+class HospitalTitleManager(models.Manager):
+    use_in_migrations = True
+
+    def get_by_title_id(self, title_id):
+        try:
+            ht = self.get(title_id = title_id)
+        except HospitalTitle.DoesNotExist:
+            ht = None
+        return ht
+    
+    def get_by_title_name(self, title_name):
+        try:
+            ht = self.get(title_name = title_name)
+        except HospitalTitle.DoesNotExist:
+            ht = None
+        return ht
 
 
 class HospitalTitle(models.Model):
@@ -154,12 +178,32 @@ class HospitalTitle(models.Model):
     title_id = models.BigAutoField(primary_key = True, verbose_name = _("职称ID"))
     title_name = models.CharField(max_length = 20, verbose_name = _("职称名称"))
 
+    objects = HospitalTitleManager()
+
     class Meta:
         verbose_name = _("医院职称")
         verbose_name_plural = verbose_name
 
     def __str__(self) -> str:
         return "<Title {}-{}>".format(self.title_id, self.title_name)
+
+
+class JobTypeManager(models.Manager):
+    use_in_migrations = True
+
+    def get_by_job_id(self, job_id):
+        try:
+            jt = self.get(job_id = job_id)
+        except JobType.DoesNotExist:
+            jt = None
+        return jt
+    
+    def get_by_job_name(self, job_name):
+        try:
+            jt = self.get(job_name = job_name)
+        except JobType.DoesNotExist:
+            jt = None
+        return jt
 
 
 class JobType(models.Model):
@@ -177,6 +221,8 @@ class JobType(models.Model):
     """
     job_id = models.BigAutoField(primary_key = True, verbose_name = _("工种编号"))
     job_name = models.CharField(max_length = 20, verbose_name = _("工种名称"))
+
+    objects = JobTypeManager()
 
     class Meta:
         verbose_name = _("工种")
@@ -207,7 +253,7 @@ class Staff(models.Model):
     gender  = models.IntegerField(choices = SEX_ITEMS, default = 2, verbose_name = _("性别"))
     id_num  = models.CharField(max_length = 18, verbose_name = _("身份证号"))
     dept    = models.ForeignKey(
-        UserGroup,
+        Department,
         null = True,
         on_delete = models.SET_NULL,
         verbose_name = _("科室部门")
@@ -256,7 +302,7 @@ class DutyRoster(models.Model):
         (7, '星期日'),
     ]
 
-    medical_staff = models.OneToOneField(
+    medical_staff = models.ForeignKey(
         Staff,
         on_delete = models.CASCADE,
         related_name = "duty_roster_set",

@@ -131,7 +131,7 @@ class OperationInfo(models.Model):
         on_delete = models.CASCADE, 
         verbose_name = _("挂号信息"),
     )
-    opration_id = models.PositiveIntegerField(
+    operation_id = models.PositiveIntegerField(
         verbose_name = _("手术编号"),
         help_text = _("局部编号：每个医生-患者之间进行的第几场手术"),
     )
@@ -151,7 +151,7 @@ class OperationInfo(models.Model):
         blank = True,
         verbose_name = _("手术结果")
     )
-    operation_duration = models.TimeField(
+    operation_duration = models.PositiveBigIntegerField(
         null = True,
         blank = True,
         verbose_name = _("手术持续时间"),
@@ -166,7 +166,7 @@ class OperationInfo(models.Model):
     class Meta:
         verbose_name = _("手术信息")
         verbose_name_plural = verbose_name
-        unique_together = ["registration_info", "opration_id"]
+        unique_together = ["registration_info", "operation_id"]
     
     def __str__(self) -> str:
         return "<Operation {}-{}>".format(self.registration_info, self.opration_id)
@@ -184,7 +184,7 @@ class NarcoticInfo(models.Model):
         related_query_name = "narcotics",
         verbose_name = _("手术信息"),
     )
-    medicin_info = models.ForeignKey(
+    medicine_info = models.ForeignKey(
         MedicineInfo, 
         null = True,
         on_delete = models.SET_NULL, 
