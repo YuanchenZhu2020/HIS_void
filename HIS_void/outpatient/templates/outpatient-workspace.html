@@ -2,30 +2,8 @@
 {% load static %}
 {% block title %}门诊医生工作台{% endblock %}
 {% block body-context %}
-    <script>
-        let JCJY = '<div class="card">\
-<div class="card-header border-0 pb-0">\
-<h5 class="card-title">检查结果</h5>\
-</div>\
-<div class="card-body">\
-<p class="card-text">He lay on his armour-like back, and if\
-he\
-lifted his head a little he could see his brown\
-belly, slightly domed and divided by arches into stiff\
-<br>\
-sections. The bedding was hardly able to cover\
-it and seemed ready to\
-slide off any moment.\
-</p>\
-</div>\
-<div class="card-footer border-0 pt-0">\
-<p class="card-text d-inline">Card footer</p>\
-<a href="javascript:void()" class="card-link float-right">Card\
-link</a>\
-</div>\
-</div>'
+    <link rel="stylesheet" type="text/css" href="{% static 'css/outpatient.css' %}">
 
-    </script>
     {# 两侧留白较小的容器 #}
     <div class="container-fluid">
         {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病历首页，检查检验等 #}
@@ -231,25 +209,13 @@ link</a>\
                                                 </div>
 
                                             </form>
-                                            <div class="card">
+                                            <div class="container" id="inspect_content">
                                                 <div class="card-header border-0 pb-0">
                                                     <h5 class="card-title">检查结果</h5>
                                                 </div>
                                                 <div class="card-body">
-                                                    <p class="card-text">He lay on his armour-like back, and if
-                                                        he
-                                                        lifted his head a little he could see his brown
-                                                        belly, slightly domed and divided by arches into stiff
-                                                        <br>
-                                                        sections. The bedding was hardly able to cover
-                                                        it and seemed ready to
-                                                        slide off any moment.
+                                                    <p class="card-text">检查结果信息
                                                     </p>
-                                                </div>
-                                                <div class="card-footer border-0 pt-0">
-                                                    <p class="card-text d-inline">Card footer</p>
-                                                    <a href="javascript:void(0)" class="card-link float-right">Card
-                                                        link</a>
                                                 </div>
                                             </div>
 
@@ -261,12 +227,12 @@ link</a>\
                                 {# 门诊确诊页面信息 #}
                                 <div id="men_zhen_que_zhen" class="tab-pane fade">
                                     <div class="container">
-                                        <div class="card-body">
+                                        <div class="card-body" id="MZQZ_id">
                                             <div class="basic-form">
                                                 <form action="{% url 'OutpatientAPI' %}" method="post">
                                                     {% csrf_token %}
                                                     <div class="input-group mb-3">
-                                                        <textarea class="form-control" rows="18" name="MZQZ"
+                                                        <textarea class="form-control" rows="8" name="MZQZ"
                                                                   placeholder="请输入您的判断"></textarea>
                                                     </div>
                                                     <div class="form-group">
@@ -287,56 +253,46 @@ link</a>\
                                 {# 处方开具页面信息 #}
                                 <div id="chu_fang_kai_ju" class="tab-pane fade">
                                     <div class="card-body">
-                                        <div class="card">
-                                            <button type="button" class="btn btn-primary" onclick="addMedicine(
-                                                {
-                                                'name': '布洛芬',
-                                                'price': 38,
-                                                'no': 1
-                                            }, 2
-                                            )">测试药品1插入
-                                            </button>
-                                            <button type="button" class="btn btn-primary" onclick="addMedicine(
-                                                {
-                                                'name': '褪黑素',
-                                                'price': 32,
-                                                'no': 2
-                                            }, 2
-                                            )">测试药品2插入
-                                            </button>
-                                            <div class="card-header">
-                                                <h4 class="card-title">已选药品</h4>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
-                                                        <thead>
-                                                        <tr>
-                                                            <th scope="col">药品名</th>
-                                                            <th scope="col">数量</th>
-                                                            <th scope="col">单价</th>
-                                                            <th scope="col">总价</th>
-                                                            <th scope="col" style="width: 75px">编辑</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody id="medicine_body"></tbody>
-                                                        <tfoot>
-                                                        <tr>
-                                                            <th>合计</th>
-                                                            <th></th>
-                                                            <th></th>
-                                                            <th id="medicine_count"></th>
-                                                            <th></th>
-                                                        </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
-                                            </div>
+                                        <div class="row">
+                                            <div class="offset-3 col-md-2 mt-2"><h5>药品名</h5></div>
+                                            <div class="offset-1 col-md-6 mt-2"><h5>数量</h5></div>
                                         </div>
-
+                                        <div id="box" class="row mb-0">
+                                            <input class="form-control col-md-4 offset-2" type="text" name=""
+                                                   id="txt" onblur="setTimeout(display_delete, 5000)"
+                                                   onkeyup="QueryMedicine()"/>
+                                            &nbsp;<input class="form-control col-md-1" type="text" name=""
+                                                         id="num"/>
+                                            &nbsp;<button class="btn btn-outline-primary col-md-1.5"
+                                                          onclick="collect_medicine()" id="btn">添加
+                                        </button>
+                                        </div>
+                                        <div class="table-responsive" id="medicine_hole">
+                                            <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
+                                                <thead>
+                                                <tr>
+                                                    <th scope="col">药品名</th>
+                                                    <th scope="col">数量</th>
+                                                    <th scope="col">单价</th>
+                                                    <th scope="col">总价</th>
+                                                    <th scope="col" style="width: 75px">编辑</th>
+                                                </tr>
+                                                </thead>
+                                                <tbody id="medicine_body"></tbody>
+                                                <tfoot>
+                                                <tr>
+                                                    <th>合计</th>
+                                                    <th></th>
+                                                    <th></th>
+                                                    <th id="medicine_count"></th>
+                                                    <th></th>
+                                                </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
                                     </div>
+                                    {#                                    </div>#}
                                 </div>
-
                                 {# 手术申请页面信息 #}
                                 <div id="shou_shu_shen_qing" class="tab-pane fade">
                                     <div class="container">
@@ -349,7 +305,6 @@ link</a>\
                                         </div>
                                     </div>
                                 </div>
-
                                 {# 患者账单页面信息 #}
                                 <div id="huan_zhe_zhang_dan" class="tab-pane fade">
                                     <div class="container">
@@ -360,39 +315,7 @@ link</a>\
                                                         <div class="card-header border-0 pb-0">
                                                             <h5 class="card-title">金额细则</h5>
                                                         </div>
-                                                        <div class="card-body">
-                                                            <div class="table-responsive">
-                                                                <table class="table table-hover small">
-                                                                    <thead>
-                                                                    <tr>
-                                                                        <th>药品名</th>
-                                                                        <th>单价</th>
-                                                                        <th>数量</th>
-                                                                        <th>总价</th>
-                                                                    </tr>
-                                                                    </thead>
-                                                                    <tbody>
-                                                                    <tr>
-                                                                        <td>Kolor Tea Shirt For Man</td>
-                                                                        <td><span
-                                                                                class="badge badge-primary light">Sale</span>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>Kolor Tea Shirt For Women</td>
-                                                                        <td><span
-                                                                                class="badge badge-success">Tax</span>
-                                                                        </td>
-                                                                    </tr>
-                                                                    <tr>
-                                                                        <td>Blue Backpack For Baby</td>
-                                                                        <td><span
-                                                                                class="badge badge-danger light">Extended</span>
-                                                                        </td>
-                                                                    </tr>
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
+                                                        <div class="card-body" id="JEXZ">
                                                         </div>
                                                         <div class="card-body">
                                                             <div class="table-responsive">

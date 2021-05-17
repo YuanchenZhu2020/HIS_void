@@ -18,10 +18,15 @@ from django.urls import path
 
 from his.views import (
     HospitalDoctorView, InhospitalAPI, IndexView, StaffLoginView, StaffLogoutView, ProfileView,
+    IndexView, StaffLoginView, StaffLogoutView, ProfileView,
+    IndexView, StaffLoginView, StaffLogoutView, NewsView,
+    ProfileView,
 )
 from patient.views import (
     PatientLoginView, PatientRegisterView, ForgotPasswordView,
     PatientView, PatientRegisterSuccessView, PatientDetailsView,
+    PatientLoginView, PatientRegisterView, ForgotPasswordView,
+    PatientWorkSpaceView, PatientWorkMyView,
 )
 from outpatient.views import OutpatientView
 from inpatient.views import NurseView
@@ -74,6 +79,9 @@ urlpatterns = [
     path('PatientViewAPI/', PatientViewAPI.as_view(), name="PatientViewAPI"),
     # 保存住院医生能查询到的住院人信息
     path('InhospitalAPI/', InhospitalAPI.as_view(), name="InhospitalAPI"),
+    # 近期新闻
+    path('news/', NewsView.as_view(), name="news"),
+]
 
 ]
 

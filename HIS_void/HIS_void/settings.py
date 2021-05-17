@@ -148,10 +148,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
-
-
 # Auth user model
 AUTH_USER_MODEL = "rbac.UserInfo"
 # Auth backends
@@ -183,6 +179,7 @@ SAFE_URL = [
     r"/OutpatientAPI/",  # 门诊医生数据API
     r"/NurseAPI/",  # 护士医生数据API
     r"/PatientViewAPI/",  # 病人数据API
+    r"/news/",
 
 ]
 
