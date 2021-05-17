@@ -1,3 +1,5 @@
+// 门诊医生的数据，可能是用来做参考的，先注释掉，后期再删除
+/*
 function QueryBLSY(p_no) {
     let URL = '/OutpatientAPI';
 
@@ -28,10 +30,11 @@ function QueryBLSY(p_no) {
         },
     })
 }
+*/
 
 // 查询诊中患者
 function QueryZZHZ() {
-    let URL = '/InhospitalAPI';
+    let URL = '/InpatientAPI';
     console.log(URL);
     $.ajax({
         type: "get",

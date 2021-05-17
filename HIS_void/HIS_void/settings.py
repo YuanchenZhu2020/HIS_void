@@ -174,11 +174,13 @@ SAFE_URL = [
     r"/patient-details/",  # 病人详细页面
     r"/nurse-workspace/",  # 护士工作台
     r"/outpatient-workspace/",  # 门诊医生工作台
+    r"/inpatient-workspace/",  # 住院医生工作台
     r"/inspection-workspace/",  # 检验医生工作台
     r"/InspectionAPI/",  # 检验医生数据API
     r"/OutpatientAPI/",  # 门诊医生数据API
     r"/NurseAPI/",  # 护士医生数据API
     r"/PatientViewAPI/",  # 病人数据API
+    r"/InpatientAPI/",  # 住院医生数据API
     r"/news/",
 
 ]
