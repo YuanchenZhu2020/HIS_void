@@ -1,10 +1,13 @@
 -- SQLite
 -- 检验项目类型
-insert into laboratory_testitemtype values (1,'临床检查'),(2,'生物化学'),(3,'微生物学'),(4,'寄生虫学'),(5,'风湿免疫');
+insert into laboratory_testitemtype 
+(inspect_type_id, inspect_type_name) values 
+    (1,'临床检查'),(2,'生物化学'),(3,'微生物学'),(4,'寄生虫学'),(5,'风湿免疫');
 -- 病区
 insert into his_inpatientarea values ('A'), ('B'), ('C');
 -- RBAC.UserGroup
-insert into rbac_usergroup values 
+insert into rbac_usergroup 
+(ug_id, name, create_time) values 
     (1, '内科', '2021-05-10 11:12:59'),(2, '外科', '2021-05-10 11:12:59'),
     (3, '儿科', '2021-05-10 11:12:59'),(4, '妇科', '2021-05-10 11:12:59'),
     (5, '眼科', '2021-05-10 11:12:59'),(6, '耳鼻喉科', '2021-05-10 11:12:59'),
@@ -13,17 +16,24 @@ insert into rbac_usergroup values
     (11, '药房', '2021-05-10 11:12:59'),(12, '财务', '2021-05-10 11:12:59'),
     (13, '信息部', '2021-05-10 11:12:59');
 -- 职称
-insert into his_hospitaltitle values 
+insert into his_hospitaltitle 
+(title_id, title_name) values 
     (1, '住院医师'),(2, '主治医师'),(3, '副主任医师'),(4, '主任医师');
 -- 工种
-insert into his_jobtype values 
+insert into his_jobtype 
+(job_id, job_name) values 
     (1, '医生'),(2, '护士'),(3, '药房医生'),(4, '检验医生'),(5, '财务'),(6, '运维');
 -- 设备类型
-insert into laboratory_equipmenttypeinfo values
+insert into laboratory_equipmenttypeinfo 
+(eq_type_id, eq_type_name) values
     (1,'X射线诊断设备'),(2,'超声诊断设备'),(3,'生化检验设备'),(4,'核医学设备'),(5,'病理诊断设备');
 -- 药品信息
 -- 药品编号, 药品名称, 含量规格, 包装规格, 成本价, 零售价, 库存数量, 保质期, 特殊标识, OTC
-insert into pharmacy_medicineinfo values
+insert into pharmacy_medicineinfo 
+(
+    medicine_id, medicine_name, content_spec, package_spec, 
+    cost_price, retail_price, stock_num, shelf_day, special, OTC
+) values
     ('A00001', '金嗓子喉片', '2g*20s', '盒', 4.00, 4.20, 0, 200, 0, 0),
     ('A00002', '硝酸咪康唑乳膏(达克宁)', '20g', '支', 12.15, 12.76, 0, 360, 0, 1),
     ('A00003', '感冒灵颗粒', '10g*9袋', '盒', 7.80, 8.19, 0, 180, 0, 0),

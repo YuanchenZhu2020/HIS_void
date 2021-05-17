@@ -1,15 +1,18 @@
 -- SQLite
 -- 科室部门 reference UserGroup
-insert into his_department values
+insert into his_department 
+(dept_id, description) values
     (1,''),(2,''),(3,''),(4,''),(5,''),(6,''),
     (7,''),(8,''),(9,''),(10,''),(11,''),(12,''),
     (13,'');
 -- 职称-挂号数reference职称
-insert into outpatient_titleregisternumber values
+insert into outpatient_titleregisternumber 
+(title_id, register_number) values
     (1,120),(2,80),(3,60),(4,40);
 -- 科室-病区-床位reference科室部门,病区
 -- 字段顺序：编号, 床位号, 病区, 科室
-insert into his_deptareabed values
+insert into his_deptareabed 
+(id, bed_id, area_id, dept_id) values
     (1,1,'A',1),(2,2,'A',1),(3,3,'A',1),(4,4,'A',1),(5,5,'A',1),(6,6,'A',1),(7,7,'A',1),
     (8,1,'B',1),(9,2,'B',1),(10,3,'B',1),(11,4,'B',1),(12,5,'B',1),(13,6,'B',1),
     (14,1,'C',1),(15,2,'C',1),(16,3,'C',1),(17,4,'C',1),(18,5,'C',1),
@@ -36,7 +39,8 @@ insert into his_deptareabed values
     (112,1,'C',8),(113,2,'C',8);
 -- 排班表
 -- 排班记录编号,工作日,病区,医务人员工号
-insert into his_dutyroster values
+insert into his_dutyroster 
+(id, working_day, duty_area_id, medical_staff_id) values
     (1,1,null,000004),
     (2,2,null,000005),
     (3,3,null,000006),
@@ -82,7 +86,11 @@ insert into his_dutyroster values
 
 -- 设备信息 reference 设备类型
 -- DB字段顺序：采购日期, 设备全局编号, 设备型号, 启用日期, 理论使用寿命（正整数）, 设备类型id
-insert into laboratory_equipmentinfo values 
+insert into laboratory_equipmentinfo 
+(
+    purchase_date, equipment_id, equipment_model, 
+    start_using, lifetime, equipment_type_id
+) values 
     ('2020-12-01', 1, 'Xray-BJ202101', '2021-01-01', 5, 1), 
     ('2020-12-01', 2, 'Xray-BJ202102', '2021-01-01', 5, 1), 
     ('2021-02-01', 3, 'Xray-BJ202101', '2021-02-15', 5, 1), 
@@ -125,7 +133,8 @@ insert into laboratory_equipmentinfo values
 -- 字符串：`\(([0-9]*, )([0-9]*, )([^,()]*)`, `$1$2'$3'`
 -- DB字段顺序：记录编号, 项目名称, 价格, 类型编号
 -- 调换顺序：`\(([0-9]*), ([0-9]*), ([^,()]*), ([0-9.]*)`, `($1, $3, $4, $2`
-insert into laboratory_testitem values
+insert into laboratory_testitem 
+(inspect_id, inspect_name, inspect_price, inspect_type_id) values
     (1, '血压测量', 5.47, 1), 
     (2, '心率测量', 5.03, 1), 
     (3, '心肺听诊', 10.05, 1), 
@@ -234,7 +243,11 @@ insert into laboratory_testitem values
     (106, '骨髓穿刺涂片', 83.09, 4);
 -- 开具时间,患者检验记录编号,检验序号,检验结果,缴费状态,责任人工号,挂号记录编号,检验项目编号
 -- ([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}),([0-9]*),([0-9]*),(".*"),([0-9]*),([0-9]{6}),([0-9]*),([0-9]*)
-insert into laboratory_patienttestitem values 
+insert into laboratory_patienttestitem 
+(
+    issue_time, id, test_id, test_results, payment_status,
+    handle_staff_id, registration_info_id, test_item_id 
+) values 
     ('2021-05-19 13:22:19',1,1,"CA-125 -",0,'000022',4,69),
     ('2021-05-22 13:26:54',2,1,"高色素性RBC着色深",0,'000022',7,94),
     ('2021-05-19 09:35:32',3,1,"N空泡性改变",0,'000016',9,52),
@@ -281,7 +294,8 @@ insert into laboratory_patienttestitem values
 -- 药品编号字符串：`(A[0-9]{5})`, `'$1'`
 -- DB字段顺序：记录编号, 批次编号, 药品采购日期, 药品采购数量, 药品编号
 -- 调换顺序：`(\([0-9]*), ('[A-Z][0-9]{5}'), ([0-9]*), ([0-9-]*), ([0-9]*)`, `$1, $3, $5, $2, $4`
-insert into pharmacy_medicinepurchase values
+insert into pharmacy_medicinepurchase 
+(id, batch_num, purchase_date, purchase_quantity, medicine_info_id) values
     (1, 1, '2021-04-04', 200, 'A00453'),
     (2, 1, '2021-12-01', 600, 'A00161'),
     (3, 1, '2018-02-24', 300, 'A00351'),
@@ -1281,3 +1295,5 @@ insert into pharmacy_medicinepurchase values
     (997, 3, '2021-11-24', 300, 'A00576'),
     (998, 3, '2021-12-02', 300, 'A00501'),
     (999, 3, '2021-08-09', 200, 'A00307');
+
+-- 

@@ -31,13 +31,13 @@ admin.site.register(HospitalRegistration, HospitalRegistrationAdmin)
 
 class OperationInfoAdmin(admin.ModelAdmin):
     list_display = (
-        "registration_info", "opration_id", "operation_level", 
+        "registration_info", "operation_id", "operation_level", 
         "operation_date", "operation_name", "operation_result", 
         "operation_duration", "operation_recover", "payment_status",
     )
-    list_filter = ("registration_info", "opration_id", "operation_level", )
+    list_filter = ("registration_info", "operation_id", "operation_level", )
     search_fields = (
-        "registration_info", "opration_id", "operation_level", 
+        "registration_info", "operation_id", "operation_level", 
         "payment_status",
     )
 
