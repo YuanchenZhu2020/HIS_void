@@ -175,7 +175,7 @@ SAFE_URL = [
     r"/admin/.*",  # 后台管理？
     r"/profile/",  # 医生主页
     r"/patient/",  # 病人主页
-    r"/patient-details/"  # 病人详细页面,
+    r"/patient-details/",  # 病人详细页面
     r"/nurse-workspace/",  # 护士工作台
     r"/outpatient-workspace/",  # 门诊医生工作台
     r"/inspection-workspace/",  # 检验医生工作台

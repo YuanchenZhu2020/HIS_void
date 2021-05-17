@@ -80,7 +80,7 @@ function registration_confirm(department_id, department_name, date, AM_PM, docto
     // console.log(AM_PM);
     // console.log(doctorInfo);
     let regis_time;
-    if (AM_PM === "PM") regis_time = "上午";
+    if (AM_PM === "AM") regis_time = "上午";
     else regis_time = "下午";
     $("#modal-body").empty();
     let note = '<strong>' + date + regis_time + ' ' + department_name + " " + doctor_name + "医生" + '</strong>';

@@ -7,6 +7,10 @@ from django.views import View
 
 from his.models import Department, DeptAreaBed
 from inpatient.models import HospitalRegistration
+import time
+from django.db import transaction
+
+from outpatient import models
 
 
 class OutpatientAPI(View):
@@ -303,6 +307,13 @@ class InspectionAPI(View):
 
 
 class PatientViewAPI(View):
+
+    # def query_registration_info(self):
+    #     with transaction.atomic():
+    #         # 在with代码块中写事务操作
+    #         time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    #         models.RemainingRegistration.objects.filter(id=1).update(F('kucun') - 1, F('maichu') + 1)
+
     def get(self, request):
         # 获取需要查询的信息类型
         query_information = request.GET.get('information')
