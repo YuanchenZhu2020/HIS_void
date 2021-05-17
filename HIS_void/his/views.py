@@ -91,7 +91,7 @@ class StaffLogoutView(View):
 
 
 class ProfileView(View):
-    template_name = 'page-profile.html'
+    template_name = 'profile.html'
 
     def get(self, request):
         # print("[Session]", request.session)
@@ -105,3 +105,11 @@ class ProfileView(View):
 
         print("````````````````````````````````````````````````")
         print(post_dict)
+
+
+class NewsView(View):
+    template_name = 'news.html'
+
+    def get(self, request):
+        print("~~~~~~~~~~~~~~~~~~~~~~~\n" * 10)
+        return render(request, NewsView.template_name)

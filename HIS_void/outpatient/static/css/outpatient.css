@@ -1,0 +1,40 @@
+#box {
+    height: 56px;
+    overflow: visible;
+    z-index: 9999999;
+}
+
+#txt {
+    padding: 0 20px;
+}
+
+#dv {
+    background-color: white;
+    padding: 0;
+}
+
+#dv ul {
+    border-radius: 0 0 0.7rem 0.7rem;
+    border-color: #20c997;
+}
+
+#dv li {
+    padding: 0;
+    background: transparent;
+}
+
+#dv ul li:hover {
+    background: #36C95F;
+    color: white;
+}
+
+#box input {
+    height: 30px;
+}
+
+#box button {
+    height: 30px;
+    font-size: small;
+    padding-bottom: 10px;
+    padding-top: 5px;
+}

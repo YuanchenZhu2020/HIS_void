@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
-{% block title %}门诊医生工作台{% endblock %}
+{% block title %}检查检验工作台{% endblock %}
 {% block body-context %}
 
 
@@ -214,7 +214,7 @@
                                     <div class="basic-form">
                                         <form action="{% url 'InspectionAPI' %}" method="POST">
                                             {% csrf_token %}
-                                            <div class="card">
+{#                                            <div class="card">#}
                                                 <div class="card-header">
                                                     <h6 id="BGSCId"></h6>
                                                 </div>
@@ -224,7 +224,7 @@
                                                              style="width: max-content">
                                                     </div>
                                                 </div>
-                                            </div>
+{#                                            </div>#}
                                             <div class="input-group mt-3 mb-3">
                                                 <textarea name="PDXX" class="form-control"
                                                           rows="6" placeholder="请输入您的判断"></textarea>
