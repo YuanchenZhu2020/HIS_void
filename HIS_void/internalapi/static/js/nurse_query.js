@@ -82,7 +82,7 @@ function QueryWaitingPatients() {
                 let td = '<td>' + patient.name + '</td>';
                 let p_no = patient.p_no
                 console.log(p_no)
-                let tr = $("<tr onclick='QueryRYDJ(this.p_no)'></tr>");
+                let tr = $("<tr onclick='QueryRegisterPatient(this.p_no)'></tr>");
                 tr.append(td);
                 $("#WaitingPatients").append(tr);
             }
@@ -95,7 +95,7 @@ function QueryWaitingPatients() {
 }
 
 // 患者入院登记基础信息查询
-function QueryRegisterPatient(p_no) {
+function QueryRegisterPatient(patient_id) {
     let URL = '/NurseAPI';
 
     console.log(URL);/** */
@@ -108,6 +108,7 @@ function QueryRegisterPatient(p_no) {
             information: 'REGISTER_QUERY'
         },
         success: function (data) {
+            console.log("入院登记QueryPegisterPatient函数")
             console.log(data);
             document.getElementById("no").setAttribute('placeholder', data.no);
             document.getElementById("name").setAttribute('placeholder', data.name);

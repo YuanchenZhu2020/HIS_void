@@ -7,12 +7,17 @@ from django.views import View
 
 from his.models import Department, DeptAreaBed
 from inpatient.models import HospitalRegistration
+import time
+from django.db import transaction
+
+from outpatient import models
 
 
 class OutpatientAPI(View):
     """
     门诊医生工作台数据查询API
     """
+
     def get(self, request):
         query_key_to_func = {
             # 病历首页信息查询
@@ -119,6 +124,7 @@ class NurseAPI(View):
     """
     护士工作站数据查询API
     """
+
     def get(self, request):
         query_key_to_func = {
             # 医嘱处理信息查询
@@ -132,11 +138,11 @@ class NurseAPI(View):
             # 空床位查询
             "BED_QUERY": self.query_empty_beds
         }
-        
+
         # 获取需要查询的信息类型
         query_information = request.GET.get('information')
         data = query_key_to_func.get(query_information)(request)
-        return JsonResponse(data, safe = False)
+        return JsonResponse(data, safe=False)
 
     def query_medical_advice_process(self, request):
         patient_id = request.GET.get('patient_id')
@@ -215,10 +221,10 @@ class NurseAPI(View):
         inpatient_area_info = []
         nurse_dept = Department.objects.get_by_dept_id(request.session["dept_id"])
         area_beds = DeptAreaBed.objects.filter(
-            dept = nurse_dept
+            dept=nurse_dept
         ).values_list("area", "bed_id")
         used_beds = HospitalRegistration.objects.filter(
-            dept = nurse_dept
+            dept=nurse_dept
         ).values_list("area", "bed_id")
         empty_beds = set(area_beds) - set(used_beds)
         areas = sorted(list(dict(empty_beds).keys()))
@@ -247,6 +253,7 @@ class InspectionAPI(View):
     """
     检中患者数据查询API
     """
+
     def get(self, request):
         query_key_to_func = {
             "InspectingInformation": self.query_inspecting_info,
@@ -297,3 +304,107 @@ class InspectionAPI(View):
         print("================================")
         sleep(1)
         return redirect(reverse("inspection-workspace"))
+
+
+class PatientViewAPI(View):
+
+    # def query_registration_info(self):
+    #     with transaction.atomic():
+    #         # 在with代码块中写事务操作
+    #         time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    #         models.RemainingRegistration.objects.filter(id=1).update(F('kucun') - 1, F('maichu') + 1)
+
+    def get(self, request):
+        # 获取需要查询的信息类型
+        query_information = request.GET.get('information')
+        data = {}
+        # 挂号信息查询
+        if query_information == "GH":
+            date = request.GET.get('date')
+            KS_id = request.GET.get('KS_id')
+            print("--------------------")
+            print(date)
+            print(KS_id)
+            print("--------------------")
+            # 查询出date那天，KS_id科室所有的医生以及医生的剩余名额
+            data = [{
+                "doctor_id": "999",
+                "doctor_name": "lisa",
+                "AM": 3,
+                "PM": 4,
+            }, {
+                "doctor_id": "888",
+                "doctor_name": "YYY",
+                "AM": 7,
+                "PM": 8,
+            }, ]
+
+        # 检查详情查询
+        elif query_information == "JCXQ":
+            pass
+
+        elif query_information == "XXXX":
+            pass
+
+        return JsonResponse(data, safe=False)
+
+
+# 病人基础信息API，用于医生获取病人基础数据
+class PatientUserAPI(View):
+    def get(self, request):
+        # 获取需要查询的信息类型
+        query_information = request.GET.get('information')
+        data = {}
+        # 确诊详情信息查询
+        if query_information == "QZXQ":
+            quezhen_no = request.GET.get('p_no')
+            print("--------------------")
+            print(quezhen_no)
+            print("--------------------")
+            # 给出能给的尽量多的信息就行，以下只是示例
+            data = {
+                "no": 114514,
+                "name": "CCC",
+                "gender": "男",
+                "age": 18,
+                "HZZS": "患者主诉文本",
+                "TGJC": "体格检查文本",
+                "FBSJ": "发病事件文本",
+                "QZ": "确诊文本",
+            }
+
+        # 检查详情查询
+        elif query_information == "JCXQ":
+            pass
+
+        elif query_information == "XXXX":
+            pass
+
+        return JsonResponse(data, safe=False)
+
+
+# 住院医生工作台数据
+class InpatientAPI(View):
+    def get(self, request):
+        # 获取需要查询的信息类型
+        query_information = request.GET.get('information')
+
+        #
+        if query_information == "ZZHZ":
+            p_no = request.GET.get('p_no')
+            print(p_no)
+            # 数据库查询语句
+            data = [{
+                "p_no": 114514,
+                "name": "发多冲",
+                "bed": 123,
+            }, {
+                "p_no": 11343,
+                "name": "肖大赛",
+                "bed": 543,
+            }, {
+                "p_no": 114424,
+                "name": "阿凡达",
+                "bed": 64,
+            }]
+        return JsonResponse(data, safe=False)
