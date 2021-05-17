@@ -23,7 +23,7 @@
                             <br/><br/>
                             <div class="card">
                                 <div class="card-header border-0 pb-0">
-                                    <a type="button" href="{% url 'patient-user' %}"
+                                    <a type="button" href="{% url 'patient' %}"
                                        class="btn tp-btn btn-primary fs-20 font-w600">我的主页
                                     </a>
                                 </div>
@@ -270,7 +270,7 @@
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">是否确定挂号</h5>
+                                <h5 class="modal-title">是否挂号？</h5>
                                 <button type="button" class="close" data-dismiss="modal"><span>&times;</span>
                                 </button>
                             </div>
@@ -504,7 +504,7 @@
     </div>
 
     </body>
-    <script src="{% static 'js/patient-view.js' %}"></script>
+    <script src="{% static 'js/patient_query.js' %}"></script>
 
 {% endblock %}
 {% comment %}

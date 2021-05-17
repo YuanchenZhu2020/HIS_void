@@ -8,9 +8,10 @@ from patient.forms import PatientLoginForm, PatientRegisterForm
 from patient.models import PatientUser
 from externalapi.external_api import IDInfoQuery
 
+
 class PatientLoginView(View):
     template_name = "page-login.html"
-    patient_next_url_name = "patient-user"
+    patient_next_url_name = "patient"
 
     def get(self, request):
         if request.user.is_authenticated:
@@ -22,7 +23,7 @@ class PatientLoginView(View):
 
     def post(self, request):
         # 通过 PatientLoginForm.clean() 方法进行多种验证
-        login_info = PatientLoginForm(data = request.POST)
+        login_info = PatientLoginForm(data=request.POST)
         # 验证成功
         if login_info.is_valid():
             # 获取用户对象和是否保持登录的标识
@@ -61,10 +62,10 @@ class PatientRegisterView(View):
     def get(self, request):
         registerform = PatientRegisterForm()
         context = {"registerform": registerform}
-        return render(request, PatientRegisterView.template_name, context = context)
+        return render(request, PatientRegisterView.template_name, context=context)
 
     def post(self, request):
-        register_info = PatientRegisterForm(data = request.POST)
+        register_info = PatientRegisterForm(data=request.POST)
         # 表单数据验证成功
         if register_info.is_valid():
             # print(register_info.__dict__)
@@ -73,15 +74,15 @@ class PatientRegisterView(View):
             id_number = data.get("id_number")
             phone = data.get("phone")
             user_reg = PatientUser.objects.filter(
-                id_type = id_type,
-                id_number = id_number
+                id_type=id_type,
+                id_number=id_number
             ).first()
             # 没有找到注册用户（即能够注册）
             if not user_reg:
                 user = PatientUser(
-                    id_type = id_type,
-                    id_number = id_number,
-                    phone = phone
+                    id_type=id_type,
+                    id_number=id_number,
+                    phone=phone
                 )
                 user.set_password(data.get("password1"))
                 id_info_query = IDInfoQuery(user.id_number)
@@ -115,6 +116,7 @@ class PatientRegisterView(View):
         }
         return render(request, PatientRegisterView.template_name, context)
 
+
 class ForgotPasswordView(View):
     template_name = "page-forgot-password.html"
 
@@ -125,18 +127,19 @@ class ForgotPasswordView(View):
         pass
         return render(request, ForgotPasswordView.template_name)
 
-class PatientWorkSpaceView(View):
-    template_name = "patient-view.html"
+
+class PatientView(View):
+    template_name = "patient.html"
     patient_next_url_name = "index"
 
     def get(self, request):
         print("[Patient Workspace View]", request.user)
         # if request.user.is_authenticated  and isinstance(request.user, PatientUser):
         #     context = {"user_type": "patient"}
-        #     return render(request, PatientWorkSpaceView.template_name, context = context)
+        #     return render(request, PatientView.template_name, context = context)
         # else:
         #     # print(type(request.user))
-        #     return redirect(reverse(PatientWorkSpaceView.patient_next_url_name))
+        #     return redirect(reverse(PatientView.patient_next_url_name))
 
         '''
         需要所有可以用于挂号的科室信息
@@ -147,70 +150,54 @@ class PatientWorkSpaceView(View):
         }, {
             "id": "2",  # 挂号的序号
             "name": "呼吸科",
-        },{
+        }, {
             "id": "3",  # 挂号的序号
             "name": "小儿科",
-        },{
+        }, {
             "id": "4",  # 挂号的序号
             "name": "牙科",
-        },{
+        }, {
             "id": "5",  # 挂号的序号
             "name": "精神科",
-        },{
+        }, {
             "id": "6",  # 挂号的序号
             "name": "外科",
-        },]
+        }, ]
 
         '''
         需要可选的所有挂号日期
         '''
-        ALTDates = ["5-15","5-16",'5-17','5-18','5-19','5-20','5-21']
-        return render(request, PatientWorkSpaceView.template_name, locals())
+        ALTDates = ["5-15", "5-16", '5-17', '5-18', '5-19', '5-20', '5-21']
+        return render(request, PatientView.template_name, locals())
         # print("[Patient Workspace View]", request.user)
         # if request.user.is_authenticated and isinstance(request.user, PatientUser):
         #     context = {"user_type": "patient"}
-        #     return render(request, PatientWorkSpaceView.template_name, context=context)
+        #     return render(request, PatientView.template_name, context=context)
         # else:
         #     # print(type(request.user))
-        #     return redirect(reverse(PatientWorkSpaceView.patient_next_url_name))
+        #     return redirect(reverse(PatientView.patient_next_url_name))
 
-class PatientViewAPI(View):
+
+class PatientRegisterSuccessView(View):
+    template_name = "register-success.html"
+
     def get(self, request):
-        # 获取需要查询的信息类型
-        query_information = request.GET.get('information')
-        data = {}
-        # 挂号信息查询
-        if query_information == "GH":
-            date = request.GET.get('date')
-            KS_id = request.GET.get('KS_id')
-            print("--------------------")
-            print(date)
-            print(KS_id)
-            print("--------------------")
-            # 查询出date那天，KS_id科室所有的医生以及医生的剩余名额
-            data = [{
-                "doctor_id": "999",
-                "doctor_name": "lisa",
-                "AM": 3,
-                "PM": 4,
-            }, {
-                "doctor_id": "888",
-                "doctor_name": "YYY",
-                "AM": 7,
-                "PM": 8,
-            }, ]
+        account_info = request.session.get("register_user_info")
+        login_name = None
+        if account_info:
+            login_name = str(account_info["就诊号"]).rjust(6, '0')
+        context = {
+            "account_info": account_info,
+            "login_name": login_name
+        }
+        # 清除 session 中的账户信息
+        if context["account_info"]:
+            del request.session["register_user_info"]
+        return render(request, PatientRegisterSuccessView.template_name, context=context)
 
-        # 检查详情查询
-        elif query_information == "JCXQ":
-            pass
 
-        elif query_information == "XXXX":
-            pass
-
-        return JsonResponse(data, safe=False)
-
-class PatientWorkMyView(View):
-    template_name = "patient-user.html"
+class PatientDetailsView(View):
+    template_name = "patient-details.html"
 
     def get(self, request):
         user_type = {"user_type": "patient"}  # 这个是用来干嘛的
@@ -287,54 +274,4 @@ class PatientWorkMyView(View):
         }, ]
 
         # 登录人个人信息
-        return render(request, PatientWorkMyView.template_name, locals())
-
-class PatientUserAPI(View):
-    def get(self, request):
-        # 获取需要查询的信息类型
-        query_information = request.GET.get('information')
-        data = {}
-        # 确诊详情信息查询
-        if query_information == "QZXQ":
-            quezhen_no = request.GET.get('p_no')
-            print("--------------------")
-            print(quezhen_no)
-            print("--------------------")
-            # 给出能给的尽量多的信息就行，以下只是示例
-            data = {
-                "no": 114514,
-                "name": "CCC",
-                "gender": "男",
-                "age": 18,
-                "HZZS": "患者主诉文本",
-                "TGJC": "体格检查文本",
-                "FBSJ": "发病事件文本",
-                "QZ": "确诊文本",
-            }
-
-        # 检查详情查询
-        elif query_information == "JCXQ":
-            pass
-
-        elif query_information == "XXXX":
-            pass
-
-        return JsonResponse(data, safe=False)
-
-
-class PatientRegisterSuccessView(View):
-    template_name = "register-success.html"
-
-    def get(self, request):
-        account_info = request.session.get("register_user_info")
-        login_name = None
-        if account_info:
-            login_name = str(account_info["就诊号"]).rjust(6, '0')
-        context = {
-            "account_info": account_info,
-            "login_name": login_name
-        }
-        # 清除 session 中的账户信息
-        if context["account_info"]:
-            del request.session["register_user_info"]
-        return render(request, PatientRegisterSuccessView.template_name, context = context)
+        return render(request, PatientDetailsView.template_name, locals())
