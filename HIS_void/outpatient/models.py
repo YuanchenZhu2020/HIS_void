@@ -37,8 +37,8 @@ class RemainingRegistration(models.Model):
         related_query_name = "remaining_registrations",
         verbose_name = _("剩余挂号数"),
     )
-    register_date = models.DateField(
-        verbose_name = _("挂号日期"),
+    register_date = models.DateTimeField(
+        verbose_name = _("挂号时间"),
     )
     remain_quantity = models.PositiveIntegerField(
         verbose_name = _("当日剩余挂号数")

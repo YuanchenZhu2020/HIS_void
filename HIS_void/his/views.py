@@ -56,7 +56,7 @@ class StaffLoginView(View):
             login(request, user)
             # 向 Session 中写入信息
             request.session["username"] = user.get_username()
-            request.session["staff_name"] = user.staff.name
+            request.session["name"] = user.staff.name
             request.session["dept_id"] = user.staff.dept.dept.ug_id
             request.session["title_name"] = user.staff.title.title_name
             request.session["job_name"] = user.staff.job.job_name
