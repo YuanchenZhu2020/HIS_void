@@ -1,3 +1,4 @@
+import json
 from time import sleep
 
 from django.db import transaction
@@ -9,7 +10,8 @@ from django.views import View
 
 from his.models import Department, DeptAreaBed
 from inpatient.models import HospitalRegistration
-from outpatient.models import RemainingRegistration
+from outpatient.models import RemainingRegistration, RegistrationInfo
+from patient.models import PatientUser
 
 
 class OutpatientAPI(View):
@@ -306,61 +308,90 @@ class InspectionAPI(View):
 
 
 class PatientViewAPI(View):
+    """
+    患者挂号查询API
+    """
+    SUBMIT_URL_NAME = "PatientViewAPI"
+    patient_next_url_name = "patient-details"
 
     def query_registration_info(self, request):
-        # with transaction.atomic():
+        # 数据格式示例：[{
+        #     "doctor_id": "999",
+        #     "doctor_name": "lisa",
+        #     "AM": 3,
+        #     "PM": 4,
+        # },...]
         reg_date = request.GET.get('date')
-        reg_datetime = [
-            timezone.make_aware(dateparse.parse_datetime(reg_date + " 08:00:00")).astimezone(timezone.utc), 
-            timezone.make_aware(dateparse.parse_datetime(reg_date + " 13:00:00")).astimezone(timezone.utc)
-        ]
+        reg_datetime = {
+            "AM": timezone.make_aware(dateparse.parse_datetime(reg_date + " 08:00:00")).astimezone(timezone.utc), 
+            "PM": timezone.make_aware(dateparse.parse_datetime(reg_date + " 13:00:00")).astimezone(timezone.utc)
+        }
         dept_id = int(request.GET.get('KS_id'))
         reginfo_detail = RemainingRegistration.objects.filter(
             medical_staff__dept__dept__ug_id = dept_id,
-            register_date__in = reg_datetime
+            register_date__in = reg_datetime.values()
         ).values_list(
             "medical_staff__user__username",
             "medical_staff__name",
             "register_date",
             "remain_quantity",
         )
+        doctor_info = reginfo_detail.values_list(
+            "medical_staff__user__username", 
+            "medical_staff__name"
+        ).distinct()
         reginfo = []
-        for regdetail in reginfo_detail:
-            doc_reg = {}
+        for regdetail in doctor_info:
+            doc_reg = {
+                "doctor_id": regdetail[0],
+                "doctor_name": regdetail[1],
+                "AM": reginfo_detail.filter(
+                        medical_staff__user__username = regdetail[0], 
+                        register_date = reg_datetime["AM"]
+                    ).values_list("remain_quantity")[0][0],
+                "PM": reginfo_detail.filter(
+                        medical_staff__user__username = regdetail[0], 
+                        register_date = reg_datetime["PM"]
+                    ).values_list("remain_quantity")[0][0],
+            }
+            reginfo.append(doc_reg)
+        return reginfo
 
     def get(self, request):
-        # 获取需要查询的信息类型
-        query_information = request.GET.get('information')
-        data = {}
         # 挂号信息查询
-        if query_information == "GH":
-            date = request.GET.get('date')
-            KS_id = request.GET.get('KS_id')
-            print("--------------------")
-            print(date)
-            print(KS_id)
-            print("--------------------")
-            # 查询出date那天，KS_id科室所有的医生以及医生的剩余名额
-            data = [{
-                "doctor_id": "999",
-                "doctor_name": "lisa",
-                "AM": 3,
-                "PM": 4,
-            }, {
-                "doctor_id": "888",
-                "doctor_name": "YYY",
-                "AM": 7,
-                "PM": 8,
-            }, ]
-
-        # 检查详情查询
-        elif query_information == "JCXQ":
-            pass
-
-        elif query_information == "XXXX":
-            pass
-
+        query_data = self.query_registration_info(request)
+        # 动态获取 crsf_token
+        from django.middleware.csrf import get_token
+        token = get_token(request)
+        data = {
+            "query_data": query_data, 
+            "token": token, 
+            "submit_url": reverse(PatientViewAPI.SUBMIT_URL_NAME)
+        }
         return JsonResponse(data, safe = False)
+
+    def post(self, request):
+        reg_info = json.loads(request.body.decode())
+        reg_info["reg_datetime"] = timezone.make_aware(
+            dateparse.parse_datetime(reg_info["reg_datetime"])
+        ).astimezone(timezone.utc)
+        print(reg_info)
+        with transaction.atomic():
+            # 更新剩余挂号数
+            remain_reg_record = RemainingRegistration.objects.get(
+                medical_staff__user__username = reg_info["doctor_id"],
+                register_date = reg_info["reg_datetime"]
+            )
+            remain_reg_record.remain_quantity = remain_reg_record.remain_quantity - 1
+            remain_reg_record.save()
+            # 写入挂号信息
+            patient_id = request.session["patient_id"]
+            RegistrationInfo.objects.filter(patient__patient_id = patient_id)
+            reg_record = RegistrationInfo(
+                patient = PatientUser.objects.get_by_patient_id()
+
+            )
+        return redirect(reverse(PatientViewAPI.patient_next_url_name))
 
 
 # 病人基础信息API，用于医生获取病人基础数据

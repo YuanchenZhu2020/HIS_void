@@ -141,7 +141,7 @@ class PatientView(View):
     UPDATE_DATE = None    
 
     def get(self, request):
-        print("[Patient Workspace View]", request.user)
+        # print("[Patient Workspace View]", request.user)
         # if request.user.is_authenticated  and isinstance(request.user, PatientUser):
         #     context = {"user_type": "patient"}
         #     return render(request, PatientView.template_name, context = context)
@@ -166,22 +166,11 @@ class PatientView(View):
             PatientView.REG_DATES_CACHE = reg_dates
             # 更新缓存日期
             PatientView.UPDATE_DATE = timezone.localdate()
-        # 测试用
-        # PatientView.REG_DATES_CACHE = [
-        #     "05-15", "05-16", '05-17', '05-18', '05-19', '05-20', '05-21'
-        # ]
         context = {
             "DeptsData": PatientView.DEPT_DATA_CACHE,
             "RegDates": PatientView.REG_DATES_CACHE
         }
         return render(request, PatientView.template_name, context = context)
-        # print("[Patient Workspace View]", request.user)
-        # if request.user.is_authenticated and isinstance(request.user, PatientUser):
-        #     context = {"user_type": "patient"}
-        #     return render(request, PatientView.template_name, context=context)
-        # else:
-        #     # print(type(request.user))
-        #     return redirect(reverse(PatientView.patient_next_url_name))
 
 
 class PatientRegisterSuccessView(View):
