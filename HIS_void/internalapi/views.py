@@ -1,16 +1,15 @@
 from time import sleep
 
+from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import dateparse, timezone
 from django.views import View
 
 from his.models import Department, DeptAreaBed
 from inpatient.models import HospitalRegistration
-import time
-from django.db import transaction
-
-from outpatient import models
+from outpatient.models import RemainingRegistration
 
 
 class OutpatientAPI(View):
@@ -308,11 +307,26 @@ class InspectionAPI(View):
 
 class PatientViewAPI(View):
 
-    # def query_registration_info(self):
-    #     with transaction.atomic():
-    #         # 在with代码块中写事务操作
-    #         time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    #         models.RemainingRegistration.objects.filter(id=1).update(F('kucun') - 1, F('maichu') + 1)
+    def query_registration_info(self, request):
+        # with transaction.atomic():
+        reg_date = request.GET.get('date')
+        reg_datetime = [
+            timezone.make_aware(dateparse.parse_datetime(reg_date + " 08:00:00")).astimezone(timezone.utc), 
+            timezone.make_aware(dateparse.parse_datetime(reg_date + " 13:00:00")).astimezone(timezone.utc)
+        ]
+        dept_id = int(request.GET.get('KS_id'))
+        reginfo_detail = RemainingRegistration.objects.filter(
+            medical_staff__dept__dept__ug_id = dept_id,
+            register_date__in = reg_datetime
+        ).values_list(
+            "medical_staff__user__username",
+            "medical_staff__name",
+            "register_date",
+            "remain_quantity",
+        )
+        reginfo = []
+        for regdetail in reginfo_detail:
+            doc_reg = {}
 
     def get(self, request):
         # 获取需要查询的信息类型
@@ -346,7 +360,7 @@ class PatientViewAPI(View):
         elif query_information == "XXXX":
             pass
 
-        return JsonResponse(data, safe=False)
+        return JsonResponse(data, safe = False)
 
 
 # 病人基础信息API，用于医生获取病人基础数据

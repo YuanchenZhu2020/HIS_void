@@ -10,6 +10,11 @@ function StringFormat() {
     return str;
 }
 
+// 日期字符串格式化
+function YmdToMd(date) {
+    return date.split('-').slice(1, 3).join('-')
+}
+
 // 医生信息
 function QueryGH(date, department) {
     let URL = '/PatientViewAPI';
@@ -23,9 +28,9 @@ function QueryGH(date, department) {
             date: date,
         },
         success: function (data) {
-            alert('弹出对话框.');
+            alert('弹出对话框.');/** */
             for (let i = 0; i < data.length; i++) {
-                console.log(data);
+                console.log(data);/** */
                 // 医生信息对象
                 let doctorInfo = data[i];
                 // 创建医生姓名行
@@ -54,8 +59,8 @@ function QueryGH(date, department) {
                 AM_remain_td.append(AM_btn);
                 PM_remain_td.append(PM_btn);
                 //
-                console.log(department.name);
-                console.log(doctorInfo.doctor_name);
+                console.log(department.name);/** */
+                console.log(doctorInfo.doctor_name);/** */
                 AM_btn.attr('onclick', StringFormat("registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')", department.id, department.name, date, 'AM', doctorInfo.doctor_id, doctorInfo.doctor_name));
                 PM_btn.attr('onclick', StringFormat("registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')", department.id, department.name, date, 'PM', doctorInfo.doctor_id, doctorInfo.doctor_name));
                 // 创建行
@@ -63,7 +68,7 @@ function QueryGH(date, department) {
                 tr.append(doctor_name_td);
                 tr.append(AM_remain_td);
                 tr.append(PM_remain_td);
-                $("#" + department.id + '_' + date).append(tr);
+                $("#" + department.id + '-' + YmdToMd(date)).append(tr);
             }
         },
         error: function (err) {
