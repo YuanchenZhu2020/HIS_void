@@ -16,7 +16,7 @@ from rbac.server.init_permission import init_permission
 class IndexView(View):
     template_name = "index.html"
     staff_next_url_name = "profile"
-    patient_next_url_name = "patient-user"
+    patient_next_url_name = "patient"
 
     def get(self, request):
         print("[Index View]", request.user)
@@ -95,6 +95,8 @@ class ProfileView(View):
 
     def get(self, request):
         # print("[Session]", request.session)
+        for item in dict(request.session):
+            print(item, ': ', request.session[item])
         if request.user.is_authenticated and isinstance(request.user, UserInfo):
             return render(request, ProfileView.template_name)
         else:

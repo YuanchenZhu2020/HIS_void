@@ -36,8 +36,8 @@ class MedicineInfo(models.Model):
     stock_num = models.PositiveIntegerField(default = 0, verbose_name = _("库存数量"))
     shelf_day = models.PositiveIntegerField(verbose_name = _("保质期"))
     special = models.IntegerField(
-        choices = SPECIAL_ITEMS, 
-        default = 0, 
+        choices = SPECIAL_ITEMS,
+        default = 0,
         verbose_name = _("特殊标识")
     )
     OTC = models.BooleanField(default = False, verbose_name = _("是否处方药"))
@@ -45,9 +45,9 @@ class MedicineInfo(models.Model):
     class Meta:
         verbose_name = _("药品信息")
         verbose_name_plural = verbose_name
-    
+
     def __str__(self) -> str:
-        return "<Medicine {} | batch-{}>".format(self.medicine_id, self.batch_num)
+        return "<Medicine {} | batch-{}>".format(self.medicine_id, self.medicine_name)
 
 
 class MedicinePurchase(models.Model):
@@ -55,8 +55,8 @@ class MedicinePurchase(models.Model):
     药品采购记录
     """
     medicine_info = models.ForeignKey(
-        MedicineInfo, 
-        on_delete = models.CASCADE, 
+        MedicineInfo,
+        on_delete = models.CASCADE,
         related_name = "medicine_purchase_set",
         related_query_name = "medicine_purchases",
         verbose_name = _("药品信息")
@@ -70,6 +70,6 @@ class MedicinePurchase(models.Model):
         verbose_name = _("药品采购记录")
         verbose_name_plural = verbose_name
         unique_together = ["medicine_info", "batch_num"]
-    
+
     def __str__(self) -> str:
         return "<Medicine Purchase {}-{}>".format(self.medicine_info, self.purchase_date)
