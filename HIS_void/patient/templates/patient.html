@@ -28,7 +28,7 @@
                             <div class="container" style="margin-top: 110px;">
                                 <div class="card col-6">
                                     <div class="card-header border-0 pb-auto pr-auto">
-                                        <a type="button" href="{% url 'patient' %}"
+                                        <a type="button" href="{% url 'patient-details' %}"
                                             class="btn btn-primary fs-20 font-w600">我的主页
                                         </a>
                                     </div>
@@ -181,7 +181,7 @@
                                                     <a href="#reg-{{ item.id }}-{{ date|ymd2md }}"
                                                         data-toggle="tab"
                                                         class="nav-link"
-                                                        onclick="QueryGH('{{ date }}',{{ item }})">
+                                                        onclick="QueryGH('{{ date }}', {{ item }})">
                                                         {{ date|ymd2md }}
                                                     </a>
                                                 </li>
