@@ -48,7 +48,7 @@ class MedicineInfo(models.Model):
     class Meta:
         verbose_name = _("药品信息")
         verbose_name_plural = verbose_name
-    
+
     def __str__(self) -> str:
         return "<Medicine {}-{}>".format(self.medicine_id, self.medicine_name)
 
@@ -58,8 +58,8 @@ class MedicinePurchase(models.Model):
     药品采购记录
     """
     medicine_info = models.ForeignKey(
-        MedicineInfo, 
-        on_delete = models.CASCADE, 
+        MedicineInfo,
+        on_delete = models.CASCADE,
         related_name = "medicine_purchase_set",
         related_query_name = "medicine_purchases",
         verbose_name = _("药品信息")
@@ -72,6 +72,6 @@ class MedicinePurchase(models.Model):
         verbose_name = _("药品采购记录")
         verbose_name_plural = verbose_name
         unique_together = ["medicine_info", "batch_num"]
-    
+
     def __str__(self) -> str:
         return "<Medicine Purchase {} | batch-{}>".format(self.medicine_info, self.batch_num)

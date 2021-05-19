@@ -42,7 +42,7 @@ function QueryBLSY(patient_id) {
 }
 
 // 查询待诊患者
-function QueryDZHZ() {
+function query_waiting_diagnosis_patients() {
     let URL = '/OutpatientAPI';
     console.log(URL);
     $.ajax({
@@ -141,23 +141,18 @@ function QueryJCJY(p_no) {
     })
 }
 
-QueryZZHZ()
-QueryDZHZ()
-
-// 删除提示框，用于选定药品后或者输入框失去焦点后
-function display_delete() {
-    if (document.getElementById("dv")) {
-        document.getElementById("box").removeChild(document.getElementById("dv"));
-        $("#txt").attr("style", '');
-    }
+// 复制检查结果元素
+function copyJCJG() {
+    let ss = $('#inspect_content');
+    let tt = ss.clone(false);
+    $("#MZQZ_id").prepend(tt);
 }
 
-// 通过点击提示框中<li>元素将药品名添加到input中
-function add_name(e) {
-    console.log(e)
-    document.getElementById('txt').value = e.innerText.trim();
-    display_delete();
-}
+
+/*
+* 处方开具页面函数
+*/
+
 
 // 搜索框中查询药品
 function QueryMedicine() {
@@ -215,48 +210,19 @@ function QueryMedicine() {
     })
 }
 
-
-// 删除药品
-function deleteMedicine(e) {
-    console.log(e);
-    console.log(e.name);
-    let tag = document.getElementById(e.name);
-//删除
-    tag.parentNode.removeChild(tag);
-    totalPrice();
-
+// 通过点击提示框中<li>元素将药品名添加到input中
+function add_name(e) {
+    console.log(e)
+    document.getElementById('txt').value = e.innerText.trim();
+    display_delete();
 }
 
-// 添加药品
-function addMedicine(medicine_obj, num) {
-    // 选中药品添加的表格body
-    let medicine_body = $("#medicine_body");
-    tr_html = '<tr id="medicine' + medicine_obj.no + '"><th scope="col">' + medicine_obj.name + '</th>' +
-        '<th scope="col">' + num + '</th>' +
-        '<th scope="col">' + medicine_obj.price + '</th>' +
-        '<th name="total_price" scope="col">' + parseFloat(medicine_obj.price) * parseInt(num) + '</th>' +
-        '<td><span>' +
-        '<a name="medicine' + medicine_obj.no +
-        '" href="javascript:void(0)" onclick="deleteMedicine(this)" data-toggle="tooltip" data-placement="top" title="Close">' +
-        '<i class="fa fa-close color-danger"></i></a></span> </td></tr>';
-
-    medicine_body.append(tr_html);
-    totalPrice();
-}
-
-// 计算总价
-function totalPrice() {
-    if (document.getElementById("medicine_copy")) {
-        document.getElementById("JEXZ").removeChild(document.getElementById("medicine_copy"));
-        console.log("删除")
+// 删除提示框，用于选定药品后或者输入框失去焦点后
+function display_delete() {
+    if (document.getElementById("dv")) {
+        document.getElementById("box").removeChild(document.getElementById("dv"));
+        $("#txt").attr("style", '');
     }
-    let total_prices = document.getElementsByName('total_price');
-    let total = 0;
-    for (let i = 0; i < total_prices.length; i++) {
-        total += parseFloat(total_prices[i].innerText);
-    }
-    $("#medicine_count").text(total);
-    copyMedicine();
 }
 
 // 添加药品按钮，收集药品名和药品数量
@@ -272,7 +238,6 @@ function collect_medicine() {
             success: function (data) {
                 let medicine_name = document.getElementById('txt').value;
                 let num = document.getElementById('num').value;
-                let medicine;
                 if (data.length > 0) {
                     // 获取所有的药品名
                     for (let i = 0; i < data.length; i++) {
@@ -297,28 +262,54 @@ function collect_medicine() {
             }
         }
     );
+}
+
+// 添加药品
+function addMedicine(medicine_obj, medicine_num) {
+    // 药品行
+    let $medicine_tr = $('<tr></tr>');
+    // 在药品行中添加药品id和药品数量medicine_num
+    $medicine_tr.attr('data-medicine-no', medicine_obj.no);
+    $medicine_tr.attr('data-medicine-num', medicine_num);
+    $medicine_tr.attr('name', 'medicine');
+    // 药品名列
+    let $medicine_name_td = $('<td></td>');
+    $medicine_name_td.text(medicine_obj.name);
+    // 药品数量列
+    let $medicine_num_td = $('<td></td>');
+    $medicine_num_td.text(medicine_num);
+    // 药品单价列
+    let $medicine_price_td = $('<td></td>');
+    $medicine_price_td.text(medicine_obj.price);
+    // 药品总价列
+    let $medicine_total_price = $('<td></td>');
+    $medicine_total_price.text(parseFloat(medicine_obj.price) * medicine_num);
+    $medicine_total_price.attr('name', 'total_price');
+    let $medicine_delete_td = $('<td></td>');
+    $medicine_delete_td.append('<a onclick="deleteMedicine(this)" data-toggle="tooltip" data-placement="top" title="Close"><i class="fa fa-close color-danger"></i></a>');
+    $medicine_tr.append($medicine_name_td, $medicine_num_td, $medicine_price_td, $medicine_total_price, $medicine_delete_td);
+    $('#medicine_tbody').append($medicine_tr);
+    totalPrice();
+}
+
+// 删除药品
+function deleteMedicine(event) {
+    console.log($(event).parent().parent().html());
+    $(event).parent().parent().remove();
+    totalPrice();
 
 }
 
-
-// 复制检查结果元素
-function copyJCJG() {
-    let ss = $('#inspect_content');
-    let tt = ss.clone(false);
-    $("#MZQZ_id").prepend(tt);
-}
-
-// 复制药品结果到患者账单处
-function copyMedicine() {
-    let ss = $('#medicine_hole');
-    let tt = ss.clone(false);
-    tt.attr('id', 'medicine_copy');
-    if (document.getElementById("medicine_copy")) {
-        document.getElementById("JEXZ").removeChild(document.getElementById("medicine_copy"));
-        console.log("删除")
+// 计算总价
+function totalPrice() {
+    copyMedicine();
+    let total_prices = document.getElementsByName('total_price');
+    let total = 0;
+    for (let i = 0; i < total_prices.length; i++) {
+        total += parseFloat(total_prices[i].innerText);
     }
-    console.log(tt)
-    $("#JEXZ").prepend(tt);
+    $("#medicine_count").text(total.toFixed(2));
+    $('#medicine_copy_total_price').text(total.toFixed(2));
 }
 
 // 药品数量错误（不是正整数）
@@ -365,4 +356,164 @@ function medicineError() {
     })
 }
 
+// 复制药品结果到患者账单处
+function copyMedicine() {
+    $('#medicine_copy_tbody').empty();
+    let medicine_tbody = document.getElementById('medicine_tbody');
+    let all_medicines = medicine_tbody.childNodes;
+    for (let i = 0; i < all_medicines.length; i++) {
+        let $tr = $('<tr></tr>');
+        let all_td = all_medicines[i].childNodes;
+        for (let j = 0; j < all_td.length - 1; j++) {
+            let $td = $('<td></td>');
+            $td.text(all_td[j].innerText);
+            $tr.append($td);
+        }
+        $('#medicine_copy_tbody').append($tr);
+    }
+}
+
+// 复制检查项目到患者账单
+function copyInspection(event) {
+    let $event = $(event);
+    // 检查类型
+    let inspection_type = $($event).attr('name');
+    // 检查名称
+    let inspection_name = $event.find('option:selected').data('name');
+    console.log($($event).data());
+    // 检查价格
+    let inspection_price = $event.find('option:selected').attr('name');
+    // 如果表中已经存在该检验类型，则删除掉
+    console.log(inspection_name);
+    console.log(inspection_type);
+    console.log(inspection_price);
+    let $tr = $("<tr></tr>");
+    $tr.attr('name', inspection_type);
+    let $inspection_type_td = $('<td></td>');
+    $inspection_type_td.text(inspection_type);
+
+    let $inspection_name_td = $('<td></td>');
+    $inspection_name_td.text(inspection_name);
+
+    let $inspection_price_td = $('<td></td>');
+    $inspection_price_td.attr('name', 'inspection_price');
+    $inspection_price_td.text(inspection_price);
+
+    $tr.append($inspection_type_td);
+    $tr.append($inspection_name_td);
+    $tr.append($inspection_price_td);
+
+    //
+    if ($('#inspection_cost_body').find('[name=' + inspection_type + ']').html()) {
+        let exist = $('#inspection_cost_body').find('[name=' + inspection_type + ']');
+        exist.remove();
+        // 说明选到了无，退出即可
+        if (inspection_name === '') $tr = $('');
+    }
+    $('#inspection_cost_body').append($tr);
+    inspectionTotalPrice();
+}
+
+// 计算检查检验总价
+function inspectionTotalPrice(csrf_token) {
+    let total_price = 0;
+    let all_inspection_prices = document.getElementsByName('inspection_price');
+    console.log(all_inspection_prices)
+    for (let i = 0; i < all_inspection_prices.length; i++) {
+        total_price += parseFloat(all_inspection_prices[i].innerText);
+    }
+
+    // total_price += parseFloat();
+    $('#inspection_count').text(total_price.toFixed(2));
+
+}
+
+
+// 药品提交(ajax post)
+function post_medicine(csrf_token, url) {  //由于
+    let all_medicine = document.getElementsByName('medicine');
+    let medicine_data = [];
+    for (let i = 0; i < all_medicine.length; i++) {
+        console.log(all_medicine[i].dataset);
+        medicine_data.push({
+            'medicine_id': all_medicine[i].dataset['medicineNo'],
+            'medicine_num': all_medicine[i].dataset['medicineNum']
+        });
+    }
+    let data = {
+        'medicine_data': medicine_data, // 药品信息
+        'post_param': 'medicine' // 提交内容类型判断
+    }
+    console.log(data);
+    $.ajax({
+        url: url,
+        type: 'POST',
+        dataType: 'text',
+        data: JSON.stringify(data), // 注意这里要将发送的数据转换成字符串
+        processData: false,// tell jQuery not to process the data
+        contentType: false,// tell jQuery not to set contentType
+        beforeSend: function (xhr, setting) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        success: function (callback) {
+            // 清空医生选择的药品
+            $('#medicine_tbody').empty();
+            $('#medicine_copy_tbody').empty();
+            $('#medicine_count').text(0.00);
+            $('#medicine_copy_total_price').text(0.00);
+            submitAlert();
+        }, // end success
+        error: function (callback) {
+            alert('提交失败');
+            console.log(callback);
+        }
+    })
+}
+
+function post_inspection(csrf_token, url) {  //由于
+    let all_medicine = document.getElementsByName('medicine');
+    let medicine_data = [];
+    for (let i = 0; i < all_medicine.length; i++) {
+        console.log(all_medicine[i].dataset);
+        medicine_data.push({
+            'medicine_id': all_medicine[i].dataset['medicineNo'],
+            'medicine_num': all_medicine[i].dataset['medicineNum']
+        });
+    }
+    let data = {
+        'medicine_data': medicine_data, // 药品信息
+        'post_param': 'medicine' // 提交内容类型判断
+    }
+    console.log(data);
+    $.ajax({
+        url: url,
+        type: 'POST',
+        dataType: 'text',
+        data: JSON.stringify(data), // 注意这里要将发送的数据转换成字符串
+        processData: false,// tell jQuery not to process the data
+        contentType: false,// tell jQuery not to set contentType
+        beforeSend: function (xhr, setting) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        success: function (callback) {
+            // 清空医生选择的药品
+            $('#medicine_tbody').empty();
+            $('#medicine_copy_tbody').empty();
+            $('#medicine_count').text(0.00);
+            $('#medicine_copy_total_price').text(0.00);
+            submitAlert();
+        }, // end success
+        error: function (callback) {
+            alert('提交失败');
+            console.log(callback);
+        }
+    })
+}
+
+// 检验结果提交
 copyJCJG()
+QueryZZHZ()
+// 这里应该整一个document.ready，表示页面加载完毕后应该执行的操作，而不应该独立的放在这执行
+query_waiting_diagnosis_patients()
+
+
