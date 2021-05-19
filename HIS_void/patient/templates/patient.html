@@ -1,79 +1,86 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load format_date_string %}
 {% block title %}患者{% endblock %}
 
 {% block body-context %}
 
     <style type="text/css">
         .widget-timeline-icon2 li {
-            padding-bottom: 73px;
+            padding-bottom: 70px;
         }
 
+        .breadcrumb-adjust {
+            background: #ffffff; 
+            margin-top: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
     </style>
-    <body> <!--data-spy="scroll"  data-offset="40" data-target="#myScrollspy" -->
+    <body> 
 
     <div class="container-fluid">
         <div class="row">
             <!-- 左边栏信息 -->
-            <div id="myScrollspy" class="col-sm-3">
-                {#                <div class="container-fluid">#}
-                <div class="container-fluid">
-                    <ul class="nav nav-pills nav-stacked">
-                        <div>  <!--style="display: fixed"  class="col-xl-3 col-xxl-4 col-md-6"-->
-                            <br/><br/>
-                            <div class="card">
-                                <div class="card-header border-0 pb-0">
-                                    <a type="button" href="{% url 'patient' %}"
-                                       class="btn tp-btn btn-primary fs-20 font-w600">我的主页
-                                    </a>
+            <!-- <div id="myScrollspy" class="col-sm-3"> -->
+                <nav id="side-navbar" class="col-sm-3 navbar navbar-default navbar-static" role="navigation">
+                    <div class="container-fluid"> 
+                        <ul class="nav-pills nav-stacked">
+                            <div class="container" style="margin-top: 110px;">
+                                <div class="card col-6">
+                                    <div class="card-header border-0 pb-auto pr-auto">
+                                        <a type="button" href="{% url 'patient' %}"
+                                            class="btn btn-primary fs-20 font-w600">我的主页
+                                        </a>
+                                    </div>
                                 </div>
-                                <div class="card-body">
-                                    <div class="widget-timeline-icon2">
-                                        <ul class="timeline">
-                                            <li>
-                                                <div class="icon bg-primary"><i class="las la-stethoscope"></i>
-                                                </div>
-                                                <a class="timeline-panel text-muted" href="#register">
-                                                    <h4 class="mb-2 mt-1">预约&挂号</h4>
-                                                    <p class="fs-15 mb-0 ">z</p>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <div class="icon bg-primary"><i class="las la-stethoscope"></i>
-                                                </div>
-                                                <a class="timeline-panel text-muted" href="#navigation">
-                                                    <h4 class="mb-2 mt-1">院内导航</h4>
-                                                    <p class="fs-15 mb-0 ">Sat,</p>
-                                                </a>
-                                            </li>
-                                            <li>
-                                                <div class="icon bg-primary las"><i class="las la-stethoscope"></i>
-                                                </div>
-                                                <a class="timeline-panel text-muted" href="#instruction">
-                                                    <h4 class="mb-2 mt-1">就医须知</h4>
-                                                    <p class="fs-15 mb-0 ">Sat, </p>
-                                                </a>
-                                            </li>
+                                <div class="card">
+                                    <div class="card-body">
+                                        <div class="widget-timeline-icon2">
+                                            <ul class="timeline">
+                                                <li>
+                                                    <div class="icon bg-primary"><i class="las la-stethoscope"></i>
+                                                    </div>
+                                                    <a class="timeline-panel text-muted" href="#register">
+                                                        <h4 class="mb-2 mt-1">预约&挂号</h4>
+                                                        <p class="fs-15 mb-0 ">z</p>
+                                                    </a>
+                                                </li>
+                                                <li>
+                                                    <div class="icon bg-primary"><i class="las la-stethoscope"></i>
+                                                    </div>
+                                                    <a class="timeline-panel text-muted" href="#navigation">
+                                                        <h4 class="mb-2 mt-1">院内导航</h4>
+                                                        <p class="fs-15 mb-0 ">Sat,</p>
+                                                    </a>
+                                                </li>
+                                                <li style="padding-bottom: 30px;">
+                                                    <div class="icon bg-primary las"><i class="las la-stethoscope"></i>
+                                                    </div>
+                                                    <a class="timeline-panel text-muted" href="#instruction">
+                                                        <h4 class="mb-2 mt-1">就医须知</h4>
+                                                        <p class="fs-15 mb-0 ">Sat, </p>
+                                                    </a>
+                                                </li>
 
-                                        </ul>
+                                            </ul>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </ul>
-                </div>
-                {#                </div>#}
-            </div>
+                        </ul>
+                    </div>
+                </nav>
+            <!-- </div> -->
 
             <!-- 右边滚动栏信息，包括以下几部分 -->
             <div class="col-sm-8">
 
-                <!-- 点击页面信息（初步想法是通过它可以进行页面间的跳转，以此保证每个患者自己有自己的主页） -->
-                <div class="page-titles">
-                    <ol class="breadcrumb">
+                <!-- 面包屑导航 -->
+                <div style="padding-left: 15px; padding-right: 15px;">
+                    <ul class="breadcrumb breadcrumb-adjust">
                         <li class="breadcrumb-item active"><a href="javascript:void(0)">首页</a></li>
                         <li class="breadcrumb-item"><a href="javascript:void(0)">登录</a></li>
-                    </ol>
+                    </ul>
                 </div>
 
                 <!--这里添加一个医院介绍的信息-->
@@ -148,88 +155,76 @@
                             <h4 class="card-title">预约挂号</h4>
                         </div>
                         <div class="card-body">
-                            <div class="basic-list-group">
-                                <div class="row">
-                                    <div class="col-lg-6 col-xl-2">
-                                        <div class="list-group mb-4 " id="list-tab" role="tablist">
-                                            {% for item in KSdata %}
-                                                <a class="list-group-item list-group-item-action"
-                                                   id="list-home-list"
-                                                   data-toggle="list"
-                                                   href="#show{{ item.id }}"
-                                                   role="tab">{{ item.name }}</a>
-                                            {% endfor %}
-                                        </div>
+                            <div class="basic-list-group row">
+                                <div class="col-lg-6 col-xl-2">
+                                    <div class="list-group mb-4 " id="list-tab" role="tablist">
+                                        {% for item in DeptsData %}
+                                        <a class="list-group-item list-group-item-action"
+                                            id="list-home-list"
+                                            data-toggle="list"
+                                            href="#dept-{{ item.id }}"
+                                            role="tab">{{ item.name }}</a>
+                                        {% endfor %}
                                     </div>
-                                    <div class="col-lg-6 col-xl-10">
-                                        <div class="tab-content">
-                                            <div class="tab-pane fade show active">
-                                                <h4 class="mb-4">请选择一个科室</h4>
-                                                <p>请您根据自己的病情和严重程度合理选择。balbal</p>
-                                            </div>
-                                            {% for item in KSdata %}
-                                                <div class="tab-pane fade" id="show{{ item.id }}">
-                                                    <ul class="nav nav-tabs">
-                                                        {% for date in ALTDates %}
-                                                            <li class="nav-item">
-                                                                <a href="#week{{ item.name }}{{ date }}"
-                                                                   data-toggle="tab"
-                                                                   class="nav-link"
-                                                                   onclick="QueryGH('{{ date }}',{{ item }})">
-                                                                    {#                                                                    <script>#}
-                                                                    {#                                                                        console.log('{{ date }}');#}
-                                                                    {#                                                                        console.log(123123123);#}
-                                                                    {#                                                                    </script>#}
-                                                                    {{ date }}
-                                                                </a>
-                                                            </li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                    <div class="tab-content">
-                                                        <div class="tab-pane fade active show">
-                                                            <div class="profile-outpatient">
-                                                                <div class="counter">
-                                                                    <p></p>
-                                                                    <h4>请选择一个时间</h4>
-                                                                    <p>请您根据自己的病情和严重程度合理选择。balbal</p>
-                                                                </div>
-                                                            </div>
+                                </div>
+                                <div class="col-lg-6 col-xl-10">
+                                    <div class="tab-content">
+                                        <div class="tab-pane fade show active">
+                                            <h4 class="mb-4">请选择一个科室</h4>
+                                            <p>请您根据自己的病情和严重程度合理选择。balbal</p>
+                                        </div>
+                                        {% for item in DeptsData %}
+                                        <div class="tab-pane fade" id="dept-{{ item.id }}">
+                                            <ul class="nav nav-tabs">
+                                                {% for date in RegDates %}
+                                                <li class="nav-item">
+                                                    <a href="#reg-{{ item.id }}-{{ date|ymd2md }}"
+                                                        data-toggle="tab"
+                                                        class="nav-link"
+                                                        onclick="QueryGH('{{ date }}',{{ item }})">
+                                                        {{ date|ymd2md }}
+                                                    </a>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                            <div class="tab-content">
+                                                <div class="tab-pane fade active show">
+                                                    <div class="profile-outpatient">
+                                                        <div class="counter">
+                                                            <p></p>
+                                                            <h4>请选择一个时间</h4>
+                                                            <p>请您根据自己的病情和严重程度合理选择。balbal</p>
                                                         </div>
-                                                        {% for date in ALTDates %}
-                                                            <div id="week{{ item.name }}{{ date }}"
-                                                                 class="tab-pane fade">
-                                                                <div class="profile-outpatient">
-                                                                    <div class="counter">
-                                                                        <div class="table-responsive">
-                                                                            <table class="table table-responsive-md">
-                                                                                <thead>
-                                                                                <tr>
-                                                                                    <th><strong>主治医生</strong>
-                                                                                    </th>
-                                                                                    <th>
-                                                                                        <strong>上午(9:00-11:00)</strong>
-
-                                                                                    </th>
-                                                                                    <th>
-                                                                                        <strong>下午(14:00-18:00)</strong>
-
-                                                                                    </th>
-                                                                                </tr>
-                                                                                </thead>
-                                                                                <tbody id="{{ item.id }}_{{ date }}">
-                                                                                </tbody>
-                                                                            </table>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        {% endfor %}
-
                                                     </div>
                                                 </div>
-                                            {% endfor %}
-
+                                                {% for date in RegDates %}
+                                                <div id="reg-{{ item.id }}-{{ date|ymd2md }}" class="tab-pane fade">
+                                                    <div class="counter">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-responsive-md">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th>
+                                                                        <strong>主治医生</strong>
+                                                                    </th>
+                                                                    <th>
+                                                                        <strong>上午(8:00-11:00)</strong>
+                                                                    </th>
+                                                                    <th>
+                                                                        <strong>下午(13:00-18:00)</strong>
+                                                                    </th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody id="{{ item.id }}-{{ date|ymd2md }}">
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                {% endfor %}
+                                            </div>
                                         </div>
+                                        {% endfor %}
                                     </div>
                                 </div>
                             </div>

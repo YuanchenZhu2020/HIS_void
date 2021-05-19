@@ -1,11 +1,14 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.views import View
 
 from patient import login, init_patient_url_permission
 from patient.forms import PatientLoginForm, PatientRegisterForm
 from patient.models import PatientUser
+from his.models import Department
+from outpatient.models import RemainingRegistration
 from externalapi.external_api import IDInfoQuery
 
 
@@ -33,6 +36,7 @@ class PatientLoginView(View):
             login(request, user)
             # 向 Session 中写入信息
             request.session["patient_id"] = user.get_patient_id()
+            request.session["name"] = user.name
             # 获取用户权限，写入 session 中
             init_patient_url_permission(request, user)
             # print(request.session["url_key"], request.session["obj_key"])
@@ -132,6 +136,10 @@ class PatientView(View):
     template_name = "patient.html"
     patient_next_url_name = "index"
 
+    DEPT_DATA_CACHE = None
+    REG_DATES_CACHE = None
+    UPDATE_DATE = None    
+
     def get(self, request):
         print("[Patient Workspace View]", request.user)
         # if request.user.is_authenticated  and isinstance(request.user, PatientUser):
@@ -141,34 +149,32 @@ class PatientView(View):
         #     # print(type(request.user))
         #     return redirect(reverse(PatientView.patient_next_url_name))
 
-        '''
-        需要所有可以用于挂号的科室信息
-        '''
-        KSdata = [{
-            "id": "1",  # 挂号的序号
-            "name": "内科",
-        }, {
-            "id": "2",  # 挂号的序号
-            "name": "呼吸科",
-        }, {
-            "id": "3",  # 挂号的序号
-            "name": "小儿科",
-        }, {
-            "id": "4",  # 挂号的序号
-            "name": "牙科",
-        }, {
-            "id": "5",  # 挂号的序号
-            "name": "精神科",
-        }, {
-            "id": "6",  # 挂号的序号
-            "name": "外科",
-        }, ]
-
-        '''
-        需要可选的所有挂号日期
-        '''
-        ALTDates = ["5-15", "5-16", '5-17', '5-18', '5-19', '5-20', '5-21']
-        return render(request, PatientView.template_name, locals())
+        if PatientView.UPDATE_DATE is None or PatientView.UPDATE_DATE < timezone.localdate():
+            # 挂号科室
+            depts = Department.objects.filter(
+                accept_patient = 1
+            ).values_list("dept__ug_id", "dept__name")
+            PatientView.DEPT_DATA_CACHE = [
+                {"id": dept[0], "name": dept[1]}
+                for dept in depts
+            ]
+            # 挂号日期
+            reg_dates = RemainingRegistration.objects.all().values_list(
+                "register_date"
+            ).distinct().order_by("register_date")
+            reg_dates = sorted(set([date[0].strftime("%Y-%m-%d") for date in reg_dates]))
+            PatientView.REG_DATES_CACHE = reg_dates
+            # 更新缓存日期
+            PatientView.UPDATE_DATE = timezone.localdate()
+        # 测试用
+        # PatientView.REG_DATES_CACHE = [
+        #     "05-15", "05-16", '05-17', '05-18', '05-19', '05-20', '05-21'
+        # ]
+        context = {
+            "DeptsData": PatientView.DEPT_DATA_CACHE,
+            "RegDates": PatientView.REG_DATES_CACHE
+        }
+        return render(request, PatientView.template_name, context = context)
         # print("[Patient Workspace View]", request.user)
         # if request.user.is_authenticated and isinstance(request.user, PatientUser):
         #     context = {"user_type": "patient"}
