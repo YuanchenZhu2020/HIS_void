@@ -31,7 +31,8 @@ def user_passes_test(test_func, login_url=None, redirect_field_name=REDIRECT_FIE
             if ((not login_scheme or login_scheme == current_scheme) and
                     (not login_netloc or login_netloc == current_netloc)):
                 path = request.get_full_path()
-            # 若使用 ajax 进行异步加载，则返回重定向URL
+            # 若使用 ajax 进行异步加载，则返回视图函数处理状态 status 以及重定向URL
+            # 若不使用 ajax，则直接进行重定向
             if request.is_ajax():
                 return JsonResponse(
                     {"status": False, "redirect_url": resolved_login_url}, 
