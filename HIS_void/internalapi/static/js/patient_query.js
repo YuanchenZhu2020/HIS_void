@@ -131,12 +131,27 @@ function post_registration(csrf_token, doctor_id, reg_datetime, submit_url) {
         beforeSend: function (xhr, setting) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
-        success: function (callback) {
-            submitAlert();
+        success: function (data) {
+            data = JSON.parse(data);
+            let success = data.status;
+            let status = "error";
+            let alert_title = "提交失败";
+            let alert_text = "请登录后再挂号！";
+            if (success) {
+                status = "success";
+                alert_title = "提交成功";
+                alert_text = "即将跳转至您的个人界面";
+            }
+            submitAlert(alert_title, alert_text, status);
+            console.log(data.redirect_url);
+            $($('.swal-button-container').children()[0]).attr(
+                'onclick', 
+                StringFormat("window.location.href = '{0}'", data.redirect_url)
+            );
         },
         error: function (callback) {
-            alert('提交失败');
             console.log(callback);
+            alert('提交失败');
         }
     })
 }

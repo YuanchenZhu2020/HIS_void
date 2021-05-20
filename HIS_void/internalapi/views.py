@@ -6,12 +6,15 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils import dateparse, timezone
+from django.utils.decorators import method_decorator
 from django.views import View
 
 from his.models import Department, DeptAreaBed
 from inpatient.models import HospitalRegistration
 from outpatient.models import RemainingRegistration, RegistrationInfo
 from patient.models import PatientUser
+from patient.decorators import patient_login_required
+
 
 
 class OutpatientAPI(View):
@@ -307,6 +310,7 @@ class InspectionAPI(View):
         return redirect(reverse("inspection-workspace"))
 
 
+@method_decorator(patient_login_required(login_url = "/login-patient/"), name = "post")
 class PatientViewAPI(View):
     """
     患者挂号查询API
@@ -388,10 +392,12 @@ class PatientViewAPI(View):
             patient_id = request.session["patient_id"]
             RegistrationInfo.objects.filter(patient__patient_id = patient_id)
             reg_record = RegistrationInfo(
-                patient = PatientUser.objects.get_by_patient_id()
-
+                patient = PatientUser.objects.get_by_patient_id(patient_id)
             )
-        return redirect(reverse(PatientViewAPI.patient_next_url_name))
+        return JsonResponse(
+            {"status": True, "redirect_url": reverse(PatientViewAPI.patient_next_url_name)}, 
+            safe = False
+        )
 
 
 # 病人基础信息API，用于医生获取病人基础数据
