@@ -1,7 +1,9 @@
+import json
+
 from time import sleep
 
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.urls import reverse
 from django.views import View
 
@@ -10,7 +12,8 @@ from inpatient.models import HospitalRegistration
 import time
 from django.db import transaction
 
-from outpatient import models
+from outpatient import models as outpatient_models
+from pharmacy.models import MedicineInfo
 
 
 class OutpatientAPI(View):
@@ -36,6 +39,7 @@ class OutpatientAPI(View):
         data = query_key_to_func.get(query_information)(request)
         return JsonResponse(data, safe=False)
 
+    # 病历首页查询
     def query_medical_record(self, request):
         patient_id = request.GET.get('patient_id')
         print(patient_id)
@@ -53,6 +57,7 @@ class OutpatientAPI(View):
         }
         return data
 
+    # 待诊患者查询
     def query_waiting_diagnosis_patients(self, request):
         data = [
             {
@@ -73,8 +78,10 @@ class OutpatientAPI(View):
         ]
         # 传入医生主键，这样可以有选择的返回病人信息
         d_no = request.GET.get('d_no')
+        print("医生编号", d_no)
         return data
 
+    # 诊中患者查询
     def query_in_diagnosis_patients(self, request):
         data = [
             {
@@ -97,27 +104,59 @@ class OutpatientAPI(View):
         d_no = request.GET.get('d_no')
         return data
 
+    # 检查结果查询
     def query_inspect_result(self, request):
         data = []
         return data
 
+    # 药品查询（已完成）
     def query_medicine(self, request):
-        data = [
-            {'name': "多塞平", 'price': 41, 'number': 100, },
-            {'name': "艾司西酞普兰", 'price': 42, 'number': 100, },
-            {'name': "帕罗西汀", 'price': 43, 'number': 100, },
-            {'name': "氟西汀", 'price': 44, 'number': 100, },
-            {'name': "度洛西汀", 'price': 45, 'number': 100, },
-            {'name': "氟伏沙明", 'price': 46, 'number': 100, },
-        ]
+        with transaction.atomic():
+            # 在with代码块中写事务操作
+            all_medicines = MedicineInfo.objects.all()
+            data = []
+            for medicine in all_medicines:
+                temp_dict = {}
+                temp_dict["name"] = medicine.medicine_name
+                temp_dict["price"] = medicine.retail_price
+                temp_dict["no"] = medicine.medicine_id
+                data.append(temp_dict)
         return data
 
     def post(self, request):
-        print("================================")
-        print(request.POST)
-        print("================================")
-        sleep(1)
+        if dict(request.POST) != {}:
+            data = dict(request.POST)
+        else:
+            data = json.loads(request.body)
+        post_param = data['post_param']
+        print("==========outpatientAPI POST==========")
+        print(data)
+        print('【post_param】', post_param)
+        print("==========outpatientAPI POST==========")
+
+        ''' 
+        param对照表:
+        medicine -> 处方开具选择的药品
+        inspection -> 检验信息
+        '''
+        if post_param == 'medicine':
+            self.post_medicine()
+
+        elif post_param == 'inspection':
+            self.post_inspection()
+        # 这条语句并不会使页面刷新
         return redirect(reverse("outpatient-workspace"))
+
+    # 处方开具部分获取药品信息
+    def post_medicine(self):
+        try:
+            pass  # 数据库更新操作
+        except:
+            pass  # 异常处理操作
+
+    # 检查检验部分
+    def post_inspection(self):
+        pass
 
 
 class NurseAPI(View):
