@@ -84,7 +84,7 @@ class RegistrationInfo(models.Model):
         verbose_name = _("医生"),
     )
     appointment_date = models.DateTimeField(
-        auto_created = True,
+        auto_now_add = True,
         editable = False,
         verbose_name = _("预约时间"),
         help_text = _("通过网页预约挂号的时间"),
@@ -99,14 +99,16 @@ class RegistrationInfo(models.Model):
         verbose_name = _("就诊类别")
     )
 
-    illness_date = models.DateField(blank = True, verbose_name = _("患病日期"))
+    illness_date = models.DateField(null = True, blank = True, verbose_name = _("患病日期"))
     chief_complaint = models.TextField(
         max_length = 512, 
+        null = True,
         blank = True, 
         verbose_name = _("患者主诉")
     )
     diagnosis_results = models.TextField(
         max_length = 512, 
+        null = True,
         blank = True, 
         verbose_name = _("确诊结果")
     )
