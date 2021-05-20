@@ -47,9 +47,9 @@ function QueryGH(date, department) {
                 // 创建下午按钮挂号行
                 let PM_remain_td = $("<td></td>");
                 // 创建上午挂号按钮
-                let AM_btn = $("<button type='button' class='btn btn-outline-primary' data-toggle='modal' data-target='#GHask'></button>");
+                let AM_btn = $("<button type='button' class='btn btn-sm btn-block btn-outline-primary' data-toggle='modal' data-target='#GHask'></button>");
                 // 创建下午挂号按钮
-                let PM_btn = $("<button type='button' class='btn btn-outline-primary' data-toggle='modal' data-target='#GHask'></button>");
+                let PM_btn = $("<button type='button' class='btn btn-sm btn-block btn-outline-primary' data-toggle='modal' data-target='#GHask'></button>");
                 // 在按钮上添加剩余人数
                 AM_btn.text(DoctorInfo.AM);
                 PM_btn.text(DoctorInfo.PM);

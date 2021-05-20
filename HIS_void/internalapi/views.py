@@ -9,7 +9,7 @@ from django.utils import dateparse, timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 
-from his.models import Department, DeptAreaBed
+from his.models import Department, DeptAreaBed, Staff
 from inpatient.models import HospitalRegistration
 from outpatient.models import RemainingRegistration, RegistrationInfo
 from patient.models import PatientUser
@@ -379,6 +379,9 @@ class PatientViewAPI(View):
         reg_info["reg_datetime"] = timezone.make_aware(
             dateparse.parse_datetime(reg_info["reg_datetime"])
         ).astimezone(timezone.utc)
+        reg_info["is_emergency"] = Staff.objects.get_by_user(
+            reg_info["doctor_id"]
+        ).dept == Department.objects.get_by_dept_name("急诊科")
         print(reg_info)
         with transaction.atomic():
             # 更新剩余挂号数
@@ -390,9 +393,13 @@ class PatientViewAPI(View):
             remain_reg_record.save()
             # 写入挂号信息
             patient_id = request.session["patient_id"]
-            RegistrationInfo.objects.filter(patient__patient_id = patient_id)
-            reg_record = RegistrationInfo(
-                patient = PatientUser.objects.get_by_patient_id(patient_id)
+            reg_id = RegistrationInfo.objects.filter(patient__patient_id = patient_id).count() + 1
+            reg_record = RegistrationInfo.objects.create(
+                patient = PatientUser.objects.get_by_patient_id(patient_id),
+                reg_id = reg_id,
+                medical_staff = Staff.objects.get_by_user(reg_info["doctor_id"]),
+                registration_date = reg_info["reg_datetime"],
+                reg_class = 1 if reg_info["is_emergency"] else 0
             )
         return JsonResponse(
             {"status": True, "redirect_url": reverse(PatientViewAPI.patient_next_url_name)}, 
