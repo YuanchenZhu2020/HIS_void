@@ -38,23 +38,23 @@
                                     <div class="widget-timeline-icon2">
                                         <ul class="timeline">
                                             <li>
-                                                <div class="icon bg-primary"><i class="las la-stethoscope"></i>
-                                                </div>
                                                 <a class="timeline-panel text-muted" href="#register">
+                                                    <div class="icon bg-primary"><i class="las la-stethoscope"></i>
+                                                    </div>
                                                     <h4 class="mt-3">预约&挂号</h4>
                                                 </a>
                                             </li>
                                             <li>
-                                                <div class="icon bg-primary"><i class="las la-map-marker"></i>
-                                                </div>
                                                 <a class="timeline-panel text-muted" href="#navigation">
+                                                    <div class="icon bg-primary"><i class="las la-map-marker"></i>
+                                                    </div>
                                                     <h4 class="mt-3">院内导航</h4>
                                                 </a>
                                             </li>
                                             <li>
-                                                <div class="icon bg-primary las"><i class="las la-leaf"></i>
-                                                </div>
                                                 <a class="timeline-panel text-muted" href="#instruction">
+                                                    <div class="icon bg-primary las"><i class="las la-leaf"></i>
+                                                    </div>
                                                     <h4 class="mt-3">就医须知</h4>
                                                 </a>
                                             </li>
@@ -153,7 +153,7 @@
                         <div class="card-body">
                             <div class="basic-list-group row">
                                 <div class="col-lg-6 col-xl-2">
-                                    <div class="list-group mb-4 " id="list-tab" role="tablist">
+                                    <div class="list-group mb-4 " id="list-tab" role="tablist" style="text-align: center;">
                                         {% for item in DeptsData %}
                                         <a class="list-group-item list-group-item-action"
                                             id="list-home-list"
@@ -171,7 +171,7 @@
                                         </div>
                                         {% for item in DeptsData %}
                                         <div class="tab-pane fade" id="dept-{{ item.id }}">
-                                            <ul class="nav nav-tabs">
+                                            <ul class="nav nav-tabs" role="tablist">
                                                 {% for date in RegDates %}
                                                 <li class="nav-item">
                                                     <a href="#reg-{{ item.id }}-{{ date|ymd2md }}"
@@ -544,32 +544,3 @@
     <script src="{% static 'js/patient_query.js' %}"></script>
 
 {% endblock %}
-{% comment %}
-    <tr>
-        <td>
-            <button type="button"
-                    class="btn tp-btn btn-light"
-                    data-toggle="modal"
-                    data-target="#DoctorModal"
-                    onclick="">
-                Light
-            </button>
-        </td>
-        <td>
-            <button type="button"
-                    class="btn tp-btn-light btn-success"
-                    data-toggle="modal"
-                    data-target="#GHask"
-                    style="width: 80px">3
-            </button>
-        </td>
-        <td>
-            <button type="button"
-                    class="btn tp-btn-light btn-success"
-                    data-toggle="modal"
-                    data-target="#GHask"
-                    style="width: 80px">4
-            </button>
-        </td>
-
-    </tr>{% endcomment %}
