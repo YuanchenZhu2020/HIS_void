@@ -130,6 +130,7 @@
 <script>
     function submitAlert() {
         swal("提交成功", "", "success");
+        $($('.swal2-actions').children()[0]).attr('onclick', 'window.location.href="/index"');
     }
 </script>
 {% include 'footer.html' %}
