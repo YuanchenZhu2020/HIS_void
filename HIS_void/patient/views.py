@@ -142,7 +142,7 @@ class PatientView(View):
 
     def get(self, request):
         # print("[Patient Workspace View]", request.user)
-        # if request.user.is_authenticated  and isinstance(request.user, PatientUser):
+        # if request.user.is_authenticated and isinstance(request.user, PatientUser):
         #     context = {"user_type": "patient"}
         #     return render(request, PatientView.template_name, context = context)
         # else:
