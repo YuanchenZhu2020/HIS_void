@@ -4,7 +4,7 @@
         <img class="logo-abbr" src="{% static 'images/logo.png' %}" alt="">
         <img class="brand-title" src="{% static 'images/logo-text-01.png' %}" alt="">
     </a>
-    {% if request.session.username %}
+    {% if request.session.name %}
         <nav class="navbar navbar-expand">
             <ul class="navbar-nav header-right">
                 <!--
@@ -111,7 +111,7 @@
                     <a class="nav-link" href="javascript:;" role="button" data-toggle="dropdown">
                         <img src="{% static 'images/avatar/noavatar.png' %}" width="20" alt=""/>
                         <div class="header-info">
-                            <span>Hello, <strong>{{ request.session.staff_name }}</strong></span>
+                            <span>Hello, <strong>{{ request.session.name }}</strong></span>
                         </div>
                     </a>
                     <div class="dropdown-menu dropdown-menu-right">

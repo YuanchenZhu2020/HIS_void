@@ -49,11 +49,22 @@ class Department(models.Model):
     """
     医院科室和部门。其编号范围为 [1, Inf)
     """
+    ACCEPT_ITEMS = [
+        (0, _("不接收患者")),
+        (1, _("接收患者"))
+    ]
+
     dept = models.OneToOneField(
         UserGroup,
         primary_key = True,
         on_delete = models.CASCADE,
         verbose_name = _("科室部门"),
+    )
+    accept_patient = models.BooleanField(
+        choices = ACCEPT_ITEMS,
+        default = 0,
+        verbose_name = _("接收患者"),
+        help_text = _("是否向病人提供诊疗服务。")
     )
     description = models.TextField(verbose_name = _("简介"))
 
