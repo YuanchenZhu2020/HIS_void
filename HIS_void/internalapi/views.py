@@ -14,7 +14,7 @@ from inpatient.models import HospitalRegistration
 from outpatient.models import RemainingRegistration, RegistrationInfo
 from patient.models import PatientUser
 from patient.decorators import patient_login_required
-
+from pharmacy.models import MedicineInfo
 
 
 class OutpatientAPI(View):
