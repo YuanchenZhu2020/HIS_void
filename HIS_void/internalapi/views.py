@@ -393,11 +393,13 @@ class PatientViewAPI(View):
             remain_reg_record.save()
             # 写入挂号信息
             patient_id = request.session["patient_id"]
-            reg_id = RegistrationInfo.objects.filter(patient__patient_id = patient_id).count() + 1
+            patient = PatientUser.objects.get_by_patient_id(patient_id)
+            doctor = Staff.objects.get_by_user(reg_info["doctor_id"])
+            reg_id = patient.registration_set.count() + 1
             reg_record = RegistrationInfo.objects.create(
-                patient = PatientUser.objects.get_by_patient_id(patient_id),
+                patient = patient,
                 reg_id = reg_id,
-                medical_staff = Staff.objects.get_by_user(reg_info["doctor_id"]),
+                medical_staff = doctor,
                 registration_date = reg_info["reg_datetime"],
                 reg_class = 1 if reg_info["is_emergency"] else 0
             )

@@ -195,11 +195,30 @@ class PatientDetailsView(View):
     def get(self, request):
         patient_id = request.session["patient_id"]
         patient = PatientUser.objects.get_by_patient_id(patient_id)
+        # 挂号记录
+        regs = patient.registration_set.all().order_by(
+            "-reg_id"
+        ).values_list(
+            "reg_id", "registration_date__date", 
+            "medical_staff__user__username", "medical_staff__name", 
+            "diagnosis_results"
+        )
+        # 检查记录
+        tests = PatientTestItem.objects.filter(
+            registration_info__patient = patient,
+            # inspect_status = True
+        ).order_by(
+            "-test_id"
+        ).values_list(
+            "test_id", "issue_time", 
+            "test_item__inspect_name", "test_results",
+            "inspect_status"
+        )
+
         # 历史就诊
         # 数据格式示例：[{
         #     "number": "1234",  # 挂号的序号
         #     "keshi": "内科",
-        #     "menzhen": "呼吸门诊",
         #     "doctor_id": "000001",
         #     "doctor_name": "A医生",
         #     "date": "2021-01-01",
@@ -217,10 +236,11 @@ class PatientDetailsView(View):
         #     "order": 199,
         #     "status": "等待检查",
         # },...]
-        # waiting_diag_data = 
+        # waiting_registration = 
         waiting_diagnosis = []
 
         # 确诊记录
+        # 患者此次挂号确诊，即确诊结果 diagnosis_results 不为空。
         # 数据格式示例：[{
         #     "reg_id": "333",
         #     "date": "2020-4-9",
@@ -228,36 +248,22 @@ class PatientDetailsView(View):
         #     "doctor_name": "B医生",
         #     "diagnosis_results": "感冒",
         # },...]
-        history_regs = RegistrationInfo.objects.filter(
-            patient = patient,
-            diagnosis_results__isnull = False,
-        ).order_by(
-            "-reg_id"
-        ).values_list(
-            "reg_id", "registration_date__date", 
-            "medical_staff__user__username", "medical_staff__name", 
-            "diagnosis_results"
-        )
+        history_regs = filter(lambda x: x[-1] != None, regs)
         diagnosis_data = []
         for history_reg in history_regs:
             diagnosis_data.append(dict(zip(
                 ["reg_id", "date", "doctor_id", "doctor_name", "diagnosis_result"],
                 history_reg
             )))
-        # 检查记录
+        
+        # 历史检查记录
+        # 已完成的检查，即 inspect_status 为 1 (True)
         # 数据格式示例：[{
         #     "id": "111",
         #     "name": "B超",
         #     "price": "199",
         # },...]
-        history_tests = PatientTestItem.objects.filter(
-            registration_info__patient = patient
-        ).order_by(
-            "-test_id"
-        ).values_list(
-            "test_id", "issue_time", 
-            "test_item__inspect_name", "test_results",
-        )
+        history_tests = filter(lambda x: x[-1], tests)
         tests_data = []
         for history_test in history_tests:
             tests_data.append(dict(zip(
