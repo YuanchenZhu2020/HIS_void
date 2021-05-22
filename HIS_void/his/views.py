@@ -318,26 +318,48 @@ class NurseAPI(View):
 
 # 住院医生工作台数据
 class InhospitalAPI(View):
-    def get(self, request):
-        # 获取需要查询的信息类型
-        query_information = request.GET.get('information')
+    pass
+    # def get(self, request):
+    #     # 获取需要查询的信息类型
+    #     query_information = request.GET.get('information')
+    #     print("-------------")
+    #     print(query_information)
+    #     print("---------------")
+    #
+    #     # if query_information == "ZZHZ":
+    #     #     p_no = request.GET.get('p_no')
+    #     #     print(p_no)
+    #     #     # 数据库查询语句
+    #     #     data = [{
+    #     #         "p_no": 114514,
+    #     #         "name": "发多冲",
+    #     #         "bed":123,
+    #     #     },{
+    #     #         "p_no": 11343,
+    #     #         "name": "肖大赛",
+    #     #         "bed":543,
+    #     #     },{
+    #     #         "p_no": 114424,
+    #     #         "name": "阿凡达",
+    #     #         "bed":64,
+    #     #     }]
+    #
+    #     if query_information == "CYHZ":
+    #         p_no = request.GET.get('p_no')
+    #         print(p_no)
+    #         # 数据库查询语句
+    #         data = [{
+    #             "p_no": 114514,
+    #             "name": "oooo",
+    #             "bed":123,
+    #         },{
+    #             "p_no": 11343,
+    #             "name": "bbbb",
+    #             "bed":543,
+    #         },{
+    #             "p_no": 114424,
+    #             "name": "ddd",
+    #             "bed":64,
+    #         }]
+    #     return JsonResponse(data, safe=False)
 
-        #
-        if query_information == "ZZHZ":
-            p_no = request.GET.get('p_no')
-            print(p_no)
-            # 数据库查询语句
-            data = [{
-                "p_no": 114514,
-                "name": "发多冲",
-                "bed":123,
-            },{
-                "p_no": 11343,
-                "name": "肖大赛",
-                "bed":543,
-            },{
-                "p_no": 114424,
-                "name": "阿凡达",
-                "bed":64,
-            }]
-        return JsonResponse(data, safe=False)
