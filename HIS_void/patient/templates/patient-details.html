@@ -319,7 +319,7 @@
                                                                     <tr>
                                                                         <td>{{ item.date|date:"Y-m-d H:m:s" }}</td>
                                                                         <td>{{ item.name }}</td>
-                                                                        <td>{{ item.result }}</td>
+                                                                        <td>{{ item.result|default_if_none:"（等待结果中）" }}</td>
                                                                         <td>
                                                                             <button type="button"
                                                                                     class="btn btn-success light sharp"
