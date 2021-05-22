@@ -71,13 +71,18 @@ def _user_has_module_urlperms(user, url_regex):
 
 
 class ObjectPermission(models.Model):
-    name = models.CharField(max_length = 255, verbose_name = _("对象权限名称"))
-    permission = models.ForeignKey(
+    """
+    对象权限类
+    """
+    name        = models.CharField(max_length = 255, verbose_name = _("对象权限名称"))
+    permission  = models.ForeignKey(
         Permission, 
         on_delete = models.CASCADE, 
+        related_name = "object_perm_set",
+        related_query_name = "object_prems",
         verbose_name = _("权限")
     )
-    object_id = models.CharField(max_length = 255, verbose_name = _("对象ID"))
+    object_id   = models.CharField(max_length = 255, verbose_name = _("对象ID"))
     create_time = models.DateTimeField(
         auto_now_add = True, 
         editable = False, 
@@ -99,22 +104,26 @@ class ObjectPermission(models.Model):
 
 
 class URLPermission(models.Model):
-    name = models.CharField(
-        max_length = 255, 
-        unique = True, 
-        verbose_name = _('权限名'),
-        help_text = _("URL访问权限的名称。"),
+    """
+    URL 访问权限
+    """
+    # name = models.CharField(
+    #     max_length = 255, 
+    #     unique = True, 
+    #     verbose_name = _('权限名'),
+    #     help_text = _("URL访问权限的名称。"),
+    # )
+    codename    = models.CharField(
+        max_length = 64, 
+        primary_key = True,
+        verbose_name = _("权限代码"),
+        help_text = _("简要概括URL访问权限作用的对象，建议使用英文单词和下划线。"),
     )
-    url = models.CharField(
+    url_regex   = models.CharField(
         max_length = 128, 
         unique = True, 
         verbose_name = _("URL"),
         help_text = _("用于匹配指定URL的正则表达式。"),
-    )
-    codename = models.CharField(
-        max_length = 64, 
-        verbose_name = _("权限代码"),
-        help_text = _("简要概括URL访问权限作用的对象，建议使用英文单词和下划线。"),
     )
     create_time = models.DateTimeField(
         auto_now_add = True, 
@@ -125,7 +134,7 @@ class URLPermission(models.Model):
     class Meta:
         verbose_name = _("URL访问权限")
         verbose_name_plural = verbose_name
-        ordering = ["codename", "url"]
+        ordering = ["codename", "url_regex"]
 
     def __str__(self):
         return "<URL Perm {}-{}>".format(self.codename, self.url)
@@ -133,7 +142,7 @@ class URLPermission(models.Model):
 
 class Role(models.Model):
     """ 角色 """
-    title       = models.CharField(max_length = 32, unique = True, verbose_name = "角色名")
+    name        = models.CharField(max_length = 32, unique = True, verbose_name = "角色名")
     description = models.TextField(max_length = 300, default = "", verbose_name = "角色描述")
     create_time = models.DateTimeField(
         auto_now_add = True, 
@@ -145,7 +154,7 @@ class Role(models.Model):
         URLPermission, 
         blank = True, 
         related_name = "role_set",
-        related_query_name = "role",
+        related_query_name = "roles",
         verbose_name = _("URL访问权限"),
         help_text = _("该角色拥有的URL访问权限"),
     )
@@ -154,7 +163,7 @@ class Role(models.Model):
         ObjectPermission,
         blank = True, 
         related_name = "role_set",
-        related_query_name = "role",
+        related_query_name = "roles",
         verbose_name = _("对象资源权限"),
         help_text = _("该角色拥有的对象资源权限"),
     )
@@ -170,9 +179,6 @@ class Role(models.Model):
 class GroupManager(models.Manager):
     use_in_migrations = True
 
-    def get_by_natural_key(self, ug_id, name):
-        return self.get(ug_id = ug_id, name = name)
-    
     def get_by_usergroup_id(self, ug_id):
         try:
             ug = self.get(ug_id = ug_id)
@@ -212,7 +218,7 @@ class UserGroup(models.Model):
         verbose_name = "创建时间"
     )
     # Perm Cond 1: 角色
-    roles = models.ManyToManyField(
+    roles           = models.ManyToManyField(
         Role,
         blank = True,
         related_name = "usergroup_set",
@@ -225,7 +231,7 @@ class UserGroup(models.Model):
         URLPermission, 
         blank = True, 
         related_name = "usergroup_set",
-        related_query_name = "usergroup",
+        related_query_name = "usergroups",
         verbose_name = _("URL访问权限"),
         help_text = _("用户组具有的全部URL访问权限。")
     )
@@ -234,7 +240,7 @@ class UserGroup(models.Model):
         ObjectPermission,
         blank = True, 
         related_name = "usergroup_set",
-        related_query_name = "usergroup",
+        related_query_name = "usergroups",
         verbose_name = _("对象资源权限"),
         help_text = _("该用户组拥有的对象资源权限"),
     )
@@ -247,9 +253,6 @@ class UserGroup(models.Model):
 
     def __str__(self):
         return "<User Group {}-{}>".format(self.ug_id, self.name)
-
-    def natural_key(self):
-        return (self.ug_id, self.name,)
 
 
 class PermissionsMixin(models.Model):
@@ -267,20 +270,20 @@ class PermissionsMixin(models.Model):
         help_text = _("超级用户具有全部权限。"),
     )
     # Perm Cond 2: 用户组
-    groups = models.ManyToManyField(
+    groups       = models.ManyToManyField(
         UserGroup,
         blank = True,
         related_name = "user_set",
-        related_query_name = "user",
+        related_query_name = "users",
         verbose_name = _("用户组"),
         help_text = _("用户所属的用户组，用户能够获取所属用户组的全部权限。"),
     )
     # Perm Cond 3: 角色
-    roles = models.ManyToManyField(
+    roles        = models.ManyToManyField(
         Role,
         blank = True,
         related_name = "user_set",
-        related_query_name = "user",
+        related_query_name = "users",
         verbose_name = _("角色"),
         help_text = _("用户所拥有的角色，用户能够获取所拥有角色的全部权限。"),
     )
@@ -289,7 +292,7 @@ class PermissionsMixin(models.Model):
         URLPermission,
         blank = True,
         related_name = "user_set",
-        related_query_name = "user",
+        related_query_name = "users",
         verbose_name = _("URL访问权限"),
         help_text = _("该用户具有的所有URL访问权限。"),
     )
@@ -298,7 +301,7 @@ class PermissionsMixin(models.Model):
         ObjectPermission,
         blank = True, 
         related_name = "user_set",
-        related_query_name = "user",
+        related_query_name = "users",
         verbose_name = _("对象资源权限"),
         help_text = _("该用户拥有的对象资源权限"),
     )
@@ -435,11 +438,14 @@ class UserInfoManager(BaseUserManager):
 
 
 class UserInfo(AbstractBaseUser, PermissionsMixin):
+    """
+    登录账户，将职工个人信息与登陆账户分开，方便离职后的账户回收。
+    """
     # 以 6 位数字的工号作为登录账号
     # 患者账号单独管理
-    username = models.CharField(
+    username    = models.CharField(
         max_length = 6, 
-        unique = True, 
+        primary_key = True, 
         verbose_name = _("登录账号"),
         help_text = _("以 6 位数字的工号作为登录账户名。"),
     )
@@ -449,12 +455,12 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
         verbose_name = _("创建时间"),
     )
 
-    is_active = models.BooleanField(
+    is_active   = models.BooleanField(
         default = True, 
         verbose_name = _("活动账户"),
         help_text = _("决定该用户是否为活动账户。"),
     )
-    is_admin = models.BooleanField(
+    is_admin    = models.BooleanField(
         default = False, 
         verbose_name = _("管理员"),
         help_text = _("决定该用户是否能够访问 /admin 页面。"),
@@ -464,9 +470,6 @@ class UserInfo(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = []
-
-    def __str__(self):
-        return "<UsrInfo {}>".format(self.username)
 
     @property
     def is_staff(self):
@@ -518,11 +521,12 @@ class LoginLog(models.Model):
         editable = False, 
         verbose_name = _("登录时间")
     )
-    ip_address = models.CharField(max_length = 256, verbose_name = _("登录IP"))
+    ip_address = models.GenericIPAddressField(verbose_name = _("登录IP"))
 
     class Meta:
         verbose_name = _("登录日志")
         verbose_name_plural = verbose_name
+        unique_together = ["user", "login_time"]
     
     def __str__(self) -> str:
         return "<{} Login at {} | {}>".format(self.user, self.login_time, self.ip_address)

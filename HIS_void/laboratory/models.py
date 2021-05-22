@@ -17,7 +17,10 @@ class TestItemType(models.Model):
         (5, '风湿免疫'),
     )
     """
-    inspect_type_id = models.BigAutoField(primary_key = True, verbose_name = _("检验项目类型编号"))
+    inspect_type_id   = models.BigAutoField(
+        primary_key = True, 
+        verbose_name = _("检验项目类型编号")
+    )
     inspect_type_name = models.CharField(max_length = 30, verbose_name = _("检验项目类型名称"))
 
     class Meta:
@@ -32,14 +35,17 @@ class TestItem(models.Model):
     """
     检验项目
     """
-    inspect_id = models.BigAutoField(primary_key = True, verbose_name = _("检验项目编号"))
-    inspect_type = models.ForeignKey(
+    inspect_id    = models.BigAutoField(primary_key = True, verbose_name = _("检验项目编号"))
+    inspect_type  = models.ForeignKey(
         TestItemType,
         null = True,
+        blank = True,
         on_delete = models.SET_NULL,
+        related_name = "testitem_set",
+        related_query_name = "testitems",
         verbose_name = _("检验项目类型"),
     )
-    inspect_name = models.CharField(max_length = 30, verbose_name = _("检验项目名称"))
+    inspect_name  = models.CharField(max_length = 30, verbose_name = _("检验项目名称"))
     inspect_price = models.FloatField(
         validators = [MinValueValidator(0),],
         verbose_name = _("检验价格")
@@ -64,11 +70,11 @@ class PatientTestItem(models.Model):
         related_query_name = "patient_test_items",
         verbose_name = _("挂号信息"),
     )
-    test_id = models.PositiveIntegerField(
+    test_id      = models.PositiveIntegerField(
         verbose_name = _("检验序号"),
         help_text = _("A病人第X次挂号的第i项检验"),
     )
-    test_item = models.ForeignKey(
+    test_item    = models.ForeignKey(
         TestItem, 
         on_delete = models.CASCADE, 
         related_name = "patient_test_item_set",
@@ -82,13 +88,23 @@ class PatientTestItem(models.Model):
         related_query_name = "patient_test_items",
         verbose_name = _("责任人"),
     )
-    issue_time = models.DateTimeField(
-        auto_created = True,
+    issue_time   = models.DateTimeField(
+        auto_now_add = True,
         editable = False,
         verbose_name = _("开具时间"),
     )
-    test_results = models.TextField(max_length = 400, blank = True, verbose_name = _("检验结果"))
+    test_results = models.TextField(
+        max_length = 400, 
+        null = True,
+        blank = True, 
+        verbose_name = _("检验结果")
+    )
     payment_status = models.BooleanField(default = False, verbose_name = _("缴费状态"))
+    inspect_status = models.BooleanField(
+        default = False, 
+        verbose_name = _("检查状态"),
+        help_text = _("还未开始检查（0）或正在检查及已完成检查（1）。")
+    )
 
     class Meta:
         verbose_name = _("患者检验项目")
@@ -107,7 +123,7 @@ class EquipmentTypeInfo(models.Model):
     """
     设备类型信息
     """
-    eq_type_id = models.BigAutoField(primary_key = True, verbose_name = _("设备类型编号"))
+    eq_type_id   = models.BigAutoField(primary_key = True, verbose_name = _("设备类型编号"))
     eq_type_name = models.CharField(max_length = 100, verbose_name = _("设备类型名称"))
 
     class Meta:
@@ -122,23 +138,28 @@ class EquipmentInfo(models.Model):
     """
     设备信息
     """
-    equipment_id = models.BigAutoField(primary_key = True, verbose_name = _("设备全局编号"))
-    equipment_type = models.ForeignKey(
+    equipment_id    = models.BigAutoField(
+        primary_key = True, 
+        verbose_name = _("设备编号"),
+        help_text = _("设备全局编号"),
+    )
+    equipment_type  = models.ForeignKey(
         EquipmentTypeInfo, 
         null = True,
+        blank = True,
         on_delete = models.SET_NULL,
         related_name = "equipment_info_set",
         related_query_name = "equipment_infos",
         verbose_name = _("设备类型"),
     )
     equipment_model = models.CharField(max_length = 20, verbose_name = _("设备型号"))
-    purchase_date = models.DateField(
-        auto_created = True,
+    purchase_date   = models.DateField(
+        auto_now_add = True,
         editable = False,
         verbose_name = _("采购日期"),
     )
-    start_using = models.DateField(verbose_name = _("启用日期"))
-    lifetime = models.PositiveIntegerField(verbose_name = _("理论使用寿命"))
+    start_using     = models.DateField(verbose_name = _("启用日期"))
+    lifetime        = models.PositiveIntegerField(verbose_name = _("理论使用寿命"))
 
     class Meta:
         verbose_name = _("设备信息")

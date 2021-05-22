@@ -60,7 +60,7 @@ class CustomBackends(ModelBackend):
                 perms = URLPermission.objects.all()
             else:
                 perms = getattr(self, "_get_{}_url_permissions".format(from_name))(user_obj)
-            perms = perms.values_list("codename", "url").order_by()
+            perms = perms.values_list("codename", "url_regex").order_by()
             # 设置URL访问权限缓存
             setattr(user_obj, urlperm_cache_name, {"{}.{}".format(cn, url) for cn, url in perms})
         return getattr(user_obj, urlperm_cache_name)
