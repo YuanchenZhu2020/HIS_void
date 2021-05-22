@@ -150,7 +150,7 @@ class PatientView(View):
             # 挂号科室
             depts = Department.objects.filter(
                 accept_patient = 1
-            ).values_list("dept__ug_id", "dept__name")
+            ).values_list("usergroup__ug_id", "usergroup__name")
             PatientView.DEPT_DATA_CACHE = [
                 {"id": dept[0], "name": dept[1]}
                 for dept in depts
