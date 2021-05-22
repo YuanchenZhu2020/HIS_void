@@ -1,10 +1,4 @@
 -- SQLite
--- 检验项目类型
-insert into laboratory_testitemtype 
-(inspect_type_id, inspect_type_name) values 
-    (1,'临床检查'),(2,'生物化学'),(3,'微生物学'),(4,'寄生虫学'),(5,'风湿免疫');
--- 病区
-insert into his_inpatientarea values ('A'), ('B'), ('C');
 -- RBAC.UserGroup
 insert into rbac_usergroup 
 (ug_id, name, create_time) values 
@@ -15,6 +9,8 @@ insert into rbac_usergroup
     (9, '急诊科', '2021-05-10 11:12:59'),(10, '检验科', '2021-05-10 11:12:59'),
     (11, '药房', '2021-05-10 11:12:59'),(12, '财务', '2021-05-10 11:12:59'),
     (13, '信息部', '2021-05-10 11:12:59');
+-- 病区
+insert into his_inpatientarea values ('A'), ('B'), ('C');
 -- 职称
 insert into his_hospitaltitle 
 (title_id, title_name) values 
@@ -23,6 +19,10 @@ insert into his_hospitaltitle
 insert into his_jobtype 
 (job_id, job_name) values 
     (1, '医生'),(2, '护士'),(3, '药房医生'),(4, '检验医生'),(5, '财务'),(6, '运维');
+-- 检验项目类型
+insert into laboratory_testitemtype 
+(inspect_type_id, inspect_type_name) values 
+    (1,'临床检查'),(2,'生物化学'),(3,'微生物学'),(4,'寄生虫学'),(5,'风湿免疫');
 -- 设备类型
 insert into laboratory_equipmenttypeinfo 
 (eq_type_id, eq_type_name) values
@@ -662,3 +662,5 @@ insert into pharmacy_medicineinfo
     ('A00626', '乙环利定', '5ml', '支', 7.71, 8.10, 0, 240, 2, 1),
     ('A00627', '乙色胺', '5ml', '支', 133.00, 139.65, 0, 120, 2, 1),
     ('A00628', '二亚甲基双氧安非他明', '5ml', '支', 6.08, 6.39, 0, 180, 2, 1);
+
+-- 

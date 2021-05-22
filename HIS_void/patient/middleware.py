@@ -34,10 +34,10 @@ class PatientUserMiddleware:
 
     def process_request(self, request):
         assert hasattr(request, 'session'), (
-            "The Django authentication middleware requires session middleware "
-            "to be installed. Edit your MIDDLEWARE setting to insert "
+            "PatientUser middleware 需要安装 session middleware "
+            "请编辑 setting 文件中的 MIDDLEWARE，按如下顺序插入： "
             "'django.contrib.sessions.middleware.SessionMiddleware' before "
-            "'django.contrib.auth.middleware.AuthenticationMiddleware'."
+            "'django.contrib.auth.middleware.PatientUserMiddleware'."
         )
         # print(request.user)
         # print(type(request.user))

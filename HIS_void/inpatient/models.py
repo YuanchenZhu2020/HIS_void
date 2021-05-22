@@ -18,21 +18,29 @@ class NursingRecord(models.Model):
         related_query_name = "nursing_records",
         verbose_name = _("责任护士"),
     )
-    patient = models.ForeignKey(
+    patient       = models.ForeignKey(
         PatientUser, 
         on_delete = models.CASCADE, 
         related_name = "nursing_record_set",
         related_query_name = "nursing_records",
         verbose_name = _("患者"),
     )
-    nursing_date = models.DateField(
-        auto_created = True,
+    nursing_date  = models.DateField(
+        auto_now_add = True,
         editable = False,
         verbose_name = _("护理时间"),
     )
-    systolic = models.PositiveIntegerField(null = True, blank = True, verbose_name = _("收缩压"))
-    diastolic = models.PositiveIntegerField(null = True, blank = True, verbose_name = _("舒张压"))
-    temperature = models.FloatField(null = True, blank = True, verbose_name = _("体温"))
+    systolic      = models.PositiveIntegerField(
+        null = True, 
+        blank = True, 
+        verbose_name = _("收缩压")
+    )
+    diastolic     = models.PositiveIntegerField(
+        null = True, 
+        blank = True, 
+        verbose_name = _("舒张压")
+    )
+    temperature   = models.FloatField(null = True, blank = True, verbose_name = _("体温"))
     note = models.TextField(
         max_length = 200, 
         null = True,
@@ -76,20 +84,24 @@ class HospitalRegistration(models.Model):
         on_delete = models.CASCADE, 
         verbose_name = _("挂号信息"),
     )
-    dept = models.ForeignKey(
+    dept    = models.ForeignKey(
         Department,
         on_delete = models.CASCADE,
+        related_name = "hospital_reg_set",
+        related_query_name = "hospital_regs",
         verbose_name = _("所属科室"),
     )
-    area = models.ForeignKey(
+    area    = models.ForeignKey(
         InpatientArea, 
         null = True,
         on_delete = models.SET_NULL,
+        related_name = "hospital_reg_set",
+        related_query_name = "hospital_regs",
         verbose_name = _("所属病区"),
     )
-    bed_id = models.PositiveIntegerField(verbose_name = _("床位号"))
-    reg_date = models.DateField(
-        auto_created = True,
+    bed_id  = models.PositiveIntegerField(verbose_name = _("床位号"))
+    reg_date   = models.DateField(
+        auto_now_add = True,
         editable = False,
         verbose_name = _("入院日期"),
     )
@@ -98,8 +110,12 @@ class HospitalRegistration(models.Model):
         choices = CARE_LEVEL_ITEMS, 
         verbose_name = _("护理级别")
     )
-    duration = models.PositiveIntegerField(null = True, verbose_name = _("住院天数"))
-    kin_phone = models.CharField(max_length = 11, verbose_name = _("家属电话"))
+    duration   = models.PositiveIntegerField(
+        null = True, 
+        blank = True, 
+        verbose_name = _("住院天数")
+    )
+    kin_phone  = models.CharField(max_length = 11, verbose_name = _("家属电话"))
     discharge_status = models.BooleanField(default = False, verbose_name = _("即将出院状态"))
 
     class Meta:
@@ -129,9 +145,11 @@ class OperationInfo(models.Model):
     registration_info = models.ForeignKey(
         RegistrationInfo, 
         on_delete = models.CASCADE, 
+        related_name = "operation_set",
+        related_query_name = "operations",
         verbose_name = _("挂号信息"),
     )
-    operation_id = models.PositiveIntegerField(
+    operation_id    = models.PositiveIntegerField(
         verbose_name = _("手术编号"),
         help_text = _("局部编号：每个医生-患者之间进行的第几场手术"),
     )
@@ -140,14 +158,12 @@ class OperationInfo(models.Model):
         choices = LEVEL_CHOICES, 
         verbose_name = _("手术等级")
     )
-    operation_date = models.DateField(
-        auto_created = True,
-        editable = False,
-        verbose_name = _("手术日期"),
-    )
-    operation_name = models.CharField(max_length = 40, verbose_name = _("手术名称"))
-    operation_result = models.CharField(
+    operation_date  = models.DateField(verbose_name = _("手术日期"))
+    operation_name  = models.CharField(max_length = 40, verbose_name = _("手术名称"))
+
+    operation_result   = models.CharField(
         max_length = 20, 
+        null = True,
         blank = True,
         verbose_name = _("手术结果")
     )
@@ -155,8 +171,10 @@ class OperationInfo(models.Model):
         null = True,
         blank = True,
         verbose_name = _("手术持续时间"),
+        help_text = _("以分钟为单位的手术持续时间。")
     )
-    operation_recover = models.CharField(
+    operation_recover  = models.CharField(
+        null = True,
         blank = True, 
         max_length = 10,
         verbose_name = _("预后结果"),
@@ -169,7 +187,7 @@ class OperationInfo(models.Model):
         unique_together = ["registration_info", "operation_id"]
     
     def __str__(self) -> str:
-        return "<Operation {}-{}>".format(self.registration_info, self.opration_id)
+        return "<Operation {}-{}>".format(self.registration_info, self.operation_id)
 
 
 class NarcoticInfo(models.Model):
@@ -184,17 +202,19 @@ class NarcoticInfo(models.Model):
         related_query_name = "narcotics",
         verbose_name = _("手术信息"),
     )
-    medicine_info = models.ForeignKey(
+    medicine_info  = models.ForeignKey(
         MedicineInfo, 
         null = True,
+        blank = True,
         on_delete = models.SET_NULL, 
         related_name = "narcotic_set",
         related_query_name = "narcotics",
         verbose_name = _("麻醉药品信息"),
     )
-    medical_staff = models.ForeignKey(
+    medical_staff  = models.ForeignKey(
         Staff, 
         null = True,
+        blank = True,
         on_delete = models.SET_NULL, 
         related_name = "narcotic_set",
         related_query_name = "narcotics",

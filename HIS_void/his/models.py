@@ -32,14 +32,14 @@ class DepartmentManager(models.Manager):
     
     def get_by_dept_id(self, ug_id):
         try:
-            dept = self.get(dept__ug_id = ug_id)
+            dept = self.get(usergroup__ug_id = ug_id)
         except Department.DoesNotExist:
             dept = None
         return dept
     
     def get_by_dept_name(self, name):
         try:
-            ug = self.get(dept__name = name)
+            ug = self.get(usergroup__name = name)
         except Department.DoesNotExist:
             ug = None
         return ug
@@ -49,13 +49,24 @@ class Department(models.Model):
     """
     医院科室和部门。其编号范围为 [1, Inf)
     """
-    dept = models.OneToOneField(
+    ACCEPT_ITEMS = [
+        (0, _("不接收患者")),
+        (1, _("接收患者"))
+    ]
+
+    usergroup      = models.OneToOneField(
         UserGroup,
         primary_key = True,
         on_delete = models.CASCADE,
         verbose_name = _("科室部门"),
     )
-    description = models.TextField(verbose_name = _("简介"))
+    accept_patient = models.BooleanField(
+        choices = ACCEPT_ITEMS,
+        default = 0,
+        verbose_name = _("接收患者"),
+        help_text = _("是否向病人提供诊疗服务。")
+    )
+    description    = models.TextField(null = True, blank = True, verbose_name = _("简介"))
 
     objects = DepartmentManager()
 
@@ -64,7 +75,7 @@ class Department(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self) -> str:
-        return "<Department {} | UserGroup {}>".format(self.dept.name, self.dept.ug_id)
+        return "<Department {} | UserGroup {}>".format(self.usergroup.name, self.usergroup.ug_id)
 
 # UserGroup 添加新对象后，Department 会自动添加该对象
 @receiver(post_save, sender = UserGroup)
@@ -80,19 +91,20 @@ class DeptAreaBed(models.Model):
     """
     科室-病区-床位表
     """
-    dept = models.ForeignKey(
+    dept   = models.ForeignKey(
         Department,
         on_delete = models.CASCADE,
-        related_name = "dept_set",
-        related_query_name = "depts",
+        related_name = "deptbeds_set",
+        related_query_name = "deptbeds",
         verbose_name = _("科室"),
     )
-    area = models.ForeignKey(
+    area   = models.ForeignKey(
         InpatientArea,
         null = True,
+        blank = True,
         on_delete = models.SET_NULL,
-        related_name = "area_set",
-        related_query_name = "areas",
+        related_name = "deptbeds_set",
+        related_query_name = "deptbeds",
         verbose_name = _("病区"),
     )
     bed_id = models.PositiveIntegerField(
@@ -114,19 +126,19 @@ class Notice(models.Model):
     """
     科室部门通知表
     """
-    dept = models.ForeignKey(
+    dept        = models.ForeignKey(
         Department,
         on_delete = models.CASCADE,
         related_name = "notice_set_send",
         related_query_name = "notices_send",
         verbose_name = _("科室部门"),
     )
-    send_time = models.DateTimeField(
+    send_time   = models.DateTimeField(
         auto_now_add = True,
         editable = False,
         verbose_name = _("发送时间"),
     )
-    content = models.TextField(
+    content     = models.TextField(
         null = True,
         blank = True,
         verbose_name = _("通知正文")
@@ -144,7 +156,7 @@ class Notice(models.Model):
         unique_together = ["dept", "send_time"]
 
     def __str__(self) -> str:
-        return "<通知 {} | {}>".format(self.dept.dept.name, self.send_time)
+        return "<Notice {} | {}>".format(self.dept.usergroup.name, self.send_time)
 
 
 class HospitalTitleManager(models.Manager):
@@ -175,7 +187,7 @@ class HospitalTitle(models.Model):
         (4, '主任医师'),
     )
     """
-    title_id = models.BigAutoField(primary_key = True, verbose_name = _("职称ID"))
+    title_id   = models.BigAutoField(primary_key = True, verbose_name = _("职称ID"))
     title_name = models.CharField(max_length = 20, verbose_name = _("职称名称"))
 
     objects = HospitalTitleManager()
@@ -219,7 +231,7 @@ class JobType(models.Model):
         (6, '运维'),
     )
     """
-    job_id = models.BigAutoField(primary_key = True, verbose_name = _("工种编号"))
+    job_id   = models.BigAutoField(primary_key = True, verbose_name = _("工种编号"))
     job_name = models.CharField(max_length = 20, verbose_name = _("工种名称"))
 
     objects = JobTypeManager()
@@ -244,9 +256,9 @@ class Staff(models.Model):
     # blank: 表单显示
     user    = models.OneToOneField(
         UserInfo,
-        on_delete = models.CASCADE,
         null = True,
         blank = True,
+        on_delete = models.CASCADE,
         verbose_name = _("登录信息")
     )
     name    = models.CharField(max_length = 128, verbose_name = _("职工姓名"))
@@ -255,19 +267,28 @@ class Staff(models.Model):
     dept    = models.ForeignKey(
         Department,
         null = True,
+        blank = True,
         on_delete = models.SET_NULL,
+        related_name = "staff_set",
+        related_query_name = "staffs",
         verbose_name = _("科室部门")
     )
     title   = models.ForeignKey(
         HospitalTitle,
         null = True,
+        blank = True,
         on_delete = models.SET_NULL,
+        related_name = "staff_set",
+        related_query_name = "staffs",
         verbose_name = _("职称"),
     )
     job     = models.ForeignKey(
         JobType,
         null = True,
+        blank = True,
         on_delete = models.SET_NULL,
+        related_name = "staff_set",
+        related_query_name = "staffs",
         verbose_name = _("工种"),
     )
 
@@ -316,6 +337,7 @@ class DutyRoster(models.Model):
     duty_area = models.ForeignKey(
         InpatientArea,
         null = True,
+        blank = True,
         on_delete = models.SET_NULL,
         related_name = "duty_roster_set",
         related_query_name = "duty_rosters",

@@ -23,14 +23,21 @@ class PatientURLPermission(URLPermission):
     class Meta:
         verbose_name = _("患者URL访问权限")
         verbose_name_plural = verbose_name
-        ordering = ["codename", "url"]
+        ordering = ["codename", "url_regex"]
 
     def __str__(self):
-        return "<URL Perm {}-{}>".format(self.codename, self.url)
+        return "<URL Perm {}-{}>".format(self.codename, self.url_regex)
 
 
 class PatientUserManager(BaseUserManager):
-    pass
+    use_in_migrations = True
+
+    def get_by_patient_id(self, patient_id):
+        try:
+            pt = self.get(patient_id = patient_id)
+        except PatientUser.DoesNotExist:
+            pt = None
+        return pt
 
 
 class PatientUser(AbstractBaseUser):
@@ -55,25 +62,27 @@ class PatientUser(AbstractBaseUser):
     ]
 
     patient_id = models.BigAutoField(primary_key = True, verbose_name = _("就诊号"))
-    id_type = models.IntegerField(
+    id_type    = models.IntegerField(
         choices = ID_TYPE_ITEMS, 
         default = 0, 
         verbose_name = _("证件类型")
     )
-    id_number = models.CharField(
+    id_number  = models.CharField(
         max_length = 18, 
         validators = [IDNumberValidator()], 
         verbose_name = _("证件号")
     )
-    name = models.CharField(max_length = 20, verbose_name = _("姓名"))
-    gender = models.IntegerField(choices = SEX_ITEMS, default = 0, verbose_name = _("性别"))
-    birthday = models.DateField(verbose_name = _("出生日期"))
-    phone = models.CharField(
+    name       = models.CharField(max_length = 20, verbose_name = _("姓名"))
+    gender     = models.IntegerField(choices = SEX_ITEMS, default = 0, verbose_name = _("性别"))
+    birthday   = models.DateField(verbose_name = _("出生日期"))
+    phone      = models.CharField(
         max_length = 11, 
         null = True, 
+        blank = True, 
         verbose_name = _("手机号码")
     )
-    past_illness = models.TextField(verbose_name = _("既往史"))
+
+    past_illness    = models.TextField(verbose_name = _("既往史"))
     allegic_history = models.TextField(verbose_name = _("过敏史"))
 
     create_time = models.DateTimeField(
@@ -81,7 +90,7 @@ class PatientUser(AbstractBaseUser):
         editable = False, 
         verbose_name = _("创建时间"),
     )
-    is_admin = models.BooleanField(
+    is_admin    = models.BooleanField(
         default = False, 
         editable = False,
         verbose_name = _("管理员"),
@@ -112,7 +121,7 @@ class PatientUser(AbstractBaseUser):
         verbose_name_plural = _('患者')
     
     def __str__(self):
-        return "<Patient {}>".format(self.patient_id)
+        return "<Patient {}>".format(self.get_patient_id())
 
     @property
     def is_staff(self):
@@ -141,7 +150,7 @@ class PatientUser(AbstractBaseUser):
         urlperm_cache_name = "_urlperm_cache"
         if not hasattr(self, urlperm_cache_name):
             perms = PatientURLPermission.objects.all()
-            perms = perms.values_list("codename", "url").order_by()
+            perms = perms.values_list("codename", "url_regex").order_by()
             # 设置URL访问权限缓存
             setattr(self, urlperm_cache_name, {"{}.{}".format(cn, url) for cn, url in perms})
         return getattr(self, urlperm_cache_name)
