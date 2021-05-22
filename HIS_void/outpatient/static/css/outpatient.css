@@ -1,7 +1,7 @@
 #box {
     height: 56px;
     overflow: visible;
-    z-index: 9999999;
+    z-index: 9999999999999;
 }
 
 #txt {
