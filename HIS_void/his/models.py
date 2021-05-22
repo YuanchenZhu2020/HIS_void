@@ -75,7 +75,7 @@ class Department(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self) -> str:
-        return "<Department {} | UserGroup {}>".format(self.dept.name, self.dept.ug_id)
+        return "<Department {} | UserGroup {}>".format(self.usergroup.name, self.usergroup.ug_id)
 
 # UserGroup 添加新对象后，Department 会自动添加该对象
 @receiver(post_save, sender = UserGroup)

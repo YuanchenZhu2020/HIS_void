@@ -150,7 +150,7 @@ class PatientUser(AbstractBaseUser):
         urlperm_cache_name = "_urlperm_cache"
         if not hasattr(self, urlperm_cache_name):
             perms = PatientURLPermission.objects.all()
-            perms = perms.values_list("codename", "url").order_by()
+            perms = perms.values_list("codename", "url_regex").order_by()
             # 设置URL访问权限缓存
             setattr(self, urlperm_cache_name, {"{}.{}".format(cn, url) for cn, url in perms})
         return getattr(self, urlperm_cache_name)
