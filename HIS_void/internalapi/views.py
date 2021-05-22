@@ -332,7 +332,7 @@ class PatientViewAPI(View):
         }
         dept_id = int(request.GET.get('KS_id'))
         reginfo_detail = RemainingRegistration.objects.filter(
-            medical_staff__dept__dept__ug_id = dept_id,
+            medical_staff__dept__usergroup__ug_id = dept_id,
             register_date__in = reg_datetime.values()
         ).values_list(
             "medical_staff__user__username",
