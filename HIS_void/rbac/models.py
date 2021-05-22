@@ -172,6 +172,20 @@ class GroupManager(models.Manager):
 
     def get_by_natural_key(self, ug_id, name):
         return self.get(ug_id = ug_id, name = name)
+    
+    def get_by_usergroup_id(self, ug_id):
+        try:
+            ug = self.get(ug_id = ug_id)
+        except UserGroup.DoesNotExist:
+            ug = None
+        return ug
+    
+    def get_by_usergroup_name(self, name):
+        try:
+            ug = self.get(name = name)
+        except UserGroup.DoesNotExist:
+            ug = None
+        return ug
 
 
 class UserGroup(models.Model):
@@ -181,9 +195,8 @@ class UserGroup(models.Model):
         - URL访问权限
         - （行级资源权限）
     """
-    ug_id = models.IntegerField(
-        validators = [MinValueValidator(1)], 
-        unique = True,
+    ug_id = models.BigAutoField(
+        primary_key = True,
         verbose_name = _("用户组编号"),
         help_text = _("用户组编号，取值范围为 1 ~ Inf。"),
     )

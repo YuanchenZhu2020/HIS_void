@@ -54,7 +54,7 @@ class PatientUser(AbstractBaseUser):
         (3, _("护照")),
     ]
 
-    patient_id = models.AutoField(primary_key = True, verbose_name = _("就诊号"))
+    patient_id = models.BigAutoField(primary_key = True, verbose_name = _("就诊号"))
     id_type = models.IntegerField(
         choices = ID_TYPE_ITEMS, 
         default = 0, 
@@ -145,3 +145,6 @@ class PatientUser(AbstractBaseUser):
             # 设置URL访问权限缓存
             setattr(self, urlperm_cache_name, {"{}.{}".format(cn, url) for cn, url in perms})
         return getattr(self, urlperm_cache_name)
+
+    def has_module_perms(self, app_label):
+        return False

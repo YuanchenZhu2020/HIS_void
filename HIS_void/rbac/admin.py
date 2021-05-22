@@ -123,12 +123,12 @@ class UserGroupAdmin(admin.ModelAdmin):
     list_filter = ("ug_id", "name")
     search_fields = ("ug_id", "name")
     fieldsets = (
-        (None, {"fields": ("ug_id", "name")}), 
+        (None, {"fields": ("name",)}), 
         (_("直接权限"), {"fields": ("url_permissions", "obj_permissions")}), 
         (_("角色"), {"fields": ("roles", )}),
     )
     add_fieldsets = (
-        (None, {"classes": ("wide",), "fields": ("ug_id", "name", ),}),
+        (None, {"classes": ("wide",), "fields": ("name", ),}),
         (_("直接权限"), {"classes": ("wide",), "fields": ("url_permissions", "obj_permissions"),}),
         (_("角色"), {"fields": ("roles", )}),
     )

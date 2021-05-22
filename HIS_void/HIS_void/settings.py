@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/3.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -34,6 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Channels App for WebSocket
+    'channels',
     # Role-Based Access Control
     'rbac',
     # 外部接口
@@ -42,7 +45,16 @@ INSTALLED_APPS = [
     'his',
     # 病人页面
     'patient',
-    'channels',
+    # 住院
+    'inpatient',
+    # 门诊
+    'outpatient',
+    # 药房
+    'pharmacy',
+    # 检验科
+    'laboratory',
+    # 内部接口
+    'internalapi',
 ]
 
 MIDDLEWARE = [
@@ -64,7 +76,7 @@ ROOT_URLCONF = 'HIS_void.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -76,6 +88,21 @@ TEMPLATES = [
         },
     },
 ]
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/3.1/howto/static-files/
+
+STATIC_ROOT = 'static'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'static_share'),
+    os.path.join(BASE_DIR, "his/static"),
+    os.path.join(BASE_DIR, "inpatient/static"),
+    os.path.join(BASE_DIR, "laboratory/static"),
+    os.path.join(BASE_DIR, "outpatient/static"),
+    os.path.join(BASE_DIR, "pharmacy/static"),
+    os.path.join(BASE_DIR, "internalapi/static"),
+)
 
 WSGI_APPLICATION = 'HIS_void.wsgi.application'
 ASGI_APPLICATION = 'HIS_void.asgi.application'
@@ -121,15 +148,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/3.1/howto/static-files/
-
-STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    str(Path(BASE_DIR, "his/static")),
-    str(Path(BASE_DIR, "patient/static")),
-)
-
 # Auth user model
 AUTH_USER_MODEL = "rbac.UserInfo"
 # Auth backends
@@ -143,20 +161,28 @@ PERMISSION_OBJ_KEY = "obj_key"
 # PERMISSION_MENU_KEY = "menu_key"
 
 SAFE_URL = [
-    r"",
-    r"/index/",
-    r"/login-staff/",
-    r"/login-patient/",
-    r"/logout/",
-    r"/register/",
-    r"/forgot-password/",
-    r"/admin/.*",
-    r"/patient/",
-    r"/patient-user/",
-    #     r"/profile/",
-    #     r"/nurse-workspace/",
-    #     r"/inspection-workspace/"
-    # ]
+    r"/index/",  # 主页
+    r"/login-staff/",  # 职工登录
+    r"/login-patient/",  # 医生登录
+    r"/logout/",  # 注销
+    r"/register/",  # 注册
+    r"/register-success/",  # 注册成功页面
+    r"/forgot-password/",  # 忘记密码
+    r"/admin/.*",  # 后台管理？
+    r"/profile/",  # 医生主页
+    r"/patient/",  # 病人主页
+    r"/patient-details/",  # 病人详细页面
+    r"/nurse-workspace/",  # 护士工作台
+    r"/outpatient-workspace/",  # 门诊医生工作台
+    r"/inpatient-workspace/",  # 住院医生工作台
+    r"/inspection-workspace/",  # 检验医生工作台
+    r"/InspectionAPI/",  # 检验医生数据API
+    r"/OutpatientAPI/",  # 门诊医生数据API
+    r"/NurseAPI/",  # 护士医生数据API
+    r"/PatientViewAPI/",  # 病人数据API
+    r"/InpatientAPI/",  # 住院医生数据API
+    r"/news/",
+
 ]
 
 # setup session engine to improve performance

@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}护士工作台{% endblock %}
+{% block body-context %}
+    <script>
+
+    </script>
+    {# 两侧留白较小的容器 #}
+    <div class="container-fluid">
+        <div class="page-titles mb-2 mt-0">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url "profile" %}">profile</a></li>
+                <li class="breadcrumb-item active"><a href="{% url "nurse-workspace" %}">nurse-workspace</a></li>
+            </ol>
+        </div>
+        {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为住院患者和待收患者信息，右边为分页表格（病历首页，体征记录等 #}
+        <div class="row">
+            {# 第一列宽度为3，用于放置住院患者信息和待收患者信息 #}
+            <div class="col-md-3">
+                {# 住院患者信息 #}
+                <div class="container">
+                    <div class="card">
+                        {# 设置卡片头 #}
+                        <div class="card-header">住院患者</div>
+                        {# 固定卡片大小，使得患者过多时可以滚动 #}
+                        <div style="overflow-x: auto; overflow-y: auto; height: 250px; ">
+                            {# 设置住院患者表（试一试就知道了 #}
+                            <table class="table table-hover small text-center">
+                                <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>状态</th>
+                                </tr>
+                                </thead>
+                                <tbody id="Inpatients">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {# 待收患者信息 #}
+                <div class="container">
+                    <div class="card">
+                        <div class="card-header">待收患者</div>
+                        <div style="overflow-x: auto; overflow-y: auto; height: 300px; ">
+                            <table class="table table-hover small text-center">
+                                <thead>
+                                <tr>
+                                    <th>姓名</th>
+                                    <th>紧急程度</th>
+                                </tr>
+                                </thead>
+                                <tbody id="WaitingPatients">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {# 第二列的宽度为9，用于放置分页表格（病历首页、体征记录等） #}
+            <div class="col-md-9">
+                <div class="card">
+                    <div class="card-body">
+                        {# 这里时当前患者的信息，放在了最上面 #}
+                        <div class="basic-form">
+                            <form>
+                                <div class="form-row justify-content-center">
+                                    <div class="col-md-3">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">病历号</span>
+                                            </div>
+                                            <input id="no" type="text" class="form-control" readonly placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">姓名</span>
+                                            </div>
+                                            <input id="name" type="text" class="form-control" readonly placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">性别</span>
+                                            </div>
+                                            <input id="gender" type="text" class="form-control" readonly placeholder="">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <div class="input-group input-group-sm mb-3">
+                                            <div class="input-group-prepend ">
+                                                <span class="input-group-text">年龄</span>
+                                            </div>
+                                            <input id="age" type="text" class="form-control" readonly placeholder="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        {# 分页导航栏列表，用于放置分页按钮 #}
+                        <div class="default-tab">
+                            <ul class="nav nav-tabs justify-content-center" role="tablist">
+                                {# 医嘱处理按钮 #}
+                                <li class="nav-item">
+                                    <a id="MedicalAdviceProcess" href="#yi_zhu_chu_li" class="nav-link active"
+                                       data-toggle="tab" aria-expanded="false">医嘱处理</a>
+                                </li>
+                                {# 体征记录按钮 #}
+                                <li class="nav-item">
+                                    <a href="#ti_zheng_ji_lu" class="nav-link" data-toggle="tab"
+                                       aria-expanded="false">体征记录</a>
+                                </li>
+                                {# 入院登记按钮 #}
+                                <li class="nav-item">
+                                    <a id="RYDJ_a" href="#ru_yuan_deng_ji" class="nav-link" data-toggle="tab"
+                                       aria-expanded="true">入院登记</a>
+                                </li>
+                                <li class="ml-3 mb-0">
+                                    <button id="queryBedBtn" onclick="QueryBed()" type="button"
+                                            class="btn btn-primary btn-xs"
+                                            data-toggle="modal" data-target=".bd-example-modal-lg">床位查询
+                                    </button>
+                                    <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+                                         aria-hidden="true">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h3 class="modal-title">病床选择</h3>
+                                                    <button type="button" class="close"
+                                                            data-dismiss="modal"><span>&times;</span>
+                                                    </button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    {# 分页导航栏列表，用于放置分页按钮 #}
+                                                    <div class="default-tab">
+                                                        <ul id="areas" class="nav nav-tabs justify-content-center"
+                                                            role="tablist"></ul>
+                                                    </div>
+                                                    {# 分页页面内容 #}
+                                                    <div id="beds" class="tab-content"></div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-danger light"
+                                                            data-dismiss="modal">取消
+                                                    </button>
+                                                    <button type="button" class="btn btn-primary" data-dismiss="modal"
+                                                            onclick='BedSelect()'>选择
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                        {# 分页页面内容 #}
+                        <div class="tab-content">
+                            {# 病历首页页面信息，第一次进入页面默认显示这个 #}
+                            <div id="yi_zhu_chu_li" class="tab-pane fade show active">
+                                <div class="card-body">
+                                    <div class="basic-form">
+                                        <form action="#">
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-2 col-form-label text-right">患者主诉： </label>
+                                                <textarea type="text" class="form-control" placeholder=""></textarea>
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-2 col-form-label text-right">现病史：</label>
+                                                <textarea type="text" class="form-control" placeholder=""></textarea>
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-2 col-form-label text-right">现病治疗情况：
+                                                </label> <textarea type="text" class="form-control"
+                                                                   placeholder=""></textarea>
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-2 col-form-label text-right">既往史：
+                                                </label> <textarea id="jiwangshi" type="text" class="form-control"
+                                                                   placeholder=""></textarea>
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-2 col-form-label text-right">过敏史：
+                                                </label> <textarea id="guominshi" type="text" class="form-control"
+                                                                   placeholder=""></textarea>
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-2 col-form-label text-right">体格检查：
+                                                </label> <textarea id="tigejiancha" type="text" class="form-control"
+                                                                   placeholder=""></textarea>
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-2 col-form-label text-right">发病时间：
+                                                </label> <textarea id="fabingshijian" type="text" class="form-control"
+                                                                   placeholder=""></textarea>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {# 体征记录页面信息 #}
+                            <div id="ti_zheng_ji_lu" class="tab-pane fade">
+                                <div class="card-body">
+                                    {# 检验表单 #}
+                                    <div class="basic-form">
+                                        <form action="{% url 'NurseAPI' %}" method="POST">
+                                            {% csrf_token %}
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-1.5 col-form-label text-right">收缩压：
+                                                </label> <input type="text" name="SSY" class="form-control">
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-1.5 col-form-label text-right">舒张压：
+                                                </label> <input type="text" name="SZY" class="form-control">
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-1.5 col-form-label text-right">体&emsp;温：
+                                                </label> <input type="text" name="TW" class="form-control">
+                                            </div>
+                                            <textarea class="form-control mb-3" rows="10"
+                                                      placeholder="如有其他情况，请在此说明"></textarea>
+
+                                            <div class="col-md-12 text-right">
+                                                <button type="submit" onclick="submitAlert()"
+                                                        class="form-group btn btn-outline-primary btn-sm">
+                                                    提交记录
+                                                </button>
+                                            </div>
+                                        </form>
+
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            {# 入院登记页面信息 #}
+                            <div id="ru_yuan_deng_ji" class="tab-pane fade">
+                                <div class="container">
+                                    <div class="card-body">
+                                        <div class="basic-form">
+                                            <form action="{% url 'NurseAPI' %}" method="POST">
+                                                {% csrf_token %}
+                                                <div class="form-group">
+                                                    <div class="input-group input-group-lg mb-4">
+                                                        <label class="col-md-1.5 col-form-label text-right">入院日期： </label>
+                                                        <input name="RYRQ"
+                                                               class="col-md-10.5 datepicker-default form-control form-control-lg"
+                                                               id="datepicker"/>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <label class="col-md-1.5 col-form-label text-right">护理级别： </label>
+                                                        <select class="form-control form-control-lg" name='HLJB'>
+                                                            <option></option>
+                                                            <option>1</option>
+                                                            <option>2</option>
+                                                            <option>3</option>
+                                                            <option>4</option>
+                                                            <option>5</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="input-group input-group-lg mb-4">
+                                                        <label class="col-md-1.5 col-form-label text-right">病区床位：</label>
+                                                        <input id="BQCW" class="form-control form-control-lg"
+                                                               onfocus="$('#queryBedBtn').click()" name='BQCW'>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="input-group input-group-lg mb-3">
+                                                        <label class="=col-md-1.5 col-form-label text-right">家属电话：</label>
+                                                        <input class="form-control form-control-lg" type="tel"
+                                                               name="JSDH">
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="text-right">
+                                                        <button type="submit" onclick="submitAlert()"
+                                                                class="btn btn-outline-primary">提 交
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'js/nurse_query.js' %}"></script>
+{% endblock %}

@@ -15,6 +15,7 @@ from channels.auth import AuthMiddlewareStack
 from channels.routing import ProtocolTypeRouter, URLRouter
 from his.routing import ws_urlpatterns
 
+
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'HIS_void.settings')
 
 application = ProtocolTypeRouter({

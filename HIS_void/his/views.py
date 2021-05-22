@@ -9,6 +9,7 @@ from django.views import View
 from his.forms import StaffLoginFrom
 from patient.models import PatientUser
 from rbac.models import UserInfo
+from laboratory.models import TestItemType, TestItem
 from rbac.server.init_permission import init_permission
 
 
@@ -55,7 +56,10 @@ class StaffLoginView(View):
             login(request, user)
             # 向 Session 中写入信息
             request.session["username"] = user.get_username()
-            # request.session["is_login"] = True
+            request.session["staff_name"] = user.staff.name
+            request.session["dept_id"] = user.staff.dept.ug_id
+            request.session["title_name"] = user.staff.title.title_name
+            request.session["job_name"] = user.staff.job.job_name
             # 获取用户权限，写入 session 中
             init_permission(request, user)
             # print(request.session["url_key"], request.session["obj_key"])
@@ -87,12 +91,12 @@ class StaffLogoutView(View):
 
 
 class ProfileView(View):
-    template_name = 'page-profile.html'
+    template_name = 'profile.html'
 
     def get(self, request):
         # print("[Session]", request.session)
         if request.user.is_authenticated and isinstance(request.user, UserInfo):
-            return render(request, ProfileView.template_name, locals())
+            return render(request, ProfileView.template_name)
         else:
             return redirect(reverse("index"))
 
@@ -103,263 +107,9 @@ class ProfileView(View):
         print(post_dict)
 
 
-class OutpatientView(View):
-    template_name = 'page-outpatient-workspace.html'
+class NewsView(View):
+    template_name = 'news.html'
 
     def get(self, request):
-        return render(request, OutpatientView.template_name)
-
-
-class NurseView(View):
-    template_name = 'page-nurse-workspace.html'
-
-    def get(self, request):
-        return render(request, NurseView.template_name)
-
-
-class InspectionView(View):
-    template_name = 'page-inspection-workspace.html'
-
-    def get(self, request):
-        return render(request, InspectionView.template_name)
-
-class HospitalDoctorView(View):
-    template_name = 'page-inhospital-doctor.html'
-
-    def get(self, request):
-        return render(request, HospitalDoctorView.template_name)
-
-
-"""
-***************************
-        数据查询部分
-***************************
-"""
-
-
-# 检中患者数据查询
-class InspectionAPI(View):
-    def get(self, request):
-        query_information = request.GET.get('information')
-
-        # 数据库查询操作
-        if query_information == "InspectingInformation":
-            p_no = request.GET.get('p_no')
-            print(p_no)
-            data = {
-                "no": 114514,
-                "name": "肖云冲",
-                "gender": "男",
-                "age": 18,
-                "JYMC": "血常规",
-                "KJSJ": "2021.05.1 20：00",
-                "KJYS": "王医生"
-            }
-        elif query_information == "InspectingPatient":
-            data = [
-                {
-                    "p_no": "183771**",
-                    "name": "李国铭",
-                    "status": "危机",
-                },
-                {
-                    "p_no": "183771--",
-                    "name": "肖云冲",
-                    "status": "普通",
-                },
-                {
-                    "p_no": "183771++",
-                    "name": "朱元琛",
-                    "status": "安全",
-                },
-            ]
-            # 传入医生主键，这样可以有选择的返回病人信息
-            d_no = request.GET.get('d_no')
-            print(d_no)
-
-        return JsonResponse(data, safe=False)
-
-    def post(self, request):
-        print("================================")
-        print(request.POST.get('PDXX'))
-        print("================================")
-        sleep(1)
-        return redirect(reverse("inspection-workspace"))
-
-
-"""
-门诊医生工作台数据API
-"""
-
-
-class OutpatientAPI(View):
-    def get(self, request):
-        # 获取需要查询的信息类型
-        query_information = request.GET.get('information')
-
-        # 病历首页信息查询
-        if query_information == "BLSY":
-            p_no = request.GET.get('p_no')
-            print(p_no)
-            data = {
-                "no": 114514,
-                "name": "肖云冲",
-                "gender": "男",
-                "age": 18,
-                "HZZS": "患者主诉文本",
-                "ZLQK": "治疗情况文本",
-                "JWBS": "既往病史文本",
-                "GMBS": "过敏病史文本",
-                "TGJC": "体格检查文本",
-                "FBSJ": "发病事件文本",
-            }
-
-        # 待诊患者信息查询
-        elif query_information == "DZHZ":
-            data = [
-                {
-                    "p_no": "183771**",
-                    "name": "李国铭",
-                    "status": "危机",
-                },
-                {
-                    "p_no": "183771--",
-                    "name": "肖云冲",
-                    "status": "普通",
-                },
-                {
-                    "p_no": "183771++",
-                    "name": "朱元琛",
-                    "status": "安全",
-                },
-            ]
-            # 传入医生主键，这样可以有选择的返回病人信息
-            d_no = request.GET.get('d_no')
-            print(d_no)
-
-        # 诊中患者信息查询
-        elif query_information == "ZZHZ":
-            data = [
-                {
-                    "p_no": "183771**",
-                    "name": "李国铭",
-                    "status": "危机",
-                },
-                {
-                    "p_no": "183771--",
-                    "name": "肖云冲",
-                    "status": "普通",
-                },
-                {
-                    "p_no": "183771++",
-                    "name": "朱元琛",
-                    "status": "安全",
-                },
-            ]
-            # 传入医生主键，这样可以有选择的返回病人信息
-            d_no = request.GET.get('d_no')
-            print(d_no)
-
-        # 检查结果信息查询
-        elif query_information == "JCJG":
-            data = [
-
-            ]
-
-        # 药品检索
-        elif query_information == "CFKJ":
-            data = [
-                {'name': "多塞平", 'price': 41, 'number': 100, },
-                {'name': "艾司西酞普兰", 'price': 42, 'number': 100, },
-                {'name': "帕罗西汀", 'price': 43, 'number': 100, },
-                {'name': "氟西汀", 'price': 44, 'number': 100, },
-                {'name': "度洛西汀", 'price': 45, 'number': 100, },
-                {'name': "氟伏沙明", 'price': 46, 'number': 100, },
-            ]
-
-        return JsonResponse(data, safe=False)
-
-    def post(self, request):
-        print("================================")
-        print(request.POST.get('CGJY'))
-        print("================================")
-        sleep(1)
-        return redirect(reverse("outpatient-workspace"))
-
-
-"""
-护士工作台数据API
-"""
-
-class NurseAPI(View):
-    def get(self, request):
-        # 获取需要查询的信息类型
-        query_information = request.GET.get('information')
-
-        # 医嘱处理信息查询
-        if query_information == "QZXQ":
-            p_no = request.GET.get('p_no')
-            print(p_no)
-            # 数据库查询语句
-            data = {
-                "no": 114514,
-                "name": "肖云冲",
-                "gender": "男",
-                "age": 18,
-                "HZZS": "患者主诉文本",
-                "ZLQK": "治疗情况文本",
-                "JWBS": "既往病史文本",
-                "GMBS": "过敏病史文本",
-                "TGJC": "体格检查文本",
-                "FBSJ": "发病事件文本",
-            }
-        return JsonResponse(data, safe=False)
-
-
-# 住院医生工作台数据
-class InhospitalAPI(View):
-    pass
-    # def get(self, request):
-    #     # 获取需要查询的信息类型
-    #     query_information = request.GET.get('information')
-    #     print("-------------")
-    #     print(query_information)
-    #     print("---------------")
-    #
-    #     # if query_information == "ZZHZ":
-    #     #     p_no = request.GET.get('p_no')
-    #     #     print(p_no)
-    #     #     # 数据库查询语句
-    #     #     data = [{
-    #     #         "p_no": 114514,
-    #     #         "name": "发多冲",
-    #     #         "bed":123,
-    #     #     },{
-    #     #         "p_no": 11343,
-    #     #         "name": "肖大赛",
-    #     #         "bed":543,
-    #     #     },{
-    #     #         "p_no": 114424,
-    #     #         "name": "阿凡达",
-    #     #         "bed":64,
-    #     #     }]
-    #
-    #     if query_information == "CYHZ":
-    #         p_no = request.GET.get('p_no')
-    #         print(p_no)
-    #         # 数据库查询语句
-    #         data = [{
-    #             "p_no": 114514,
-    #             "name": "oooo",
-    #             "bed":123,
-    #         },{
-    #             "p_no": 11343,
-    #             "name": "bbbb",
-    #             "bed":543,
-    #         },{
-    #             "p_no": 114424,
-    #             "name": "ddd",
-    #             "bed":64,
-    #         }]
-    #     return JsonResponse(data, safe=False)
-
+        print("~~~~~~~~~~~~~~~~~~~~~~~\n" * 10)
+        return render(request, NewsView.template_name)
