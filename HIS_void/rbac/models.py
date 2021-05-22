@@ -222,7 +222,7 @@ class UserGroup(models.Model):
         Role,
         blank = True,
         related_name = "usergroup_set",
-        related_query_name = "usergroup",
+        related_query_name = "usergroups",
         verbose_name = _("角色"),
         help_text = _("用户组所拥有的角色，用户组能够获取所拥有角色的全部权限。"),
     )
