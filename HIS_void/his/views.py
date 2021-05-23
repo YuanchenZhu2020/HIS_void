@@ -1,5 +1,3 @@
-from time import sleep
-
 from django.contrib.auth import login, logout
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -97,6 +95,7 @@ class ProfileView(View):
 
     def get(self, request):
         # print("[Session]", request.session)
+        news = []
         if request.user.is_authenticated and isinstance(request.user, UserInfo):
             notices = Notice.objects.filter(dept_id__exact=request.session.get('dept_id')).order_by('send_time')[0:4]
             for note in notices:

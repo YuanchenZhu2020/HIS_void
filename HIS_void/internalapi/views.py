@@ -407,7 +407,7 @@ class PatientViewAPI(View):
 
     def get(self, request):
         # 获取需要查询的信息类型
-        query_information = request.GET.get('information')git
+        query_information = request.GET.get('information')
         data = {}
         # 挂号信息查询
         if query_information == "GH":
