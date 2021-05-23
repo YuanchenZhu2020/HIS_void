@@ -1,13 +1,7 @@
 -- SQLite
--- 检验项目类型
-insert into laboratory_testitemtype 
-(inspect_type_id, inspect_type_name) values 
-    (1,'临床检查'),(2,'生物化学'),(3,'微生物学'),(4,'寄生虫学'),(5,'风湿免疫');
--- 病区
-insert into his_inpatientarea values ('A'), ('B'), ('C');
 -- RBAC.UserGroup
-insert into rbac_usergroup 
-(ug_id, name, create_time) values 
+insert into rbac_usergroup
+(ug_id, name, create_time) values
     (1, '内科', '2021-05-10 11:12:59'),(2, '外科', '2021-05-10 11:12:59'),
     (3, '儿科', '2021-05-10 11:12:59'),(4, '妇科', '2021-05-10 11:12:59'),
     (5, '眼科', '2021-05-10 11:12:59'),(6, '耳鼻喉科', '2021-05-10 11:12:59'),
@@ -15,23 +9,29 @@ insert into rbac_usergroup
     (9, '急诊科', '2021-05-10 11:12:59'),(10, '检验科', '2021-05-10 11:12:59'),
     (11, '药房', '2021-05-10 11:12:59'),(12, '财务', '2021-05-10 11:12:59'),
     (13, '信息部', '2021-05-10 11:12:59');
+-- 病区
+insert into his_inpatientarea values ('A'), ('B'), ('C');
 -- 职称
-insert into his_hospitaltitle 
-(title_id, title_name) values 
+insert into his_hospitaltitle
+(title_id, title_name) values
     (1, '住院医师'),(2, '主治医师'),(3, '副主任医师'),(4, '主任医师');
 -- 工种
-insert into his_jobtype 
-(job_id, job_name) values 
+insert into his_jobtype
+(job_id, job_name) values
     (1, '医生'),(2, '护士'),(3, '药房医生'),(4, '检验医生'),(5, '财务'),(6, '运维');
+-- 检验项目类型
+insert into laboratory_testitemtype
+(inspect_type_id, inspect_type_name) values
+    (1,'临床检查'),(2,'生物化学'),(3,'微生物学'),(4,'寄生虫学'),(5,'风湿免疫');
 -- 设备类型
-insert into laboratory_equipmenttypeinfo 
+insert into laboratory_equipmenttypeinfo
 (eq_type_id, eq_type_name) values
     (1,'X射线诊断设备'),(2,'超声诊断设备'),(3,'生化检验设备'),(4,'核医学设备'),(5,'病理诊断设备');
 -- 药品信息
 -- 药品编号, 药品名称, 含量规格, 包装规格, 成本价, 零售价, 库存数量, 保质期, 特殊标识, OTC
-insert into pharmacy_medicineinfo 
+insert into pharmacy_medicineinfo
 (
-    medicine_id, medicine_name, content_spec, package_spec, 
+    medicine_id, medicine_name, content_spec, package_spec,
     cost_price, retail_price, stock_num, shelf_day, special, OTC
 ) values
     ('A00001', '金嗓子喉片', '2g*20s', '盒', 4.00, 4.20, 0, 200, 0, 0),
@@ -663,4 +663,4 @@ insert into pharmacy_medicineinfo
     ('A00627', '乙色胺', '5ml', '支', 133.00, 139.65, 0, 120, 2, 1),
     ('A00628', '二亚甲基双氧安非他明', '5ml', '支', 6.08, 6.39, 0, 180, 2, 1);
 
--- 
+--

@@ -48,28 +48,27 @@ class RBACMiddleware:
         url_permissions = request.session.get(settings.PERMISSION_URL_KEY)
         obj_permissions = request.session.get(settings.PERMISSION_OBJ_KEY)
         # print("[middleware]", request.user)
-        print("[request_url]", request_url)
-        print("[url_permissions]", url_permissions)
-        print("[obj permissions]", obj_permissions)
+        print("\033[1;33m[request_url]\033[0m", request_url)
+        print("\033[1;33m[url_permissions]\033[0m", url_permissions)
+        print("\033[1;33m[obj permissions]\033[0m", obj_permissions)
 
         # Cond 1: 超级用户，具有完全权限
         if hasattr(request.user, "is_superuser") \
             and request.user.is_superuser:
-            print("RBAC Cond 1")
+            print("\033[1;31m[RBAC Cond 1]\033[0m")
             return None
         # Cond 2: URL 白名单
         for url in settings.SAFE_URL:
             if re.match(url, request_url):
                 # print("第", self.count, "调用中间件")
                 # print("··········匹配成功·············")
-                print("RBAC Cond 2")
+                print("\033[1;31m[RBAC Cond 2]\033[0m")
                 return None
 
         # Cond 3: 用户未登入
         if not url_permissions:
             # print("第", self.count, "调用中间件")
-            # print("重定向到index")
-            print("RBAC Cond 3")
+            print("\033[1;31m[RBAC Cond 3]\033[0m")
             return redirect(reverse("index"))
 
         # Cond 4: 一般情况
@@ -77,7 +76,6 @@ class RBACMiddleware:
         for code_name, url in url_permissions:
             url_pattern = "^{}$".format(url)
             if re.match(url_pattern, request_url):
-                # request.session["permission_codes"] = code_url
                 flag = True
                 break
         if not flag:

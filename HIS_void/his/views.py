@@ -17,7 +17,7 @@ from rbac.server.init_permission import init_permission
 class IndexView(View):
     template_name = "index.html"
     staff_next_url_name = "profile"
-    patient_next_url_name = "patient"
+    patient_next_url_name = "patient-details"
 
     def get(self, request):
         print("[Index View]", request.user)
@@ -58,7 +58,7 @@ class StaffLoginView(View):
             # 向 Session 中写入信息
             request.session["username"] = user.get_username()
             request.session["name"] = user.staff.name
-            request.session["dept_id"] = user.staff.dept.dept.ug_id
+            request.session["dept_id"] = user.staff.dept.usergroup.ug_id
             request.session["title_name"] = user.staff.title.title_name
             request.session["job_name"] = user.staff.job.job_name
             print(dict(request.session))
@@ -97,9 +97,6 @@ class ProfileView(View):
 
     def get(self, request):
         # print("[Session]", request.session)
-        for item in dict(request.session):
-            print(item, ': ', request.session[item])
-        news = []
         if request.user.is_authenticated and isinstance(request.user, UserInfo):
             notices = Notice.objects.filter(dept_id__exact=request.session.get('dept_id')).order_by('send_time')[0:4]
             for note in notices:

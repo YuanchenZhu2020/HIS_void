@@ -1,11 +1,17 @@
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.views import View
 
 from patient import login, init_patient_url_permission
 from patient.forms import PatientLoginForm, PatientRegisterForm
 from patient.models import PatientUser
+from his.models import Department
+from laboratory.models import PatientTestItem
+from outpatient.models import RemainingRegistration, RegistrationInfo
+from patient.decorators import patient_login_required
 from externalapi.external_api import IDInfoQuery
 
 
@@ -33,6 +39,7 @@ class PatientLoginView(View):
             login(request, user)
             # 向 Session 中写入信息
             request.session["patient_id"] = user.get_patient_id()
+            request.session["name"] = user.name
             # 获取用户权限，写入 session 中
             init_patient_url_permission(request, user)
             # print(request.session["url_key"], request.session["obj_key"])
@@ -130,52 +137,37 @@ class ForgotPasswordView(View):
 
 class PatientView(View):
     template_name = "patient.html"
-    patient_next_url_name = "index"
+    # patient_next_url_name = "index"
+
+    DEPT_DATA_CACHE = None
+    REG_DATES_CACHE = None
+    UPDATE_DATE = None
 
     def get(self, request):
         print("[Patient Workspace View]", request.user)
-        # if request.user.is_authenticated  and isinstance(request.user, PatientUser):
-        #     context = {"user_type": "patient"}
-        #     return render(request, PatientView.template_name, context = context)
-        # else:
-        #     # print(type(request.user))
-        #     return redirect(reverse(PatientView.patient_next_url_name))
-
-        '''
-        需要所有可以用于挂号的科室信息
-        '''
-        KSdata = [{
-            "id": "1",  # 挂号的序号
-            "name": "内科",
-        }, {
-            "id": "2",  # 挂号的序号
-            "name": "呼吸科",
-        }, {
-            "id": "3",  # 挂号的序号
-            "name": "小儿科",
-        }, {
-            "id": "4",  # 挂号的序号
-            "name": "牙科",
-        }, {
-            "id": "5",  # 挂号的序号
-            "name": "精神科",
-        }, {
-            "id": "6",  # 挂号的序号
-            "name": "外科",
-        }, ]
-
-        '''
-        需要可选的所有挂号日期
-        '''
-        ALTDates = ["5-15", "5-16", '5-17', '5-18', '5-19', '5-20', '5-21']
-        return render(request, PatientView.template_name, locals())
-        # print("[Patient Workspace View]", request.user)
-        # if request.user.is_authenticated and isinstance(request.user, PatientUser):
-        #     context = {"user_type": "patient"}
-        #     return render(request, PatientView.template_name, context=context)
-        # else:
-        #     # print(type(request.user))
-        #     return redirect(reverse(PatientView.patient_next_url_name))
+        # 从缓存获取可挂号科室与挂号日期
+        if PatientView.UPDATE_DATE is None or PatientView.UPDATE_DATE < timezone.localdate():
+            # 挂号科室
+            depts = Department.objects.filter(
+                accept_patient = 1
+            ).values_list("usergroup__ug_id", "usergroup__name")
+            PatientView.DEPT_DATA_CACHE = [
+                {"id": dept[0], "name": dept[1]}
+                for dept in depts
+            ]
+            # 挂号日期
+            reg_dates = RemainingRegistration.objects.all().values_list(
+                "register_date"
+            ).distinct().order_by("register_date")
+            reg_dates = sorted(set([date[0].strftime("%Y-%m-%d") for date in reg_dates]))
+            PatientView.REG_DATES_CACHE = reg_dates
+            # 更新缓存日期
+            PatientView.UPDATE_DATE = timezone.localdate()
+        context = {
+            "DeptsData": PatientView.DEPT_DATA_CACHE,
+            "RegDates": PatientView.REG_DATES_CACHE
+        }
+        return render(request, PatientView.template_name, context = context)
 
 
 class PatientRegisterSuccessView(View):
@@ -196,82 +188,91 @@ class PatientRegisterSuccessView(View):
         return render(request, PatientRegisterSuccessView.template_name, context=context)
 
 
+@method_decorator(patient_login_required(login_url = "/login-patient"), name = "get")
 class PatientDetailsView(View):
     template_name = "patient-details.html"
 
     def get(self, request):
-        user_type = {"user_type": "patient"}  # 这个是用来干嘛的
+        patient_id = request.session["patient_id"]
+        patient = PatientUser.objects.get_by_patient_id(patient_id)
+        # 挂号记录
+        regs = patient.registration_set.all().order_by(
+            "-reg_id"
+        ).values_list(
+            "reg_id", "registration_date__date",
+            "medical_staff__user__username", "medical_staff__name",
+            "diagnosis_results"
+        )
+        # 检查记录
+        tests = PatientTestItem.objects.filter(
+            registration_info__patient = patient,
+            # inspect_status = True
+        ).order_by(
+            "-test_id"
+        ).values_list(
+            "test_id", "issue_time",
+            "test_item__inspect_name", "test_results",
+            "inspect_status"
+        )
 
-        # 我想在这里得到主页的登录人的信息（以下所有查询的基础）怎么办，如何判断是否登录，以及对登录人进行限制操作
+        # 历史就诊
+        # 数据格式示例：[{
+        #     "number": "1234",  # 挂号的序号
+        #     "keshi": "内科",
+        #     "doctor_id": "000001",
+        #     "doctor_name": "A医生",
+        #     "date": "2021-01-01",
+        #     "time": "15:00",
+        # },...]
 
-        # 待诊信息_需要从数据库查询，以下给出范例
-        '''
-        需要医生的主键信息（用于再次预约）
-        '''
-        DZdata = [{
-            "number": "1234",  # 挂号的序号
-            "keshi": "内科",
-            "menzhen": "呼吸门诊",
-            "doctor_name": "A医生",
-            "date": "2021-01-01",
-            "time": "15:00",
-        }, {
-            "number": "124",  # 挂号的序号
-            "keshi": "内科",
-            "menzhen": "呼吸门诊",
-            "doctor_name": "B医生",
-            "date": "2021-01-01",
-            "time": "15:00",
-        }, ]
-
-        # 当前就诊信息_需要从数据库查询，以下给出范例
+        # 当前就诊信息
         '''
         需要当前就诊的主键信息
         '''
-        DQJZdata = [{
-            "id": "123",
-            "name": "CT1",
-            "location": "综合二层102",
-            "order": 189,
-            "status": "等待检查",
-        }, {
-            "id": "444",
-            "name": "CT2",
-            "location": "综合二层102",
-            "order": 199,
-            "status": "等待检查",
-        },
-        ]
+        # 数据格式示例：[{
+        #     "id": "444",
+        #     "name": "CT2",
+        #     "location": "综合二层102",
+        #     "order": 199,
+        #     "status": "等待检查",
+        # },...]
+        # waiting_registration =
+        waiting_diagnosis = []
 
-        # 确诊记录_需要从数据库查询，以下给出范例
-        '''
-        需要确诊记录的主键信息；医生的主键信息（用于再次预约）
-        '''
-        QZdata = [{
-            "id": "123",
-            "date": "2020-4-9",
-            "doctor": "A医生",
-            "quezhen": "肺炎",
-        }, {
-            "id": "333",
-            "date": "2020-4-9",
-            "doctor": "B医生",
-            "quezhen": "感冒",
-        }, ]
+        # 确诊记录
+        # 患者此次挂号确诊，即确诊结果 diagnosis_results 不为空。
+        # 数据格式示例：[{
+        #     "reg_id": "333",
+        #     "date": "2020-4-9",
+        #     "doctor_id": "000001",
+        #     "doctor_name": "B医生",
+        #     "diagnosis_results": "感冒",
+        # },...]
+        history_regs = filter(lambda x: x[-1] != None, regs)
+        diagnosis_data = []
+        for history_reg in history_regs:
+            diagnosis_data.append(dict(zip(
+                ["reg_id", "date", "doctor_id", "doctor_name", "diagnosis_result"],
+                history_reg
+            )))
 
-        # 检查记录
-        '''
-        需要检查记录的主键信息
-        '''
-        JCdata = [{
-            "id": "111",
-            "name": "B超",
-            "price": "199",
-        }, {
-            "id": "222",
-            "name": "CT",
-            "price": "199",
-        }, ]
+        # 历史检查记录
+        # 已完成的检查，即 inspect_status 为 1 (True)
+        # 数据格式示例：[{
+        #     "id": "111",
+        #     "name": "B超",
+        #     "price": "199",
+        # },...]
+        history_tests = filter(lambda x: x[-1], tests)
+        tests_data = []
+        for history_test in history_tests:
+            tests_data.append(dict(zip(
+                ["test_id", "date", "name", "result"], history_test
+            )))
 
         # 登录人个人信息
+        context = {
+            "diagnosis_data": diagnosis_data,
+            "tests_data": tests_data,
+        }
         return render(request, PatientDetailsView.template_name, locals())
