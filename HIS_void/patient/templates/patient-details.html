@@ -12,7 +12,6 @@
             margin-bottom: 0.5rem;
         }
     </style>
-    {#        <button onclick="Details('444')">123</button>  {# 传不进去怎么回事#}
     <body>
         <div class="container-fluid">
             <div class="row">
@@ -102,27 +101,18 @@
                                     <table class="table table-responsive-md" style="text-align: center;">
                                         <thead>
                                         <tr>
-                                            <th><strong>序号</strong></th>
-                                            <!-- style="width: 40px" -->
-                                            <th><strong>科室</strong></th>
-                                            <!-- style="width: 60px" -->
-                                            <th><strong>门诊</strong></th>
-                                            <!-- style="width: 60px" -->
                                             <th><strong>医生</strong></th>
-                                            <th><strong>日期</strong></th>
-                                            <th><strong>时间</strong></th>
+                                            <th><strong>科室</strong></th>
+                                            <th><strong>诊疗次数</strong></th>
                                             <th></th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {% for item in DZdata %}
+                                        {% for item in reg_doctors_data %}
                                             <tr>
-                                                <td>{{ item.number }}</td>
-                                                <td>{{ item.keshi }}</td>
-                                                <td>{{ item.menzhen }}</td>
                                                 <td>{{ item.doctor_name }}</td>
-                                                <td>{{ item.date }}</td>
-                                                <td>{{ item.time }}</td>
+                                                <td>{{ item.dept }}</td>
+                                                <td>{{ item.reg_num }}</td>
                                                 <td>
                                                     <button type="button" class="btn btn-success light sharp" href="#"
                                                             style="width: 80px">
@@ -145,61 +135,83 @@
                                 <h4 class="card-title">当前就诊</h4>
                             </div>
                             <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-responsive-md"  style="text-align: center;">
-                                        <thead>
-                                        <tr>
-                                            <th><strong>名称</strong></th>
-                                            <th><strong>地点</strong></th>
-                                            <th><strong>序号</strong></th>
-                                            <th><strong>状态</strong></th>
-                                            <th></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for item in DQJZdata %}
-                                            <tr>
-                                                <td>{{ item.name }}</td>
-                                                <td>{{ item.location }}</td>
-                                                <td>{{ item.order }}</td>
-                                                <td>{{ item.status }}</td>
-                                                {#<td><span class="badge light badge-warning">等待结果</span></td>#}
-                                                {#<td><span class="badge light badge-success">已出结果</span></td>#}
-                                                <td>
-                                                    <button type="button"
-                                                            class="btn btn-success light sharp"
-                                                            data-toggle="modal"
-                                                            data-target="#XXXXModal{{ item.id }}"
-                                                            style="width: 80px">
-                                                        详细信息
-                                                    </button>
-                                                    <!-- 详细信息弹窗 -->
-                                                    <div class="modal fade" id="XXXXModal{{ item.id }}">
-                                                        <div class="modal-dialog">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h4 class="modal-title">
-                                                                        详细信息{{ item.id }}
-                                                                    </h4>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    在这里添加一些文本
-                                                                    写下很多很多很多结果信息，或许可以放图片
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button"
-                                                                            class="btn btn-primary"
-                                                                            data-dismiss="modal">确定
-                                                                    </button>
-                                                                </div>
-                                                            </div>
+                                <div class="profile-tab">
+                                    <div class="custome-tab-1">
+                                        <!-- 上部导航栏信息 -->
+                                        <ul class="nav nav-tabs">
+                                            <li class="nav-item"><a href="#record-wait" data-toggle="tab" class="nav-link">预约挂号</a>
+                                            </li>
+                                            <li class="nav-item"><a href="#check-wait" data-toggle="tab" class="nav-link">等待检查</a>
+                                            </li>
+                                        </ul>
+
+                                        <!-- 下部展示信息，包括以下内容 -->
+                                        <div class="tab-content">
+
+                                            <!-- 预约挂号 -->
+                                            <div id="record-wait" class="tab-pane fade show active">
+                                                <div class="profile-all-record">
+                                                    <div class="counter">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-responsive-md" style="text-align: center;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th><strong>日期</strong></th>
+                                                                        <th><strong>时间</strong></th>
+                                                                        <th><strong>地点</strong></th>
+                                                                        <th><strong>科室</strong></th>
+                                                                        <th><strong>医生</strong></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for item in waiting_regs_data %}
+                                                                    <tr>
+                                                                        <td>{{ item.reg_date|date:"Y-m-d" }}</td>
+                                                                        <td>{{ item.reg_date|date:"H:m:s" }}</td>
+                                                                        <td>{{ item.location }}</td>
+                                                                        <td>{{ item.dept }}</td>
+                                                                        <td>{{ item.doctor_name }}</td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
                                                         </div>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                        </tbody>
-                                    </table>
+                                                </div>
+                                            </div>
+
+                                            <!-- 等待检查 -->
+                                            <div id="check-wait" class="tab-pane fade show">
+                                                <div class="profile-all-record">
+                                                    <div class="counter">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-responsive-md" style="text-align: center;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th><strong>名称</strong></th>
+                                                                        <th><strong>地点</strong></th>
+                                                                        <th><strong>科室</strong></th>
+                                                                        <th><strong>检查医生</strong></th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for item in waiting_tests_data %}
+                                                                    <tr>
+                                                                        <td>{{ item.name }}</td>
+                                                                        <td>{{ item.location }}</td>
+                                                                        <td>{{ item.dept }}</td>
+                                                                        <td>{{ item.doctor_name }}</td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -307,15 +319,15 @@
                                                         <div class="table-responsive">
                                                             <table class="table table-responsive-md" style="text-align: center;">
                                                                 <thead>
-                                                                <tr>
-                                                                    <th><strong>日期</strong></th>
-                                                                    <th><strong>名称</strong></th>
-                                                                    <th><strong>检查结果</strong></th>
-                                                                    <th></th>
-                                                                </tr>
+                                                                    <tr>
+                                                                        <th><strong>日期</strong></th>
+                                                                        <th><strong>名称</strong></th>
+                                                                        <th><strong>检查结果</strong></th>
+                                                                        <th></th>
+                                                                    </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                {% for item in tests_data %}
+                                                                    {% for item in tests_data %}
                                                                     <tr>
                                                                         <td>{{ item.date|date:"Y-m-d H:m:s" }}</td>
                                                                         <td>{{ item.name }}</td>
@@ -330,7 +342,7 @@
                                                                             </button>
                                                                             <!-- 检查详情弹窗 -->
                                                                             <div class="modal fade"
-                                                                                 id="JGXQModal{{ item.id }}">
+                                                                                    id="JGXQModal{{ item.id }}">
                                                                                 <div class="modal-dialog">
                                                                                     <div class="modal-content">
                                                                                         <div class="modal-header">
@@ -353,7 +365,7 @@
                                                                             </div>
                                                                         </td>
                                                                     </tr>
-                                                                {% endfor %}
+                                                                    {% endfor %}
                                                                 </tbody>
                                                             </table>
                                                         </div>

@@ -77,6 +77,14 @@ class Department(models.Model):
     def __str__(self) -> str:
         return "<Department {} | UserGroup {}>".format(self.usergroup.name, self.usergroup.ug_id)
 
+    @property
+    def name(self):
+        return self.usergroup.name
+    
+    @property
+    def dept_id(self):
+        return self.usergroup.ug_id
+
 # UserGroup 添加新对象后，Department 会自动添加该对象
 @receiver(post_save, sender = UserGroup)
 def create_usergroup_department(sender, instance, created, **kwargs):

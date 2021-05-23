@@ -1,17 +1,20 @@
+from collections import Counter
+
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from django.utils import timezone
+from django.utils import timezone, dateparse
 from django.utils.decorators import method_decorator
 from django.views import View
 
 from patient import login, init_patient_url_permission
 from patient.forms import PatientLoginForm, PatientRegisterForm
 from patient.models import PatientUser
-from his.models import Department
+from his.models import Department, Staff
 from laboratory.models import PatientTestItem
 from outpatient.models import RemainingRegistration, RegistrationInfo
 from patient.decorators import patient_login_required
+from internalapi.locquery import DeptLocQuery
 from externalapi.external_api import IDInfoQuery
 
 
@@ -195,52 +198,9 @@ class PatientDetailsView(View):
     def get(self, request):
         patient_id = request.session["patient_id"]
         patient = PatientUser.objects.get_by_patient_id(patient_id)
-        # 挂号记录
-        regs = patient.registration_set.all().order_by(
-            "-reg_id"
-        ).values_list(
-            "reg_id", "registration_date__date", 
-            "medical_staff__user__username", "medical_staff__name", 
-            "diagnosis_results"
-        )
-        # 检查记录
-        tests = PatientTestItem.objects.filter(
-            registration_info__patient = patient,
-            # inspect_status = True
-        ).order_by(
-            "-test_id"
-        ).values_list(
-            "test_id", "issue_time", 
-            "test_item__inspect_name", "test_results",
-            "inspect_status"
-        )
 
-        # 历史就诊
-        # 数据格式示例：[{
-        #     "number": "1234",  # 挂号的序号
-        #     "keshi": "内科",
-        #     "doctor_id": "000001",
-        #     "doctor_name": "A医生",
-        #     "date": "2021-01-01",
-        #     "time": "15:00",
-        # },...]
-
-        # 当前就诊信息
-        '''
-        需要当前就诊的主键信息
-        '''
-        # 数据格式示例：[{
-        #     "id": "444",
-        #     "name": "CT2",
-        #     "location": "综合二层102",
-        #     "order": 199,
-        #     "status": "等待检查",
-        # },...]
-        # waiting_registration = 
-        waiting_diagnosis = []
-
-        # 确诊记录
-        # 患者此次挂号确诊，即确诊结果 diagnosis_results 不为空。
+        # 确诊记录（历史已完成挂号）
+        # Cond: 患者此次挂号确诊，即确诊结果 diagnosis_results 不为空。
         # 数据格式示例：[{
         #     "reg_id": "333",
         #     "date": "2020-4-9",
@@ -248,22 +208,131 @@ class PatientDetailsView(View):
         #     "doctor_name": "B医生",
         #     "diagnosis_results": "感冒",
         # },...]
-        history_regs = filter(lambda x: x[-1] != None, regs)
+        history_regs = RegistrationInfo.objects.filter(
+            patient = patient,
+            diagnosis_results__isnull = False,
+        ).order_by(
+            "-reg_id"
+        ).values_list(
+            "reg_id", 
+            "registration_date__date", 
+            "medical_staff__user__username", 
+            "medical_staff__name", 
+            "diagnosis_results"
+        )
         diagnosis_data = []
         for history_reg in history_regs:
             diagnosis_data.append(dict(zip(
                 ["reg_id", "date", "doctor_id", "doctor_name", "diagnosis_result"],
                 history_reg
             )))
+
+        # 历史就诊
+        # 数据格式示例：[{
+        #     "dept": "内科",
+        #     "doctor_id": "000001",
+        #     "doctor_name": "A医生",
+        #     "reg_num": 3, # 挂号次数
+        # },...]
+        history_reg_doctors = map(
+            lambda reg: (
+                reg["doctor_id"], 
+                reg["doctor_name"], 
+                Staff.objects.get_by_user(reg["doctor_id"]).dept.name
+            ), 
+            diagnosis_data
+        )
+        reg_doctors_data = []
+        for key, value in Counter(history_reg_doctors).items():
+            reg_doctors_data.append(dict(zip(
+                ["doctor_id", "doctor_name", "dept", "reg_num"],
+                key + (value,)
+            )))
+
+        # 当前就诊信息
+        # 预约挂号，即挂号日期大于等于系统本地日期
+        # 数据格式示例：[{
+        #       "reg_id": 3,
+        #       "reg_date": datetime.datetime(2021,5,23,8,0,0),
+        #       "location": "诊疗地点",
+        #       "dept": "科室",
+        #       "doctor_id": "000001",
+        #       "doctor": "王医生"
+        # }]
+        now_datetime = timezone.localtime()
+        # REG_TIME = dateparse.parse_time("08:00:00")
+        # # UTC 04:00:00 is Asia/Shanghai 12:00:00
+        # if now_datetime.time() >= dateparse.parse_time("04:00:00"):
+        #     REG_TIME = dateparse.parse_time("13:00:00")
+        waiting_regs = RegistrationInfo.objects.filter(
+            patient = patient,
+            registration_date__date__gte = now_datetime.date(),
+            # registration_date__time = REG_TIME
+        ).order_by(
+            "-reg_id"
+        ).values_list(
+            "reg_id", 
+            "registration_date", 
+            "medical_staff__dept__usergroup__name",
+            "medical_staff__user__username", 
+            "medical_staff__name", 
+        )
+        waiting_regs_data = []
+        for reg in waiting_regs:
+            location = DeptLocQuery(reg[2], is_outpatient = True).query()
+            waiting_regs_data.append(dict(zip(
+                ["reg_id", "reg_date", "dept", "doctor_id", "doctor_name", "location"],
+                reg + (location,)
+            )))
+        
+        # 等待检查
+        # 数据格式示例：[{
+        #     "id": "444",
+        #     "name": "CT2",
+        #     "location": "综合二层102",
+        #     "order": 199,
+        #     "status": "等待检查",
+        # },...]
+        waiting_tests = PatientTestItem.objects.filter(
+            registration_info__patient = patient,
+            payment_status = True,
+            inspect_status = False,
+        ).order_by(
+            "-test_id"
+        ).values_list(
+            "test_id", 
+            "test_item__inspect_name",
+            "handle_staff__dept__usergroup__name",
+            "handle_staff__user__username", 
+            "handle_staff__name", 
+        )
+        waiting_tests_data = []
+        for test in waiting_tests:
+            location = DeptLocQuery(test[2], is_outpatient = False).query()
+            waiting_tests_data.append(dict(zip(
+                ["test_id", "name", "dept", "doctor_id", "doctor_name", "location"],
+                test + (location,)
+            )))
         
         # 历史检查记录
         # 已完成的检查，即 inspect_status 为 1 (True)
         # 数据格式示例：[{
-        #     "id": "111",
+        #     "test_id": "111",
+        #     "date": datetime.date(2021,5,23)
         #     "name": "B超",
-        #     "price": "199",
+        #     "result": "检查结果",
         # },...]
-        history_tests = filter(lambda x: x[-1], tests)
+        history_tests = PatientTestItem.objects.filter(
+            registration_info__patient = patient,
+            inspect_status = True
+        ).order_by(
+            "-test_id"
+        ).values_list(
+            "test_id", 
+            "issue_time", 
+            "test_item__inspect_name", 
+            "test_results",
+        )
         tests_data = []
         for history_test in history_tests:
             tests_data.append(dict(zip(
@@ -273,6 +342,9 @@ class PatientDetailsView(View):
         # 登录人个人信息
         context = {
             "diagnosis_data": diagnosis_data,
+            "reg_doctors_data": reg_doctors_data,
             "tests_data": tests_data,
+            "waiting_regs_data": waiting_regs_data,
+            "waiting_tests_data": waiting_tests_data
         }
-        return render(request, PatientDetailsView.template_name, locals())
+        return render(request, PatientDetailsView.template_name, context = context)
