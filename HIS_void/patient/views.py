@@ -195,7 +195,7 @@ class PatientRegisterSuccessView(View):
 class PatientDetailsView(View):
     template_name = "patient-details.html"
 
-    def get(self, request):
+    def get(self, request,  *args, **kwargs):
         patient_id = request.session["patient_id"]
         patient = PatientUser.objects.get_by_patient_id(patient_id)
 
@@ -340,11 +340,49 @@ class PatientDetailsView(View):
             )))
 
         # 登录人个人信息
+        person_data = {
+            "name": patient.name,
+            "phone": patient.phone,
+            "gender": patient.get_gender_display(),
+            "age": timezone.localtime().year - patient.birthday.year,
+            "past_illness": patient.past_illness,
+            "allegic_history": patient.allegic_history,
+            "create_time": patient.create_time,
+        }
+
+        # 修改个人信息成功标识
+        # 直接访问网页
+        err_msg = suc_msg = None
+        # 修改个人信息后跳转回本页面
+        ex_context = kwargs.get("ex_context")
+        if ex_context:
+            err_msg = ex_context.get("error_message")
+            suc_msg = ex_context.get("success_message")
+        print(err_msg, suc_msg)
         context = {
             "diagnosis_data": diagnosis_data,
             "reg_doctors_data": reg_doctors_data,
             "tests_data": tests_data,
             "waiting_regs_data": waiting_regs_data,
-            "waiting_tests_data": waiting_tests_data
+            "waiting_tests_data": waiting_tests_data,
+            "person_data": person_data,
+            "login_form": PatientLoginForm(),
+            "error_message": err_msg,
+            "success_message": suc_msg,
         }
+
         return render(request, PatientDetailsView.template_name, context = context)
+    
+    def post(self, request):
+        extra_context = {}
+        new_phone = request.POST["telephone"]
+        login_info = PatientLoginForm(data=request.POST)
+        if login_info.is_valid():
+            user = login_info.get_user()
+            user.phone = new_phone
+            user.save()
+            extra_context["success_message"] = "success"
+        else:
+            error_msg = login_info.errors["__all__"][0]
+            extra_context["error_message"] = error_msg
+        return self.get(request, ex_context = extra_context)

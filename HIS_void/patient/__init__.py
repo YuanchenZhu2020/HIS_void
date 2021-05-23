@@ -49,7 +49,7 @@ def _get_user_session_key(request):
     return get_user_model()._meta.pk.to_python(request.session[SESSION_KEY])
 
 def _authenticate(request, username = None, password = None, **kwargs):
-    print("[]", username, password)
+    # print("[patient authenticate]", username, password)
     if username is None:
         username = kwargs.get(get_user_model().USERNAME_FIELD)
     if username is None or password is None:
