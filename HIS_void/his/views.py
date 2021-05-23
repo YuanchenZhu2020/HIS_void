@@ -7,6 +7,7 @@ from django.urls import reverse
 from django.views import View
 
 from his.forms import StaffLoginFrom
+from his.models import Notice
 from patient.models import PatientUser
 from rbac.models import UserInfo
 from laboratory.models import TestItemType, TestItem
@@ -60,6 +61,7 @@ class StaffLoginView(View):
             request.session["dept_id"] = user.staff.dept.usergroup.ug_id
             request.session["title_name"] = user.staff.title.title_name
             request.session["job_name"] = user.staff.job.job_name
+            print(dict(request.session))
             # 获取用户权限，写入 session 中
             init_permission(request, user)
             # print(request.session["url_key"], request.session["obj_key"])
@@ -97,8 +99,14 @@ class ProfileView(View):
         # print("[Session]", request.session)
         for item in dict(request.session):
             print(item, ': ', request.session[item])
+        news = []
         if request.user.is_authenticated and isinstance(request.user, UserInfo):
-            return render(request, ProfileView.template_name)
+            notices = Notice.objects.filter(dept_id__exact=request.session.get('dept_id')).order_by('send_time')[0:4]
+            for note in notices:
+                note_info = {'send_time': note.send_time.strftime('%m/%d'), 'content': note.content}
+                news.append(note_info)
+
+            return render(request, ProfileView.template_name, context={'news': news})
         else:
             return redirect(reverse("index"))
 
@@ -113,5 +121,9 @@ class NewsView(View):
     template_name = 'news.html'
 
     def get(self, request):
-        print("~~~~~~~~~~~~~~~~~~~~~~~\n" * 10)
-        return render(request, NewsView.template_name)
+        news = []
+        notices = Notice.objects.filter(dept_id__exact=request.session.get('dept_id')).order_by('send_time')
+        for note in notices:
+            note_info = {'send_time': note.send_time.strftime('%m/%d'), 'content': note.content}
+            news.append(note_info)
+        return render(request, NewsView.template_name, context={'news': news})

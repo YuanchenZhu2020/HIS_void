@@ -1,3 +1,4 @@
+import datetime
 import json
 from time import sleep
 
@@ -11,6 +12,7 @@ from django.views import View
 
 from his.models import Department, DeptAreaBed, Staff
 from inpatient.models import HospitalRegistration
+<<<<<<< HEAD
 from outpatient.models import RemainingRegistration, RegistrationInfo
 from patient.models import PatientUser
 from patient.decorators import patient_login_required
@@ -20,6 +22,14 @@ from patient.decorators import patient_login_required
 from outpatient import models as outpatient_models
 from pharmacy.models import MedicineInfo
 >>>>>>> 完成了处方开具分页中的药品提交和检查检验中的检验提交，其中检验提交的方式后续能会重做为ajax提交，目前仍为form提交
+=======
+from django.db import transaction
+
+from outpatient.models import RegistrationInfo
+from patient.models import PatientUser
+from pharmacy.models import MedicineInfo
+from laboratory.models import PatientTestItem
+>>>>>>> 准备向registration合并最新的数据库
 
 
 class OutpatientAPI(View):
@@ -27,12 +37,13 @@ class OutpatientAPI(View):
     门诊医生工作台数据查询API
     """
 
+    # region OutpatientAPI get部分
     def get(self, request):
         query_key_to_func = {
             # 病历首页信息查询
             "BLSY": self.query_medical_record,
             # 待诊患者信息查询
-            "DZHZ": self.query_waiting_diagnosis_patients,
+            "waiting_diagnosis": self.query_waiting_diagnosis_patients,
             # 诊中患者信息查询
             "ZZHZ": self.query_in_diagnosis_patients,
             # 检查结果信息查询
@@ -41,73 +52,90 @@ class OutpatientAPI(View):
             "CFKJ": self.query_medicine,
         }
         # 获取需要查询的信息类型
-        query_information = request.GET.get('information')
+        query_information = request.GET.get('get_param')
         data = query_key_to_func.get(query_information)(request)
         return JsonResponse(data, safe=False)
 
     # 病历首页查询
     def query_medical_record(self, request):
-        patient_id = request.GET.get('patient_id')
-        print(patient_id)
-        data = {
-            "no": 114514,
-            "name": "肖云冲",
-            "gender": "男",
-            "age": 18,
-            "HZZS": "患者主诉文本",
-            "ZLQK": "治疗情况文本",
-            "JWBS": "既往病史文本",
-            "GMBS": "过敏病史文本",
-            "TGJC": "体格检查文本",
-            "FBSJ": "发病事件文本",
-        }
+        regis_id = request.GET.get('regis_id')
+        regis_info = RegistrationInfo.objects.get(id=regis_id)
+        print(regis_info.__dict__)
+        print(regis_info.patient.__dict__)
+        gender_convert = ["女", "男"]
+        data = {'no': regis_info.patient.patient_id,
+                'name': regis_info.patient.name,
+                'gender': gender_convert[regis_info.patient.gender],
+                'age': (timezone.now().date() - regis_info.patient.birthday).days // 365,
+                'HZZS': regis_info.chief_complaint,
+                'GMBS': regis_info.patient.allegic_history,
+                'JWBS': regis_info.patient.past_illness,
+                'FBSJ': regis_info.illness_date}
         return data
 
     # 待诊患者查询
     def query_waiting_diagnosis_patients(self, request):
-        data = [
+        '''data = [
             {
-                "p_no": "183771**",
+                "regis_id": "1",
                 "name": "李国铭",
-                "status": "危机",
+                "gender": "男",
             },
-            {
-                "p_no": "183771--",
-                "name": "肖云冲",
-                "status": "普通",
-            },
-            {
-                "p_no": "183771++",
-                "name": "朱元琛",
-                "status": "安全",
-            },
+            {...},
+            {...},
         ]
+        '''
         # 传入医生主键，这样可以有选择的返回病人信息
-        d_no = request.GET.get('d_no')
-        print("医生编号", d_no)
+        staff_id = request.session["username"]
+        TARGET_REG_TIME = dateparse.parse_time("08:00:00")
+        # UTC 04:00:00 is Asia/Shanghai 12:00:00
+        if timezone.now().time() > dateparse.parse_time("04:00:00"):
+            TARGET_REG_TIME = dateparse.parse_time("13:00:00")
+        # 查询
+        regis_info = RegistrationInfo.objects.filter(
+            medical_staff__user__username=staff_id,  # 医生id
+            registration_date__time=TARGET_REG_TIME,  # 上下午
+            registration_date__date=timezone.now().date()  # 当天
+        ).values_list(
+            "id", "patient__name", "patient__gender"
+        )
+        data = []
+        gender_convert = ['男', '女']
+        for regis in regis_info:
+            # 医生工作4个小时
+            patient_details = dict(zip(
+                ['regis_id', 'name', 'gender'],
+                [regis[0], regis[1], gender_convert[regis[2]]]
+            ))
+            data.append(patient_details)
+            # print(patient_details)
+        print("医生编号", staff_id)
         return data
 
     # 诊中患者查询
     def query_in_diagnosis_patients(self, request):
-        data = [
-            {
-                "p_no": "183771**",
-                "name": "李国铭",
-                "status": "检验完成",
-            },
-            {
-                "p_no": "183771--",
-                "name": "肖云冲",
-                "status": "待检验",
-            },
-            {
-                "p_no": "183771++",
-                "name": "朱元琛",
-                "status": "安全",
-            },
-        ]
-        # 传入医生主键，这样可以有选择的返回病人信息
-        d_no = request.GET.get('d_no')
+        staff_id = request.session["username"]
+        TARGET_REG_TIME = dateparse.parse_time("08:00:00")
+        # UTC 04:00:00 is Asia/Shanghai 12:00:00
+        if timezone.now().time() > dateparse.parse_time("04:00:00"):
+            TARGET_REG_TIME = dateparse.parse_time("13:00:00")
+        # 查询
+        regis_info = RegistrationInfo.objects.filter(
+            medical_staff__user__username=staff_id,  # 医生id
+            registration_date__time=TARGET_REG_TIME,  # 上下午
+        ).values_list(
+            "id", "patient__name", "patient__gender"
+        )
+        data = []
+        gender_convert = ['男', '女']
+        for regis in regis_info:
+            patient_details = dict(zip(
+                ['regis_id', 'name', 'gender'],
+                [regis[0], regis[1], gender_convert[regis[2]]]
+            ))
+            data.append(patient_details)
+            # print(patient_details)
+        print("医生编号", staff_id)
         return data
 
     # 检查结果查询
@@ -129,40 +157,71 @@ class OutpatientAPI(View):
                 data.append(temp_dict)
         return data
 
+    # endregion
+
+    # region OutpatientAPI post部分
     def post(self, request):
         if dict(request.POST) != {}:
             data = dict(request.POST)
+            for key in data:
+                data[key] = data[key][0]
         else:
             data = json.loads(request.body)
         post_param = data['post_param']
-        print("==========outpatientAPI POST==========")
+        # 输出提示信息
+        print("==========START outpatientAPI POST==========")
         print(data)
         print('【post_param】', post_param)
-        print("==========outpatientAPI POST==========")
-
+        print("==========END outpatientAPI POST==========")
         ''' 
         param对照表:
         medicine -> 处方开具选择的药品
         inspection -> 检验信息
+        history_sheet -> 病历首页
         '''
-        if post_param == 'medicine':
-            self.post_medicine()
+        if post_param == 'inspection':
+            self.post_inspection(data)
+        elif post_param == 'history_sheet':
+            self.post_history_sheet(data)
+        elif post_param == 'history_sheet':
+            print("===========" * 50)
+            self.post_history_sheet(data)
 
-        elif post_param == 'inspection':
-            self.post_inspection()
         # 这条语句并不会使页面刷新
         return redirect(reverse("outpatient-workspace"))
 
     # 处方开具部分获取药品信息
-    def post_medicine(self):
+    def post_medicine(self, data):
         try:
             pass  # 数据库更新操作
         except:
             pass  # 异常处理操作
 
     # 检查检验部分
-    def post_inspection(self):
+    def post_inspection(self, data):
         pass
+
+    # 提交病历首页部分
+    def post_history_sheet(self, data):
+        with transaction.atomic():
+            RegistrationInfo.objects.filter(
+                id=data['regis_id']
+            ).update(
+                chief_complaint=data['chief_complaint'],
+                illness_date=data['illness_date']
+            )
+            PatientUser.objects.filter(
+                registrations__id=data['regis_id']
+            ).update(
+                allegic_history=data['allegic_history'],
+                past_illness=data['past_illness']
+            )
+            print("========= 挂号信息 ==========")
+            print(RegistrationInfo.objects.filter(
+                id=data['regis_id']
+            ))
+
+    # endregion
 
 
 class NurseAPI(View):
@@ -488,7 +547,7 @@ class PatientUserAPI(View):
 class InpatientAPI(View):
     def get(self, request):
         # 获取需要查询的信息类型
-        query_information = request.GET.get('information')
+        query_information = request.GET.get('get_param')
 
         #
         if query_information == "ZZHZ":

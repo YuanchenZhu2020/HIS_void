@@ -128,7 +128,7 @@ QueryWaitingPatients()
 
 // 床位选择
 function BedSelect() {
-    let BED = $("input[name='CW']:checked").val();
+    let BED = $("input[name='BED']:checked").val();
     console.log(document.getElementById('AreaBed')); /**/
     if (BED !== undefined) {
         document.getElementById('AreaBed').value = BED;
