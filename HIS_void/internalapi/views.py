@@ -9,27 +9,15 @@ from django.urls import reverse
 from django.utils import dateparse, timezone
 from django.utils.decorators import method_decorator
 from django.views import View
+from django.db import transaction
 
 from his.models import Department, DeptAreaBed, Staff
 from inpatient.models import HospitalRegistration
-<<<<<<< HEAD
 from outpatient.models import RemainingRegistration, RegistrationInfo
 from patient.models import PatientUser
 from patient.decorators import patient_login_required
-
-<<<<<<< HEAD
-=======
-from outpatient import models as outpatient_models
-from pharmacy.models import MedicineInfo
->>>>>>> 完成了处方开具分页中的药品提交和检查检验中的检验提交，其中检验提交的方式后续能会重做为ajax提交，目前仍为form提交
-=======
-from django.db import transaction
-
-from outpatient.models import RegistrationInfo
-from patient.models import PatientUser
 from pharmacy.models import MedicineInfo
 from laboratory.models import PatientTestItem
->>>>>>> 准备向registration合并最新的数据库
 
 
 class OutpatientAPI(View):
