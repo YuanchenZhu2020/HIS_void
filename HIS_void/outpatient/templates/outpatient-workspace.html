@@ -137,242 +137,245 @@
                                        aria-expanded="true">患者账单</a>
                                 </li>
                             </ul>
-                            {# 分页页面内容 #}
-                            <div class="tab-content">
-                                {# 病历首页页面信息，第一次进入页面默认显示这个 #}
-                                <div id="bing_li_shou_ye" class="tab-pane fade show active">
-                                    <div class="card-body">
-                                        <div class="basic-form">
-                                            <form action="{% url 'OutpatientAPI' %}" method="POST">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="regis_id" value=""/>
-                                                <input type="hidden" name="post_param" value="history_sheet"/>
-                                                <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-1.5 col-form-label text-right">患者主诉： </label>
-                                                    <textarea id="chief_complaint" name="chief_complaint" type="text" rows="3"
-                                                              class="form-control"></textarea>
-                                                </div>
-                                                <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-1.5 col-form-label text-right">既往病史：
-                                                    </label>
-                                                    <textarea id="past_illness" type="text" name="past_illness"
-                                                              class="form-control"></textarea>
-                                                </div>
-                                                <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-1.5 col-form-label text-right">过敏病史：
-                                                    </label>
-                                                    <textarea id="allegic_history" type="text" name="allegic_history"
-                                                              class="form-control"></textarea>
-                                                </div>
-                                                <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-1.5 col-form-label text-right">发病时间：
-                                                    </label> <textarea id="illness_date" type="text" name="illness_date"
-                                                                       class="form-control" rows="1"></textarea>
-                                                </div>
-                                                <div class="text-right">
-                                                    <button class="btn btn-outline-primary" type="submit">提交</button>
-                                                </div>
-                                            </form>
-                                        </div>
+                        </div>
+                        {# 分页页面内容 #}
+                        <div class="tab-content">
+                            {# 病历首页页面信息，第一次进入页面默认显示这个 #}
+                            <div id="bing_li_shou_ye" class="tab-pane fade show active">
+                                <div class="card-body">
+                                    <div class="basic-form">
+                                        <form action="{% url 'OutpatientAPI' %}" method="POST" id="history_sheet">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="regis_id" value=""/>
+                                            <input type="hidden" name="post_param" value="history_sheet"/>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-1.5 col-form-label text-right">患者主诉： </label>
+                                                <textarea id="chief_complaint" name="chief_complaint" type="text"
+                                                          rows="3"
+                                                          class="form-control"></textarea>
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-1.5 col-form-label text-right">既往病史：
+                                                </label>
+                                                <textarea id="past_illness" type="text" name="past_illness"
+                                                          class="form-control"></textarea>
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-1.5 col-form-label text-right">过敏病史：
+                                                </label>
+                                                <textarea id="allegic_history" type="text" name="allegic_history"
+                                                          class="form-control"></textarea>
+                                            </div>
+                                            <div class="input-group input-group-lg mb-3">
+                                                <label class="col-md-1.5 col-form-label text-right">发病时间：
+                                                </label> <textarea id="illness_date" type="text" name="illness_date"
+                                                                   class="form-control" rows="1"></textarea>
+                                            </div>
+                                            <div class="text-right">
+                                                <button class="btn btn-outline-primary" type="button"
+                                                        onclick="PostHisTorySheet()">提交
+                                                </button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
+                            </div>
 
-                                {# 检查检验页面信息 #}
-                                <div id="jian_cha_jian_yan" class="tab-pane fade">
-                                    <div class="card-body">
-                                        {# 检验表单 #}
-                                        <div class="basic-form">
-                                            <form action="{% url 'OutpatientAPI' %}" method="POST" id="inspection_form">
-                                                {% csrf_token %}
-                                                <input type="hidden" name="post_param" value="inspection">
-                                                {% for item in TestItems %}
-                                                    <div class="form-group">
-                                                        <div class="input-group input-group-sm mb-3">
-                                                            <label class="col-md-1.5 col-form-label text-right">{{ item.inspect_type_name }}：</label>
-                                                            <select class="form-control form-control-lg"
-                                                                    multiple="multiple"
-                                                                    onchange="copyInspection(this)"
-                                                                    name='{{ item.inspect_type_name }}'>
-                                                                {% for testitems in item.content %}
-                                                                    <option data-name="{{ testitems.inspect_name }}"
-                                                                            data-price="{{ testitems.inspect_price }}"
-                                                                            value="{{ testitems.inspect_id }}">{{ testitems.inspect_name }}</option>
-                                                                {% endfor %}
-                                                            </select>
-                                                        </div>
+                            {# 检查检验页面信息 #}
+                            <div id="jian_cha_jian_yan" class="tab-pane fade">
+                                <div class="card-body">
+                                    {# 检验表单 #}
+                                    <div class="basic-form">
+                                        <form action="{% url 'OutpatientAPI' %}" method="POST" id="inspection_form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="post_param" value="inspection">
+                                            {% for item in TestItems %}
+                                                <div class="form-group">
+                                                    <div class="input-group input-group-sm mb-3">
+                                                        <label class="col-md-1.5 col-form-label text-right">{{ item.inspect_type_name }}：</label>
+                                                        <select class="form-control form-control-lg"
+                                                                multiple="multiple"
+                                                                onchange="copyInspection(this)"
+                                                                name='{{ item.inspect_type_name }}'>
+                                                            {% for testitems in item.content %}
+                                                                <option data-name="{{ testitems.inspect_name }}"
+                                                                        data-price="{{ testitems.inspect_price }}"
+                                                                        value="{{ testitems.inspect_id }}">{{ testitems.inspect_name }}</option>
+                                                            {% endfor %}
+                                                        </select>
                                                     </div>
-                                                {% endfor %}
-                                                <div class="text-right">
-                                                    <button type="submit" onclick="PostHisTorySheet()"
-                                                            class="form-group btn btn-outline-primary btn-sm">
-                                                        提交检验
-                                                    </button>
                                                 </div>
-
-                                            </form>
-                                            <div class="container" id="inspect_content">
-                                                <div class="card-header border-0 pb-0">
-                                                    <h5 class="card-title">检查结果</h5>
-                                                </div>
-                                                <div class="card-body">
-                                                    <p class="card-text">检查结果信息
-                                                    </p>
-                                                </div>
+                                            {% endfor %}
+                                            <div class="text-right">
+                                                <button type="submit" onclick="PostHisTorySheet()"
+                                                        class="form-group btn btn-outline-primary btn-sm">
+                                                    提交检验
+                                                </button>
                                             </div>
 
+                                        </form>
+                                        <div class="container" id="inspect_content">
+                                            <div class="card-header border-0 pb-0">
+                                                <h5 class="card-title">检查结果</h5>
+                                            </div>
+                                            <div class="card-body">
+                                                <p class="card-text">检查结果信息
+                                                </p>
+                                            </div>
                                         </div>
 
                                     </div>
-                                </div>
 
-                                {# 门诊确诊页面信息 #}
-                                <div id="men_zhen_que_zhen" class="tab-pane fade">
-                                    <div class="container">
-                                        <div class="card-body" id="MZQZ_id">
-                                            <div class="basic-form">
-                                                <form action="{% url 'OutpatientAPI' %}" method="post">
-                                                    {% csrf_token %}
-                                                    <div class="input-group mb-3">
+                                </div>
+                            </div>
+
+                            {# 门诊确诊页面信息 #}
+                            <div id="men_zhen_que_zhen" class="tab-pane fade">
+                                <div class="container">
+                                    <div class="card-body" id="MZQZ_id">
+                                        <div class="basic-form">
+                                            <form action="{% url 'OutpatientAPI' %}" method="post">
+                                                {% csrf_token %}
+                                                <div class="input-group mb-3">
                                                         <textarea class="form-control" rows="8" name="MZQZ"
                                                                   placeholder="请输入您的判断"></textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <div class="text-right">
+                                                        <button type="submit" onclick="submitAlert()"
+                                                                class="form-group btn btn-outline-primary btn-bg">
+                                                            提 交
+                                                        </button>
                                                     </div>
-                                                    <div class="form-group">
-                                                        <div class="text-right">
-                                                            <button type="submit" onclick="submitAlert()"
-                                                                    class="form-group btn btn-outline-primary btn-bg">
-                                                                提 交
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </form>
-                                            </div>
+                                                </div>
+                                            </form>
                                         </div>
-
                                     </div>
-                                </div>
 
-                                {# 处方开具页面信息 #}
-                                <div id="chu_fang_kai_ju" class="tab-pane fade">
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="offset-3 col-md-2 mt-2"><h5>药品名</h5></div>
-                                            <div class="offset-1 col-md-6 mt-2"><h5>数量</h5></div>
-                                        </div>
-                                        <div id="box" class="row mb-0">
-                                            <input class="form-control col-md-4 offset-2" type="text" name=""
-                                                   id="txt" onblur="setTimeout(display_delete, 1000)"
-                                                   onkeyup="QueryMedicine()"/>
-                                            &nbsp;<input class="form-control col-md-1" type="text" name=""
-                                                         id="num"/>
-                                            &nbsp;<button class="btn btn-outline-primary col-md-1.5"
-                                                          onclick="collect_medicine()" id="btn">添加
+                                </div>
+                            </div>
+
+                            {# 处方开具页面信息 #}
+                            <div id="chu_fang_kai_ju" class="tab-pane fade">
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="offset-3 col-md-2 mt-2"><h5>药品名</h5></div>
+                                        <div class="offset-1 col-md-6 mt-2"><h5>数量</h5></div>
+                                    </div>
+                                    <div id="box" class="row mb-0">
+                                        <input class="form-control col-md-4 offset-2" type="text" name=""
+                                               id="txt" onblur="setTimeout(display_delete, 1000)"
+                                               onkeyup="QueryMedicine()"/>
+                                        &nbsp;<input class="form-control col-md-1" type="text" name=""
+                                                     id="num"/>
+                                        &nbsp;<button class="btn btn-outline-primary col-md-1.5"
+                                                      onclick="collect_medicine()" id="btn">添加
+                                    </button>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">药品名</th>
+                                                <th scope="col">数量</th>
+                                                <th scope="col">单价</th>
+                                                <th scope="col">总价</th>
+                                                <th scope="col" style="width: 75px">编辑</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="medicine_tbody"></tbody>
+                                            <tfoot>
+                                            <tr>
+                                                <th>合计</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th id="medicine_count"></th>
+                                                <th></th>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <div class="text-right">
+                                        <button type="submit"
+                                                onclick="post_medicine('{{ csrf_token }}', {% url 'OutpatientAPI' %})"
+                                                class="form-group btn btn-outline-primary btn-sm">
+                                            提交药品
                                         </button>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
-                                                <thead>
-                                                <tr>
-                                                    <th scope="col">药品名</th>
-                                                    <th scope="col">数量</th>
-                                                    <th scope="col">单价</th>
-                                                    <th scope="col">总价</th>
-                                                    <th scope="col" style="width: 75px">编辑</th>
-                                                </tr>
-                                                </thead>
-                                                <tbody id="medicine_tbody"></tbody>
-                                                <tfoot>
-                                                <tr>
-                                                    <th>合计</th>
-                                                    <th></th>
-                                                    <th></th>
-                                                    <th id="medicine_count"></th>
-                                                    <th></th>
-                                                </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                        <div class="text-right">
-                                            <button type="submit"
-                                                    onclick="post_medicine('{{ csrf_token }}', {% url 'OutpatientAPI' %})"
-                                                    class="form-group btn btn-outline-primary btn-sm">
-                                                提交药品
-                                            </button>
-                                        </div>
                                     </div>
-                                    {#                                    </div>#}
                                 </div>
-                                {# 手术申请页面信息 #}
-                                <div id="shou_shu_shen_qing" class="tab-pane fade">
-                                    <div class="container">
-                                        <div class="card-body">
-                                            <div class="basic-form">
-                                                <form action="#">
-                                                    手术申请页面未完成
-                                                </form>
-                                            </div>
+                                {#                                    </div>#}
+                            </div>
+                            {# 手术申请页面信息 #}
+                            <div id="shou_shu_shen_qing" class="tab-pane fade">
+                                <div class="container">
+                                    <div class="card-body">
+                                        <div class="basic-form">
+                                            <form action="#">
+                                                手术申请页面未完成
+                                            </form>
                                         </div>
                                     </div>
                                 </div>
-                                {# 患者账单页面信息 #}
-                                <div id="huan_zhe_zhang_dan" class="tab-pane fade">
-                                    <div class="container">
+                            </div>
+                            {# 患者账单页面信息 #}
+                            <div id="huan_zhe_zhang_dan" class="tab-pane fade">
+                                <div class="container">
+                                    <div class="card-body">
+                                        <div class="card-header border-0 pb-0">
+                                            <h5 class="card-title">金额细则</h5>
+                                        </div>
+                                        {# 药品费用细则 #}
                                         <div class="card-body">
-                                            <div class="card-header border-0 pb-0">
-                                                <h5 class="card-title">金额细则</h5>
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
+                                                    <thead>
+                                                    <tr>
+                                                        <th scope="col">药品名</th>
+                                                        <th scope="col">数量</th>
+                                                        <th scope="col">单价</th>
+                                                        <th scope="col">总价</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody id="medicine_copy_tbody"></tbody>
+                                                    <tfoot>
+                                                    <tr>
+                                                        <th>合计</th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th id="medicine_copy_total_price">0.00</th>
+                                                    </tr>
+                                                    </tfoot>
+                                                </table>
                                             </div>
-                                            {# 药品费用细则 #}
-                                            <div class="card-body">
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
-                                                        <thead>
-                                                        <tr>
-                                                            <th scope="col">药品名</th>
-                                                            <th scope="col">数量</th>
-                                                            <th scope="col">单价</th>
-                                                            <th scope="col">总价</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody id="medicine_copy_tbody"></tbody>
-                                                        <tfoot>
-                                                        <tr>
-                                                            <th>合计</th>
-                                                            <th></th>
-                                                            <th></th>
-                                                            <th id="medicine_copy_total_price">0.00</th>
-                                                        </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
+                                        </div>
+                                        {# 检验费用细则 #}
+                                        <div class="card-body">
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
+                                                    <thead>
+                                                    <tr>
+                                                        <th>检查类型</th>
+                                                        <th>项目名称</th>
+                                                        <th>价格</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody id="inspection_cost_body">
+                                                    </tbody>
+                                                    <tfoot>
+                                                    <tr>
+                                                        <th>合计</th>
+                                                        <th></th>
+                                                        <th id="inspection_count">0.00</th>
+                                                    </tr>
+                                                    </tfoot>
+                                                </table>
                                             </div>
-                                            {# 检验费用细则 #}
-                                            <div class="card-body">
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
-                                                        <thead>
-                                                        <tr>
-                                                            <th>检查类型</th>
-                                                            <th>项目名称</th>
-                                                            <th>价格</th>
-                                                        </tr>
-                                                        </thead>
-                                                        <tbody id="inspection_cost_body">
-                                                        </tbody>
-                                                        <tfoot>
-                                                        <tr>
-                                                            <th>合计</th>
-                                                            <th></th>
-                                                            <th id="inspection_count">0.00</th>
-                                                        </tr>
-                                                        </tfoot>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                            <div class="card-footer border-0 pt-0">
-                                                <p class="card-text d-inline">Card footer</p>
-                                                <a href="javascript:void(0)"
-                                                   class="card-link float-right">Card
-                                                    link</a>
-                                            </div>
+                                        </div>
+                                        <div class="card-footer border-0 pt-0">
+                                            <p class="card-text d-inline">Card footer</p>
+                                            <a href="javascript:void(0)"
+                                               class="card-link float-right">Card
+                                                link</a>
                                         </div>
                                     </div>
                                 </div>
