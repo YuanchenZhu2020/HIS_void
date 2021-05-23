@@ -45,29 +45,6 @@ function QueryHistorySheet(regis_id) {
     })
 }
 
-function PostHisTorySheet() {
-    let data = $('#inspection_form').serialize();
-    data =
-    $.ajax(
-        {
-            //几个参数需要注意一下
-            type: "POST",//方法类型
-            dataType: "json",//预期服务器返回的数据类型
-            url: "/users/login",//url
-            data: $('#form1').serialize(),
-            success: function (result) {
-                console.log(result);//打印服务端返回的数据(调试用)
-                if (result.resultCode == 200) {
-                    alert("SUCCESS");
-                }
-            },
-            error: function () {
-                alert("异常！");
-            }
-        });
-    console.log(data);
-}
-
 // 查询待诊患者
 function query_waiting_diagnosis_patients() {
     let URL = '/OutpatientAPI';
@@ -453,6 +430,27 @@ function inspectionTotalPrice(csrf_token) {
 
 }
 
+// 病历首页提交
+function PostHisTorySheet() {
+    let data = $('#history_sheet').serializeArray();
+    console.log("病历首页form信息");
+    $.ajax(
+        {
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/outpatientAPI",//url
+            data: data,
+            success: function (result) {
+                alert("ajax提交成功，请使用submitAlert显示提示信息！");
+                // submitAlert("提交成功", );
+            },
+            error: function (data) {
+                alert("异常！");
+                console.log(data);
+            }
+        });
+}
 
 // 药品提交(ajax post)
 function post_medicine(csrf_token, url) {  //由于
@@ -495,6 +493,7 @@ function post_medicine(csrf_token, url) {  //由于
     })
 }
 
+// 检查检验提交
 function post_inspection(csrf_token, url) {  //由于
     let all_medicine = document.getElementsByName('medicine');
     let medicine_data = [];
@@ -535,10 +534,9 @@ function post_inspection(csrf_token, url) {  //由于
     })
 }
 
-// 检验结果提交
-copyJCJG()
-QueryZZHZ()
+
 // 这里应该整一个document.ready，表示页面加载完毕后应该执行的操作，而不应该独立的放在这执行
 query_waiting_diagnosis_patients()
-
+copyJCJG()
+QueryZZHZ()
 
