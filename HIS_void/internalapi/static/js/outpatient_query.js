@@ -11,34 +11,61 @@ function StringFormat() {
 }
 
 // 病历首页查询
-function QueryBLSY(patient_id) {
+function QueryHistorySheet(regis_id) {
     let URL = '/OutpatientAPI';
     $.ajax({
         type: "get",
         url: URL,
         dataType: 'json',
         data: {
-            patient_id: patient_id,
-            information: 'BLSY'
+            regis_id: regis_id,
+            get_param: 'BLSY'
         },
         success: function (data) {
-            document.getElementById("HZZS").setAttribute('placeholder', data.HZZS);
-            document.getElementById("ZLQK").setAttribute('placeholder', data.ZLQK);
-            document.getElementById("JWBS").setAttribute('placeholder', data.JWBS);
-            document.getElementById("GMBS").setAttribute('placeholder', data.GMBS);
-            document.getElementById("TGJC").setAttribute('placeholder', data.TGJC);
-            document.getElementById("FBSJ").setAttribute('placeholder', data.FBSJ);
-            document.getElementById("no").setAttribute('placeholder', data.no);
-            document.getElementById("name").setAttribute('placeholder', data.name);
-            document.getElementById("gender").setAttribute('placeholder', data.gender);
-            document.getElementById("age").setAttribute('placeholder', data.age);
-            document.getElementById("BLSY_a").click();
+            console.log("病历首页数据")
+            console.log(data);
+            $("#chief_complaint").text(data.chief_complaint);
+            $("#past_illness").text(data.past_illness);
+            $("#allegic_history").text(data.allegic_history);
+            $("#illness_date").text(data.illness_date);
+            $("#no").attr('placeholder', data.no);
+            $("#name").attr('placeholder', data.name);
+            $("#gender").attr('placeholder', data.gender);
+            $("#age").attr('placeholder', data.age);
+            $('input[name=regis_id]').each(function (index, value) {
+                $(value).val(regis_id);
+                console.log(value);
+            })
+            $("#BLSY_a").click();
         },
         error: function (err) {
             alert("请求服务器失败！");
             console.log(err);
         },
     })
+}
+
+function PostHisTorySheet() {
+    let data = $('#inspection_form').serialize();
+    data =
+    $.ajax(
+        {
+            //几个参数需要注意一下
+            type: "POST",//方法类型
+            dataType: "json",//预期服务器返回的数据类型
+            url: "/users/login",//url
+            data: $('#form1').serialize(),
+            success: function (result) {
+                console.log(result);//打印服务端返回的数据(调试用)
+                if (result.resultCode == 200) {
+                    alert("SUCCESS");
+                }
+            },
+            error: function () {
+                alert("异常！");
+            }
+        });
+    console.log(data);
 }
 
 // 查询待诊患者
@@ -50,18 +77,16 @@ function query_waiting_diagnosis_patients() {
         url: URL,
         dataType: 'json',
         data: {
-            d_no: '000000',
-            information: 'DZHZ'
+            get_param: 'waiting_diagnosis'
         },
         success: function (data) {
             console.log(data);
             for (let i = 0; i < data.length; i++) {
                 let patient = data[i];
                 let td = '<td>' + patient.name + '</td>';
-                let td1 = '<td>' + patient.status + '</td>';
-                let p_no = patient.p_no
-                console.log(p_no)
-                let tr = $("<tr onclick='QueryBLSY(this.p_no)'></tr>");
+                let td1 = '<td>' + patient.gender + '</td>';
+                let regis_id = patient.regis_id
+                let tr = $("<tr onclick='QueryHistorySheet(" + regis_id + ")'></tr>");
                 tr.append(td);
                 tr.append(td1);
                 $("#DZHZ").append(tr);
@@ -84,7 +109,7 @@ function QueryZZHZ() {
         dataType: 'json',
         data: {
             d_no: '000000',
-            information: 'ZZHZ'
+            get_param: 'ZZHZ'
         },
         success: function (data) {
             console.log(data);
@@ -118,16 +143,16 @@ function QueryJCJY(p_no) {
         dataType: 'json',
         data: {
             p_no: p_no,
-            information: 'JCJY'
+            get_param: 'JCJY'
         },
         success: function (data) {
             console.log(data);
-            document.getElementById("HZZS").setAttribute('placeholder', data.HZZS);
+            document.getElementById("chief_complaint").setAttribute('placeholder', data.chief_complaint);
             document.getElementById("ZLQK").setAttribute('placeholder', data.ZLQK);
-            document.getElementById("JWBS").setAttribute('placeholder', data.JWBS);
-            document.getElementById("GMBS").setAttribute('placeholder', data.GMBS);
+            document.getElementById("past_illness").setAttribute('placeholder', data.past_illness);
+            document.getElementById("allegic_history").setAttribute('placeholder', data.allegic_history);
             document.getElementById("TGJC").setAttribute('placeholder', data.TGJC);
-            document.getElementById("FBSJ").setAttribute('placeholder', data.FBSJ);
+            document.getElementById("illness_date").setAttribute('placeholder', data.illness_date);
             document.getElementById("no").setAttribute('placeholder', data.no);
             document.getElementById("name").setAttribute('placeholder', data.name);
             document.getElementById("gender").setAttribute('placeholder', data.gender);
@@ -162,7 +187,7 @@ function QueryMedicine() {
         dataType: 'json',
         cache: true,
         data: {
-            information: 'CFKJ'
+            get_param: 'CFKJ'
         },
         success: function (data) {
             if (data.length > 0) {
@@ -233,7 +258,7 @@ function collect_medicine() {
             dataType: 'json',
             cache: true,
             data: {
-                information: 'CFKJ'
+                get_param: 'CFKJ'
             },
             success: function (data) {
                 let medicine_name = document.getElementById('txt').value;
@@ -379,38 +404,38 @@ function copyInspection(event) {
     // 检查类型
     let inspection_type = $($event).attr('name');
     // 检查名称
-    let inspection_name = $event.find('option:selected').data('name');
-    console.log($($event).data());
-    // 检查价格
-    let inspection_price = $event.find('option:selected').attr('name');
-    // 如果表中已经存在该检验类型，则删除掉
-    console.log(inspection_name);
-    console.log(inspection_type);
-    console.log(inspection_price);
-    let $tr = $("<tr></tr>");
-    $tr.attr('name', inspection_type);
-    let $inspection_type_td = $('<td></td>');
-    $inspection_type_td.text(inspection_type);
-
-    let $inspection_name_td = $('<td></td>');
-    $inspection_name_td.text(inspection_name);
-
-    let $inspection_price_td = $('<td></td>');
-    $inspection_price_td.attr('name', 'inspection_price');
-    $inspection_price_td.text(inspection_price);
-
-    $tr.append($inspection_type_td);
-    $tr.append($inspection_name_td);
-    $tr.append($inspection_price_td);
-
-    //
     if ($('#inspection_cost_body').find('[name=' + inspection_type + ']').html()) {
-        let exist = $('#inspection_cost_body').find('[name=' + inspection_type + ']');
-        exist.remove();
-        // 说明选到了无，退出即可
-        if (inspection_name === '') $tr = $('');
+        $('#inspection_cost_body').find('[name=' + inspection_type + ']').remove();
     }
-    $('#inspection_cost_body').append($tr);
+    $event.find('option:selected').each(function (i, val) {
+            let inspection_name = $(val).data('name');
+            let inspection_price = $(val).data('price');
+
+            console.log(inspection_name);
+            console.log(inspection_type);
+            console.log(inspection_price);
+
+            let $tr = $("<tr></tr>");
+            $tr.attr('name', inspection_type);
+            let $inspection_type_td = $('<td></td>');
+            $inspection_type_td.text(inspection_type);
+
+            let $inspection_name_td = $('<td></td>');
+            $inspection_name_td.text(inspection_name);
+
+            let $inspection_price_td = $('<td></td>');
+            $inspection_price_td.attr('name', 'inspection_price');
+            $inspection_price_td.text(inspection_price);
+
+            $tr.append($inspection_type_td);
+            $tr.append($inspection_name_td);
+            $tr.append($inspection_price_td);
+
+            //
+
+            $('#inspection_cost_body').append($tr);
+        }
+    )
     inspectionTotalPrice();
 }
 

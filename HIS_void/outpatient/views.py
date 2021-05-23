@@ -34,5 +34,4 @@ class OutpatientView(View):
                 }
             )
         context = {"TestItems": test_items}
-        print(context['TestItems'])
         return render(request, OutpatientView.template_name, context=context)

@@ -15,8 +15,8 @@
                     <div class="page-titles mb-2 mt-0">
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item"><a href="{% url 'profile' %}">Profile</a></li>
-                        <li class="breadcrumb-item active"><a href="{% url 'news' %}">News</a>
-                        </li>
+                            <li class="breadcrumb-item active"><a href="{% url 'news' %}">News</a>
+                            </li>
                         </ol>
                     </div>
                 </div>
@@ -69,25 +69,12 @@
                         <div class="card-body">
                             <div class="basic-list-group">
                                 <ul class="list-group list-group-flush">
-
-                                    <li class="list-group-item"><a href="http://xyy.buaa.edu.cn/info/1108/3643.htm"
-                                                                   target="_blank"><span>04/12</span><em>党史学习教育正当时——校医院与离退休工…</em></a>
-                                    </li>
-
-                                    <li class="list-group-item"><a href="http://xyy.buaa.edu.cn/info/1108/3641.htm"
-                                                                   target="_blank"><span>04/12</span><em>校医院第一和第二党支部联合开展“清明祭…</em></a>
-                                    </li>
-
-                                    <li class="list-group-item"><a href="http://xyy.buaa.edu.cn/info/1108/3639.htm"
-                                                                   target="_blank"><span>04/12</span><em>校医院召开党史学习教育动员会</em></a>
-                                    </li>
-
-                                    <li class="list-group-item"><a href="http://xyy.buaa.edu.cn/info/1108/3631.htm"
-                                                                   target="_blank"><span>04/01</span><em>找差距
-                                        抓落实
-                                        永葆初心本色——校医院第…</em></a></li>
-
-
+                                    {% for item in news %}
+                                        <li class="list-group-item"><a href="http://xyy.buaa.edu.cn/info/1108/3643.htm"
+                                                                       target="_blank"><span>{{ item.send_time }}</span><em>
+                                            {{ item.content|slice:'80' }}…</em></a>
+                                        </li>
+                                    {% endfor %}
                                 </ul>
                             </div>
                         </div>

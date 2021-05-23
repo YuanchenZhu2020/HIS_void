@@ -1,6 +1,6 @@
 // 门诊医生的数据，可能是用来做参考的，先注释掉，后期再删除
 /*
-function QueryBLSY(p_no) {
+function QueryHistorySheet(p_no) {
     let URL = '/OutpatientAPI';
 
     $.ajax({
@@ -53,7 +53,7 @@ function QueryZZHZ() {
                 let td1 = '<td>' + patient.bed + '</td>';
                 let p_no = patient.p_no
                 console.log(p_no)
-                let tr = $("<tr onclick='alert(123)'></tr>");  //QueryBLSY(this.p_no)
+                let tr = $("<tr onclick='alert(123)'></tr>");  //QueryHistorySheet(this.p_no)
                 tr.append(td);
                 tr.append(td1);
                 $("#ZZHZ").append(tr);   //这一块儿是什么意思
@@ -88,7 +88,7 @@ function QueryCYHZ() {
                 let td1 = '<td>' + patient.status + '</td>';
                 let p_no = patient.p_no
                 console.log(p_no)
-                let tr = $("<tr onclick='QueryBLSY(this.p_no)'></tr>");
+                let tr = $("<tr onclick='QueryHistorySheet(this.p_no)'></tr>");
                 tr.append(td);
                 tr.append(td1);
                 $("#CYHZ").append(tr);
