@@ -182,7 +182,7 @@ SAFE_URL = [
     r"/PatientViewAPI/",  # 病人数据API
     r"/InpatientAPI/",  # 住院医生数据API
     r"/news/",
-
+    r"/PatientDetailsViewAPI", # 患者详情页面API
 ]
 
 # setup session engine to improve performance

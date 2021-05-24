@@ -1,6 +1,7 @@
 {#<!DOCTYPE html>#}
 {% extends 'base.html' %}
 {% load static %}
+{% load format_date_string %}
 {% block title %}患者{% endblock %}
 
 {% block body-context %}
@@ -108,21 +109,112 @@
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {% for item in reg_doctors_data %}
+                                            {% for item in reg_doctors_data %}
                                             <tr>
                                                 <td>{{ item.doctor_name }}</td>
                                                 <td>{{ item.dept }}</td>
                                                 <td>{{ item.reg_num }}</td>
                                                 <td>
-                                                    <button type="button" class="btn btn-success light sharp" href="#"
-                                                            style="width: 80px">
+                                                    <button type="button" 
+                                                            class="btn btn-success light sharp" 
+                                                            style="width: 80px"
+                                                            data-toggle="modal"
+                                                            data-target="#reg-again-{{ item.doctor_id }}">
                                                         再次预约
                                                     </button>
                                                 </td>
                                             </tr>
-                                        {% endfor %}
+                                            {% endfor %}
                                         </tbody>
                                     </table>
+                                </div>
+                                <!-- 生成再次预约Modal弹窗 -->
+                                {% for item in reg_doctors_data %}
+                                <div class="modal text-center fade" id="reg-again-{{ item.doctor_id }}">
+                                    <div class="modal-dialog modal-lg" style="display: inline-block ;width:auto">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title" id="reg-again-modal-title">
+                                                    再次预约
+                                                </h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <!-- <div class="reg-date-tables"> -->
+                                                    <ul class="nav nav-tabs" role="tablist">
+                                                        {% for date in reg_dates %}
+                                                        <li class="nav-item">
+                                                            <a href="#reg-{{ item.doctor_id }}-{{ date|ymd2md }}"
+                                                                data-toggle="tab"
+                                                                class="nav-link"
+                                                                onclick="QueryDocReg('{{ item.doctor_id }}', '{{ item.doctor_name }}', '{{ date }}')">
+                                                                {{ date|ymd2md }}
+                                                            </a>
+                                                        </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                    <div class="tab-content">
+                                                        <div class="tab-pane active">
+                                                            <!-- <div class="counter"> -->
+                                                                <p></p>
+                                                                <h4>请选择一个时间</h4>
+                                                                <p>请您根据自己的病情和严重程度合理选择。balbal</p>
+                                                            <!-- </div> -->
+                                                        </div>
+                                                        {% for date in reg_dates %}
+                                                        <div class="tab-pane" id="reg-{{ item.doctor_id }}-{{ date|ymd2md }}">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-responsive-md" style="text-align: center;">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>
+                                                                            <strong>主治医生</strong>
+                                                                        </th>
+                                                                        <th>
+                                                                            <strong>上午(8:00-11:00)</strong>
+                                                                        </th>
+                                                                        <th>
+                                                                            <strong>下午(13:00-18:00)</strong>
+                                                                        </th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody id="{{ date|ymd2md }}">
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                <!-- </div> -->
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal">
+                                                    放弃预约
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- 挂号询问弹窗 -->
+                        <div class="modal fade" id="GHask">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">是否挂号？</h5>
+                                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span>
+                                        </button>
+                                    </div>
+                                    <div id="modal-body" class="modal-body">
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger light" data-dismiss="modal">取消</button>
+                                        <button id="registration" type="button" class="btn btn-primary" data-dismiss="modal">
+                                            确定
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
