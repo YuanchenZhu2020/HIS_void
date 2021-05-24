@@ -1,3 +1,6 @@
+// 该文件只会向OutpatientAPI交互数据，因此设置URL为本文件的全局变量
+const URL = '/OutpatientAPI/';
+
 // 字符串格式化函数
 function StringFormat() {
     if (arguments.length == 0)
@@ -10,9 +13,9 @@ function StringFormat() {
     return str;
 }
 
+
 // 病历首页查询
 function QueryHistorySheet(regis_id) {
-    let URL = '/OutpatientAPI';
     $.ajax({
         type: "get",
         url: URL,
@@ -24,18 +27,17 @@ function QueryHistorySheet(regis_id) {
         success: function (data) {
             console.log("病历首页数据")
             console.log(data);
-            $("#chief_complaint").text(data.chief_complaint);
-            $("#past_illness").text(data.past_illness);
-            $("#allegic_history").text(data.allegic_history);
-            $("#illness_date").text(data.illness_date);
             $("#no").attr('placeholder', data.no);
             $("#name").attr('placeholder', data.name);
             $("#gender").attr('placeholder', data.gender);
             $("#age").attr('placeholder', data.age);
-            /*            $('input[name=regis_id]').each(function (index, value) {
-                            $(value).val(regis_id);
-                            console.log(value);
-                        })*/
+            $("input[name='regis_id']").each(function (i, value) {
+                $(value).val(regis_id);
+            })
+            $("#chief_complaint").text(data.chief_complaint);
+            $("#past_illness").text(data.past_illness);
+            $("#allegic_history").text(data.allegic_history);
+            $("#illness_date").text(data.illness_date);
             $("#BLSY_a").click();
         },
         error: function (err) {
@@ -47,8 +49,6 @@ function QueryHistorySheet(regis_id) {
 
 // 查询待诊患者
 function query_waiting_diagnosis_patients() {
-    let URL = '/OutpatientAPI';
-    console.log(URL);
     $.ajax({
         type: "get",
         url: URL,
@@ -62,8 +62,8 @@ function query_waiting_diagnosis_patients() {
                 let patient = data[i];
                 let td = '<td>' + patient.name + '</td>';
                 let td1 = '<td>' + patient.gender + '</td>';
-                let regis_id = patient.regis_id
-                let tr = $("<tr onclick='QueryHistorySheet(" + regis_id + ")'></tr>");
+                let id = patient.id
+                let tr = $("<tr onclick='QueryHistorySheet(" + id + ")'></tr>");
                 tr.append(td);
                 tr.append(td1);
                 $("#DZHZ").append(tr);
@@ -78,8 +78,6 @@ function query_waiting_diagnosis_patients() {
 
 // 查询诊中患者
 function QueryZZHZ() {
-    let URL = '/OutpatientAPI';
-    console.log(URL);
     $.ajax({
         type: "get",
         url: URL,
@@ -110,7 +108,6 @@ function QueryZZHZ() {
 
 // 检查结果查询
 function QueryJCJY(p_no) {
-    let URL = '/OutpatientAPI';
 
     $.ajax({
         type: "get",
@@ -158,7 +155,7 @@ function copyJCJG() {
 function QueryMedicine() {
     $.ajax({
         type: "get",
-        url: "/OutpatientAPI",
+        url: URL,
         dataType: 'json',
         cache: true,
         data: {
@@ -229,7 +226,7 @@ function display_delete() {
 function collect_medicine() {
     $.ajax({
             type: "get",
-            url: "/OutpatientAPI",
+            url: URL,
             dataType: 'json',
             cache: true,
             data: {
@@ -433,14 +430,9 @@ function PostHisTorySheet(csrf_token) {
     let data = $('#history_sheet').serialize();
     console.log("病历首页form信息");
     console.log(data);
-    data = JSON.stringify({
-        'post_param': 'history_sheet',
-        'name': 'lgm'
-    });
     $.ajax({
-        //几个参数需要注意一下
-        type: "POST",//方法类型
-        url: "/outpatientAPI",//url
+        type: "POST",
+        url: URL,
         data: data,
         beforeSend: function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
@@ -458,10 +450,11 @@ function PostHisTorySheet(csrf_token) {
 }
 
 // 药品提交(ajax post)
-function post_medicine(csrf_token) {
-    csrf_token = '';
-    let url = '/outpatientAPI';
+function PostMedicine(csrf_token) {
+    let url = '/OutpatientAPI/';
     let all_medicine = document.getElementsByName('medicine');
+    let medical_advice = $('#medical_advice').val();
+    let regis_id = $('#regis_id').val();
     let medicine_data = [];
     for (let i = 0; i < all_medicine.length; i++) {
         console.log(all_medicine[i].dataset);
@@ -472,13 +465,15 @@ function post_medicine(csrf_token) {
     }
     let data = {
         'medicine_data': medicine_data, // 药品信息
-        'post_param': 'medicine' // 提交内容类型判断
+        'post_param': 'medicine', // 提交内容类型判断
+        'medical_advice': medical_advice,
+        'regis_id': regis_id
     }
     console.log(data);
     $.ajax({
-        url: url,
+        url: URL,
         type: 'POST',
-        data: JSON.stringify(data), // 注意这里要将发送的数据转换成字符串
+        data: data, // 注意这里要将发送的数据转换成字符串
         beforeSend: function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
@@ -499,11 +494,31 @@ function post_medicine(csrf_token) {
 
 // 检查检验提交
 function PostInspectionItem(csrf_token) {
-    let url = '/outpatientAPI';
     let data = $('#inspection_form').serialize();
     console.log(data);
     $.ajax({
-        url: url,
+        url: URL,
+        type: 'POST',
+        data: data, // 注意这里要将发送的数据转换成字符串
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        success: function (callback) {
+            alert(callback);
+        },
+        error: function (callback) {
+            alert('提交失败');
+            console.log(callback);
+        }
+    })
+}
+
+// 诊断结果提交
+function PostDiagnosisResults(csrf_token) {
+    let data = $('#diagnosis_results_form').serialize();
+    console.log(data);
+    $.ajax({
+        url: URL,
         type: 'POST',
         data: data, // 注意这里要将发送的数据转换成字符串
         beforeSend: function (xhr) {
