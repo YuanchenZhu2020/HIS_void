@@ -16,7 +16,7 @@ from rbac.server.init_permission import init_permission
 class IndexView(View):
     template_name = "index.html"
     staff_next_url_name = "profile"
-    patient_next_url_name = "patient-user"
+    patient_next_url_name = "patient-details"
 
     def get(self, request):
         print("[Index View]", request.user)

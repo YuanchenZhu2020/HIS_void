@@ -77,6 +77,14 @@ class Department(models.Model):
     def __str__(self) -> str:
         return "<Department {} | UserGroup {}>".format(self.usergroup.name, self.usergroup.ug_id)
 
+    @property
+    def name(self):
+        return self.usergroup.name
+    
+    @property
+    def dept_id(self):
+        return self.usergroup.ug_id
+
 # UserGroup 添加新对象后，Department 会自动添加该对象
 @receiver(post_save, sender = UserGroup)
 def create_usergroup_department(sender, instance, created, **kwargs):
@@ -244,6 +252,17 @@ class JobType(models.Model):
         return "<Job Type {}-{}>".format(self.job_id, self.job_name)
 
 
+class StaffManager(models.Manager):
+    use_in_migrations = True
+
+    def get_by_user(self, username):
+        try:
+            sf = self.get(user__username = username)
+        except UserGroup.DoesNotExist:
+            sf = None
+        return sf
+
+
 class Staff(models.Model):
     """ 医院职工 """
     SEX_ITEMS = [
@@ -291,6 +310,8 @@ class Staff(models.Model):
         related_query_name = "staffs",
         verbose_name = _("工种"),
     )
+
+    objects = StaffManager()
 
     class Meta:
         verbose_name = _("职工")

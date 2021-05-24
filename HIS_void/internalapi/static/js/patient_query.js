@@ -10,7 +10,17 @@ function StringFormat() {
     return str;
 }
 
-// 医生信息
+// 日期字符串格式化
+function YmdToMd(date) {
+    return date.split('-').slice(1,3).join('-');
+}
+
+function YmdToStr(date) {
+    return StringFormat("{0} 年 {1} 月 {2} 日", ...date.split('-'));
+}
+
+
+// 获取挂号医生信息
 function QueryGH(date, department) {
     let URL = '/PatientViewAPI';
     $.ajax({
@@ -18,52 +28,57 @@ function QueryGH(date, department) {
         url: URL,
         dataType: 'json',
         data: {
-            information: 'GH',
             KS_id: department.id,
             date: date,
         },
         success: function (data) {
-            alert('弹出对话框.');
-            for (let i = 0; i < data.length; i++) {
-                console.log(data);
+            let query_data = data["query_data"];
+            let token = data["token"];
+            let submit_url = data["submit_url"];
+            for (let i = 0; i < query_data.length; i++) {
                 // 医生信息对象
-                let doctorInfo = data[i];
+                let DoctorInfo = query_data[i];
                 // 创建医生姓名行
                 let doctor_name_td = $("<td></td>");
                 // 添加医生姓名
-                doctor_name_td.text(doctorInfo.doctor_name);
+                doctor_name_td.text(DoctorInfo.doctor_name);
                 // 创建上午挂号按钮行
                 let AM_remain_td = $("<td></td>");
                 // 创建下午按钮挂号行
                 let PM_remain_td = $("<td></td>");
                 // 创建上午挂号按钮
-                let AM_btn = $("<button type='button' class='btn btn-outline-primary' data-toggle='modal' data-target='#GHask'></button>");
+                let AM_btn = $("<button type='button' class='btn btn-sm btn-block btn-outline-primary' data-toggle='modal' data-target='#GHask'></button>");
                 // 创建下午挂号按钮
-                let PM_btn = $("<button type='button' class='btn btn-outline-primary' data-toggle='modal' data-target='#GHask'></button>");
+                let PM_btn = $("<button type='button' class='btn btn-sm btn-block btn-outline-primary' data-toggle='modal' data-target='#GHask'></button>");
                 // 在按钮上添加剩余人数
-                AM_btn.text(doctorInfo.AM);
-                PM_btn.text(doctorInfo.PM);
+                AM_btn.text(DoctorInfo.AM);
+                PM_btn.text(DoctorInfo.PM);
                 // 如果剩余人数为0，则禁用按钮
-                if (doctorInfo.AM === 0) {
+                if (DoctorInfo.AM === 0) {
                     AM_btn.attr('disabled', true);
                 }
-                if (doctorInfo.PM === 0) {
+                if (DoctorInfo.PM === 0) {
                     PM_btn.attr('disabled', true);
                 }
                 // 向按钮行中添加按钮
                 AM_remain_td.append(AM_btn);
                 PM_remain_td.append(PM_btn);
-                //
-                console.log(department.name);
-                console.log(doctorInfo.doctor_name);
-                AM_btn.attr('onclick', StringFormat("registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')", department.id, department.name, date, 'AM', doctorInfo.doctor_id, doctorInfo.doctor_name));
-                PM_btn.attr('onclick', StringFormat("registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}')", department.id, department.name, date, 'PM', doctorInfo.doctor_id, doctorInfo.doctor_name));
+                AM_btn.attr('onclick', StringFormat(
+                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')", 
+                    department.name, DoctorInfo.doctor_name, 
+                    token, DoctorInfo.doctor_id, date, 'AM', submit_url
+                ));
+                PM_btn.attr('onclick', StringFormat(
+                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')", 
+                    department.name, DoctorInfo.doctor_name, 
+                    token, DoctorInfo.doctor_id, date, 'PM', submit_url
+                ));
                 // 创建行
                 let tr = $("<tr></tr>");
                 tr.append(doctor_name_td);
                 tr.append(AM_remain_td);
                 tr.append(PM_remain_td);
-                $("#" + department.id + '_' + date).append(tr);
+                $("#" + department.id + '-' + YmdToMd(date)).append(tr);
             }
         },
         error: function (err) {
@@ -72,36 +87,71 @@ function QueryGH(date, department) {
     });
 }
 
-// 挂号按钮，点击可以挂号
 
-function registration_confirm(department_id, department_name, date, AM_PM, doctor_id, doctor_name) {
-    // console.log(department);
-    // console.log(date);
-    // console.log(AM_PM);
-    // console.log(doctorInfo);
-    let regis_time;
-    if (AM_PM === "AM") regis_time = "上午";
-    else regis_time = "下午";
+// 挂号确认弹窗
+function registration_confirm(
+    department_name, doctor_name, token, doctor_id, reg_date, AM_PM, submit_url
+) {
+    let reg_time, reg_time_str, reg_datetime;
+    if (AM_PM === "AM"){
+        reg_time = "08:00:00";
+        reg_time_str = "上午 8:00 - 11:00";
+    }
+    else {
+        reg_time = "13:00:00";
+        reg_time_str = "下午 13:00 - 18:00";
+    }
+    reg_datetime = reg_date + " " + reg_time;
     $("#modal-body").empty();
-    let note = '<strong>' + date + regis_time + ' ' + department_name + " " + doctor_name + "医生" + '</strong>';
-    console.log(note);
+    let note = StringFormat(
+        "<strong>{0}{1}，{2}，{3}医生</strong>",
+        YmdToStr(reg_date), reg_time_str, department_name, doctor_name
+    );
     $("#modal-body").append(note);
-    $("#registration").attr("onclick", StringFormat("registration('{0}', '{1}', '{2}', '{3}')", department_id, date, 'AM', doctor_id));
+    $("#registration").attr("onclick", StringFormat(
+        "post_registration('{0}', '{1}', '{2}', '{3}')", 
+        token, doctor_id, reg_datetime, submit_url
+    ));
 }
 
-function registration(department_id, regis_date, regis_AM_PM, doctor_id) {
-    let regis_form = $("<form action='#'></form>");
-    let department_id_input = $("<input>");
-    department_id_input.attr('name', 'department_id');
-    department_id_input.attr('value', department_id);
-    let regis_date_input = $("<input>");
-    regis_date_input.attr('name', 'regis_date');
-    regis_date_input.attr('value', regis_date);
-    let regis_AM_PM_input = $("<input>");
-    regis_AM_PM_input.attr('name', 'regis_AM_PM');
-    regis_AM_PM_input.attr('value', regis_AM_PM);
-    let doctor_id_input = $("<input>");
-    doctor_id_input.attr('name', 'doctor_id');
-    doctor_id_input.attr('value', doctor_id);
-    regis_form.submit();
+
+// POST 提交挂号表单
+function post_registration(csrf_token, doctor_id, reg_datetime, submit_url) {
+    let data = {
+        'doctor_id': doctor_id,
+        'reg_datetime': reg_datetime
+    };
+    $.ajax({
+        url: submit_url,
+        type: 'POST',
+        dataType: 'text',
+        data: JSON.stringify(data), // 注意这里要将发送的数据转换成字符串
+        processData: false,// tell jQuery not to process the data
+        contentType: false,// tell jQuery not to set contentType
+        beforeSend: function (xhr, setting) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        success: function (data) {
+            data = JSON.parse(data);
+            let success = data.status;
+            let status = "error";
+            let alert_title = "提交失败";
+            let alert_text = "请登录后再挂号！";
+            if (success) {
+                status = "success";
+                alert_title = "提交成功";
+                alert_text = "即将跳转至您的个人界面";
+            }
+            submitAlert(alert_title, alert_text, status);
+            console.log(data.redirect_url);
+            $($('.swal-button-container').children()[0]).attr(
+                'onclick', 
+                StringFormat("window.location.href = '{0}'", data.redirect_url)
+            );
+        },
+        error: function (callback) {
+            console.log(callback);
+            alert('提交失败');
+        }
+    })
 }
