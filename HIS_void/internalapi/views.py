@@ -93,7 +93,7 @@ class OutpatientAPI(View):
         for regis in regis_info:
             # 医生工作4个小时
             patient_details = dict(zip(
-                ['regis_id', 'name', 'gender'],
+                ['id', 'name', 'gender'],
                 [regis[0], regis[1], gender_convert[regis[2]]]
             ))
             data.append(patient_details)
@@ -150,19 +150,12 @@ class OutpatientAPI(View):
 
     # region OutpatientAPI post部分
     def post(self, request):
-        print(request.POST)
-        print(request.body)
-        if dict(request.POST) != {}:
-            data = dict(request.POST)
-            for key in data:
-                data[key] = data[key][0]
-        else:
-            data = json.loads(request.body)
+        data = request.POST
         post_param = data['post_param']
         # 输出提示信息
         print("==========START outpatientAPI POST==========")
-        print(data)
-        print('【post_param】', post_param)
+        print('【request.POST】', data)
+        print('【post_param】', data['post_param'])
         print("==========END outpatientAPI POST==========")
         ''' 
         param对照表:
@@ -180,30 +173,64 @@ class OutpatientAPI(View):
         # 这条语句并不会使页面刷新
         return redirect(reverse("outpatient-workspace"))
 
-    # 处方开具部分获取药品信息
-    def post_medicine(self, data):
-        """ 数据格式
-        {
-            'medicine_data': [
-                {'medicine_id': 'A00054', 'medicine_num': '2'},
-                {'medicine_id': 'A00538', 'medicine_num': '1'},
-                {'medicine_id': 'A00538', 'medicine_num': '1'}
-            ],
-            'post_param': 'medicine'
-        }
-        """
-        try:
-            pass  # 数据库更新操作
-        except:
-            pass  # 异常处理操作
-
     # 检查检验部分
     def post_inspection(self, data):
-        pass
+        """【request.POST】内容
+         <QueryDict: {
+            'regis_id': ['31'],
+            'post_param': ['inspection'],
+            '1': ['1', '3'],
+            '2': ['16'],
+            '3': ['64', '66'],
+            '5': ['90']
+        }>
+        """
+        with transaction.atomic():  # 事务原子性保证
+            pass  # 检查检验据库操作
+
+    # 确诊结果
+    def post_diagnosis_results(self, data):
+        """【request.POST】
+        <QueryDict: {
+            'regis_id': [''],
+            'post_param': ['diagnosis_results'],
+            'diagnosis_results': ['门诊确诊文本']
+        }>
+        """
+        with transaction.atomic():  # 事务原子性保证
+            pass  # 检查检验据库操作
+
+    # 药品信息、医嘱建议
+    def post_medicine(self, data):
+        """【request.POST】
+        <QueryDict: {
+            'medicine_data[0][medicine_id]': ['A00379'],
+            'medicine_data[0][medicine_num]': ['2'],
+            'medicine_data[1][medicine_id]': ['A00596'],
+            'medicine_data[1][medicine_num]': ['1'],
+            'post_param': ['medicine'],
+            'medical_advice': ['用药注意，医嘱文本']
+        }>
+        """
+        with transaction.atomic():  # 事务原子性保证
+            pass  # 检查检验据库操作
 
     # 提交病历首页部分
     def post_history_sheet(self, data):
-        with transaction.atomic():
+        """ 【request.POST】内容
+        <QueryDict: {
+            'csrfmiddlewaretoken': ['6enYH5rg9xCUBTK4vuBwleFUcViSvoE8wslV7PLg3qcqoyKCo1HWX1w0WdAhdLag'],
+            'regis_id': [''],
+            'post_param': ['history_sheet'],
+            'chief_complaint': ['患者主诉文本'],
+            'past_illness': ['既往病史文 本'],
+            'allegic_history': ['过敏病史文本'],
+            'illness_date': ['2021-1-15']
+        }>
+        """
+        with transaction.atomic():  # 事务原子性保证
+            pass  # 病历首页数据库操作
+            ''' 我的之前的存储代码，后端人员可以重新编写
             RegistrationInfo.objects.filter(
                 id=data['regis_id']
             ).update(
@@ -220,6 +247,8 @@ class OutpatientAPI(View):
             print(RegistrationInfo.objects.filter(
                 id=data['regis_id']
             ))
+            '''
+
     # endregion
 
 
