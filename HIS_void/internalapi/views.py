@@ -444,9 +444,6 @@ class PatientDetailsViewAPI(PatientViewAPI):
             }
         return doc_reg
 
-    def post(self, request):
-        pass
-
 
 # 病人基础信息API，用于医生获取病人基础数据
 class PatientUserAPI(View):

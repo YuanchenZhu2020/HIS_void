@@ -35,6 +35,9 @@ function QueryGH(date, department) {
             let query_data = data["query_data"];
             let token = data["token"];
             let submit_url = data["submit_url"];
+            // 清除原有数据行
+            $("#" + department.id + '-' + YmdToMd(date)).children().remove();
+            // 插入新的数据行
             for (let i = 0; i < query_data.length; i++) {
                 // 医生信息对象
                 let DoctorInfo = query_data[i];
@@ -173,6 +176,8 @@ function QueryDocReg(doctor_id, doctor_name, date) {
             let token = data["token"];
             let submit_url = data["submit_url"];
             if (query_data !== null) {
+                // 清除原有数据行
+                $("#" + YmdToMd(date)).children().remove();
                 // 创建待插入的行
                 let doctor_name_td = $("<td></td>");
                 doctor_name_td.text(doctor_name);
