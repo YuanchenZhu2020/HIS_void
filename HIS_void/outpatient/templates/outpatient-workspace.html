@@ -50,7 +50,7 @@
                                 <thead>
                                 <tr>
                                     <th>姓名</th>
-                                    <th>紧急程度</th>
+                                    <th>性别</th>
                                 </tr>
                                 </thead>
                                 <tbody id="DZHZ"></tbody>
@@ -144,7 +144,7 @@
                             <div id="bing_li_shou_ye" class="tab-pane fade show active">
                                 <div class="card-body">
                                     <div class="basic-form">
-                                        <form action="{% url 'OutpatientAPI' %}" method="POST" id="history_sheet">
+                                        <form id="history_sheet">
                                             {% csrf_token %}
                                             <input type="hidden" name="regis_id" value=""/>
                                             <input type="hidden" name="post_param" value="history_sheet"/>
@@ -173,7 +173,7 @@
                                             </div>
                                             <div class="text-right">
                                                 <button class="btn btn-outline-primary" type="button"
-                                                        onclick="PostHisTorySheet()">提交
+                                                        onclick="PostHisTorySheet('{{ csrf_token }}')">提交
                                                 </button>
                                             </div>
                                         </form>
@@ -186,8 +186,7 @@
                                 <div class="card-body">
                                     {# 检验表单 #}
                                     <div class="basic-form">
-                                        <form action="{% url 'OutpatientAPI' %}" method="POST" id="inspection_form">
-                                            {% csrf_token %}
+                                        <form id="inspection_form">
                                             <input type="hidden" name="post_param" value="inspection">
                                             {% for item in TestItems %}
                                                 <div class="form-group">
@@ -196,7 +195,7 @@
                                                         <select class="form-control form-control-lg"
                                                                 multiple="multiple"
                                                                 onchange="copyInspection(this)"
-                                                                name='{{ item.inspect_type_name }}'>
+                                                                name='{{ item.inspect_type_id }}'>
                                                             {% for testitems in item.content %}
                                                                 <option data-name="{{ testitems.inspect_name }}"
                                                                         data-price="{{ testitems.inspect_price }}"
@@ -207,7 +206,7 @@
                                                 </div>
                                             {% endfor %}
                                             <div class="text-right">
-                                                <button type="submit" onclick="PostHisTorySheet()"
+                                                <button type="button" onclick="PostInspectionItem('{{ csrf_token }}')"
                                                         class="form-group btn btn-outline-primary btn-sm">
                                                     提交检验
                                                 </button>
@@ -223,9 +222,7 @@
                                                 </p>
                                             </div>
                                         </div>
-
                                     </div>
-
                                 </div>
                             </div>
 
@@ -235,14 +232,13 @@
                                     <div class="card-body" id="MZQZ_id">
                                         <div class="basic-form">
                                             <form action="{% url 'OutpatientAPI' %}" method="post">
-                                                {% csrf_token %}
                                                 <div class="input-group mb-3">
                                                         <textarea class="form-control" rows="8" name="MZQZ"
                                                                   placeholder="请输入您的判断"></textarea>
                                                 </div>
                                                 <div class="form-group">
                                                     <div class="text-right">
-                                                        <button type="submit" onclick="submitAlert()"
+                                                        <button type="submit" onclick=""
                                                                 class="form-group btn btn-outline-primary btn-bg">
                                                             提 交
                                                         </button>
@@ -296,14 +292,12 @@
                                         </table>
                                     </div>
                                     <div class="text-right">
-                                        <button type="submit"
-                                                onclick="post_medicine('{{ csrf_token }}', {% url 'OutpatientAPI' %})"
+                                        <button onclick="post_medicine('{{ csrf_token }}')"
                                                 class="form-group btn btn-outline-primary btn-sm">
                                             提交药品
                                         </button>
                                     </div>
                                 </div>
-                                {#                                    </div>#}
                             </div>
                             {# 手术申请页面信息 #}
                             <div id="shou_shu_shen_qing" class="tab-pane fade">

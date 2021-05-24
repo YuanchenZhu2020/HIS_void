@@ -47,17 +47,19 @@ class OutpatientAPI(View):
     def query_medical_record(self, request):
         regis_id = request.GET.get('regis_id')
         regis_info = RegistrationInfo.objects.get(id=regis_id)
+        print("=======START outpatientAPI GET========")
         print(regis_info.__dict__)
         print(regis_info.patient.__dict__)
-        gender_convert = ["女", "男"]
+        print("========END outpatientAPI GET========")
+        gender_convert = ["男", "女"]
         data = {'no': regis_info.patient.patient_id,
                 'name': regis_info.patient.name,
                 'gender': gender_convert[regis_info.patient.gender],
                 'age': (timezone.now().date() - regis_info.patient.birthday).days // 365,
-                'HZZS': regis_info.chief_complaint,
-                'GMBS': regis_info.patient.allegic_history,
-                'JWBS': regis_info.patient.past_illness,
-                'FBSJ': regis_info.illness_date}
+                'chief_complaint': regis_info.chief_complaint,
+                'allegic_history': regis_info.patient.allegic_history,
+                'past_illness': regis_info.patient.past_illness,
+                'illness_date': regis_info.illness_date}
         return data
 
     # 待诊患者查询
@@ -148,6 +150,8 @@ class OutpatientAPI(View):
 
     # region OutpatientAPI post部分
     def post(self, request):
+        print(request.POST)
+        print(request.body)
         if dict(request.POST) != {}:
             data = dict(request.POST)
             for key in data:
@@ -170,15 +174,24 @@ class OutpatientAPI(View):
             self.post_inspection(data)
         elif post_param == 'history_sheet':
             self.post_history_sheet(data)
-        elif post_param == 'history_sheet':
-            print("===========" * 50)
-            self.post_history_sheet(data)
+        elif post_param == 'medicine':
+            self.post_medicine(data)
 
         # 这条语句并不会使页面刷新
         return redirect(reverse("outpatient-workspace"))
 
     # 处方开具部分获取药品信息
     def post_medicine(self, data):
+        """ 数据格式
+        {
+            'medicine_data': [
+                {'medicine_id': 'A00054', 'medicine_num': '2'},
+                {'medicine_id': 'A00538', 'medicine_num': '1'},
+                {'medicine_id': 'A00538', 'medicine_num': '1'}
+            ],
+            'post_param': 'medicine'
+        }
+        """
         try:
             pass  # 数据库更新操作
         except:
@@ -207,7 +220,6 @@ class OutpatientAPI(View):
             print(RegistrationInfo.objects.filter(
                 id=data['regis_id']
             ))
-
     # endregion
 
 

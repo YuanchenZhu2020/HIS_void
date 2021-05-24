@@ -32,10 +32,10 @@ function QueryHistorySheet(regis_id) {
             $("#name").attr('placeholder', data.name);
             $("#gender").attr('placeholder', data.gender);
             $("#age").attr('placeholder', data.age);
-            $('input[name=regis_id]').each(function (index, value) {
-                $(value).val(regis_id);
-                console.log(value);
-            })
+            /*            $('input[name=regis_id]').each(function (index, value) {
+                            $(value).val(regis_id);
+                            console.log(value);
+                        })*/
             $("#BLSY_a").click();
         },
         error: function (err) {
@@ -94,9 +94,7 @@ function QueryZZHZ() {
                 let patient = data[i];
                 let td = '<td>' + patient.name + '</td>';
                 let td1 = '<td>' + patient.status + '</td>';
-                let p_no = patient.p_no
-                console.log(p_no)
-                let tr = $("<tr onclick='QueryJCJY(this.p_no)'></tr>");
+                let tr = $(StringFormat("<tr onclick='QueryJCJY(0)'></tr>", data.regis_id));
                 tr.append(td);
                 tr.append(td1);
                 $("#ZZHZ").append(tr);
@@ -417,7 +415,7 @@ function copyInspection(event) {
 }
 
 // 计算检查检验总价
-function inspectionTotalPrice(csrf_token) {
+function inspectionTotalPrice() {
     let total_price = 0;
     let all_inspection_prices = document.getElementsByName('inspection_price');
     console.log(all_inspection_prices)
@@ -431,29 +429,38 @@ function inspectionTotalPrice(csrf_token) {
 }
 
 // 病历首页提交
-function PostHisTorySheet() {
-    let data = $('#history_sheet').serializeArray();
+function PostHisTorySheet(csrf_token) {
+    let data = $('#history_sheet').serialize();
     console.log("病历首页form信息");
-    $.ajax(
-        {
-            //几个参数需要注意一下
-            type: "POST",//方法类型
-            dataType: "json",//预期服务器返回的数据类型
-            url: "/outpatientAPI",//url
-            data: data,
-            success: function (result) {
-                alert("ajax提交成功，请使用submitAlert显示提示信息！");
-                // submitAlert("提交成功", );
-            },
-            error: function (data) {
-                alert("异常！");
-                console.log(data);
-            }
-        });
+    console.log(data);
+    data = JSON.stringify({
+        'post_param': 'history_sheet',
+        'name': 'lgm'
+    });
+    $.ajax({
+        //几个参数需要注意一下
+        type: "POST",//方法类型
+        url: "/outpatientAPI",//url
+        data: data,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        success: function (result) {
+            alert("ajax提交成功，请使用submitAlert显示提示信息！");
+            submitAlert("提交成功", "患者信息已更新", "success");
+            console.log(result);
+        },
+        error: function (data) {
+            alert("异常！");
+            console.log(data);
+        }
+    });
 }
 
 // 药品提交(ajax post)
-function post_medicine(csrf_token, url) {  //由于
+function post_medicine(csrf_token) {
+    csrf_token = '';
+    let url = '/outpatientAPI';
     let all_medicine = document.getElementsByName('medicine');
     let medicine_data = [];
     for (let i = 0; i < all_medicine.length; i++) {
@@ -471,11 +478,8 @@ function post_medicine(csrf_token, url) {  //由于
     $.ajax({
         url: url,
         type: 'POST',
-        dataType: 'text',
         data: JSON.stringify(data), // 注意这里要将发送的数据转换成字符串
-        processData: false,// tell jQuery not to process the data
-        contentType: false,// tell jQuery not to set contentType
-        beforeSend: function (xhr, setting) {
+        beforeSend: function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
         success: function (callback) {
@@ -484,8 +488,8 @@ function post_medicine(csrf_token, url) {  //由于
             $('#medicine_copy_tbody').empty();
             $('#medicine_count').text(0.00);
             $('#medicine_copy_total_price').text(0.00);
-            submitAlert();
-        }, // end success
+            submitAlert('药品提交', '药品提交成功', 'success');
+        },
         error: function (callback) {
             alert('提交失败');
             console.log(callback);
@@ -494,39 +498,20 @@ function post_medicine(csrf_token, url) {  //由于
 }
 
 // 检查检验提交
-function post_inspection(csrf_token, url) {  //由于
-    let all_medicine = document.getElementsByName('medicine');
-    let medicine_data = [];
-    for (let i = 0; i < all_medicine.length; i++) {
-        console.log(all_medicine[i].dataset);
-        medicine_data.push({
-            'medicine_id': all_medicine[i].dataset['medicineNo'],
-            'medicine_num': all_medicine[i].dataset['medicineNum']
-        });
-    }
-    let data = {
-        'medicine_data': medicine_data, // 药品信息
-        'post_param': 'medicine' // 提交内容类型判断
-    }
+function PostInspectionItem(csrf_token) {
+    let url = '/outpatientAPI';
+    let data = $('#inspection_form').serialize();
     console.log(data);
     $.ajax({
         url: url,
         type: 'POST',
-        dataType: 'text',
-        data: JSON.stringify(data), // 注意这里要将发送的数据转换成字符串
-        processData: false,// tell jQuery not to process the data
-        contentType: false,// tell jQuery not to set contentType
-        beforeSend: function (xhr, setting) {
+        data: data, // 注意这里要将发送的数据转换成字符串
+        beforeSend: function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
         success: function (callback) {
-            // 清空医生选择的药品
-            $('#medicine_tbody').empty();
-            $('#medicine_copy_tbody').empty();
-            $('#medicine_count').text(0.00);
-            $('#medicine_copy_total_price').text(0.00);
-            submitAlert();
-        }, // end success
+            alert(callback);
+        },
         error: function (callback) {
             alert('提交失败');
             console.log(callback);
