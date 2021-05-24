@@ -490,8 +490,8 @@ class PatientViewAPI(View):
         # },...]
         reg_date = request.GET.get('date')
         reg_datetime = {
-            "AM": timezone.make_aware(dateparse.parse_datetime(reg_date + " 08:00:00")).astimezone(timezone.utc),
-            "PM": timezone.make_aware(dateparse.parse_datetime(reg_date + " 13:00:00")).astimezone(timezone.utc)
+            "AM": dateparse.parse_datetime(reg_date + " 08:00:00").astimezone(timezone.utc), 
+            "PM": dateparse.parse_datetime(reg_date + " 13:00:00").astimezone(timezone.utc)
         }
         dept_id = int(request.GET.get('KS_id'))
         reginfo_detail = RemainingRegistration.objects.filter(
@@ -515,11 +515,11 @@ class PatientViewAPI(View):
                 "AM": reginfo_detail.filter(
                         medical_staff__user__username = regdetail[0],
                         register_date = reg_datetime["AM"]
-                    ).values_list("remain_quantity")[0][0],
+                    ).values_list("remain_quantity", flat = True)[0],
                 "PM": reginfo_detail.filter(
                         medical_staff__user__username = regdetail[0],
                         register_date = reg_datetime["PM"]
-                    ).values_list("remain_quantity")[0][0],
+                    ).values_list("remain_quantity", flat = True)[0],
             }
             reginfo.append(doc_reg)
         return reginfo
@@ -570,6 +570,45 @@ class PatientViewAPI(View):
             {"status": True, "redirect_url": reverse(PatientViewAPI.patient_next_url_name)},
             safe = False
         )
+
+
+@method_decorator(patient_login_required(login_url = "/login-patient/"), name = "post")
+class PatientDetailsViewAPI(PatientViewAPI):
+    """
+    患者详情页面API，主要用于查询指定医生挂号信息，以便患者快速挂号
+    """
+    SUBMIT_URL_NAME = "PatientDetailsViewAPI"
+    patient_next_url_name = "patient-details"
+
+    def query_registration_info(self, request):
+        doctor_id = request.GET.get("doctor_id")
+        reg_date = request.GET.get("reg_date")
+        reg_datetime = {
+            "AM": dateparse.parse_datetime(reg_date + " 08:00:00").astimezone(timezone.utc), 
+            "PM": dateparse.parse_datetime(reg_date + " 13:00:00").astimezone(timezone.utc)
+        }
+        reginfo_detail = RemainingRegistration.objects.filter(
+            medical_staff__user__username = doctor_id,
+            register_date__in = reg_datetime.values(),
+        )
+        doc_reg = None
+        if len(reginfo_detail) > 0:
+            doc_reg = {
+                "dept_name": reginfo_detail.values_list(
+                        "medical_staff__dept__usergroup__name",
+                        flat = True,
+                    ).distinct()[0],
+                "AM": reginfo_detail.filter(
+                        register_date = reg_datetime["AM"]
+                    ).values_list("remain_quantity", flat = True)[0],
+                "PM": reginfo_detail.filter(
+                        register_date = reg_datetime["PM"]
+                    ).values_list("remain_quantity", flat = True)[0],
+            }
+        return doc_reg
+
+    def post(self, request):
+        pass
 
 
 # 病人基础信息API，用于医生获取病人基础数据

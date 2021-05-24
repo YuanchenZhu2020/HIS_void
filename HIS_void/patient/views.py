@@ -144,7 +144,7 @@ class PatientView(View):
 
     DEPT_DATA_CACHE = None
     REG_DATES_CACHE = None
-    UPDATE_DATE = None    
+    UPDATE_DATE = None  
 
     def get(self, request):
         print("[Patient Workspace View]", request.user)
@@ -195,9 +195,24 @@ class PatientRegisterSuccessView(View):
 class PatientDetailsView(View):
     template_name = "patient-details.html"
 
+    REG_DATES_CACHE = None
+    UPDATE_DATE = None
+
     def get(self, request,  *args, **kwargs):
         patient_id = request.session["patient_id"]
         patient = PatientUser.objects.get_by_patient_id(patient_id)
+
+        # 从缓存获取挂号日期
+        if PatientDetailsView.UPDATE_DATE is None \
+            or PatientDetailsView.UPDATE_DATE < timezone.localdate():
+            # 挂号日期
+            reg_dates = RemainingRegistration.objects.all().values_list(
+                "register_date"
+            ).distinct().order_by("register_date")
+            reg_dates = sorted(set([date[0].strftime("%Y-%m-%d") for date in reg_dates]))
+            PatientDetailsView.REG_DATES_CACHE = reg_dates
+            # 更新缓存日期
+            PatientDetailsView.UPDATE_DATE = timezone.localdate()
 
         # 确诊记录（历史已完成挂号）
         # Cond: 患者此次挂号确诊，即确诊结果 diagnosis_results 不为空。
@@ -358,7 +373,6 @@ class PatientDetailsView(View):
         if ex_context:
             err_msg = ex_context.get("error_message")
             suc_msg = ex_context.get("success_message")
-        print(err_msg, suc_msg)
         context = {
             "diagnosis_data": diagnosis_data,
             "reg_doctors_data": reg_doctors_data,
@@ -367,10 +381,10 @@ class PatientDetailsView(View):
             "waiting_tests_data": waiting_tests_data,
             "person_data": person_data,
             "login_form": PatientLoginForm(),
+            "reg_dates": PatientDetailsView.REG_DATES_CACHE,
             "error_message": err_msg,
             "success_message": suc_msg,
         }
-
         return render(request, PatientDetailsView.template_name, context = context)
     
     def post(self, request):

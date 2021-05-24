@@ -155,3 +155,63 @@ function post_registration(csrf_token, doctor_id, reg_datetime, submit_url) {
         }
     })
 }
+
+
+// 再次挂号，获取指定医生在指定日期的剩余挂号数
+function QueryDocReg(doctor_id, doctor_name, date) {
+    let URL = "/PatientDetailsViewAPI";
+    $.ajax({
+        type: "GET",
+        url: URL,
+        data: {
+            "doctor_id": doctor_id,
+            "reg_date": date,
+        },
+        success: function(data) {
+            // 获取返回信息，包括上午和下午的剩余挂号数
+            let query_data = data["query_data"];
+            let token = data["token"];
+            let submit_url = data["submit_url"];
+            if (query_data !== null) {
+                // 创建待插入的行
+                let doctor_name_td = $("<td></td>");
+                doctor_name_td.text(doctor_name);
+                let AM_remain_td = $("<td></td>");
+                let PM_remain_td = $("<td></td>");
+                let AM_btn = $("<button type='button' class='btn btn-sm btn-block btn-outline-primary' data-toggle='modal' data-target='#GHask'></button>");
+                let PM_btn = $("<button type='button' class='btn btn-sm btn-block btn-outline-primary' data-toggle='modal' data-target='#GHask'></button>");
+                // 在按钮上添加剩余人数
+                AM_btn.text(query_data.AM);
+                PM_btn.text(query_data.PM);
+                // 如果剩余人数为0，则禁用按钮
+                if (query_data.AM === 0) {
+                    AM_btn.attr('disabled', true);
+                }
+                if (query_data.PM === 0) {
+                    PM_btn.attr('disabled', true);
+                }
+                // 向按钮行中添加按钮
+                AM_remain_td.append(AM_btn);
+                PM_remain_td.append(PM_btn);
+                AM_btn.attr('onclick', StringFormat(
+                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')", 
+                    query_data.dept_name, doctor_name, token, doctor_id, date, 'AM', submit_url
+                ));
+                PM_btn.attr('onclick', StringFormat(
+                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')", 
+                    query_data.dept_name, doctor_name, token, doctor_id, date, 'PM', submit_url
+                ));
+                // 创建行
+                let tr = $("<tr></tr>");
+                tr.append(doctor_name_td);
+                tr.append(AM_remain_td);
+                tr.append(PM_remain_td);
+                $("#" + YmdToMd(date)).append(tr);
+            }
+        },
+        error: function(error) {
+            console.log(error);
+            alert("无法获取数据，请检查您是否联网");
+        }
+    })
+}
