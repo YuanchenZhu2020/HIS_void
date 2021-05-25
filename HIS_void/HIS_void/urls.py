@@ -18,7 +18,7 @@ from django.urls import path
 
 from his.views import (
     IndexView, StaffLoginView, StaffLogoutView, NewsView,
-    ProfileView,
+    WorkHubView,
 )
 from patient.views import (
     PatientView, PatientRegisterSuccessView, PatientDetailsView,
@@ -50,7 +50,7 @@ urlpatterns = [
     # 登出页面
     path('logout/', StaffLogoutView.as_view(), name="logout"),
     # 个人信息页面
-    path('profile/', ProfileView.as_view(), name="profile"),
+    path('workhub/', WorkHubView.as_view(), name="workhub"),
     # 门诊医生工作页面
     path('outpatient-workspace/', OutpatientView.as_view(), name="outpatient-workspace"),
     # 患者未登录首页

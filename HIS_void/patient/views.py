@@ -13,7 +13,7 @@ from patient.models import PatientUser
 from his.models import Department, Staff
 from laboratory.models import PatientTestItem
 from outpatient.models import RemainingRegistration, RegistrationInfo
-from patient.decorators import patient_login_required
+from rbac.decorators import patient_login_required
 from internalapi.locquery import DeptLocQuery
 from externalapi.external_api import IDInfoQuery
 

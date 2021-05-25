@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}个人中心{% endblock %}
+{% block body-context %}
+    <div class="container-fluid">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12 align-content-center">
+                    <div class="page-titles mb-2 mt-0">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item active"><a href="{% url 'workhub' %}">WorkHub /</a>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-header border-0 pb-0 justify-content-center">
+                            <h3>近期新闻</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="widget-timeline dz-scroll height370">
+                                <ul class="timeline">
+                                    {% for item in news %}
+                                    <li>
+                                        <div class="timeline-badge info"></div>
+                                        <a class="timeline-panel text-muted" href="#">
+                                            <small>{{ item.send_time.date }}</small>
+                                            <h5>{{ item.content|truncatechars:20 }}……</h5>
+                                        </a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            <div style="margin-top: 1rem;">
+                                <a href="{% url 'news' %}" class="offset-10">
+                                    <div class="badge text-primary">>>更多</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-header border-0 pb-0 justify-content-center">
+                            <h3>常用站点</h3>
+                        </div>
+
+                        <div class="card-body">
+                            <div class="basic-list-group row">
+                                <!-- <ul class="list-group col-4 inline"> -->
+                                    <!-- <li class="list-group-item" class="col-md-4"> -->
+                                    <div class="col-xl-3 col-lg-6 col-sm-6 col-xxl-4">
+                                        <a href="{% url 'nurse-workspace' %}">
+                                            <div class="widget-stat card bg-danger">
+                                                <div class="card-body p-4">
+                                                    <div class="media">
+                                                        <div class="media-body text-white text-left">
+                                                            <h4 class="clearfix text-white">
+                                                                护士医生工作台
+                                                            </h4>
+                                                            <p class="mb-0">nurse-workspace</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <!-- </li> -->
+                                    <!-- <li class="list-group-item" class="col-md-4"> -->
+                                    <div class="col-xl-3 col-lg-6 col-sm-6 col-xxl-4">
+                                        <a href="{% url 'news' %}">
+                                            <div class="widget-stat card bg-info">
+                                                <div class="card-body p-4">
+                                                    <div class="media">
+                                                        <div class="media-body text-white text-left">
+                                                            <h4 class="clearfix text-white">
+                                                                新闻动态
+                                                            </h4>
+                                                            <p class="mb-0">news</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <!-- </li> -->
+                                    <!-- <li class="list-group-item" class="col-md-4"> -->
+                                    <div class="col-xl-3 col-lg-6 col-sm-6 col-xxl-4">
+                                        <a href="https://icw-443.e2.buaa.edu.cn" target="_blank">
+                                            <div class="widget-stat card bg-info">
+                                                <div class="card-body p-4">
+                                                    <div class="media">
+                                                        <div class="media-body text-white text-left">
+                                                            <h4 class="clearfix text-white">
+                                                                财务系统
+                                                            </h4>
+                                                            <p class="mb-0">icw.buaa.edu.cn</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <!-- </li> -->
+
+                                <!-- </ul> -->
+                                <!-- <ul class="list-group col-4 inline"> -->
+                                    <!-- <li class="list-group-item" class="col-md-4"> -->
+                                    <div class="col-xl-3 col-lg-6 col-sm-6 col-xxl-4">
+                                        <a href="{% url 'outpatient-workspace' %}">
+                                            <div class="widget-stat card bg-info">
+                                                <div class="card-body p-4">
+                                                    <div class="media">
+                                                        <div class="media-body text-white text-left">
+                                                            <h4 class="clearfix text-white">
+                                                                门诊医生工作台
+                                                            </h4>
+                                                            <p class="mb-0">outpatient-workspace</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <!-- </li> -->
+
+                                    <!-- <li class="list-group-item" class="col-md-4"> -->
+                                    <div class="col-xl-3 col-lg-6 col-sm-6 col-xxl-4">
+                                        <a href="https://n-443.e2.buaa.edu.cn/v2/site/index" target="_blank">
+                                            <div class="widget-stat card bg-info">
+                                                <div class="card-body p-4">
+                                                    <div class="media">
+                                                        <div class="media-body text-white text-left">
+                                                            <h4 class="clearfix text-white">
+                                                                服务平台
+                                                            </h4>
+                                                            <p class="mb-0">n.buaa.edu.cn</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <!-- </li> -->
+                                    <!-- <li class="list-group-item" class="col-md-4"> -->
+                                    <div class="col-xl-3 col-lg-6 col-sm-6 col-xxl-4">
+                                        <a href="https://jwxt-8080.e2.buaa.edu.cn:443/ieas2.1" target="_blank">
+                                            <div class="widget-stat card bg-info">
+                                                <div class="card-body p-4">
+                                                    <div class="media">
+                                                        <div class="media-body text-white text-left">
+                                                            <h4 class="clearfix text-white">
+                                                                教务管理系统
+                                                            </h4>
+                                                            <p class="mb-0">jwxt.buaa.edu.cn</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <!-- </li> -->
+                                <!-- </ul> -->
+                                <!-- <ul class="list-group col-4 inline"> -->
+                                    <!-- <li class="list-group-item" class="col-md-4"> -->
+                                    <div class="col-xl-3 col-lg-6 col-sm-6 col-xxl-4">
+                                        <a href="{% url 'inspection-workspace' %}">
+                                            <div class="widget-stat card bg-info">
+                                                <div class="card-body p-4">
+                                                    <div class="media">
+                                                        <div class="media-body text-white text-left">
+                                                            <h4 class="clearfix text-white">
+                                                                机器检验工作台
+                                                            </h4>
+                                                            <p class="mb-0">inspection-workspace</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <!-- </li> -->
+                                    <!-- <li class="list-group-item" class="col-md-4"> -->
+                                    <div class="col-xl-3 col-lg-6 col-sm-6 col-xxl-4">
+                                        <a href="https://10-111-2-161.e2.buaa.edu.cn:443/sfw" target="_blank">
+                                            <div class="widget-stat card bg-info">
+                                                <div class="card-body p-4">
+                                                    <div class="media">
+                                                        <div class="media-body text-white text-left">
+                                                            <h4 class="clearfix text-white">
+                                                                设备管理系统
+                                                            </h4>
+                                                            <p class="mb-0">10.111.2.161</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <!-- </li> -->
+                                    <!-- <li class="list-group-item" class="col-md-4"> -->
+                                    <div class="col-xl-3 col-lg-6 col-sm-6 col-xxl-4">
+                                        <a href="https://gsmis.e2.buaa.edu.cn:443/" target="_blank">
+                                            <div class="widget-stat card bg-info">
+                                                <div class="card-body p-4">
+                                                    <div class="media">
+                                                        <div class="media-body text-white text-left">
+                                                            <h4 class="clearfix text-white">
+                                                                研究生教育综合管理信息系统
+                                                            </h4>
+                                                            <p class="mb-0">gsmis.buaa.edu.cn</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <!-- </li> -->
+                                <!-- </ul> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h4>备忘录</h4>
+                </div>
+                <div class="card-body">
+                    <!-- row -->
+                    <div class="col-12">
+                        <div class="bootstrap-modal ">
+                            <!-- Large modal -->
+                            <button type="button" class="btn btn-primary mb-2 " data-toggle="modal"
+                                    data-target=".bd-example-modal-lg">Large modal
+                            </button>
+                            <div class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog"
+                                 aria-hidden="true">
+                                <div class="modal-dialog modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">添加一条备忘录</h5>
+                                            <button type="button" class="close" data-dismiss="modal">
+                                                <span>&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                                <textarea type="text" class="form-control"
+                                                          placeholder=""></textarea></div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-danger " data-dismiss="modal">取消
+                                            </button>
+                                            <button type="button" class="btn btn-primary">Save changes
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js">
+    </script>
+    <script>
+        $(document).ready(function () {
+            $("#tianJia").click(function () {
+                $("p").append(" <b>追加文本</b>。");
+            });
+
+            $("#tianJia").click(function () {
+                $("ol").append("<li>追加列表项</li>");
+            });
+        });
+    </script>
+{% endblock %}

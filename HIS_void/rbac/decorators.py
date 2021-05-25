@@ -7,7 +7,8 @@ from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
 from django.shortcuts import resolve_url
 
-from .models import PatientUser
+from patient.models import PatientUser
+from .models import UserInfo
 
 
 def user_passes_test(test_func, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME):
@@ -45,8 +46,9 @@ def user_passes_test(test_func, login_url=None, redirect_field_name=REDIRECT_FIE
         return _wrapped_view
     return decorator
 
-
-def patient_login_required(function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+def patient_login_required(
+    function = None, redirect_field_name = REDIRECT_FIELD_NAME, login_url = None
+):
     """
     患者登录视图函数的装饰器，用于判断患者是否登录，如果没有，则返回登录页面。
     """
@@ -54,6 +56,21 @@ def patient_login_required(function=None, redirect_field_name=REDIRECT_FIELD_NAM
         lambda u: u.is_authenticated and isinstance(u, PatientUser),
         login_url=login_url,
         redirect_field_name=redirect_field_name
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
+
+def staff_login_required(
+    function = None, redirect_field_name = REDIRECT_FIELD_NAME, login_url = None
+):
+    """
+    职工登录视图函数的装饰器，用于判断职工是否登录，如果没有，则返回登录页面。
+    """
+    actual_decorator = user_passes_test(
+        lambda u: u.is_authenticated and isinstance(u, UserInfo),
+        login_url = login_url,
+        redirect_field_name = redirect_field_name
     )
     if function:
         return actual_decorator(function)

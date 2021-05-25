@@ -15,7 +15,7 @@ from his.models import Department, DeptAreaBed, Staff
 from inpatient.models import HospitalRegistration
 from outpatient.models import RemainingRegistration, RegistrationInfo
 from patient.models import PatientUser
-from patient.decorators import patient_login_required
+from rbac.decorators import patient_login_required
 from pharmacy.models import MedicineInfo
 from laboratory.models import PatientTestItem
 
