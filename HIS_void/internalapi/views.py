@@ -382,7 +382,6 @@ class PatientViewAPI(View):
         reg_info["is_emergency"] = Staff.objects.get_by_user(
             reg_info["doctor_id"]
         ).dept == Department.objects.get_by_dept_name("急诊科")
-        print(reg_info)
         with transaction.atomic():
             # 更新剩余挂号数
             remain_reg_record = RemainingRegistration.objects.get(
