@@ -22,7 +22,7 @@ function YmdToStr(date) {
 
 // 获取挂号医生信息
 function QueryGH(date, department) {
-    let URL = '/PatientViewAPI';
+    let URL = "/PatientRegisterAPI";
     $.ajax({
         type: "get",
         url: URL,
@@ -160,9 +160,9 @@ function post_registration(csrf_token, doctor_id, reg_datetime, submit_url) {
 }
 
 
-// 再次挂号，获取指定医生在指定日期的剩余挂号数
+// 快速挂号，获取指定医生在指定日期的剩余挂号数
 function QueryDocReg(doctor_id, doctor_name, date) {
-    let URL = "/PatientDetailsViewAPI";
+    let URL = "/PatientFastRegisterAPI";
     $.ajax({
         type: "GET",
         url: URL,

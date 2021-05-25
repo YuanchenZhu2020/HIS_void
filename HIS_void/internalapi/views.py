@@ -16,7 +16,6 @@ from patient.models import PatientUser
 from patient.decorators import patient_login_required
 
 
-
 class OutpatientAPI(View):
     """
     门诊医生工作台数据查询API
@@ -311,11 +310,11 @@ class InspectionAPI(View):
 
 
 @method_decorator(patient_login_required(login_url = "/login-patient/"), name = "post")
-class PatientViewAPI(View):
+class PatientRegisterAPI(View):
     """
-    患者挂号查询API
+    患者挂号查询与提交API
     """
-    SUBMIT_URL_NAME = "PatientViewAPI"
+    SUBMIT_URL_NAME = "PatientRegisterAPI"
     patient_next_url_name = "patient-details"
 
     def query_registration_info(self, request):
@@ -370,7 +369,7 @@ class PatientViewAPI(View):
         data = {
             "query_data": query_data, 
             "token": token, 
-            "submit_url": reverse(PatientViewAPI.SUBMIT_URL_NAME)
+            "submit_url": reverse(PatientRegisterAPI.SUBMIT_URL_NAME)
         }
         return JsonResponse(data, safe = False)
 
@@ -403,17 +402,17 @@ class PatientViewAPI(View):
                 reg_class = 1 if reg_info["is_emergency"] else 0
             )
         return JsonResponse(
-            {"status": True, "redirect_url": reverse(PatientViewAPI.patient_next_url_name)}, 
+            {"status": True, "redirect_url": reverse(PatientRegisterAPI.patient_next_url_name)}, 
             safe = False
         )
 
 
 @method_decorator(patient_login_required(login_url = "/login-patient/"), name = "post")
-class PatientDetailsViewAPI(PatientViewAPI):
+class PatientFastRegisterAPI(PatientRegisterAPI):
     """
     患者详情页面API，主要用于查询指定医生挂号信息，以便患者快速挂号
     """
-    SUBMIT_URL_NAME = "PatientDetailsViewAPI"
+    SUBMIT_URL_NAME = "PatientFastRegisterAPI"
     patient_next_url_name = "patient-details"
 
     def query_registration_info(self, request):

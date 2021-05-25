@@ -179,10 +179,10 @@ SAFE_URL = [
     r"/InspectionAPI/",  # 检验医生数据API
     r"/OutpatientAPI/",  # 门诊医生数据API
     r"/NurseAPI/",  # 护士医生数据API
-    r"/PatientViewAPI/",  # 病人数据API
+    r"/PatientRegisterAPI/",  # 患者挂号查询与提交API
     r"/InpatientAPI/",  # 住院医生数据API
     r"/news/",
-    r"/PatientDetailsViewAPI", # 患者详情页面API
+    r"/PatientFastRegisterAPI", # 患者快速挂号API
 ]
 
 # setup session engine to improve performance
