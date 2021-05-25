@@ -32,11 +32,15 @@ class OutpatientAPI(View):
             # 待诊患者信息查询
             "waiting_diagnosis": self.query_waiting_diagnosis_patients,
             # 诊中患者信息查询
-            "ZZHZ": self.query_in_diagnosis_patients,
+            "in_diagnosis": self.query_in_diagnosis_patients,
             # 检查结果信息查询
-            "JCJY": self.query_inspect_result,
+            "test_results": self.query_inspect_result,
             # 处方开具，药品检索
             "CFKJ": self.query_medicine,
+            # 待诊患者基础信息
+            "waiting_diagnosis_patient_info": self.query_waiting_diagnosis_patient_info,
+            # 诊中患者基础信息
+            "in_diagnosis_patient_info": self.query_in_diagnosis_patient_info
         }
         # 获取需要查询的信息类型
         query_information = request.GET.get('get_param')
@@ -47,20 +51,32 @@ class OutpatientAPI(View):
     def query_medical_record(self, request):
         regis_id = request.GET.get('regis_id')
         regis_info = RegistrationInfo.objects.get(id=regis_id)
+        data = {
+            'chief_complaint': regis_info.chief_complaint,
+            'allegic_history': regis_info.patient.allegic_history,
+            'past_illness': regis_info.patient.past_illness,
+            'illness_date': regis_info.illness_date}
+        return data
+
+    # 待诊患者基础信息查询
+    def query_waiting_diagnosis_patient_info(self, request):
+        regis_id = request.GET.get('regis_id')
+        regis_info = RegistrationInfo.objects.get(id=regis_id)
         print("=======START outpatientAPI GET========")
         print(regis_info.__dict__)
         print(regis_info.patient.__dict__)
         print("========END outpatientAPI GET========")
         gender_convert = ["男", "女"]
-        data = {'no': regis_info.patient.patient_id,
-                'name': regis_info.patient.name,
-                'gender': gender_convert[regis_info.patient.gender],
-                'age': (timezone.now().date() - regis_info.patient.birthday).days // 365,
-                'chief_complaint': regis_info.chief_complaint,
-                'allegic_history': regis_info.patient.allegic_history,
-                'past_illness': regis_info.patient.past_illness,
-                'illness_date': regis_info.illness_date}
+        data = {
+            'no': regis_info.patient.patient_id,
+            'name': regis_info.patient.name,
+            'gender': gender_convert[regis_info.patient.gender],
+            'age': (timezone.now().date() - regis_info.patient.birthday).days // 365,
+        }
         return data
+
+    def query_in_diagnosis_patient_info(self, request):
+        pass
 
     # 待诊患者查询
     def query_waiting_diagnosis_patients(self, request):
@@ -129,7 +145,11 @@ class OutpatientAPI(View):
 
     # 检查结果查询
     def query_inspect_result(self, request):
-        data = []
+        data = {
+            '心肺听诊': '水肿,粪便可见嗜酸性WBC',
+            '脑CT': '镜下镰形细胞,粘液变性',
+            '粪便常规': '粪便可见RBC'
+        }
         return data
 
     # 药品查询（已完成）
@@ -150,6 +170,15 @@ class OutpatientAPI(View):
 
     # region OutpatientAPI post部分
     def post(self, request):
+        query_key_to_func = {
+            # 检查项目提交
+            "inspection": self.post_inspection,
+            # 病历首页提交
+            "history_sheet": self.post_history_sheet,
+            # 药品及医嘱提交
+            "medicine": self.post_medicine,
+            "diagnosis_results": self.post_diagnosis_results
+        }
         data = request.POST
         post_param = data['post_param']
         # 输出提示信息
@@ -163,69 +192,22 @@ class OutpatientAPI(View):
         inspection -> 检验信息
         history_sheet -> 病历首页
         '''
-        if post_param == 'inspection':
-            self.post_inspection(data)
-        elif post_param == 'history_sheet':
-            self.post_history_sheet(data)
-        elif post_param == 'medicine':
-            self.post_medicine(data)
+        # 根据参数直接映射对应的函数，并执行
+        query_key_to_func[post_param](data)
 
         # 这条语句并不会使页面刷新
         return redirect(reverse("outpatient-workspace"))
-
-    # 检查检验部分
-    def post_inspection(self, data):
-        """【request.POST】内容
-         <QueryDict: {
-            'regis_id': ['31'],
-            'post_param': ['inspection'],
-            '1': ['1', '3'],
-            '2': ['16'],
-            '3': ['64', '66'],
-            '5': ['90']
-        }>
-        """
-        with transaction.atomic():  # 事务原子性保证
-            pass  # 检查检验据库操作
-
-    # 确诊结果
-    def post_diagnosis_results(self, data):
-        """【request.POST】
-        <QueryDict: {
-            'regis_id': [''],
-            'post_param': ['diagnosis_results'],
-            'diagnosis_results': ['门诊确诊文本']
-        }>
-        """
-        with transaction.atomic():  # 事务原子性保证
-            pass  # 检查检验据库操作
-
-    # 药品信息、医嘱建议
-    def post_medicine(self, data):
-        """【request.POST】
-        <QueryDict: {
-            'medicine_data[0][medicine_id]': ['A00379'],
-            'medicine_data[0][medicine_num]': ['2'],
-            'medicine_data[1][medicine_id]': ['A00596'],
-            'medicine_data[1][medicine_num]': ['1'],
-            'post_param': ['medicine'],
-            'medical_advice': ['用药注意，医嘱文本']
-        }>
-        """
-        with transaction.atomic():  # 事务原子性保证
-            pass  # 检查检验据库操作
 
     # 提交病历首页部分
     def post_history_sheet(self, data):
         """ 【request.POST】内容
         <QueryDict: {
-            'csrfmiddlewaretoken': ['6enYH5rg9xCUBTK4vuBwleFUcViSvoE8wslV7PLg3qcqoyKCo1HWX1w0WdAhdLag'],
-            'regis_id': [''],
+            'regis_id': ['19'],
             'post_param': ['history_sheet'],
             'chief_complaint': ['患者主诉文本'],
-            'past_illness': ['既往病史文 本'],
+            'past_illness': ['既往病史文本'],
             'allegic_history': ['过敏病史文本'],
-            'illness_date': ['2021-1-15']
+            'illness_date': ['2021-05-25']
         }>
         """
         with transaction.atomic():  # 事务原子性保证
@@ -248,6 +230,49 @@ class OutpatientAPI(View):
                 id=data['regis_id']
             ))
             '''
+
+    # 检查检验部分
+    def post_inspection(self, data):
+        """【request.POST】内容
+         <QueryDict: {
+            'regis_id': ['19'],
+            'post_param': ['inspection'],
+            '1': ['1', '4', '6'],
+            '2': ['16'],
+            '3': ['63'],
+            '5': ['40', '49']
+        }>
+        """
+        with transaction.atomic():  # 事务原子性保证
+            pass  # 检查检验据库操作
+
+    # 确诊结果
+    def post_diagnosis_results(self, data):
+        """【request.POST】
+        <QueryDict: {
+            'regis_id': ['19'],
+            'post_param': ['diagnosis_results'],
+            'diagnosis_results': ['门诊确诊文本']
+        }>
+        """
+        with transaction.atomic():  # 事务原子性保证
+            pass  # 检查检验据库操作
+
+    # 药品信息、医嘱建议
+    def post_medicine(self, data):
+        """【request.POST】
+        <QueryDict: {
+            'medicine_data[0][medicine_id]': ['A00255'],
+            'medicine_data[0][medicine_num]': ['2'],
+            'medicine_data[1][medicine_id]': ['A00596'],
+            'medicine_data[1][medicine_num]': ['1'],
+            'post_param': ['medicine'],
+            'medical_advice': ['用药建议、医嘱建议文本'],
+            'regis_id': ['19']
+        }>
+        """
+        with transaction.atomic():  # 事务原子性保证
+            pass  # 检查检验据库操作
 
     # endregion
 

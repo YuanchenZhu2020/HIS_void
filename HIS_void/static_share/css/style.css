@@ -54,11 +54,13 @@
 
 */
 /*$primary  : #7356f1 !default;*/
+/*
 @import url("https://fonts.googleapis.com/css?family=Poppins:300,400,500,600,700,800");
 @import url("https://fonts.googleapis.com/css?family=Open+Sans:400,600,700");
 @import url("https://fonts.googleapis.com/css?family=Montserrat:400,500,600,700");
 @import url("https://fonts.googleapis.com/css?family=Roboto:400,500,700");
 @import url("https://fonts.googleapis.com/css?family=Nunito:400,600,700");
+*/
 /*              icons/simple-line-icons/css/simple-line-icons.css*/
 @import url("../icons/simple-line-icons/css/simple-line-icons.css");
 @import url("../icons/font-awesome-old/css/font-awesome.min.css");
@@ -26422,7 +26424,7 @@ code {
         background-color: #36C95F !important;
         color: #fff !important; }
     .picker .picker__frame .picker__box .picker__footer .picker__button--today {
-      background-color: #36C95F !important;
+      background-color: #89dea7 !important;
       color: #fff !important; }
       .picker .picker__frame .picker__box .picker__footer .picker__button--today:before {
         content: none !important; }

@@ -20,7 +20,6 @@
         <div class="col-md-3">
             {# 诊中患者信息 #}
             <div class="container">
-
                 <div class="card">{# 我目前只会使用card（卡片）布局 #}
                     {# 设置卡片头 #}
                     <div class="card-header">诊中患者</div>
@@ -69,7 +68,7 @@
                                 <div class="col-md-3">
                                     <div class="input-group input-group-sm mb-3">
                                         <div class="input-group-prepend ">
-                                            <span class="input-group-text">会诊号</span>
+                                            <span class="input-group-text">就诊号</span>
                                         </div>
                                         <input type="text" id="no" class="form-control" readonly>
                                     </div>
@@ -107,7 +106,7 @@
                         <ul class="nav nav-tabs justify-content-center" role="tablist">
                             {# 病历首页按钮 #}
                             <li class="nav-item">
-                                <a id="BLSY_a" href="#bing_li_shou_ye" class="nav-link active" data-toggle="tab"
+                                <a id="togo_history_sheet" href="#bing_li_shou_ye" class="nav-link active" data-toggle="tab"
                                    aria-expanded="false">病历首页</a>
                             </li>
                             {# 检查检验按钮 #}
@@ -145,7 +144,7 @@
                             <div class="card-body">
                                 <div class="basic-form">
                                     <form id="history_sheet">
-                                        <input type="hidden" name="regis_id" />
+                                        <input type="hidden" name="regis_id"/>
                                         <input type="hidden" name="post_param" value="history_sheet"/>
                                         <div class="input-group input-group-lg mb-3">
                                             <label class="col-md-1.5 col-form-label text-right">患者主诉： </label>
@@ -167,9 +166,11 @@
                                         </div>
                                         <div class="input-group input-group-lg mb-3">
                                             <label class="col-md-1.5 col-form-label text-right">发病时间：
-                                            </label> <textarea id="illness_date" type="text" name="illness_date"
-                                                               class="form-control" rows="1"></textarea>
+                                            </label>
+                                            <input class="datepicker-default form-control"
+                                                   id="illness_date" name="illness_date" readonly/>
                                         </div>
+
                                         <div class="text-right">
                                             <button class="btn btn-outline-primary" type="button"
                                                     onclick="PostHisTorySheet('{{ csrf_token }}')">提交
@@ -186,7 +187,7 @@
                                 {# 检验表单 #}
                                 <div class="basic-form">
                                     <form id="inspection_form">
-                                        <input type="hidden" name="regis_id" />
+                                        <input type="hidden" name="regis_id"/>
                                         <input type="hidden" name="post_param" value="inspection">
                                         {% for item in TestItems %}
                                             <div class="form-group">
@@ -213,26 +214,27 @@
                                         </div>
 
                                     </form>
-                                    <div class="container" id="inspect_content">
-                                        <div class="card-header border-0 pb-0">
-                                            <h5 class="card-title">检查结果</h5>
-                                        </div>
-                                        <div class="card-body">
-                                            <p class="card-text">检查结果信息
-                                            </p>
-                                        </div>
-                                    </div>
                                 </div>
+                                    <div class="card-header border-0 pb-0">
+                                        <h5 class="card-title">检查结果</h5>
+                                    </div>
+                                    <div class="card-body" id="inspection_text">
+                                    </div>
                             </div>
                         </div>
 
                         {# 门诊确诊页面信息 #}
                         <div id="men_zhen_que_zhen" class="tab-pane fade">
-                            <div class="card-body" id="MZQZ_id">
+                            <div class="card-body">
                                 <div class="basic-form">
                                     <form id="diagnosis_results_form">
-                                        <input type="hidden" name="regis_id" />
+                                        <input type="hidden" name="regis_id"/>
                                         <input type="hidden" name="post_param" value="diagnosis_results"/>
+                                        <div class="card-header border-0 pb-0">
+                                            <h5 class="card-title">检查结果</h5>
+                                        </div>
+                                        <div class="card-body" id="inspection_text_copy">
+                                        </div>
                                         <div class="input-group mb-3">
                                                         <textarea class="form-control" rows="8" name="diagnosis_results"
                                                                   placeholder="请输入您的判断"></textarea>
@@ -291,7 +293,7 @@
                                         </tfoot>
                                     </table>
                                 </div>
-                                <input type="hidden" name="regis_id"  id="regis_id"/>
+                                <input type="hidden" name="regis_id" id="regis_id"/>
                                 <textarea class="form-control" rows="8" id="medical_advice"
                                           placeholder="请输入您的医嘱"></textarea>
                                 <div class="text-right">
