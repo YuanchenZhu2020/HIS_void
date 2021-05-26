@@ -20,6 +20,14 @@ from pharmacy.models import MedicineInfo
 from laboratory.models import PatientTestItem
 
 
+def get_current_reg_time():
+    # 获取本地日期时间
+    now_datetime = timezone.localtime()
+    TARGET_REG_TIME = dateparse.parse_time("08:00:00")
+    if now_datetime.time() > dateparse.parse_time("12:00:00"):
+        TARGET_REG_TIME = dateparse.parse_time("13:00:00")
+    return TARGET_REG_TIME
+
 class OutpatientAPI(View):
     """
     门诊医生工作台数据查询API
@@ -65,32 +73,29 @@ class OutpatientAPI(View):
 
     # 待诊患者查询
     def query_waiting_diagnosis_patients(self, request):
-        '''data = [
-            {
-                "regis_id": "1",
-                "name": "李国铭",
-                "gender": "男",
-            },
-            {...},
-            {...},
-        ]
-        '''
-        # 传入医生主键，这样可以有选择的返回病人信息
+        """
+        查询待诊患者。
+
+        数据格式示例：[{
+            "regis_id": "1",
+            "name": "李国铭",
+            "gender": "男",
+        },...]
+        """
         staff_id = request.session["username"]
-        TARGET_REG_TIME = dateparse.parse_time("08:00:00")
-        # UTC 04:00:00 is Asia/Shanghai 12:00:00
-        if timezone.now().time() > dateparse.parse_time("04:00:00"):
-            TARGET_REG_TIME = dateparse.parse_time("13:00:00")
-        # 查询
+        TARGET_REG_TIME = get_current_reg_time()
+        # 查询指定医生在当前就诊时段的所有还没有开始诊疗的患者
+        # 即：匹配医生ID、日期、时间，并且患者主诉为空
         regis_info = RegistrationInfo.objects.filter(
-            medical_staff__user__username=staff_id,  # 医生id
-            registration_date__time=TARGET_REG_TIME,  # 上下午
-            registration_date__date=timezone.now().date()  # 当天
+            medical_staff__user__username = staff_id,
+            registration_date__time = TARGET_REG_TIME,
+            registration_date__date = timezone.localdate(),
+            chief_complaint__isnull = True,
         ).values_list(
             "id", "patient__name", "patient__gender"
         )
         data = []
-        gender_convert = ['男', '女']
+        gender_convert = dict(PatientUser.SEX_ITEMS)
         for regis in regis_info:
             # 医生工作4个小时
             patient_details = dict(zip(
@@ -105,19 +110,20 @@ class OutpatientAPI(View):
     # 诊中患者查询
     def query_in_diagnosis_patients(self, request):
         staff_id = request.session["username"]
-        TARGET_REG_TIME = dateparse.parse_time("08:00:00")
-        # UTC 04:00:00 is Asia/Shanghai 12:00:00
-        if timezone.now().time() > dateparse.parse_time("04:00:00"):
-            TARGET_REG_TIME = dateparse.parse_time("13:00:00")
-        # 查询
+        TARGET_REG_TIME = get_current_reg_time()
+        # 查询指定医生在当前就诊时段的所有开始诊疗但还没确诊的患者
+        # 即：匹配医生ID、日期、时间，并且患者已经进行了主诉，但确诊结果为空
         regis_info = RegistrationInfo.objects.filter(
-            medical_staff__user__username=staff_id,  # 医生id
-            registration_date__time=TARGET_REG_TIME,  # 上下午
+            medical_staff__user__username = staff_id,
+            registration_date__time = TARGET_REG_TIME,
+            registration_date__date = timezone.localdate(),
+            chief_complaint__isnull = False,
+            diagnosis_results__isnull = True,
         ).values_list(
             "id", "patient__name", "patient__gender"
         )
         data = []
-        gender_convert = ['男', '女']
+        gender_convert = dict(PatientUser.SEX_ITEMS)
         for regis in regis_info:
             patient_details = dict(zip(
                 ['regis_id', 'name', 'gender'],
@@ -137,20 +143,27 @@ class OutpatientAPI(View):
     def query_medicine(self, request):
         with transaction.atomic():
             # 在with代码块中写事务操作
-            all_medicines = MedicineInfo.objects.all()
+            all_medicines = MedicineInfo.objects.all().values_list(
+                "medicine_id", "medicine_name", "retail_price"
+            )
             data = []
             for medicine in all_medicines:
-                temp_dict = {}
-                temp_dict["name"] = medicine.medicine_name
-                temp_dict["price"] = medicine.retail_price
-                temp_dict["no"] = medicine.medicine_id
-                data.append(temp_dict)
+                data.append(dict(zip(
+                    ["no", "name", "price"],
+                    medicine
+                )))
         return data
 
     # endregion
 
     # region OutpatientAPI post部分
     def post(self, request):
+        ''' 
+        param对照表:
+        medicine -> 处方开具选择的药品
+        inspection -> 检验信息
+        history_sheet -> 病历首页
+        '''
         data = request.POST
         post_param = data['post_param']
         # 输出提示信息
@@ -158,76 +171,86 @@ class OutpatientAPI(View):
         print('【request.POST】', data)
         print('【post_param】', data['post_param'])
         print("==========END outpatientAPI POST==========")
-        ''' 
-        param对照表:
-        medicine -> 处方开具选择的药品
-        inspection -> 检验信息
-        history_sheet -> 病历首页
-        '''
-        if post_param == 'inspection':
-            self.post_inspection(data)
-        elif post_param == 'history_sheet':
-            self.post_history_sheet(data)
-        elif post_param == 'medicine':
-            self.post_medicine(data)
-
+        
+        query_key_to_func = {
+            "inspection": self.post_inspection,
+            "history_sheet": self.post_history_sheet,
+            "medicine": self.post_medicine,
+        }
+        query_key_to_func[post_param](data)
         # 这条语句并不会使页面刷新
         return redirect(reverse("outpatient-workspace"))
 
     # 检查检验部分
     def post_inspection(self, data):
-        """【request.POST】内容
-         <QueryDict: {
-            'regis_id': ['31'],
-            'post_param': ['inspection'],
-            '1': ['1', '3'],
-            '2': ['16'],
-            '3': ['64', '66'],
-            '5': ['90']
-        }>
+        """
+        提交检查检验
+        
+        数据类型：QueryDict
+
+        数据格式示例：{
+                'regis_id': ['31'],
+                'post_param': ['inspection'],
+                '1': ['1', '3'],
+                '2': ['16'],
+                '3': ['64', '66'],
+                '5': ['90']
+            }
         """
         with transaction.atomic():  # 事务原子性保证
             pass  # 检查检验据库操作
 
     # 确诊结果
     def post_diagnosis_results(self, data):
-        """【request.POST】
-        <QueryDict: {
-            'regis_id': [''],
-            'post_param': ['diagnosis_results'],
-            'diagnosis_results': ['门诊确诊文本']
-        }>
+        """
+        提交确诊结果
+        
+        数据类型：QueryDict
+
+        数据格式示例：{
+                'regis_id': [''],
+                'post_param': ['diagnosis_results'],
+                'diagnosis_results': ['门诊确诊文本']
+            }
         """
         with transaction.atomic():  # 事务原子性保证
             pass  # 检查检验据库操作
 
     # 药品信息、医嘱建议
     def post_medicine(self, data):
-        """【request.POST】
-        <QueryDict: {
-            'medicine_data[0][medicine_id]': ['A00379'],
-            'medicine_data[0][medicine_num]': ['2'],
-            'medicine_data[1][medicine_id]': ['A00596'],
-            'medicine_data[1][medicine_num]': ['1'],
-            'post_param': ['medicine'],
-            'medical_advice': ['用药注意，医嘱文本']
-        }>
+        """
+        提交药品信息和医嘱
+
+        数据类型：QueryDict
+        
+        数据格式示例: {
+                'medicine_data[0][medicine_id]': ['A00379'],
+                'medicine_data[0][medicine_num]': ['2'],
+                'medicine_data[1][medicine_id]': ['A00596'],
+                'medicine_data[1][medicine_num]': ['1'],
+                'post_param': ['medicine'],
+                'medical_advice': ['用药注意，医嘱文本']
+            }
         """
         with transaction.atomic():  # 事务原子性保证
             pass  # 检查检验据库操作
 
     # 提交病历首页部分
     def post_history_sheet(self, data):
-        """ 【request.POST】内容
-        <QueryDict: {
-            'csrfmiddlewaretoken': ['6enYH5rg9xCUBTK4vuBwleFUcViSvoE8wslV7PLg3qcqoyKCo1HWX1w0WdAhdLag'],
-            'regis_id': [''],
-            'post_param': ['history_sheet'],
-            'chief_complaint': ['患者主诉文本'],
-            'past_illness': ['既往病史文 本'],
-            'allegic_history': ['过敏病史文本'],
-            'illness_date': ['2021-1-15']
-        }>
+        """
+        提交病历首页信息
+        
+        数据格式：QueryDict
+        
+        数据格式示例: {
+                'csrfmiddlewaretoken': ['*****'],
+                'regis_id': [''],
+                'post_param': ['history_sheet'],
+                'chief_complaint': ['患者主诉文本'],
+                'past_illness': ['既往病史文 本'],
+                'allegic_history': ['过敏病史文本'],
+                'illness_date': ['2021-1-15']
+            }
         """
         with transaction.atomic():  # 事务原子性保证
             pass  # 病历首页数据库操作

@@ -192,21 +192,21 @@
                                         <input type="hidden" name="regis_id" />
                                         <input type="hidden" name="post_param" value="inspection">
                                         {% for item in TestItems %}
-                                            <div class="form-group">
-                                                <div class="input-group input-group-sm mb-3">
-                                                    <label class="col-md-1.5 col-form-label text-right">{{ item.inspect_type_name }}：</label>
-                                                    <select class="form-control form-control-lg"
-                                                            multiple="multiple"
-                                                            onchange="copyInspection(this)"
-                                                            name='{{ item.inspect_type_id }}'>
-                                                        {% for testitems in item.content %}
-                                                            <option data-name="{{ testitems.inspect_name }}"
-                                                                    data-price="{{ testitems.inspect_price }}"
-                                                                    value="{{ testitems.inspect_id }}">{{ testitems.inspect_name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
+                                        <div class="form-group">
+                                            <div class="input-group input-group-sm mb-3">
+                                                <label class="col-md-1.5 col-form-label text-right">{{ item.inspect_type_name }}：</label>
+                                                <select class="form-control form-control-lg"
+                                                        multiple="multiple"
+                                                        onchange="copyInspection(this)"
+                                                        name='{{ item.inspect_type_id }}'>
+                                                    {% for testitems in item.content %}
+                                                    <option data-name="{{ testitems.inspect_name }}"
+                                                            data-price="{{ testitems.inspect_price }}"
+                                                            value="{{ testitems.inspect_id }}">{{ testitems.inspect_name }}</option>
+                                                    {% endfor %}
+                                                </select>
                                             </div>
+                                        </div>
                                         {% endfor %}
                                         <div class="text-right">
                                             <button type="button" onclick="PostInspectionItem('{{ csrf_token }}')"
