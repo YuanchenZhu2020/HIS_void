@@ -8,13 +8,16 @@
     <div class="container-fluid row">
         {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病历首页，检查检验等 #}
         <div class="col-md-12 align-content-center">
-            <div class="page-titles mb-2 mt-0">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url "profile" %}">profile</a></li>
-                    <li class="breadcrumb-item active"><a href="{% url "outpatient-workspace" %}">outpatient</a>
+            <nav class="breadcrumb-div" aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-adjust">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'workhub' %}">工作中心</a>
+                    </li>
+                    <li class="breadcrumb-item bc-active">
+                        <a href="#">门诊医生工作台</a>
                     </li>
                 </ol>
-            </div>
+            </nav>
         </div>
         {# 第一列宽度为3，用于放置诊中患者信息和待诊患者信息 #}
         <div class="col-md-3">
@@ -106,7 +109,8 @@
                         <ul class="nav nav-tabs justify-content-center" role="tablist">
                             {# 病历首页按钮 #}
                             <li class="nav-item">
-                                <a id="togo_history_sheet" href="#bing_li_shou_ye" class="nav-link active" data-toggle="tab"
+                                <a id="togo_history_sheet" href="#bing_li_shou_ye" class="nav-link active"
+                                   data-toggle="tab"
                                    aria-expanded="false">病历首页</a>
                             </li>
                             {# 检查检验按钮 #}
@@ -197,7 +201,7 @@
                                                             multiple="multiple"
                                                             onchange="copyInspection(this)"
                                                             name="{{ item.inspect_type_id }}"
-                                                    data-type="{{ item.inspect_type_name }}">
+                                                            data-type="{{ item.inspect_type_name }}">
                                                         {% for testitems in item.content %}
                                                             <option data-name="{{ testitems.inspect_name }}"
                                                                     data-price="{{ testitems.inspect_price }}"
@@ -216,11 +220,11 @@
 
                                     </form>
                                 </div>
-                                    <div class="card-header border-0 pb-0">
-                                        <h5 class="card-title">检查结果</h5>
-                                    </div>
-                                    <div class="card-body" id="inspection_text">
-                                    </div>
+                                <div class="card-header border-0 pb-0">
+                                    <h5 class="card-title">检查结果</h5>
+                                </div>
+                                <div class="card-body" id="inspection_text">
+                                </div>
                             </div>
                         </div>
 

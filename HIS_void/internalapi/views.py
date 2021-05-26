@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone, dateparse
+from django.utils.decorators import method_decorator
 from django.views import View
 
 from his.models import Department, DeptAreaBed, Staff
@@ -134,8 +135,6 @@ class OutpatientAPI(View):
         # 即：匹配医生ID、日期、时间，并且患者已经进行了主诉，但确诊结果为空
         regis_info = RegistrationInfo.objects.filter(
             medical_staff__user__username = staff_id,
-            registration_date__time = TARGET_REG_TIME,
-            registration_date__date = timezone.localdate(),
             chief_complaint__isnull = False,
             diagnosis_results__isnull = True,
         ).values_list(
