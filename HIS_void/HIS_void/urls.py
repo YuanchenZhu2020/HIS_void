@@ -53,9 +53,9 @@ urlpatterns = [
     path('workhub/', WorkHubView.as_view(), name="workhub"),
     # 门诊医生工作页面
     path('outpatient-workspace/', OutpatientView.as_view(), name="outpatient-workspace"),
-    # 患者未登录首页
+    # 患者挂号首页
     path('patient/', PatientView.as_view(), name="patient"),
-    # 患者登录后个人界面
+    # 患者个人界面
     path('patient-details/', PatientDetailsView.as_view(), name="patient-details"),
     # 护士门诊
     path('nurse-workspace/', NurseView.as_view(), name="nurse-workspace"),

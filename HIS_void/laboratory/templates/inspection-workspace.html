@@ -26,13 +26,16 @@
         {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为检中患者和待检患者信息，右边为分页表格（病历首页，报告生成等 #}
         <div class="row">
             <div class="col-md-12 align-content-center">
-                <div class="page-titles mb-2 mt-0">
-                    <ol class="breadcrumb">
-                        <li class="breadcrumb-item"><a href="{% url "profile" %}">profile</a></li>
-                        <li class="breadcrumb-item active"><a href="{% url "inspection-workspace" %}">Inspection</a>
+                <nav class="breadcrumb-div" aria-label="breadcrumb"">
+                    <ol class="breadcrumb breadcrumb-adjust">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'workhub' %}">工作中心</a>
+                        </li>
+                        <li class="breadcrumb-item bc-active">
+                            <a href="#">检查检验工作站</a>
                         </li>
                     </ol>
-                </div>
+                </nav>
             </div>
             {# 第一列宽度为3，用于放置检中患者信息和待检患者信息 #}
             <div class="col-md-3">
