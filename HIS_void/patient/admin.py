@@ -15,7 +15,7 @@ class PatientUserCreationForm(forms.ModelForm):
     password1 = forms.CharField(label = _("用户密码"), widget = forms.PasswordInput)
     password2 = forms.CharField(label = _("确认密码"), widget = forms.PasswordInput)
     phone = forms.CharField(
-        max_length = 11, 
+        max_length = 11,
         required = False,
         label = _("联系电话"),
         widget = forms.TextInput
@@ -89,7 +89,7 @@ class PatientUserAdmin(BaseUserAdmin):
         (_("证件类型与编号"), {
             "classes": ("wide",),
             "fields": (
-                "id_type", "id_number", 
+                "id_type", "id_number",
             ),
         }),
         (_("更改密码"), {
@@ -111,7 +111,7 @@ class PatientUserAdmin(BaseUserAdmin):
 @admin.register(PatientURLPermission)
 class PatientURLPermissionAdmin(admin.ModelAdmin):
     list_display = (
-        "codename", "url_regex", "create_time", 
+        "codename", "url_regex", "create_time",
     )
     list_filter = ("create_time", )
     search_fields = ("codename", "url_regex")

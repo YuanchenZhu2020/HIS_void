@@ -13,6 +13,121 @@ function StringFormat() {
     return str;
 }
 
+// 查询待诊患者的所有需要的信息
+function waiting_diagnosis_patient_info(regis_id) {
+    $.ajax({
+        type: "get",
+        url: URL,
+        dataType: 'json',
+        data: {
+            regis_id: regis_id,
+            get_param: 'waiting_diagnosis_patient_info',
+        },
+        success: function (data) {
+            // 设置最上面显示的患者信息
+            $("#no").attr('placeholder', data.no);
+            $("#name").attr('placeholder', data.name);
+            $("#gender").attr('placeholder', data.gender);
+            $("#age").attr('placeholder', data.age);
+            // 给每一个需要提交的表格设置挂号编号
+            $("input[name='regis_id']").each(function (i, value) {
+                $(value).val(regis_id);
+            })
+            QueryHistorySheet(regis_id);
+        },
+        error: function (err) {
+            alert("请求服务器失败！");
+            console.log(err);
+        },
+    })
+}
+
+// 查询诊中患者所有的需要的信息
+function in_diagnosis_patient_info(regis_id) {
+    $.ajax({
+        type: "get",
+        url: URL,
+        dataType: 'json',
+        data: {
+            regis_id: regis_id,
+            get_param: 'in_diagnosis_patient_info',
+        },
+        success: function (data) {
+            // 设置最上面显示的患者信息
+            $("#no").attr('placeholder', data.no);
+            $("#name").attr('placeholder', data.name);
+            $("#gender").attr('placeholder', data.gender);
+            $("#age").attr('placeholder', data.age);
+            // 给每一个需要提交的表格设置挂号编号
+            $("input[name='regis_id']").each(function (i, value) {
+                $(value).val(regis_id);
+            })
+            /* 其他需要的信息：
+             已经选择的检验项目
+             患者账单
+            */
+            QueryTestResults(regis_id);
+            let inspection_items = [
+                {
+                    'inspect_type_name': '临床检查',
+                    'inspect_name': '心肺听诊',
+                    'inspect_price': 10.05
+                }, {
+                    'inspect_type_name': '临床检查',
+                    'inspect_name': '肌电图检查',
+                    'inspect_price': 130.85
+                }, {
+                    'inspect_type_name': '生物化学',
+                    'inspect_name': '酸溶血试验',
+                    'inspect_price': 80.22
+                },
+            ]
+            let $inspection_cost_body = $('#inspection_cost_body');
+            $inspection_cost_body.empty();
+            for (let i = 0; i < inspection_items.length; i++) {
+                let inspect_info = inspection_items[i];
+                $inspection_cost_body.append(StringFormat(
+                    '<tr style="color: #36c95f;"><td>{0}</td><td>{1}</td><td name="inspection_price">{2}</td></tr>',
+                    inspect_info.inspect_type_name,
+                    inspect_info.inspect_name,
+                    inspect_info.inspect_price
+                ))
+            }
+            inspectionTotalPrice();
+            medicine_items = [
+                {
+                    'medicine_name': '维生素(AD滴剂(伊可新)(1岁以上)(红)',
+                    'medicine_num': 2,
+                    'medicine_price': 17.01,
+                    'medicine_total': 34.02
+                }, {
+                    'medicine_name': '多维元素片(29)(善存)',
+                    'medicine_num': 1,
+                    'medicine_price': 30.24,
+                    'medicine_total': 30.24
+                }
+            ]
+            let $medicine_cost_body = $('#medicine_tbody');
+            $medicine_cost_body.empty();
+            for (let i = 0; i < medicine_items.length; i++) {
+                let medicine_info = medicine_items[i];
+                $medicine_cost_body.append(StringFormat(
+                    '<tr style="color: #36c95f;"><td>{0}</td><td>{1}</td><td>{2}</td><td name="total_price">{3}</td><td></td></tr>',
+                    medicine_info.medicine_name,
+                    medicine_info.medicine_num,
+                    medicine_info.medicine_price,
+                    medicine_info.medicine_total
+                ))
+            }
+            // 由于这里的计算价格需要先拷贝处方开具的药品信息，而一开始是没有开药的，因此药品会消失
+            medicineTotalPrice();
+        },
+        error: function (err) {
+            alert("请求服务器失败！");
+            console.log(err);
+        },
+    })
+}
 
 // 病历首页查询
 function QueryHistorySheet(regis_id) {
@@ -27,18 +142,11 @@ function QueryHistorySheet(regis_id) {
         success: function (data) {
             console.log("病历首页数据")
             console.log(data);
-            $("#no").attr('placeholder', data.no);
-            $("#name").attr('placeholder', data.name);
-            $("#gender").attr('placeholder', data.gender);
-            $("#age").attr('placeholder', data.age);
-            $("input[name='regis_id']").each(function (i, value) {
-                $(value).val(regis_id);
-            })
-            $("#chief_complaint").text(data.chief_complaint);
-            $("#past_illness").text(data.past_illness);
-            $("#allegic_history").text(data.allegic_history);
-            $("#illness_date").text(data.illness_date);
-            $("#BLSY_a").click();
+            $("#chief_complaint").val(data.chief_complaint);
+            $("#past_illness").val(data.past_illness);
+            $("#allegic_history").val(data.allegic_history);
+            $("#illness_date").attr('placeholder', data.illness_date);
+            $("#togo_history_sheet").click();
         },
         error: function (err) {
             alert("请求服务器失败！");
@@ -63,7 +171,7 @@ function query_waiting_diagnosis_patients() {
                 let td = '<td>' + patient.name + '</td>';
                 let td1 = '<td>' + patient.gender + '</td>';
                 let id = patient.id
-                let tr = $("<tr onclick='QueryHistorySheet(" + id + ")'></tr>");
+                let tr = $("<tr onclick='waiting_diagnosis_patient_info(" + id + ")'></tr>");
                 tr.append(td);
                 tr.append(td1);
                 $("#DZHZ").append(tr);
@@ -77,14 +185,14 @@ function query_waiting_diagnosis_patients() {
 }
 
 // 查询诊中患者
-function QueryZZHZ() {
+function QueryInDiagnosisPatient() {
     $.ajax({
         type: "get",
         url: URL,
         dataType: 'json',
         data: {
             d_no: '000000',
-            get_param: 'ZZHZ'
+            get_param: 'in_diagnosis'
         },
         success: function (data) {
             console.log(data);
@@ -92,7 +200,7 @@ function QueryZZHZ() {
                 let patient = data[i];
                 let td = '<td>' + patient.name + '</td>';
                 let td1 = '<td>' + patient.status + '</td>';
-                let tr = $(StringFormat("<tr onclick='QueryJCJY(0)'></tr>", data.regis_id));
+                let tr = $(StringFormat("<tr onclick='in_diagnosis_patient_info({0})'></tr>", data.regis_id));
                 tr.append(td);
                 tr.append(td1);
                 $("#ZZHZ").append(tr);
@@ -107,29 +215,30 @@ function QueryZZHZ() {
 }
 
 // 检查结果查询
-function QueryJCJY(p_no) {
+function QueryTestResults(regis_id) {
 
     $.ajax({
         type: "get",
         url: URL,
         dataType: 'json',
         data: {
-            p_no: p_no,
-            get_param: 'JCJY'
+            p_no: regis_id,
+            get_param: 'test_results'
         },
         success: function (data) {
+            alert("检查检验结果查询成功");
             console.log(data);
-            document.getElementById("chief_complaint").setAttribute('placeholder', data.chief_complaint);
-            document.getElementById("ZLQK").setAttribute('placeholder', data.ZLQK);
-            document.getElementById("past_illness").setAttribute('placeholder', data.past_illness);
-            document.getElementById("allegic_history").setAttribute('placeholder', data.allegic_history);
-            document.getElementById("TGJC").setAttribute('placeholder', data.TGJC);
-            document.getElementById("illness_date").setAttribute('placeholder', data.illness_date);
-            document.getElementById("no").setAttribute('placeholder', data.no);
-            document.getElementById("name").setAttribute('placeholder', data.name);
-            document.getElementById("gender").setAttribute('placeholder', data.gender);
-            document.getElementById("age").setAttribute('placeholder', data.age);
-            document.getElementById("JCJY_a").click();
+            let $inspection_text = $('#inspection_text')
+            $inspection_text.empty();
+            for (let key in data) {
+                let $inspection_result_p = $(StringFormat(
+                    '<p class="mb-0"><strong>{0}：</strong>{1}</p><hr class="mt-0"/>',
+                    key,
+                    data[key]
+                ));
+                $inspection_text.append($inspection_result_p);
+            }
+            copy_inspection_results();
         },
         error: function (err) {
             alert("请求服务器失败！");
@@ -139,18 +248,16 @@ function QueryJCJY(p_no) {
 }
 
 // 复制检查结果元素
-function copyJCJG() {
-    let ss = $('#inspect_content');
-    let tt = ss.clone(false);
-    $("#MZQZ_id").prepend(tt);
+function copy_inspection_results() {
+    let inpspection_results_source = $('#inspection_text');
+    let inpspction_results_copy = $(inpspection_results_source.clone()).children();
+    let inspection_position = $("#inspection_text_copy");
+    inspection_position.empty();
+    inspection_position.append(inpspction_results_copy);
 }
 
 
-/*
-* 处方开具页面函数
-*/
-
-
+//region 处方开具所有函数
 // 搜索框中查询药品
 function QueryMedicine() {
     $.ajax({
@@ -280,25 +387,27 @@ function addMedicine(medicine_obj, medicine_num) {
     $medicine_price_td.text(medicine_obj.price);
     // 药品总价列
     let $medicine_total_price = $('<td></td>');
-    $medicine_total_price.text(parseFloat(medicine_obj.price) * medicine_num);
+    let total_price = parseFloat(medicine_obj.price) * medicine_num;
+    total_price = parseFloat((total_price.toFixed(2)));
+    $medicine_total_price.text(total_price);
     $medicine_total_price.attr('name', 'total_price');
     let $medicine_delete_td = $('<td></td>');
     $medicine_delete_td.append('<a onclick="deleteMedicine(this)" data-toggle="tooltip" data-placement="top" title="Close"><i class="fa fa-close color-danger"></i></a>');
     $medicine_tr.append($medicine_name_td, $medicine_num_td, $medicine_price_td, $medicine_total_price, $medicine_delete_td);
     $('#medicine_tbody').append($medicine_tr);
-    totalPrice();
+    medicineTotalPrice();
 }
 
 // 删除药品
 function deleteMedicine(event) {
     console.log($(event).parent().parent().html());
     $(event).parent().parent().remove();
-    totalPrice();
+    medicineTotalPrice();
 
 }
 
 // 计算总价
-function totalPrice() {
+function medicineTotalPrice() {
     copyMedicine();
     let total_prices = document.getElementsByName('total_price');
     let total = 0;
@@ -359,7 +468,7 @@ function copyMedicine() {
     let medicine_tbody = document.getElementById('medicine_tbody');
     let all_medicines = medicine_tbody.childNodes;
     for (let i = 0; i < all_medicines.length; i++) {
-        let $tr = $('<tr></tr>');
+        let $tr = $('<tr style="color: #36c95f"></tr>');
         let all_td = all_medicines[i].childNodes;
         for (let j = 0; j < all_td.length - 1; j++) {
             let $td = $('<td></td>');
@@ -370,11 +479,13 @@ function copyMedicine() {
     }
 }
 
+//endregion
+
 // 复制检查项目到患者账单
 function copyInspection(event) {
     let $event = $(event);
     // 检查类型
-    let inspection_type = $($event).attr('name');
+    let inspection_type = $($event).data('type');
     // 检查名称
     if ($('#inspection_cost_body').find('[name=' + inspection_type + ']').html()) {
         $('#inspection_cost_body').find('[name=' + inspection_type + ']').remove();
@@ -537,6 +648,5 @@ function PostDiagnosisResults(csrf_token) {
 
 // 这里应该整一个document.ready，表示页面加载完毕后应该执行的操作，而不应该独立的放在这执行
 query_waiting_diagnosis_patients()
-copyJCJG()
-QueryZZHZ()
+QueryInDiagnosisPatient()
 

@@ -64,13 +64,13 @@ function QueryGH(date, department) {
                 AM_remain_td.append(AM_btn);
                 PM_remain_td.append(PM_btn);
                 AM_btn.attr('onclick', StringFormat(
-                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')", 
-                    department.name, DoctorInfo.doctor_name, 
+                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                    department.name, DoctorInfo.doctor_name,
                     token, DoctorInfo.doctor_id, date, 'AM', submit_url
                 ));
                 PM_btn.attr('onclick', StringFormat(
-                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')", 
-                    department.name, DoctorInfo.doctor_name, 
+                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                    department.name, DoctorInfo.doctor_name,
                     token, DoctorInfo.doctor_id, date, 'PM', submit_url
                 ));
                 // 创建行
@@ -109,7 +109,7 @@ function registration_confirm(
     );
     $("#modal-body").append(note);
     $("#registration").attr("onclick", StringFormat(
-        "post_registration('{0}', '{1}', '{2}', '{3}')", 
+        "post_registration('{0}', '{1}', '{2}', '{3}')",
         token, doctor_id, reg_datetime, submit_url
     ));
 }
@@ -145,7 +145,7 @@ function post_registration(csrf_token, doctor_id, reg_datetime, submit_url) {
             submitAlert(alert_title, alert_text, status);
             console.log(data.redirect_url);
             $($('.swal-button-container').children()[0]).attr(
-                'onclick', 
+                'onclick',
                 StringFormat("window.location.href = '{0}'", data.redirect_url)
             );
         },

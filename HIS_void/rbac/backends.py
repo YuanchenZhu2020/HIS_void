@@ -12,7 +12,7 @@ class CustomBackends(ModelBackend):
         获取 UserInfo 直接拥有的所有URL访问权限。
         """
         return user_obj.url_permissions.all()
-    
+
     def _get_group_url_permissions(self, user_obj):
         """
         获取 UserInfo 所属 UserGroup 用户组拥有的所有URL访问权限：
@@ -120,7 +120,7 @@ class CustomBackends(ModelBackend):
         获取 UserInfo 直接拥有的所有兑现资源权限。
         """
         return user_obj.obj_permissions.all()
-    
+
     def _get_group_obj_permissions(self, user_obj):
         """
         获取 UserInfo 所属 UserGroup 用户组拥有的所有对象资源权限：
@@ -173,13 +173,13 @@ class CustomBackends(ModelBackend):
             perms = perms.values_list(
                 "permission__content_type__app_label",
                 "permission__content_type__model",
-                "object_id", 
-                "permission__codename", 
+                "object_id",
+                "permission__codename",
             ).order_by()
             # 设置对象资源权限缓存
             setattr(
-                user_obj, 
-                objperm_cache_name, 
+                user_obj,
+                objperm_cache_name,
                 {"{}.{}.{}.{}".format(al, mo, oid, cn) for al, mo, oid, cn in perms}
             )
         return getattr(user_obj, objperm_cache_name)

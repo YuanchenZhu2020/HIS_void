@@ -6,10 +6,8 @@ from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
-from django.utils import dateparse, timezone
-from django.utils.decorators import method_decorator
+from django.utils import timezone, dateparse
 from django.views import View
-from django.db import transaction
 
 from his.models import Department, DeptAreaBed, Staff
 from inpatient.models import HospitalRegistration
@@ -41,11 +39,15 @@ class OutpatientAPI(View):
             # 待诊患者信息查询
             "waiting_diagnosis": self.query_waiting_diagnosis_patients,
             # 诊中患者信息查询
-            "ZZHZ": self.query_in_diagnosis_patients,
+            "in_diagnosis": self.query_in_diagnosis_patients,
             # 检查结果信息查询
-            "JCJY": self.query_inspect_result,
+            "test_results": self.query_inspect_result,
             # 处方开具，药品检索
             "CFKJ": self.query_medicine,
+            # 待诊患者基础信息
+            "waiting_diagnosis_patient_info": self.query_waiting_diagnosis_patient_info,
+            # 诊中患者基础信息
+            "in_diagnosis_patient_info": self.query_in_diagnosis_patient_info
         }
         # 获取需要查询的信息类型
         query_information = request.GET.get('get_param')
@@ -56,19 +58,36 @@ class OutpatientAPI(View):
     def query_medical_record(self, request):
         regis_id = request.GET.get('regis_id')
         regis_info = RegistrationInfo.objects.get(id=regis_id)
+        data = {
+            'chief_complaint': regis_info.chief_complaint,
+            'allegic_history': regis_info.patient.allegic_history,
+            'past_illness': regis_info.patient.past_illness,
+            'illness_date': regis_info.illness_date}
+        return data
+
+    # 待诊患者基础信息查询
+    def query_waiting_diagnosis_patient_info(self, request):
+        regis_id = request.GET.get('regis_id')
+        regis_info = RegistrationInfo.objects.get(id=regis_id)
         print("=======START outpatientAPI GET========")
         print(regis_info.__dict__)
         print(regis_info.patient.__dict__)
         print("========END outpatientAPI GET========")
         gender_convert = ["男", "女"]
-        data = {'no': regis_info.patient.patient_id,
-                'name': regis_info.patient.name,
-                'gender': gender_convert[regis_info.patient.gender],
-                'age': (timezone.now().date() - regis_info.patient.birthday).days // 365,
-                'chief_complaint': regis_info.chief_complaint,
-                'allegic_history': regis_info.patient.allegic_history,
-                'past_illness': regis_info.patient.past_illness,
-                'illness_date': regis_info.illness_date}
+        data = {
+            'no': regis_info.patient.patient_id,
+            'name': regis_info.patient.name,
+            'gender': gender_convert[regis_info.patient.gender],
+            'age': (timezone.now().date() - regis_info.patient.birthday).days // 365,
+        }
+        return data
+        pass
+    def query_in_diagnosis_patient_info(self, request):
+        data = {
+            '心肺听诊': '水肿,粪便可见嗜酸性WBC',
+            '脑CT': '镜下镰形细胞,粘液变性',
+            '粪便常规': '粪便可见RBC'
+        }
         return data
 
     # 待诊患者查询
@@ -136,7 +155,11 @@ class OutpatientAPI(View):
 
     # 检查结果查询
     def query_inspect_result(self, request):
-        data = []
+        data = {
+            '心肺听诊': '水肿,粪便可见嗜酸性WBC',
+            '脑CT': '镜下镰形细胞,粘液变性',
+            '粪便常规': '粪便可见RBC'
+        }
         return data
 
     # 药品查询（已完成）
@@ -158,12 +181,15 @@ class OutpatientAPI(View):
 
     # region OutpatientAPI post部分
     def post(self, request):
-        ''' 
-        param对照表:
-        medicine -> 处方开具选择的药品
-        inspection -> 检验信息
-        history_sheet -> 病历首页
-        '''
+        query_key_to_func = {
+            # 检查项目提交
+            "inspection": self.post_inspection,
+            # 病历首页提交
+            "history_sheet": self.post_history_sheet,
+            # 药品及医嘱提交
+            "medicine": self.post_medicine,
+            "diagnosis_results": self.post_diagnosis_results
+        }
         data = request.POST
         post_param = data['post_param']
         # 输出提示信息
@@ -171,86 +197,29 @@ class OutpatientAPI(View):
         print('【request.POST】', data)
         print('【post_param】', data['post_param'])
         print("==========END outpatientAPI POST==========")
-        
-        query_key_to_func = {
-            "inspection": self.post_inspection,
-            "history_sheet": self.post_history_sheet,
-            "medicine": self.post_medicine,
-        }
+        ''' 
+        param对照表:
+        medicine -> 处方开具选择的药品
+        inspection -> 检验信息
+        history_sheet -> 病历首页
+        '''
+        # 根据参数直接映射对应的函数，并执行
         query_key_to_func[post_param](data)
+
         # 这条语句并不会使页面刷新
         return redirect(reverse("outpatient-workspace"))
 
-    # 检查检验部分
-    def post_inspection(self, data):
-        """
-        提交检查检验
-        
-        数据类型：QueryDict
-
-        数据格式示例：{
-                'regis_id': ['31'],
-                'post_param': ['inspection'],
-                '1': ['1', '3'],
-                '2': ['16'],
-                '3': ['64', '66'],
-                '5': ['90']
-            }
-        """
-        with transaction.atomic():  # 事务原子性保证
-            pass  # 检查检验据库操作
-
-    # 确诊结果
-    def post_diagnosis_results(self, data):
-        """
-        提交确诊结果
-        
-        数据类型：QueryDict
-
-        数据格式示例：{
-                'regis_id': [''],
-                'post_param': ['diagnosis_results'],
-                'diagnosis_results': ['门诊确诊文本']
-            }
-        """
-        with transaction.atomic():  # 事务原子性保证
-            pass  # 检查检验据库操作
-
-    # 药品信息、医嘱建议
-    def post_medicine(self, data):
-        """
-        提交药品信息和医嘱
-
-        数据类型：QueryDict
-        
-        数据格式示例: {
-                'medicine_data[0][medicine_id]': ['A00379'],
-                'medicine_data[0][medicine_num]': ['2'],
-                'medicine_data[1][medicine_id]': ['A00596'],
-                'medicine_data[1][medicine_num]': ['1'],
-                'post_param': ['medicine'],
-                'medical_advice': ['用药注意，医嘱文本']
-            }
-        """
-        with transaction.atomic():  # 事务原子性保证
-            pass  # 检查检验据库操作
-
     # 提交病历首页部分
     def post_history_sheet(self, data):
-        """
-        提交病历首页信息
-        
-        数据格式：QueryDict
-        
-        数据格式示例: {
-                'csrfmiddlewaretoken': ['*****'],
-                'regis_id': [''],
-                'post_param': ['history_sheet'],
-                'chief_complaint': ['患者主诉文本'],
-                'past_illness': ['既往病史文 本'],
-                'allegic_history': ['过敏病史文本'],
-                'illness_date': ['2021-1-15']
-            }
+        """ 【request.POST】内容
+        <QueryDict: {
+            'regis_id': ['19'],
+            'post_param': ['history_sheet'],
+            'chief_complaint': ['患者主诉文本'],
+            'past_illness': ['既往病史文本'],
+            'allegic_history': ['过敏病史文本'],
+            'illness_date': ['2021-05-25']
+        }>
         """
         with transaction.atomic():  # 事务原子性保证
             pass  # 病历首页数据库操作
@@ -272,6 +241,49 @@ class OutpatientAPI(View):
                 id=data['regis_id']
             ))
             '''
+
+    # 检查检验部分
+    def post_inspection(self, data):
+        """【request.POST】内容
+         <QueryDict: {
+            'regis_id': ['19'],
+            'post_param': ['inspection'],
+            '1': ['1', '4', '6'],
+            '2': ['16'],
+            '3': ['63'],
+            '5': ['40', '49']
+        }>
+        """
+        with transaction.atomic():  # 事务原子性保证
+            pass  # 检查检验据库操作
+
+    # 确诊结果
+    def post_diagnosis_results(self, data):
+        """【request.POST】
+        <QueryDict: {
+            'regis_id': ['19'],
+            'post_param': ['diagnosis_results'],
+            'diagnosis_results': ['门诊确诊文本']
+        }>
+        """
+        with transaction.atomic():  # 事务原子性保证
+            pass  # 检查检验据库操作
+
+    # 药品信息、医嘱建议
+    def post_medicine(self, data):
+        """【request.POST】
+        <QueryDict: {
+            'medicine_data[0][medicine_id]': ['A00255'],
+            'medicine_data[0][medicine_num]': ['2'],
+            'medicine_data[1][medicine_id]': ['A00596'],
+            'medicine_data[1][medicine_num]': ['1'],
+            'post_param': ['medicine'],
+            'medical_advice': ['用药建议、医嘱建议文本'],
+            'regis_id': ['19']
+        }>
+        """
+        with transaction.atomic():  # 事务原子性保证
+            pass  # 检查检验据库操作
 
     # endregion
 
@@ -479,7 +491,7 @@ class PatientViewAPI(View):
         # },...]
         reg_date = request.GET.get('date')
         reg_datetime = {
-            "AM": timezone.make_aware(dateparse.parse_datetime(reg_date + " 08:00:00")).astimezone(timezone.utc), 
+            "AM": timezone.make_aware(dateparse.parse_datetime(reg_date + " 08:00:00")).astimezone(timezone.utc),
             "PM": timezone.make_aware(dateparse.parse_datetime(reg_date + " 13:00:00")).astimezone(timezone.utc)
         }
         dept_id = int(request.GET.get('KS_id'))
@@ -493,7 +505,7 @@ class PatientViewAPI(View):
             "remain_quantity",
         )
         doctor_info = reginfo_detail.values_list(
-            "medical_staff__user__username", 
+            "medical_staff__user__username",
             "medical_staff__name"
         ).distinct()
         reginfo = []
@@ -502,11 +514,11 @@ class PatientViewAPI(View):
                 "doctor_id": regdetail[0],
                 "doctor_name": regdetail[1],
                 "AM": reginfo_detail.filter(
-                        medical_staff__user__username = regdetail[0], 
+                        medical_staff__user__username = regdetail[0],
                         register_date = reg_datetime["AM"]
                     ).values_list("remain_quantity")[0][0],
                 "PM": reginfo_detail.filter(
-                        medical_staff__user__username = regdetail[0], 
+                        medical_staff__user__username = regdetail[0],
                         register_date = reg_datetime["PM"]
                     ).values_list("remain_quantity")[0][0],
             }
@@ -520,8 +532,8 @@ class PatientViewAPI(View):
         from django.middleware.csrf import get_token
         token = get_token(request)
         data = {
-            "query_data": query_data, 
-            "token": token, 
+            "query_data": query_data,
+            "token": token,
             "submit_url": reverse(PatientViewAPI.SUBMIT_URL_NAME)
         }
         return JsonResponse(data, safe = False)
@@ -556,7 +568,7 @@ class PatientViewAPI(View):
                 reg_class = 1 if reg_info["is_emergency"] else 0
             )
         return JsonResponse(
-            {"status": True, "redirect_url": reverse(PatientViewAPI.patient_next_url_name)}, 
+            {"status": True, "redirect_url": reverse(PatientViewAPI.patient_next_url_name)},
             safe = False
         )
 
