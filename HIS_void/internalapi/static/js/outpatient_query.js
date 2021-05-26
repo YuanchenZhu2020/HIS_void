@@ -62,11 +62,66 @@ function in_diagnosis_patient_info(regis_id) {
             $("input[name='regis_id']").each(function (i, value) {
                 $(value).val(regis_id);
             })
+            /* 其他需要的信息：
+             已经选择的检验项目
+             患者账单
+            */
+            QueryTestResults(regis_id);
+            let inspection_items = [
+                {
+                    'inspect_type_name': '临床检查',
+                    'inspect_name': '心肺听诊',
+                    'inspect_price': 10.05
+                }, {
+                    'inspect_type_name': '临床检查',
+                    'inspect_name': '肌电图检查',
+                    'inspect_price': 130.85
+                }, {
+                    'inspect_type_name': '生物化学',
+                    'inspect_name': '酸溶血试验',
+                    'inspect_price': 80.22
+                },
+            ]
+            let $inspection_cost_body = $('#inspection_cost_body');
+            $inspection_cost_body.empty();
+            for (let i = 0; i < inspection_items.length; i++) {
+                let inspect_info = inspection_items[i];
+                $inspection_cost_body.append(StringFormat(
+                    '<tr style="color: #36c95f;"><td>{0}</td><td>{1}</td><td name="inspection_price">{2}</td></tr>',
+                    inspect_info.inspect_type_name,
+                    inspect_info.inspect_name,
+                    inspect_info.inspect_price
+                ))
+            }
+            inspectionTotalPrice();
+            medicine_items = [
+                {
+                    'medicine_name': '维生素(AD滴剂(伊可新)(1岁以上)(红)',
+                    'medicine_num': 2,
+                    'medicine_price': 17.01,
+                    'medicine_total': 34.02
+                }, {
+                    'medicine_name': '多维元素片(29)(善存)',
+                    'medicine_num': 1,
+                    'medicine_price': 30.24,
+                    'medicine_total': 30.24
+                }
+            ]
+            let $medicine_cost_body = $('#medicine_tbody');
+            $medicine_cost_body.empty();
+            for (let i = 0; i < medicine_items.length; i++) {
+                let medicine_info = medicine_items[i];
+                $medicine_cost_body.append(StringFormat(
+                    '<tr style="color: #36c95f;"><td>{0}</td><td>{1}</td><td>{2}</td><td name="total_price">{3}</td><td></td></tr>',
+                    medicine_info.medicine_name,
+                    medicine_info.medicine_num,
+                    medicine_info.medicine_price,
+                    medicine_info.medicine_total
+                ))
+            }
+            // 由于这里的计算价格需要先拷贝处方开具的药品信息，而一开始是没有开药的，因此药品会消失
+            medicineTotalPrice();
         },
-        /* 其他需要的信息：
-         已经选择的检验项目
-         患者账单
-        */
         error: function (err) {
             alert("请求服务器失败！");
             console.log(err);
@@ -88,9 +143,9 @@ function QueryHistorySheet(regis_id) {
         success: function (data) {
             console.log("病历首页数据")
             console.log(data);
-            $("#chief_complaint").text(data.chief_complaint);
-            $("#past_illness").text(data.past_illness);
-            $("#allegic_history").text(data.allegic_history);
+            $("#chief_complaint").val(data.chief_complaint);
+            $("#past_illness").val(data.past_illness);
+            $("#allegic_history").val(data.allegic_history);
             $("#illness_date").attr('placeholder', data.illness_date);
             $("#togo_history_sheet").click();
         },
@@ -146,7 +201,7 @@ function QueryInDiagnosisPatient() {
                 let patient = data[i];
                 let td = '<td>' + patient.name + '</td>';
                 let td1 = '<td>' + patient.status + '</td>';
-                let tr = $(StringFormat("<tr onclick='QueryTestResults({0})'></tr>", data.regis_id));
+                let tr = $(StringFormat("<tr onclick='in_diagnosis_patient_info({0})'></tr>", data.regis_id));
                 tr.append(td);
                 tr.append(td1);
                 $("#ZZHZ").append(tr);
@@ -341,19 +396,19 @@ function addMedicine(medicine_obj, medicine_num) {
     $medicine_delete_td.append('<a onclick="deleteMedicine(this)" data-toggle="tooltip" data-placement="top" title="Close"><i class="fa fa-close color-danger"></i></a>');
     $medicine_tr.append($medicine_name_td, $medicine_num_td, $medicine_price_td, $medicine_total_price, $medicine_delete_td);
     $('#medicine_tbody').append($medicine_tr);
-    totalPrice();
+    medicineTotalPrice();
 }
 
 // 删除药品
 function deleteMedicine(event) {
     console.log($(event).parent().parent().html());
     $(event).parent().parent().remove();
-    totalPrice();
+    medicineTotalPrice();
 
 }
 
 // 计算总价
-function totalPrice() {
+function medicineTotalPrice() {
     copyMedicine();
     let total_prices = document.getElementsByName('total_price');
     let total = 0;
@@ -414,7 +469,7 @@ function copyMedicine() {
     let medicine_tbody = document.getElementById('medicine_tbody');
     let all_medicines = medicine_tbody.childNodes;
     for (let i = 0; i < all_medicines.length; i++) {
-        let $tr = $('<tr></tr>');
+        let $tr = $('<tr style="color: #36c95f"></tr>');
         let all_td = all_medicines[i].childNodes;
         for (let j = 0; j < all_td.length - 1; j++) {
             let $td = $('<td></td>');
@@ -431,7 +486,7 @@ function copyMedicine() {
 function copyInspection(event) {
     let $event = $(event);
     // 检查类型
-    let inspection_type = $($event).attr('name');
+    let inspection_type = $($event).data('type');
     // 检查名称
     if ($('#inspection_cost_body').find('[name=' + inspection_type + ']').html()) {
         $('#inspection_cost_body').find('[name=' + inspection_type + ']').remove();

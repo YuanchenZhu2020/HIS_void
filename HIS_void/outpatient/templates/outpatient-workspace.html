@@ -196,7 +196,8 @@
                                                     <select class="form-control form-control-lg"
                                                             multiple="multiple"
                                                             onchange="copyInspection(this)"
-                                                            name='{{ item.inspect_type_id }}'>
+                                                            name="{{ item.inspect_type_id }}"
+                                                    data-type="{{ item.inspect_type_name }}">
                                                         {% for testitems in item.content %}
                                                             <option data-name="{{ testitems.inspect_name }}"
                                                                     data-price="{{ testitems.inspect_price }}"

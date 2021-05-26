@@ -74,9 +74,14 @@ class OutpatientAPI(View):
             'age': (timezone.now().date() - regis_info.patient.birthday).days // 365,
         }
         return data
-
-    def query_in_diagnosis_patient_info(self, request):
         pass
+    def query_in_diagnosis_patient_info(self, request):
+        data = {
+            '心肺听诊': '水肿,粪便可见嗜酸性WBC',
+            '脑CT': '镜下镰形细胞,粘液变性',
+            '粪便常规': '粪便可见RBC'
+        }
+        return data
 
     # 待诊患者查询
     def query_waiting_diagnosis_patients(self, request):
