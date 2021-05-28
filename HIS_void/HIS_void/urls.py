@@ -90,3 +90,5 @@ from django.apps import apps as global_apps
 
 app_config = global_apps.get_app_config("rbac")
 create_urlpermissions(app_config)
+
+from his.tasks import *
