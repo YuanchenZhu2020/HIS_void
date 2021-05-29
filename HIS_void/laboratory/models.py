@@ -83,10 +83,12 @@ class PatientTestItem(models.Model):
     )
     handle_staff = models.ForeignKey(
         Staff, 
+        null = True,
+        blank = True,
         on_delete = models.CASCADE, 
         related_name = "patient_test_item_set",
         related_query_name = "patient_test_items",
-        verbose_name = _("责任人"),
+        verbose_name = _("负责医师"),
     )
     issue_time   = models.DateTimeField(
         auto_now_add = True,
