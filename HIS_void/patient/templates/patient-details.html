@@ -1,18 +1,9 @@
-{#<!DOCTYPE html>#}
 {% extends 'base.html' %}
 {% load static %}
+{% load format_date_string %}
 {% block title %}患者{% endblock %}
 
 {% block body-context %}
-
-    <style>
-        .breadcrumb-adjust {
-            background: #ffffff; 
-            margin-top: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-    </style>
-    {#        <button onclick="Details('444')">123</button>  {# 传不进去怎么回事#}
     <body>
         <div class="container-fluid">
             <div class="row">
@@ -61,18 +52,22 @@
                         </ul>
                     </div>
                 </nav>
-    
+
                 <!-- 右边滚动栏信息，包括以下几部分 -->
                 <div class="col-sm-8">
-    
+
                     <!-- 面包屑导航 -->
-                    <div style="padding-left: 15px; padding-right: 15px;">
-                        <ul class="breadcrumb breadcrumb-adjust">
-                            <li class="breadcrumb-item active"><a href="javascript:void(0)">首页</a></li>
-                            <li class="breadcrumb-item"><a href="javascript:void(0)">登录</a></li>
-                        </ul>
-                    </div>
-    
+                    <nav class="breadcrumb-div" aria-label="breadcrumb">
+                        <ol class="breadcrumb breadcrumb-adjust">
+                            <li class="breadcrumb-item">
+                                <a href="{% url 'patient' %}">首页</a>
+                            </li>
+                            <li class="breadcrumb-item bc-active" aria-current="page">
+                                <a href="{% url 'patient-details' %}">患者详情</a>
+                            </li>
+                        </ol>
+                    </nav>
+
                     <!--这里是医院对外的通知，尤其是相关的紧急通知之类的，比如疫情期间就可以发布一些防疫政策通知-->
                     <div class="col-lg-12">
                         <div class="card patient-detail">
@@ -89,7 +84,7 @@
                             </div>
                         </div>
                     </div>
-    
+
                     <!--待诊信息（包括各种需要检查、复诊的状态信息，需要做的事情（较为急迫的事情）——其实还没太想好
                     但可以确定的一点是，该card也是只可读，不能提交或者修改）-->
                     <div class="col-lg-12" id="future">
@@ -102,42 +97,124 @@
                                     <table class="table table-responsive-md" style="text-align: center;">
                                         <thead>
                                         <tr>
-                                            <th><strong>序号</strong></th>
-                                            <!-- style="width: 40px" -->
-                                            <th><strong>科室</strong></th>
-                                            <!-- style="width: 60px" -->
-                                            <th><strong>门诊</strong></th>
-                                            <!-- style="width: 60px" -->
                                             <th><strong>医生</strong></th>
-                                            <th><strong>日期</strong></th>
-                                            <th><strong>时间</strong></th>
+                                            <th><strong>科室</strong></th>
+                                            <th><strong>诊疗次数</strong></th>
                                             <th></th>
                                         </tr>
                                         </thead>
                                         <tbody>
-                                        {% for item in DZdata %}
+                                            {% for item in reg_doctors_data %}
                                             <tr>
-                                                <td>{{ item.number }}</td>
-                                                <td>{{ item.keshi }}</td>
-                                                <td>{{ item.menzhen }}</td>
                                                 <td>{{ item.doctor_name }}</td>
-                                                <td>{{ item.date }}</td>
-                                                <td>{{ item.time }}</td>
+                                                <td>{{ item.dept }}</td>
+                                                <td>{{ item.reg_num }}</td>
                                                 <td>
-                                                    <button type="button" class="btn btn-success light sharp" href="#"
-                                                            style="width: 80px">
+                                                    <button type="button" 
+                                                            class="btn btn-success light sharp" 
+                                                            style="width: 80px"
+                                                            data-toggle="modal"
+                                                            data-target="#reg-again-{{ item.doctor_id }}">
                                                         再次预约
                                                     </button>
                                                 </td>
                                             </tr>
-                                        {% endfor %}
+                                            {% endfor %}
                                         </tbody>
                                     </table>
+                                </div>
+                                <!-- 生成再次预约Modal弹窗 -->
+                                {% for item in reg_doctors_data %}
+                                <div class="modal text-center fade" id="reg-again-{{ item.doctor_id }}">
+                                    <div class="modal-dialog modal-lg" style="display: inline-block ;width:auto">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h4 class="modal-title" id="reg-again-modal-title">
+                                                    再次预约
+                                                </h4>
+                                            </div>
+                                            <div class="modal-body">
+                                                <!-- <div class="reg-date-tables"> -->
+                                                    <ul class="nav nav-tabs" role="tablist">
+                                                        {% for date in reg_dates %}
+                                                        <li class="nav-item">
+                                                            <a href="#reg-{{ item.doctor_id }}-{{ date|ymd2md }}"
+                                                                data-toggle="tab"
+                                                                class="nav-link"
+                                                                onclick="QueryDocReg('{{ item.doctor_id }}', '{{ item.doctor_name }}', '{{ date }}')">
+                                                                {{ date|ymd2md }}
+                                                            </a>
+                                                        </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                    <div class="tab-content">
+                                                        <div class="tab-pane active">
+                                                            <!-- <div class="counter"> -->
+                                                                <p></p>
+                                                                <h4>请选择一个时间</h4>
+                                                                <p>请您根据自己的病情和严重程度合理选择。balbal</p>
+                                                            <!-- </div> -->
+                                                        </div>
+                                                        {% for date in reg_dates %}
+                                                        <div class="tab-pane" id="reg-{{ item.doctor_id }}-{{ date|ymd2md }}">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-responsive-md" style="text-align: center;">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th>
+                                                                            <strong>主治医生</strong>
+                                                                        </th>
+                                                                        <th>
+                                                                            <strong>上午(8:00-11:00)</strong>
+                                                                        </th>
+                                                                        <th>
+                                                                            <strong>下午(13:00-18:00)</strong>
+                                                                        </th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody id="{{ date|ymd2md }}">
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                <!-- </div> -->
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-primary" data-dismiss="modal">
+                                                    放弃预约
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <!-- 挂号询问弹窗 -->
+                        <div class="modal fade" id="GHask">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">是否挂号？</h5>
+                                        <button type="button" class="close" data-dismiss="modal"><span>&times;</span>
+                                        </button>
+                                    </div>
+                                    <div id="modal-body" class="modal-body">
+
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-danger light" data-dismiss="modal">取消</button>
+                                        <button id="registration" type="button" class="btn btn-primary" data-dismiss="modal">
+                                            确定
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-    
+
                     <!--当前就诊（包括目前就诊的时候医生需要你进行的所有未进行过的检查）-->
                     <div class="col-lg-12" id="now">
                         <div class="card">
@@ -145,66 +222,88 @@
                                 <h4 class="card-title">当前就诊</h4>
                             </div>
                             <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="table table-responsive-md"  style="text-align: center;">
-                                        <thead>
-                                        <tr>
-                                            <th><strong>名称</strong></th>
-                                            <th><strong>地点</strong></th>
-                                            <th><strong>序号</strong></th>
-                                            <th><strong>状态</strong></th>
-                                            <th></th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {% for item in DQJZdata %}
-                                            <tr>
-                                                <td>{{ item.name }}</td>
-                                                <td>{{ item.location }}</td>
-                                                <td>{{ item.order }}</td>
-                                                <td>{{ item.status }}</td>
-                                                {#<td><span class="badge light badge-warning">等待结果</span></td>#}
-                                                {#<td><span class="badge light badge-success">已出结果</span></td>#}
-                                                <td>
-                                                    <button type="button"
-                                                            class="btn btn-success light sharp"
-                                                            data-toggle="modal"
-                                                            data-target="#XXXXModal{{ item.id }}"
-                                                            style="width: 80px">
-                                                        详细信息
-                                                    </button>
-                                                    <!-- 详细信息弹窗 -->
-                                                    <div class="modal fade" id="XXXXModal{{ item.id }}">
-                                                        <div class="modal-dialog">
-                                                            <div class="modal-content">
-                                                                <div class="modal-header">
-                                                                    <h4 class="modal-title">
-                                                                        详细信息{{ item.id }}
-                                                                    </h4>
-                                                                </div>
-                                                                <div class="modal-body">
-                                                                    在这里添加一些文本
-                                                                    写下很多很多很多结果信息，或许可以放图片
-                                                                </div>
-                                                                <div class="modal-footer">
-                                                                    <button type="button"
-                                                                            class="btn btn-primary"
-                                                                            data-dismiss="modal">确定
-                                                                    </button>
-                                                                </div>
-                                                            </div>
+                                <div class="profile-tab">
+                                    <div class="custome-tab-1">
+                                        <!-- 上部导航栏信息 -->
+                                        <ul class="nav nav-tabs">
+                                            <li class="nav-item"><a href="#record-wait" data-toggle="tab" class="nav-link">预约挂号</a>
+                                            </li>
+                                            <li class="nav-item"><a href="#check-wait" data-toggle="tab" class="nav-link">等待检查</a>
+                                            </li>
+                                        </ul>
+
+                                        <!-- 下部展示信息，包括以下内容 -->
+                                        <div class="tab-content">
+
+                                            <!-- 预约挂号 -->
+                                            <div id="record-wait" class="tab-pane fade show active">
+                                                <div class="profile-all-record">
+                                                    <div class="counter">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-responsive-md" style="text-align: center;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th><strong>日期</strong></th>
+                                                                        <th><strong>时间</strong></th>
+                                                                        <th><strong>地点</strong></th>
+                                                                        <th><strong>科室</strong></th>
+                                                                        <th><strong>医生</strong></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for item in waiting_regs_data %}
+                                                                    <tr>
+                                                                        <td>{{ item.reg_date|date:"Y-m-d" }}</td>
+                                                                        <td>{{ item.reg_date|date:"H:m:s" }}</td>
+                                                                        <td>{{ item.location }}</td>
+                                                                        <td>{{ item.dept }}</td>
+                                                                        <td>{{ item.doctor_name }}</td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
                                                         </div>
                                                     </div>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                        </tbody>
-                                    </table>
+                                                </div>
+                                            </div>
+
+                                            <!-- 等待检查 -->
+                                            <div id="check-wait" class="tab-pane fade show">
+                                                <div class="profile-all-record">
+                                                    <div class="counter">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-responsive-md" style="text-align: center;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th><strong>名称</strong></th>
+                                                                        <th><strong>地点</strong></th>
+                                                                        <th><strong>科室</strong></th>
+                                                                        <th><strong>检查医生</strong></th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for item in waiting_tests_data %}
+                                                                    <tr>
+                                                                        <td>{{ item.name }}</td>
+                                                                        <td>{{ item.location }}</td>
+                                                                        <td>{{ item.dept }}</td>
+                                                                        <td>{{ item.doctor_name }}</td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-    
+
                     <!--就诊记录（包括所有在该医院里边的就诊情况，包括确诊记录和检查记录，需要实现的需求就是
                     1.当点击详情的时候能够弹出相应的详细信息
                     2.每次确诊都必须有相应医生的记录，并允许点击再次预约挂号）-->
@@ -223,10 +322,10 @@
                                             <li class="nav-item"><a href="#all-check" data-toggle="tab" class="nav-link">检查记录</a>
                                             </li>
                                         </ul>
-    
+
                                         <!-- 下部展示信息，包括以下内容 -->
                                         <div class="tab-content">
-    
+
                                             <!-- 确诊记录 -->
                                             <div id="all-record" class="tab-pane fade show active">
                                                 <div class="profile-all-record">
@@ -299,7 +398,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-    
+
                                             <!-- 检查记录 -->
                                             <div id="all-check" class="tab-pane fade">
                                                 <div class="profile-all-check">
@@ -307,15 +406,15 @@
                                                         <div class="table-responsive">
                                                             <table class="table table-responsive-md" style="text-align: center;">
                                                                 <thead>
-                                                                <tr>
-                                                                    <th><strong>日期</strong></th>
-                                                                    <th><strong>名称</strong></th>
-                                                                    <th><strong>检查结果</strong></th>
-                                                                    <th></th>
-                                                                </tr>
+                                                                    <tr>
+                                                                        <th><strong>日期</strong></th>
+                                                                        <th><strong>名称</strong></th>
+                                                                        <th><strong>检查结果</strong></th>
+                                                                        <th></th>
+                                                                    </tr>
                                                                 </thead>
                                                                 <tbody>
-                                                                {% for item in tests_data %}
+                                                                    {% for item in tests_data %}
                                                                     <tr>
                                                                         <td>{{ item.date|date:"Y-m-d H:m:s" }}</td>
                                                                         <td>{{ item.name }}</td>
@@ -330,7 +429,7 @@
                                                                             </button>
                                                                             <!-- 检查详情弹窗 -->
                                                                             <div class="modal fade"
-                                                                                 id="JGXQModal{{ item.id }}">
+                                                                                    id="JGXQModal{{ item.id }}">
                                                                                 <div class="modal-dialog">
                                                                                     <div class="modal-content">
                                                                                         <div class="modal-header">
@@ -353,7 +452,7 @@
                                                                             </div>
                                                                         </td>
                                                                     </tr>
-                                                                {% endfor %}
+                                                                    {% endfor %}
                                                                 </tbody>
                                                             </table>
                                                         </div>
@@ -366,98 +465,88 @@
                             </div>
                         </div>
                     </div>
-    
+
                     <!--个人的设置信息（包括修改电话号码、邮箱、密码等等）-->
                     <div class="col-lg-12" id="settings">
                         <div class="card">
                             <div class="card-body">
                                 <div class="profile-tab">
                                     <div class="custom-tab-1">
-    
+
                                         <!-- 上边栏信息 -->
                                         <ul class="nav nav-tabs">
                                             <li class="nav-item"><a href="#about-me" data-toggle="tab"
-                                                                    class="nav-link active show">当前设置</a>
+                                                                    class="nav-link active show">个人信息</a>
                                             </li>
                                             <li class="nav-item"><a href="#personal-settings" data-toggle="tab"
                                                                     class="nav-link">修改信息</a>
                                             </li>
                                         </ul>
-    
+
                                         <!-- 上边栏信息 -->
                                         <div class="tab-content">
-    
+
                                             <div id="about-me" class="tab-pane fade active show">
                                                 <div class="profile-about-me">
                                                     <div class="pt-4 border-bottom-1 pb-3">
                                                         <h4 class="text-primary">About Me</h4>
-                                                        <p class="mb-2">A wonderful serenity has taken possession of my
-                                                            entire soul, like these sweet mornings of spring which I
-                                                            enjoy
-                                                            with my whole heart. I am alone, and feel the charm of
-                                                            existence
-                                                            was created for the bliss of souls like mine.I am so happy,
-                                                            my
-                                                            dear friend, so absorbed in the exquisite sense of mere
-                                                            tranquil
-                                                            existence, that I neglect my talents.</p>
-                                                        <p>A collection of textile samples lay spread out on the table -
-                                                            Samsa was a travelling salesman - and above it there hung a
-                                                            picture that he had recently cut out of an illustrated
-                                                            magazine
-                                                            and housed in a nice, gilded frame.</p>
+                                                        <p class="mb-2"></p>
+                                                        <p></p>
                                                     </div>
                                                 </div>
                                                 <div class="profile-personal-info">
-                                                    <h4 class="text-primary mb-4">Personal Information</h4>
+                                                    <h4 class="text-primary mb-4">当前信息</h4>
                                                     <div class="row mb-2">
                                                         <div class="col-3">
-                                                            <h5 class="f-w-500">Name <span class="pull-right">:</span>
+                                                            <h5 class="f-w-500">姓名<span class="pull-right">:</span>
                                                             </h5>
                                                         </div>
-                                                        <div class="col-9"><span>Mitchell C.Shay</span>
+                                                        <div class="col-9"><span>{{ person_data.name }}</span>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-2">
                                                         <div class="col-3">
-                                                            <h5 class="f-w-500">Email <span class="pull-right">:</span>
+                                                            <h5 class="f-w-500">联系方式<span class="pull-right">:</span>
                                                             </h5>
                                                         </div>
-                                                        <div class="col-9"><span>example@examplel.com</span>
+                                                        <div class="col-9"><span>{{ person_data.phone }}</span>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-2">
                                                         <div class="col-3">
-                                                            <h5 class="f-w-500">Availability <span
-                                                                    class="pull-right">:</span></h5>
+                                                            <h5 class="f-w-500">性别<span class="pull-right">:</span></h5>
                                                         </div>
-                                                        <div class="col-9"><span>Full Time (Free Lancer)</span>
+                                                        <div class="col-9"><span>{{ person_data.gender }}</span>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-2">
                                                         <div class="col-3">
-                                                            <h5 class="f-w-500">Age <span class="pull-right">:</span>
+                                                            <h5 class="f-w-500">年龄<span class="pull-right">:</span>
                                                             </h5>
                                                         </div>
-                                                        <div class="col-9"><span>27</span>
+                                                        <div class="col-9"><span>{{ person_data.age }}</span>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-2">
                                                         <div class="col-3">
-                                                            <h5 class="f-w-500">Location <span
-                                                                    class="pull-right">:</span>
+                                                            <h5 class="f-w-500">既往史<span class="pull-right">:</span>
                                                             </h5>
                                                         </div>
-                                                        <div class="col-9"><span>Rosemont Avenue Melbourne,
-                                                                    Florida</span>
+                                                        <div class="col-9"><span>{{ person_data.past_illness|default_if_none:"" }}</span>
                                                         </div>
                                                     </div>
                                                     <div class="row mb-2">
                                                         <div class="col-3">
-                                                            <h5 class="f-w-500">Year Experience <span
-                                                                    class="pull-right">:</span></h5>
+                                                            <h5 class="f-w-500">过敏史<span class="pull-right">:</span></h5>
                                                         </div>
-                                                        <div class="col-9"><span>07 Year Experiences</span>
+                                                        <div class="col-9"><span>{{ person_data.allegic_history|default_if_none:"" }}</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-2">
+                                                        <div class="col-3">
+                                                            <h5 class="f-w-500">加入时间<span class="pull-right">:</span></h5>
+                                                        </div>
+                                                        <div class="col-9"><span>{{ person_data.create_time|date:"Y-m-d" }}</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -465,28 +554,47 @@
                                             <div id="personal-settings" class="tab-pane fade">
                                                 <div class="pt-3">
                                                     <div class="settings-form">
-                                                        <h4 class="text-primary">Account Setting</h4>
-                                                        <form>
+                                                        <h4 class="text-primary">账户信息修改</h4>
+                                                        <form action="#", method="POST">
+                                                            {% if error_message %}
+                                                            <script>
+                                                                window.onload = function() {
+                                                                    $('#err_btn').on('click', error_top_full_width('{{ error_message }}'));
+                                                                    $('#err_btn').click();
+                                                                    console.log("Done");/** */
+                                                                }
+                                                            </script>
+                                                            {% endif %}
+                                                            {% if success_message %}
+                                                            <script>
+                                                                window.onload = function() {
+                                                                    $('#err_btn').on('click', success_top_full_width());
+                                                                    $('#err_btn').click();
+                                                                    console.log("Done");/** */
+                                                                }
+                                                            </script>
+                                                            {% endif %}
+                                                            <button type="button" class="btn btn-danger mb-2  mr-2" id="err_btn" style="display: none;">
+                                                                Error Message
+                                                            </button>
+                                                            {% csrf_token %}
                                                             <div class="form-row">
                                                                 <div class="form-group col-md-6">
-                                                                    <label>Email</label>
-                                                                    <input type="email" placeholder="Email"
-                                                                           class="form-control">
+                                                                    <label>登录名</label>
+                                                                    <!-- <input type="text" name="username" placeholder="请输入您的登录名" class="form-control"> -->
+                                                                    {{ login_form.username }}
                                                                 </div>
                                                                 <div class="form-group col-md-6">
-                                                                    <label>Password</label>
-                                                                    <input type="password" placeholder="Password"
-                                                                           class="form-control">
+                                                                    <label>密码</label>
+                                                                    <!-- <input type="password" name="password" placeholder="请输入您的登录密码" class="form-control"> -->
+                                                                    {{ login_form.password }}
                                                                 </div>
                                                             </div>
                                                             <div class="form-group">
-                                                                <label>Phone</label>
-                                                                <input type="text" placeholder="输入更新的手机号"
-                                                                       class="form-control">
+                                                                <label>手机号码</label>
+                                                                <input type="text" name="telephone" placeholder="请输入新的手机号码" class="form-control">
                                                             </div>
-    
-                                                            <button class="btn btn-primary" type="submit">重置
-                                                            </button>
+                                                            <button type="submit" class="btn btn-primary">确认</button>
                                                         </form>
                                                     </div>
                                                 </div>
@@ -502,5 +610,48 @@
         </div>
     </body>
     <script src="{% static 'js/patient_query.js' %}"></script>
+    <script src="{% static 'js/plugins-init/toastr-init.js' %}"></script>
+    <script>
+        function error_top_full_width(error_message) {
+            toastr.error(error_message, "账号验证错误", {
+                positionClass: "toast-top-full-width",
+                timeOut: 5e4,
+                closeButton: !0,
+                debug: !1,
+                newestOnTop: !0,
+                progressBar: !0,
+                preventDuplicates: !0,
+                onclick: null,
+                showDuration: "300",
+                hideDuration: "1000",
+                extendedTimeOut: "1000",
+                showEasing: "swing",
+                hideEasing: "linear",
+                showMethod: "fadeIn",
+                hideMethod: "fadeOut",
+                tapToDismiss: !1
+            })
+        }
+        function success_top_full_width() {
+            toastr.success("账户信息修改成功", "修改成功", {
+                positionClass: "toast-top-full-width",
+                timeOut: 5e4,
+                closeButton: !0,
+                debug: !1,
+                newestOnTop: !0,
+                progressBar: !0,
+                preventDuplicates: !0,
+                onclick: null,
+                showDuration: "300",
+                hideDuration: "1000",
+                extendedTimeOut: "1000",
+                showEasing: "swing",
+                hideEasing: "linear",
+                showMethod: "fadeIn",
+                hideMethod: "fadeOut",
+                tapToDismiss: !1
+            })
+        }
+    </script>
 
 {% endblock %}

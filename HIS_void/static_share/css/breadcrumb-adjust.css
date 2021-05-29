@@ -1,0 +1,16 @@
+/* 面包屑导航外层div样式，用于对齐所在列 */
+.breadcrumb-div {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* 面包屑导航样式调整，设置上下边距以及背景色 */
+.breadcrumb-adjust {
+    background: #ffffff;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.bc-active a {
+    color: #36C95F;
+}

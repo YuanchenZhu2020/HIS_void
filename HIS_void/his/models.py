@@ -77,6 +77,14 @@ class Department(models.Model):
     def __str__(self) -> str:
         return "<Department {} | UserGroup {}>".format(self.usergroup.name, self.usergroup.ug_id)
 
+    @property
+    def name(self):
+        return self.usergroup.name
+    
+    @property
+    def dept_id(self):
+        return self.usergroup.ug_id
+
 # UserGroup 添加新对象后，Department 会自动添加该对象
 @receiver(post_save, sender = UserGroup)
 def create_usergroup_department(sender, instance, created, **kwargs):
@@ -356,6 +364,11 @@ class DutyRoster(models.Model):
         related_query_name = "duty_rosters",
         verbose_name = _("负责病区"),
     )
+    # is_outpatient = models.BooleanField(
+    #     default = 0,
+    #     verbose_name = _("是否在门诊值班"),
+    #     help_text = _("0代表在住院部值班，1代表在门诊值班。")
+    # )
 
     class Meta:
         verbose_name = _("医务人员排班表")

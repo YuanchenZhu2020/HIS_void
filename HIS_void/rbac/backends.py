@@ -12,7 +12,7 @@ class CustomBackends(ModelBackend):
         获取 UserInfo 直接拥有的所有URL访问权限。
         """
         return user_obj.url_permissions.all()
-    
+
     def _get_group_url_permissions(self, user_obj):
         """
         获取 UserInfo 所属 UserGroup 用户组拥有的所有URL访问权限：
@@ -23,13 +23,13 @@ class CustomBackends(ModelBackend):
         """
         # URLPermission <- UserGroup <- UserInfo
         user_groups_field = get_user_model()._meta.get_field("groups")
-        user_groups_query = "usergroup__{}".format(user_groups_field.related_query_name())
+        user_groups_query = "usergroups__{}".format(user_groups_field.related_query_name())
         group_url_perms_queryset =  URLPermission.objects.filter(**{user_groups_query: user_obj})
         # URLPermission <- Role <- (UserGroup <- UserInfo)
-        usergroups = UserGroup.objects.filter(user = user_obj)
+        usergroups = UserGroup.objects.filter(users = user_obj)
         for ug in usergroups:
             group_roles_field = ug._meta.get_field("roles")
-            group_roles_query = "role__{}".format(group_roles_field.related_query_name())
+            group_roles_query = "roles__{}".format(group_roles_field.related_query_name())
             group_url_perms_queryset |= URLPermission.objects.filter(**{group_roles_query: ug})
         return group_url_perms_queryset
 
@@ -42,7 +42,7 @@ class CustomBackends(ModelBackend):
             4. 在 URLPermission 表中进行条件查询（使用**构造查询表达式）
         """
         user_roles_field = get_user_model()._meta.get_field("roles")
-        user_roles_query = "role__{}".format(user_roles_field.related_query_name())
+        user_roles_query = "roles__{}".format(user_roles_field.related_query_name())
         return URLPermission.objects.filter(**{user_roles_query: user_obj})
 
     def _get_url_permissions(self, user_obj, from_name):
@@ -120,7 +120,7 @@ class CustomBackends(ModelBackend):
         获取 UserInfo 直接拥有的所有兑现资源权限。
         """
         return user_obj.obj_permissions.all()
-    
+
     def _get_group_obj_permissions(self, user_obj):
         """
         获取 UserInfo 所属 UserGroup 用户组拥有的所有对象资源权限：
@@ -131,13 +131,13 @@ class CustomBackends(ModelBackend):
         """
         # ObjectPermission <- UserGroup <- UserInfo
         user_groups_field = get_user_model()._meta.get_field("groups")
-        user_groups_query = "usergroup__{}".format(user_groups_field.related_query_name())
+        user_groups_query = "usergroups__{}".format(user_groups_field.related_query_name())
         group_obj_perms_queryset = ObjectPermission.objects.filter(**{user_groups_query: user_obj})
         # URLPermission <- Role <- (UserGroup <- UserInfo)
-        usergroups = UserGroup.objects.filter(user = user_obj)
+        usergroups = UserGroup.objects.filter(users = user_obj)
         for ug in usergroups:
             group_roles_field = ug._meta.get_field("roles")
-            group_roles_query = "role__{}".format(group_roles_field.related_query_name())
+            group_roles_query = "roles__{}".format(group_roles_field.related_query_name())
             group_obj_perms_queryset |= ObjectPermission.objects.filter(**{group_roles_query: ug})
         return group_obj_perms_queryset
 
@@ -150,7 +150,7 @@ class CustomBackends(ModelBackend):
             4. 在 ObjectPermission 表中进行条件查询（使用**构造查询表达式）
         """
         user_roles_field = get_user_model()._meta.get_field("roles")
-        user_roles_query = "role__{}".format(user_roles_field.related_query_name())
+        user_roles_query = "roles__{}".format(user_roles_field.related_query_name())
         return ObjectPermission.objects.filter(**{user_roles_query: user_obj})
 
     def _get_obj_permissions(self, user_obj, from_name):
@@ -173,13 +173,13 @@ class CustomBackends(ModelBackend):
             perms = perms.values_list(
                 "permission__content_type__app_label",
                 "permission__content_type__model",
-                "object_id", 
-                "permission__codename", 
+                "object_id",
+                "permission__codename",
             ).order_by()
             # 设置对象资源权限缓存
             setattr(
-                user_obj, 
-                objperm_cache_name, 
+                user_obj,
+                objperm_cache_name,
                 {"{}.{}.{}.{}".format(al, mo, oid, cn) for al, mo, oid, cn in perms}
             )
         return getattr(user_obj, objperm_cache_name)

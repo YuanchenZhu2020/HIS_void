@@ -18,7 +18,7 @@ from django.urls import path
 
 from his.views import (
     IndexView, StaffLoginView, StaffLogoutView, NewsView,
-    ProfileView,
+    WorkHubView,
 )
 from patient.views import (
     PatientView, PatientRegisterSuccessView, PatientDetailsView,
@@ -27,7 +27,10 @@ from patient.views import (
 from outpatient.views import OutpatientView
 from inpatient.views import NurseView, InpatientWorkspaceView
 from laboratory.views import InspectionView
-from internalapi.views import NurseAPI, OutpatientAPI, InspectionAPI, PatientViewAPI, PatientUserAPI, InpatientAPI
+from internalapi.views import (
+    NurseAPI, OutpatientAPI, InspectionAPI, PatientViewAPI, PatientUserAPI, 
+    InpatientAPI, PatientDetailsViewAPI
+)
 
 from rbac.management import create_urlpermissions
 
@@ -50,12 +53,12 @@ urlpatterns = [
     # 登出页面
     path('logout/', StaffLogoutView.as_view(), name="logout"),
     # 个人信息页面
-    path('profile/', ProfileView.as_view(), name="profile"),
+    path('workhub/', WorkHubView.as_view(), name="workhub"),
     # 门诊医生工作页面
     path('outpatient-workspace/', OutpatientView.as_view(), name="outpatient-workspace"),
-    # 患者未登录首页
+    # 患者挂号首页
     path('patient/', PatientView.as_view(), name="patient"),
-    # 患者登录后个人界面
+    # 患者个人界面
     path('patient-details/', PatientDetailsView.as_view(), name="patient-details"),
     # 护士门诊
     path('nurse-workspace/', NurseView.as_view(), name="nurse-workspace"),
@@ -77,6 +80,8 @@ urlpatterns = [
     path('InhospitalAPI/', InpatientAPI.as_view(), name="InhospitalAPI"),
     # 近期新闻
     path('news/', NewsView.as_view(), name="news"),
+    # 患者详情页面API
+    path('PatientDetailsViewAPI/', PatientDetailsViewAPI.as_view(), name = "PatientDetailsAPI"),
 ]
 
 # 每次执行 makemigrations, migrate, runserver 等命令时会执行以下过程，
@@ -85,3 +90,7 @@ from django.apps import apps as global_apps
 
 app_config = global_apps.get_app_config("rbac")
 create_urlpermissions(app_config)
+
+# 定时任务
+# 使用如下代码将定时任务引入本文件，应用运行时开始执行
+from .tasks import *

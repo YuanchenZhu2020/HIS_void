@@ -8,7 +8,7 @@ from django.utils import timezone
 
 # 通过 HIS_void.url 自动添加 URL Permissions
 def create_urlpermissions(app_config, **kwargs):
-    # 
+    #
     if not app_config.models_module:
         return
     # 若 AppConfig 不属于 RBAC Application，则不进行权限检查与创建，避免重复执行

@@ -7,12 +7,16 @@
     </script>
     {# 两侧留白较小的容器 #}
     <div class="container-fluid">
-        <div class="page-titles mb-2 mt-0">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item"><a href="{% url "profile" %}">profile</a></li>
-                <li class="breadcrumb-item active"><a href="{% url "nurse-workspace" %}">nurse-workspace</a></li>
+        <nav class="breadcrumb-div" aria-label="breadcrumb" style="padding-right: 0px;">
+            <ol class="breadcrumb breadcrumb-adjust">
+                <li class="breadcrumb-item">
+                    <a href="{% url 'workhub' %}">工作中心</a>
+                </li>
+                <li class="breadcrumb-item bc-active">
+                    <a href="{% url 'nurse-workspace' %}">护士工作站</a>
+                </li>
             </ol>
-        </div>
+        </nav>
         {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为住院患者和待收患者信息，右边为分页表格（病历首页，体征记录等 #}
         <div class="row">
             {# 第一列宽度为3，用于放置住院患者信息和待收患者信息 #}
@@ -268,7 +272,7 @@
                                                 <div class="form-group">
                                                     <div class="input-group input-group-lg mb-4">
                                                         <label class="col-md-1.5 col-form-label text-right">病区床位：</label>
-                                                        <input id="BQCW" class="form-control form-control-lg"
+                                                        <input id="AreaBed" class="form-control form-control-lg"
                                                                onfocus="$('#queryBedBtn').click()" name='BQCW'>
                                                     </div>
                                                 </div>

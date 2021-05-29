@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Channels App for WebSocket
     'channels',
+    # Django Schedule Task
+    'django_apscheduler',
     # Role-Based Access Control
     'rbac',
     # 外部接口
@@ -169,7 +171,7 @@ SAFE_URL = [
     r"/register-success/",  # 注册成功页面
     r"/forgot-password/",  # 忘记密码
     r"/admin/.*",  # 后台管理？
-    r"/profile/",  # 医生主页
+    r"/workhub/",  # 职工工作中心页面
     r"/patient/",  # 病人主页
     r"/patient-details/",  # 病人详细页面
     r"/nurse-workspace/",  # 护士工作台
@@ -182,7 +184,7 @@ SAFE_URL = [
     r"/PatientViewAPI/",  # 病人数据API
     r"/InpatientAPI/",  # 住院医生数据API
     r"/news/",
-
+    r"/PatientDetailsViewAPI", # 患者详情页面API
 ]
 
 # setup session engine to improve performance
@@ -196,3 +198,21 @@ SESSION_ENGINE = "django.contrib.sessions.backends.cached_db"
 # set length of patient id
 PATIENT_ID_LEN = 6
 # PATIENT_AUTH_USER_MODEL = "patient.PatientUser"
+
+
+# Django-Scheduler
+# Format string for displaying run time timestamps in the Django admin site. The default
+# just adds seconds to the standard Django format, which is useful for displaying the timestamps
+# for jobs that are scheduled to run on intervals of less than one minute.
+# 
+# See https://docs.djangoproject.com/en/dev/ref/settings/#datetime-format for format string
+# syntax details.
+APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
+
+# Maximum run time allowed for jobs that are triggered manually via the Django admin site, which
+# prevents admin site HTTP requests from timing out.
+# 
+# Longer running jobs should probably be handed over to a background task processing library
+# that supports multiple background worker processes instead (e.g. Dramatiq, Celery, Django-RQ,
+# etc. See: https://djangopackages.org/grids/g/workers-queues-tasks/ for popular options).
+APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds

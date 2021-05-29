@@ -20,8 +20,8 @@ class UserCreationForm(forms.ModelForm):
     class Meta:
         model = UserInfo
         fields = (
-            "username", "password", 
-            "roles", "groups", "url_permissions", "obj_permissions", 
+            "username", "password",
+            "roles", "groups", "url_permissions", "obj_permissions",
             "is_active", "is_admin", "is_superuser",
         )
 
@@ -77,9 +77,9 @@ class UserAdmin(BaseUserAdmin):
     list_filter = ("is_admin", "create_time")
     fieldsets = (
         (None, {"fields": ("username", "password")}),
-        (_("角色"), {"fields": ("roles", )}), 
-        (_("用户组"), {"fields": ("groups", )}), 
-        (_("直接权限"), {"fields": ("url_permissions", "obj_permissions", )}), 
+        (_("角色"), {"fields": ("roles", )}),
+        (_("用户组"), {"fields": ("groups", )}),
+        (_("直接权限"), {"fields": ("url_permissions", "obj_permissions", )}),
         (_("账号状态"), {"fields": ("is_active", "is_admin", "is_superuser")}),
     )
     # UserAdmin 使用方法 get_fieldsets，通过 add_fieldsets 定义创建对象时所用的字段。
@@ -87,23 +87,23 @@ class UserAdmin(BaseUserAdmin):
         (None, {
             "classes": ("wide",),
             "fields": (
-                "username", "password1", "password2", 
+                "username", "password1", "password2",
             ),
         }),
         (_("角色"), {
             "classes": ("wide", ),
             "fields": ("roles", ),
-        }), 
+        }),
         (_("用户组"), {
-            "classes": ("wide",), 
+            "classes": ("wide",),
             "fields": ("groups", ),
-        }), 
+        }),
         (_("直接权限"), {
-            "classes": ("wide",), 
+            "classes": ("wide",),
             "fields": ("url_permissions", "obj_permissions", )
-        }), 
+        }),
         (_("账号状态"), {
-            "classes": ("wide",), 
+            "classes": ("wide",),
             "fields": (
                 "is_active", "is_admin", "is_superuser"
             )
@@ -123,8 +123,8 @@ class UserGroupAdmin(admin.ModelAdmin):
     list_filter = ("ug_id", "name")
     search_fields = ("ug_id", "name")
     fieldsets = (
-        (None, {"fields": ("name",)}), 
-        (_("直接权限"), {"fields": ("url_permissions", "obj_permissions")}), 
+        (None, {"fields": ("name",)}),
+        (_("直接权限"), {"fields": ("url_permissions", "obj_permissions")}),
         (_("角色"), {"fields": ("roles", )}),
     )
     add_fieldsets = (
@@ -137,7 +137,7 @@ class UserGroupAdmin(admin.ModelAdmin):
 @admin.register(URLPermission)
 class URLPermissionAdmin(admin.ModelAdmin):
     list_display = (
-        "codename", "url_regex", "create_time", 
+        "codename", "url_regex", "create_time",
     )
     list_filter = ("create_time", )
     search_fields = ("codename", "url_regex")
@@ -161,7 +161,7 @@ class RoleAdmin(admin.ModelAdmin):
     search_fields = ("name", "create_time")
     fieldsets = (
         (None, {"fields": ("name", "description")}),
-        (_("直接权限"), {"fields": ("url_permissions", "obj_permissions")}), 
+        (_("直接权限"), {"fields": ("url_permissions", "obj_permissions")}),
     )
     add_fieldsets = (
         (None, {"classes": ("wide",), "fields": ("name", "description", ),}),
