@@ -63,6 +63,12 @@ class RegistrationInfo(models.Model):
         (0, _("门诊")),
         (1, _("急诊")),
     ]
+    
+    INDIAGNOSIS_ITEMS = [
+        (0, _("待诊")),
+        (1, _("诊中")),
+        (2, _("完毕"))
+    ]
 
     patient = models.ForeignKey(
         PatientUser, 
@@ -112,7 +118,12 @@ class RegistrationInfo(models.Model):
         blank = True, 
         verbose_name = _("确诊结果")
     )
-
+    diagnosis_state = models.IntegerField(
+            choices = INDIAGNOSIS_ITEMS,
+            default = 0,
+            verbose_name = _("诊疗状态")
+    )
+    
     class Meta:
         verbose_name = _("挂号信息")
         verbose_name_plural = verbose_name

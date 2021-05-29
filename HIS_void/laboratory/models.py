@@ -84,6 +84,7 @@ class PatientTestItem(models.Model):
     handle_staff = models.ForeignKey(
         Staff, 
         on_delete = models.CASCADE, 
+        null = True,
         related_name = "patient_test_item_set",
         related_query_name = "patient_test_items",
         verbose_name = _("责任人"),
