@@ -253,7 +253,7 @@ class PatientDetailsView(View):
             lambda reg: (
                 reg["doctor_id"], 
                 reg["doctor_name"], 
-                Staff.objects.get_by_user(reg["doctor_id"]).dept.name
+                Staff.objects.get_by_user(reg["doctor_id"]).dept.usergroup.name
             ), 
             diagnosis_data
         )

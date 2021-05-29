@@ -2,6 +2,7 @@ import calendar
 
 from django.utils import timezone, dateparse
 from django.db import transaction
+from django.db.utils import OperationalError
 
 from his.models import DutyRoster
 from outpatient.models import RemainingRegistration
@@ -172,6 +173,10 @@ def delete_past_pm_remaining_registration():
         ).delete()
 
 
-register_events(scheduler)
-scheduler.start()
-print("\033[1;33mScheduler started!\033[0m")
+# 当第一次进行 migrate 时，表不存在，抛出 django.db.utils.OperationalError
+try:
+    register_events(scheduler)
+    scheduler.start()
+    print("\033[1;33mScheduler started!\033[0m")
+except OperationalError:
+    pass

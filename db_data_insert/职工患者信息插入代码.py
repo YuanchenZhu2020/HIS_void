@@ -56,3 +56,4 @@ for i in range(len(sid)):
         staff.title = HospitalTitle.objects.get_by_title_id(int(title[i]))
     staff.job = JobType.objects.get_by_job_id(jobtype[i])
     staff.save()
+
