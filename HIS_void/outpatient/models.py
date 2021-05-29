@@ -118,10 +118,10 @@ class RegistrationInfo(models.Model):
         blank = True, 
         verbose_name = _("确诊结果")
     )
-    diagnosis_state = models.IntegerField(
-            choices = INDIAGNOSIS_ITEMS,
-            default = 0,
-            verbose_name = _("诊疗状态")
+    diagnosis_status  = models.IntegerField(
+        choices = INDIAGNOSIS_ITEMS,
+        default = 2,
+        verbose_name = _("诊疗状态")
     )
     
     class Meta:
