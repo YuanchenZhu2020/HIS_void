@@ -3,7 +3,7 @@ import calendar
 from django.utils import timezone, dateparse
 from django.db import transaction
 
-from .models import DutyRoster
+from his.models import DutyRoster
 from outpatient.models import RemainingRegistration
 
 from apscheduler.schedulers.background import BackgroundScheduler
