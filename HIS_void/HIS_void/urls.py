@@ -91,4 +91,6 @@ from django.apps import apps as global_apps
 app_config = global_apps.get_app_config("rbac")
 create_urlpermissions(app_config)
 
+# 定时任务
+# 使用如下代码将定时任务从各个APP引入本文件，应用运行时开始执行
 from his.tasks import *
