@@ -364,6 +364,11 @@ class DutyRoster(models.Model):
         related_query_name = "duty_rosters",
         verbose_name = _("负责病区"),
     )
+    # is_outpatient = models.BooleanField(
+    #     default = 0,
+    #     verbose_name = _("是否在门诊值班"),
+    #     help_text = _("0代表在住院部值班，1代表在门诊值班。")
+    # )
 
     class Meta:
         verbose_name = _("医务人员排班表")
