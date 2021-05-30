@@ -32,6 +32,7 @@ def get_current_reg_time():
         TARGET_REG_TIME = dateparse.parse_time("13:00:00")
     return TARGET_REG_TIME
 
+
 class OutpatientAPI(View):
     """
     门诊医生工作台数据查询API
@@ -41,7 +42,7 @@ class OutpatientAPI(View):
     def get(self, request):
         query_key_to_func = {
             # 病历首页信息查询
-            "BLSY": self.query_medical_record,
+            "history_sheet": self.query_medical_record,
             # 待诊患者信息查询
             "waiting_diagnosis": self.query_waiting_diagnosis_patients,
             # 诊中患者信息查询
@@ -50,17 +51,18 @@ class OutpatientAPI(View):
             "test_results": self.query_inspect_result,
             # 处方开具，药品检索
             "CFKJ": self.query_medicine,
-            # 待诊患者基础信息
-            "waiting_diagnosis_patient_info": self.query_waiting_diagnosis_patient_info,
-            # 诊中患者基础信息
-            "in_diagnosis_patient_info": self.query_in_diagnosis_patient_info
+            # 患者基础信息查询
+            "patient_base_info": self.query_patient_base_info
         }
         # 获取需要查询的信息类型
         query_information = request.GET.get('get_param')
         data = query_key_to_func.get(query_information)(request)
+        print('====== OutpatientAPI GET ======')
+        print(request.GET)
+        print('====== OutpatientAPI GET ======')
         return JsonResponse(data, safe=False)
 
-    # 病历首页查询
+    # 病历首页查询（完成）
     def query_medical_record(self, request):
         regis_id = request.GET.get('regis_id')
         regis_info = RegistrationInfo.objects.get(id=regis_id)
@@ -71,8 +73,34 @@ class OutpatientAPI(View):
             'illness_date': regis_info.illness_date}
         return data
 
-    # 待诊患者基础信息查询
-    def query_waiting_diagnosis_patient_info(self, request):
+    # 待诊患者查询
+    def query_waiting_diagnosis_patients(self, request):
+        staff_id = request.session["username"]
+        TARGET_REG_TIME = get_current_reg_time()
+        # 查询指定医生在当前就诊时段的所有还没有开始诊疗的患者
+        # 即：匹配医生ID、日期、时间，并且患者主诉为空
+        # 查询挂号数据
+        regis_info = RegistrationInfo.objects.filter(
+            diagnosis_status=0,  # 判断诊断结果为待诊
+            medical_staff__user__username=staff_id,  # 挂医生的号
+            registration_date__time=TARGET_REG_TIME,  # 判断上下午
+            registration_date__date=timezone.localdate(),  # 判断今天
+        ).values_list(
+            "id", "patient__name", "patient__gender"
+        )
+        data = []
+        gender_convert = dict(PatientUser.SEX_ITEMS)
+        for regis in regis_info:
+            patient_details = dict(zip(
+                ['id', 'name', 'gender'],
+                [regis[0], regis[1], gender_convert[regis[2]]]
+            ))
+            data.append(patient_details)
+        print("医生编号", staff_id)
+        return data
+
+    # 患者基础信息查询
+    def query_patient_base_info(self, request):
         regis_id = request.GET.get('regis_id')
         regis_info = RegistrationInfo.objects.get(id=regis_id)
         print("=======START outpatientAPI GET========")
@@ -87,74 +115,30 @@ class OutpatientAPI(View):
             'age': (timezone.now().date() - regis_info.patient.birthday).days // 365,
         }
         return data
-        pass
-    def query_in_diagnosis_patient_info(self, request):
-        data = {
-            '心肺听诊': '水肿,粪便可见嗜酸性WBC',
-            '脑CT': '镜下镰形细胞,粘液变性',
-            '粪便常规': '粪便可见RBC'
-        }
-        return data
-
-    # 待诊患者查询
-    def query_waiting_diagnosis_patients(self, request):
-        """
-        查询待诊患者。
-
-        数据格式示例：[{
-            "regis_id": "1",
-            "name": "李国铭",
-            "gender": "男",
-        },...]
-        """
-        staff_id = request.session["username"]
-        TARGET_REG_TIME = get_current_reg_time()
-        # 查询指定医生在当前就诊时段的所有还没有开始诊疗的患者
-        # 即：匹配医生ID、日期、时间，并且患者主诉为空
-        regis_info = RegistrationInfo.objects.filter(
-            medical_staff__user__username = staff_id,
-            registration_date__time = TARGET_REG_TIME,
-            registration_date__date = timezone.localdate(),
-            chief_complaint__isnull = True,
-        ).values_list(
-            "id", "patient__name", "patient__gender"
-        )
-        data = []
-        gender_convert = dict(PatientUser.SEX_ITEMS)
-        for regis in regis_info:
-            # 医生工作4个小时
-            patient_details = dict(zip(
-                ['id', 'name', 'gender'],
-                [regis[0], regis[1], gender_convert[regis[2]]]
-            ))
-            data.append(patient_details)
-            # print(patient_details)
-        print("医生编号", staff_id)
-        return data
 
     # 诊中患者查询
     def query_in_diagnosis_patients(self, request):
         staff_id = request.session["username"]
-        TARGET_REG_TIME = get_current_reg_time()
-        # 查询指定医生在当前就诊时段的所有开始诊疗但还没确诊的患者
-        # 即：匹配医生ID、日期、时间，并且患者已经进行了主诉，但确诊结果为空
-        regis_info = RegistrationInfo.objects.filter(
-            medical_staff__user__username = staff_id,
-            chief_complaint__isnull = False,
-            diagnosis_results__isnull = True,
-        ).values_list(
-            "id", "patient__name", "patient__gender"
-        )
         data = []
-        gender_convert = dict(PatientUser.SEX_ITEMS)
+        # 挂该医生的号，同时挂号状态为诊中
+        regis_info = RegistrationInfo.objects.filter(
+            medical_staff__user__username=staff_id,  # 挂该医生的号
+            diagnosis_status=1  # 诊断状态为诊中
+        )
         for regis in regis_info:
-            patient_details = dict(zip(
-                ['regis_id', 'name', 'gender'],
-                [regis[0], regis[1], gender_convert[regis[2]]]
-            ))
-            data.append(patient_details)
-            # print(patient_details)
-        print("医生编号", staff_id)
+            # 找到该挂号下所有的检验信息
+            all_test_info = PatientTestItem.objects.filter(
+                registration_info_id=regis.id,  # 该挂号的所有检验
+            )
+            print(regis.id)
+            print(all_test_info)
+            all_test_num = finished_test_num = 0
+            for test_info in all_test_info:
+                all_test_num += 1
+                if test_info.inspect_status == 1:
+                    finished_test_num += 1
+            data.append({'regis_id': regis.id, 'name': regis.patient.name,
+                         'progress': int((finished_test_num / all_test_num) * 100)})
         return data
 
     # 检查结果查询
@@ -185,7 +169,7 @@ class OutpatientAPI(View):
 
     # region OutpatientAPI post部分
     def post(self, request):
-        query_key_to_func = {
+        post_key_to_func = {
             # 检查项目提交
             "inspection": self.post_inspection,
             # 病历首页提交
@@ -208,13 +192,16 @@ class OutpatientAPI(View):
         history_sheet -> 病历首页
         '''
         # 根据参数直接映射对应的函数，并执行
-        query_key_to_func[post_param](data)
+        post_key_to_func[post_param](request)
 
         # 这条语句并不会使页面刷新
         return redirect(reverse("outpatient-workspace"))
 
-    # 提交病历首页部分
-    def post_history_sheet(self, data):
+    def null_string_to_none(self, string):
+        return None if string == '' else string
+
+    # 提交病历首页部分（完成）
+    def post_history_sheet(self, request):
         """ 【request.POST】内容
         <QueryDict: {
             'regis_id': ['19'],
@@ -227,24 +214,19 @@ class OutpatientAPI(View):
         """
         with transaction.atomic():  # 事务原子性保证
             pass  # 病历首页数据库操作
-            ''' 我的之前的存储代码，后端人员可以重新编写
+            # 我的之前的存储代码，后端人员可以重新编写
             RegistrationInfo.objects.filter(
-                id=data['regis_id']
+                id=request.POST.get('regis_id')
             ).update(
-                chief_complaint=data['chief_complaint'],
-                illness_date=data['illness_date']
+                chief_complaint=self.null_string_to_none(request.POST.get('chief_complaint')),
+                illness_date=self.null_string_to_none(request.POST.get('illness_date'))
             )
             PatientUser.objects.filter(
-                registrations__id=data['regis_id']
+                registrations__id=self.null_string_to_none(request.POST.get('regis_id'))
             ).update(
-                allegic_history=data['allegic_history'],
-                past_illness=data['past_illness']
+                allegic_history=self.null_string_to_none(request.POST.get('allegic_history')),
+                past_illness=self.null_string_to_none(request.POST.get('past_illness'))
             )
-            print("========= 挂号信息 ==========")
-            print(RegistrationInfo.objects.filter(
-                id=data['regis_id']
-            ))
-            '''
 
     # 检查检验部分
     def post_inspection(self, data):
@@ -501,14 +483,14 @@ class PatientRegisterAPI(View):
         reg_date = request.GET.get('date')
         # 构造挂号时段
         reg_datetime = {
-            "AM": dateparse.parse_datetime(reg_date + " 08:00:00").astimezone(timezone.utc), 
+            "AM": dateparse.parse_datetime(reg_date + " 08:00:00").astimezone(timezone.utc),
             "PM": dateparse.parse_datetime(reg_date + " 13:00:00").astimezone(timezone.utc)
         }
         dept_id = int(request.GET.get('KS_id'))
         # 获取指定科室、指定时段的剩余挂号信息
         reginfo_detail = RemainingRegistration.objects.filter(
-            medical_staff__dept__usergroup__ug_id = dept_id,
-            register_date__in = reg_datetime.values()
+            medical_staff__dept__usergroup__ug_id=dept_id,
+            register_date__in=reg_datetime.values()
         ).values_list(
             "medical_staff__user__username",
             "medical_staff__name",
@@ -528,13 +510,13 @@ class PatientRegisterAPI(View):
                 "doctor_name": regdetail[1],
                 "price": regdetail[2],
                 "AM": reginfo_detail.filter(
-                        medical_staff__user__username = regdetail[0],
-                        register_date = reg_datetime["AM"]
-                    ).values_list("remain_quantity", flat = True)[0],
+                    medical_staff__user__username=regdetail[0],
+                    register_date=reg_datetime["AM"]
+                ).values_list("remain_quantity", flat=True)[0],
                 "PM": reginfo_detail.filter(
-                        medical_staff__user__username = regdetail[0],
-                        register_date = reg_datetime["PM"]
-                    ).values_list("remain_quantity", flat = True)[0],
+                    medical_staff__user__username=regdetail[0],
+                    register_date=reg_datetime["PM"]
+                ).values_list("remain_quantity", flat=True)[0],
             }
             reginfo.append(doc_reg)
         return reginfo
@@ -551,7 +533,7 @@ class PatientRegisterAPI(View):
             "token": token, 
             "submit_url": reverse(PatientRegisterAPI.SUBMIT_URL_NAME)
         }
-        return JsonResponse(data, safe = False)
+        return JsonResponse(data, safe=False)
 
     def post(self, request):
         # 获取请求中的信息
@@ -583,19 +565,19 @@ class PatientRegisterAPI(View):
         with transaction.atomic():
             # 更新剩余挂号数
             remain_reg_record = RemainingRegistration.objects.get(
-                medical_staff__user__username = reg_info["doctor_id"],
-                register_date = reg_info["reg_datetime"]
+                medical_staff__user__username=reg_info["doctor_id"],
+                register_date=reg_info["reg_datetime"]
             )
             remain_reg_record.remain_quantity = remain_reg_record.remain_quantity - 1
             remain_reg_record.save()
             # 写入挂号信息
             reg_id = patient.registration_set.count() + 1
             reg_record = RegistrationInfo.objects.create(
-                patient = patient,
-                reg_id = reg_id,
-                medical_staff = doctor,
-                registration_date = reg_info["reg_datetime"],
-                reg_class = 1 if reg_info["is_emergency"] else 0
+                patient=patient,
+                reg_id=reg_id,
+                medical_staff=doctor,
+                registration_date=reg_info["reg_datetime"],
+                reg_class=1 if reg_info["is_emergency"] else 0
             )
         return JsonResponse(
             {
@@ -619,26 +601,26 @@ class PatientFastRegisterAPI(PatientRegisterAPI):
         doctor_id = request.GET.get("doctor_id")
         reg_date = request.GET.get("reg_date")
         reg_datetime = {
-            "AM": dateparse.parse_datetime(reg_date + " 08:00:00").astimezone(timezone.utc), 
+            "AM": dateparse.parse_datetime(reg_date + " 08:00:00").astimezone(timezone.utc),
             "PM": dateparse.parse_datetime(reg_date + " 13:00:00").astimezone(timezone.utc)
         }
         reginfo_detail = RemainingRegistration.objects.filter(
-            medical_staff__user__username = doctor_id,
-            register_date__in = reg_datetime.values(),
+            medical_staff__user__username=doctor_id,
+            register_date__in=reg_datetime.values(),
         )
         doc_reg = None
         if len(reginfo_detail) > 0:
             doc_reg = {
                 "dept_name": reginfo_detail.values_list(
-                        "medical_staff__dept__usergroup__name",
-                        flat = True,
-                    ).distinct()[0],
+                    "medical_staff__dept__usergroup__name",
+                    flat=True,
+                ).distinct()[0],
                 "AM": reginfo_detail.filter(
-                        register_date = reg_datetime["AM"]
-                    ).values_list("remain_quantity", flat = True)[0],
+                    register_date=reg_datetime["AM"]
+                ).values_list("remain_quantity", flat=True)[0],
                 "PM": reginfo_detail.filter(
-                        register_date = reg_datetime["PM"]
-                    ).values_list("remain_quantity", flat = True)[0],
+                    register_date=reg_datetime["PM"]
+                ).values_list("remain_quantity", flat=True)[0],
             }
         return doc_reg
 

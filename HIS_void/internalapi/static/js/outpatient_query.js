@@ -13,6 +13,36 @@ function StringFormat() {
     return str;
 }
 
+
+// 查询待诊患者
+function query_waiting_diagnosis_patients() {
+    $.ajax({
+        type: "get",
+        url: URL,
+        dataType: 'json',
+        data: {
+            get_param: 'waiting_diagnosis'
+        },
+        success: function (data) {
+            console.log(data);
+            for (let i = 0; i < data.length; i++) {
+                let patient = data[i];
+                let td = '<td>' + patient.name + '</td>';
+                let td1 = '<td>' + patient.gender + '</td>';
+                let id = patient.id
+                let tr = $("<tr onclick='waiting_diagnosis_patient_info(" + id + ")'></tr>");
+                tr.append(td);
+                tr.append(td1);
+                $("#waiting_diagnosis").append(tr);
+            }
+        },
+        error: function (err) {
+            alert("请求服务器失败！");
+            console.log(err);
+        }
+    });
+}
+
 // 查询待诊患者的所有需要的信息
 function waiting_diagnosis_patient_info(regis_id) {
     $.ajax({
@@ -21,7 +51,7 @@ function waiting_diagnosis_patient_info(regis_id) {
         dataType: 'json',
         data: {
             regis_id: regis_id,
-            get_param: 'waiting_diagnosis_patient_info',
+            get_param: 'patient_base_info',
         },
         success: function (data) {
             // 设置最上面显示的患者信息
@@ -50,7 +80,7 @@ function in_diagnosis_patient_info(regis_id) {
         dataType: 'json',
         data: {
             regis_id: regis_id,
-            get_param: 'in_diagnosis_patient_info',
+            get_param: 'patient_base_info',
         },
         success: function (data) {
             // 设置最上面显示的患者信息
@@ -137,7 +167,7 @@ function QueryHistorySheet(regis_id) {
         dataType: 'json',
         data: {
             regis_id: regis_id,
-            get_param: 'BLSY'
+            get_param: 'history_sheet'
         },
         success: function (data) {
             console.log("病历首页数据")
@@ -145,7 +175,7 @@ function QueryHistorySheet(regis_id) {
             $("#chief_complaint").val(data.chief_complaint);
             $("#past_illness").val(data.past_illness);
             $("#allegic_history").val(data.allegic_history);
-            $("#illness_date").attr('placeholder', data.illness_date);
+            $("#illness_date").val(data.illness_date);
             $("#togo_history_sheet").click();
         },
         error: function (err) {
@@ -155,34 +185,6 @@ function QueryHistorySheet(regis_id) {
     })
 }
 
-// 查询待诊患者
-function query_waiting_diagnosis_patients() {
-    $.ajax({
-        type: "get",
-        url: URL,
-        dataType: 'json',
-        data: {
-            get_param: 'waiting_diagnosis'
-        },
-        success: function (data) {
-            console.log(data);
-            for (let i = 0; i < data.length; i++) {
-                let patient = data[i];
-                let td = '<td>' + patient.name + '</td>';
-                let td1 = '<td>' + patient.gender + '</td>';
-                let id = patient.id
-                let tr = $("<tr onclick='waiting_diagnosis_patient_info(" + id + ")'></tr>");
-                tr.append(td);
-                tr.append(td1);
-                $("#DZHZ").append(tr);
-            }
-        },
-        error: function (err) {
-            alert("请求服务器失败！");
-            console.log(err);
-        }
-    });
-}
 
 // 查询诊中患者
 function QueryInDiagnosisPatient() {
@@ -198,12 +200,22 @@ function QueryInDiagnosisPatient() {
             console.log(data);
             for (let i = 0; i < data.length; i++) {
                 let patient = data[i];
-                let td = '<td>' + patient.name + '</td>';
-                let td1 = '<td>' + patient.status + '</td>';
-                let tr = $(StringFormat("<tr onclick='in_diagnosis_patient_info({0})'></tr>", data.regis_id));
-                tr.append(td);
-                tr.append(td1);
-                $("#ZZHZ").append(tr);
+                let progress = '<div class="progress"><div class="progress-bar {1}"' +
+                    ' aria-valuenow="{0}" aria-valuemin="0" ' +
+                    'aria-valuemax="100" style="width:{0}%; height:10px;" role="progressbar"></div></div>'
+                if (patient.progress == 100) {
+                    progress = StringFormat(progress, patient.progress, 'bg-success')
+                } else {
+                    progress = StringFormat(progress, patient.progress, 'bg-info progress-bar-striped')
+                }
+                console.log(progress)
+                let tr = StringFormat(
+                    '<tr onclick=in_diagnosis_patient_info({0})><td>{1}</td><td>{2}</td></tr>',
+                    patient.regis_id,
+                    patient.name,
+                    progress
+                );
+                $("#in_diagnosis").append(tr);
             }
         },
         error: function (err) {
@@ -549,9 +561,7 @@ function PostHisTorySheet(csrf_token) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
         success: function (result) {
-            alert("ajax提交成功，请使用submitAlert显示提示信息！");
             submitAlert("提交成功", "患者信息已更新", "success");
-            console.log(result);
         },
         error: function (data) {
             alert("异常！");
