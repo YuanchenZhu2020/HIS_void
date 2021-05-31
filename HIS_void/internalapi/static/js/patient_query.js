@@ -220,3 +220,52 @@ function QueryDocReg(doctor_id, doctor_name, date) {
         }
     })
 }
+
+// 获取挂号信息详情
+function diagnosis_detail(reg_id) {
+    let URL = "/PatientTreatmentDetailAPI"
+    $.ajax({
+        type: "GET",
+        url: URL,
+        data: {
+            "reg_id": reg_id,
+            "type": "REG"
+        },
+        success: data => {
+            $("#" + reg_id + "-ap-date").children("span").text(data["ap_date"]);
+            $("#" + reg_id + "-reg-class").children("span").text(data["reg_class"]);
+            $("#" + reg_id + "-ill-date").children("span").text(data["ill_date"]);
+            $("#" + reg_id + "-chief-complaint").children("span").text(data["chief_complaint"]);
+            $("#" + reg_id + "-diag-result").children("span").text(data["diag_result"]);
+        },
+        error: error => {
+            console.log(error);
+            alert("无法获取数据，请检查您是否联网");
+        }
+    })
+}
+
+// 获取检查信息详情
+function check_detail(reg_id, test_id) {
+    let URL = "/PatientTreatmentDetailAPI"
+    $.ajax({
+        type: "GET",
+        url: URL,
+        data: {
+            "reg_id": reg_id,
+            "test_id": test_id,
+            "type": "CHE"
+        },
+        success: data => {
+            let pre_id = StringFormat("#{0}-{1}-", reg_id, test_id);
+            $(pre_id + "test-name").children("span").text(data["test_name"]);
+            $(pre_id + "doctor-name").children("span").text(data["doctor_name"]);
+            $(pre_id + "issue-date").children("span").text(data["issue_date"]);
+            $(pre_id + "result").children("span").text(data["result"]);
+        },
+        error: error => {
+            console.log(error);
+            alert("无法获取数据，请检查您是否联网");
+        }
+    })
+}

@@ -29,7 +29,7 @@ from inpatient.views import NurseView, InpatientWorkspaceView
 from laboratory.views import InspectionView
 from internalapi.views import (
     NurseAPI, OutpatientAPI, InspectionAPI, PatientRegisterAPI, PatientUserAPI, 
-    InpatientAPI, PatientFastRegisterAPI
+    InpatientAPI, PatientFastRegisterAPI, PatientTreatmentDetails,
 )
 
 from rbac.management import create_urlpermissions
@@ -82,6 +82,8 @@ urlpatterns = [
     path('news/', NewsView.as_view(), name="news"),
     # 患者详情页面API
     path('PatientFastRegisterAPI/', PatientFastRegisterAPI.as_view(), name = "PatientFastRegisterAPI"),
+    # 患者治疗信息查询API
+    path('PatientTreatmentDetailAPI/', PatientTreatmentDetails.as_view(), name = "PatientTreatmentDetailAPI"),
 ]
 
 # 每次执行 makemigrations, migrate, runserver 等命令时会执行以下过程，

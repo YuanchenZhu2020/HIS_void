@@ -352,38 +352,81 @@
                                                                         <td>{{ item.date|date:"Y-m-d" }}</td>
                                                                         <td>{{ item.doctor_name }}</td>
                                                                         <td>{{ item.diagnosis_result|default_if_none:"" }}</td>
-                                                                        <!-- <td>
-                                                                            <button type="button"
-                                                                                    class="btn btn-success light sharp"
-                                                                                    href="#"
-                                                                                    style="width: 80px">
-                                                                                再次预约
-                                                                            </button>
-                                                                        </td> -->
                                                                         <td>
                                                                             <button
-                                                                                    {#onclick="Details({{ item.id }})"#}
+                                                                                    onclick="diagnosis_detail('{{ item.reg_id }}')"
                                                                                     type="button"
                                                                                     class="btn btn-success light sharp"
                                                                                     data-toggle="modal"
-                                                                                    data-target="#QZXQModal{{ item.id }}"
+                                                                                    data-target="#QZXQModal{{ item.reg_id }}"
                                                                                     style="width: 80px">
                                                                                 确诊详情
                                                                             </button>
                                                                             <!-- 确诊详情弹窗 -->
                                                                             <div class="modal fade"
-                                                                                 id="QZXQModal{{ item.id }}">
-                                                                                <div class="modal-dialog">
+                                                                                 id="QZXQModal{{ item.reg_id }}">
+                                                                                <div class="modal-dialog modal-lg">
                                                                                     <div class="modal-content">
                                                                                         <div class="modal-header">
                                                                                             <h4 class="modal-title"
                                                                                                 id="JGXQModalLabel">
-                                                                                                确诊详情{{ item.id }}
+                                                                                                确诊详情
                                                                                             </h4>
                                                                                         </div>
                                                                                         <div class="modal-body">
-                                                                                            在这里添加一些文本
-                                                                                            写下很多很多很多结果信息，或许可以放图片
+                                                                                            <div class="diagnosis-info">
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">挂号编号<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-reg-id"><span>{{ item.reg_id }}</span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">责任医生<span class="pull-right">:</span>
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-doctor-name"><span>{{ item.doctor_name }}</span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">预约时间<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-ap-date"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">挂号时间<span class="pull-right">:</span>
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-reg-date"><span>{{ item.date|date:"Y年m月d日 D H:i:s" }}</span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">挂号类别<span class="pull-right">:</span>
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-reg-class"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">患病时间<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-ill-date"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">病情描述<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-chief-complaint"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">确诊结果<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-diag-result"><span></span></div>
+                                                                                                </div>
+                                                                                            </div>
                                                                                         </div>
                                                                                         <div class="modal-footer">
                                                                                             <button type="button"
@@ -425,26 +468,65 @@
                                                                         <td>{{ item.name }}</td>
                                                                         <td>{{ item.result|default_if_none:"（等待结果中）" }}</td>
                                                                         <td>
-                                                                            <button type="button"
+                                                                            <button onclick="check_detail({{ item.reg_id }},{{ item.test_id }})"
+                                                                                    type="button"
                                                                                     class="btn btn-success light sharp"
                                                                                     data-toggle="modal"
-                                                                                    data-target="#JGXQModal{{ item.id }}"
+                                                                                    data-target="#JGXQModal{{ item.reg_id }}-{{ item.test_id }}"
                                                                                     style="width: 80px">
                                                                                 检查详情
                                                                             </button>
                                                                             <!-- 检查详情弹窗 -->
                                                                             <div class="modal fade"
-                                                                                    id="JGXQModal{{ item.id }}">
+                                                                                    id="JGXQModal{{ item.reg_id }}-{{ item.test_id }}">
                                                                                 <div class="modal-dialog">
                                                                                     <div class="modal-content">
                                                                                         <div class="modal-header">
                                                                                             <h4 class="modal-title" id="">
-                                                                                                检查结果{{ item.id }}
+                                                                                                检查结果
                                                                                             </h4>
                                                                                         </div>
                                                                                         <div class="modal-body">
-                                                                                            在这里添加一些文本
-                                                                                            写下很多很多很多结果信息，或许可以放图片
+                                                                                            <div class="test-info">
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">挂号编号<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-reg-id"><span>{{ item.reg_id }}</span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">检验编号<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-test-id"><span>{{ item.test_id }}</span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">检验项目<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-test-name"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">责任医生<span class="pull-right">:</span>
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-doctor-name"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">开具时间<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-issue-date"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">检验结果<span class="pull-right">:</span>
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-result"><span></span></div>
+                                                                                                </div>
+                                                                                            </div>
                                                                                         </div>
                                                                                         <div class="modal-footer">
                                                                                             <button type="button"
