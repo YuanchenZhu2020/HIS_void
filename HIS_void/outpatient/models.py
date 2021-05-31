@@ -123,11 +123,11 @@ class RegistrationInfo(models.Model):
         default = 2,
         verbose_name = _("诊疗状态")
     )
-    
+
     class Meta:
         verbose_name = _("挂号信息")
         verbose_name_plural = verbose_name
-        unique_together = ["patient", "reg_id"]
+        unique_together = [["patient", "reg_id"], ["patient", "medical_staff", "registration_date"]]
 
     def __str__(self) -> str:
         return "<Registration {}-{}>".format(self.patient.get_patient_id(), self.reg_id)
