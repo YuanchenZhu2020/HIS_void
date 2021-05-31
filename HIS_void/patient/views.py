@@ -144,7 +144,7 @@ class PatientView(View):
 
     DEPT_DATA_CACHE = None
     REG_DATES_CACHE = None
-    UPDATE_DATE = None  
+    UPDATE_DATE = None
 
     def get(self, request):
         print("[Patient Workspace View]", request.user)
@@ -168,7 +168,7 @@ class PatientView(View):
             PatientView.UPDATE_DATE = timezone.localdate()
         context = {
             "DeptsData": PatientView.DEPT_DATA_CACHE,
-            "RegDates": PatientView.REG_DATES_CACHE
+            "RegDates": PatientView.REG_DATES_CACHE,
         }
         return render(request, PatientView.template_name, context = context)
 
@@ -192,6 +192,7 @@ class PatientRegisterSuccessView(View):
 
 
 @method_decorator(patient_login_required(login_url = "/login-patient"), name = "get")
+@method_decorator(patient_login_required(login_url = "/login-patient"), name = "post")
 class PatientDetailsView(View):
     template_name = "patient-details.html"
 
@@ -230,7 +231,7 @@ class PatientDetailsView(View):
             "-reg_id"
         ).values_list(
             "reg_id", 
-            "registration_date__date", 
+            "registration_date", 
             "medical_staff__user__username", 
             "medical_staff__name", 
             "diagnosis_results"
@@ -343,6 +344,7 @@ class PatientDetailsView(View):
         ).order_by(
             "-test_id"
         ).values_list(
+            "registration_info__reg_id",
             "test_id", 
             "issue_time", 
             "test_item__inspect_name", 
@@ -351,7 +353,7 @@ class PatientDetailsView(View):
         tests_data = []
         for history_test in history_tests:
             tests_data.append(dict(zip(
-                ["test_id", "date", "name", "result"], history_test
+                ["reg_id", "test_id", "date", "name", "result"], history_test
             )))
 
         # 登录人个人信息

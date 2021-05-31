@@ -474,11 +474,11 @@ class InspectionAPI(View):
 
 
 @method_decorator(patient_login_required(login_url = "/login-patient/"), name = "post")
-class PatientViewAPI(View):
+class PatientRegisterAPI(View):
     """
-    患者挂号查询API
+    患者挂号查询与提交API
     """
-    SUBMIT_URL_NAME = "PatientViewAPI"
+    SUBMIT_URL_NAME = "PatientRegisterAPI"
     patient_next_url_name = "patient-details"
 
     def query_registration_info(self, request):
@@ -531,9 +531,9 @@ class PatientViewAPI(View):
         from django.middleware.csrf import get_token
         token = get_token(request)
         data = {
-            "query_data": query_data,
-            "token": token,
-            "submit_url": reverse(PatientViewAPI.SUBMIT_URL_NAME)
+            "query_data": query_data, 
+            "token": token, 
+            "submit_url": reverse(PatientRegisterAPI.SUBMIT_URL_NAME)
         }
         return JsonResponse(data, safe = False)
 
@@ -545,7 +545,6 @@ class PatientViewAPI(View):
         reg_info["is_emergency"] = Staff.objects.get_by_user(
             reg_info["doctor_id"]
         ).dept == Department.objects.get_by_dept_name("急诊科")
-        print(reg_info)
         with transaction.atomic():
             # 更新剩余挂号数
             remain_reg_record = RemainingRegistration.objects.get(
@@ -567,17 +566,17 @@ class PatientViewAPI(View):
                 reg_class = 1 if reg_info["is_emergency"] else 0
             )
         return JsonResponse(
-            {"status": True, "redirect_url": reverse(PatientViewAPI.patient_next_url_name)},
+            {"status": True, "redirect_url": reverse(PatientRegisterAPI.patient_next_url_name)}, 
             safe = False
         )
 
 
 @method_decorator(patient_login_required(login_url = "/login-patient/"), name = "post")
-class PatientDetailsViewAPI(PatientViewAPI):
+class PatientFastRegisterAPI(PatientRegisterAPI):
     """
     患者详情页面API，主要用于查询指定医生挂号信息，以便患者快速挂号
     """
-    SUBMIT_URL_NAME = "PatientDetailsViewAPI"
+    SUBMIT_URL_NAME = "PatientFastRegisterAPI"
     patient_next_url_name = "patient-details"
 
     def query_registration_info(self, request):
@@ -606,6 +605,76 @@ class PatientDetailsViewAPI(PatientViewAPI):
                     ).values_list("remain_quantity", flat = True)[0],
             }
         return doc_reg
+
+
+@method_decorator(patient_login_required(login_url = "/login-patient/"), name = "get")
+class PatientTreatmentDetails(View):
+    """
+    患者治疗详情查询API，包括挂号详情、检查详情
+    """
+
+    def query_dianosis_detail(self, request):
+        patient_id = int(request.session["patient_id"])
+        patient = PatientUser.objects.get_by_patient_id(patient_id)
+        reg_id = request.GET.get("reg_id")
+        reg_info = RegistrationInfo.objects.filter(patient = patient, reg_id = reg_id).values_list(
+            "medical_staff__name",
+            "appointment_date",
+            "registration_date",
+            "reg_class",
+            "illness_date",
+            "chief_complaint",
+            "diagnosis_results",
+        )[0]
+        reg_info = dict(zip(
+            [
+                "reg_id", "doctor_name", "ap_date", "reg_date", "reg_class", 
+                "ill_date", "chief_complaint", "diag_result"
+            ],
+            (reg_id,) + reg_info
+        ))
+        reg_info["reg_class"] = "普通门诊" if reg_info["reg_class"] == 0 else "急诊"
+        # print(timezone.make_naive(reg_info["ap_date"]))
+        ap_date = timezone.make_naive(reg_info["ap_date"])
+        reg_info["ap_date"] = "{0.year}年{0.month:>02d}月{0.day:>02d}日".format(ap_date) + " " + ap_date.strftime("%H:%M:%S")
+        return reg_info
+
+    def query_check_detail(self, request):
+        patient_id = int(request.session["patient_id"])
+        patient = PatientUser.objects.get_by_patient_id(patient_id)
+        reg_id = request.GET.get("reg_id")
+        test_id = request.GET.get("test_id")
+        test_info = PatientTestItem.objects.filter(
+            registration_info__patient = patient, 
+            registration_info__reg_id = reg_id, 
+            test_id = test_id
+        ).values_list(
+            "test_item__inspect_name", 
+            "handle_staff__name",
+            "issue_time", 
+            "test_results",
+        )[0]
+        test_info = dict(zip(
+            ["reg_id", "test_id", "test_name", "doctor_name", "issue_date", "result"],
+            (reg_id, test_id) + test_info
+        ))
+        if test_info["result"] is None:
+            test_info["result"] = "（等待结果中）"
+        issue_date = timezone.make_naive(test_info["issue_date"])
+        test_info["issue_date"] = "{0.year}年{0.month:>02d}月{0.day:>02d}日".format(issue_date)
+        return test_info
+
+    def get(self, request):
+        query_key_to_func = {
+            # 挂号详情查询
+            "REG": self.query_dianosis_detail,
+            # 检查详情查询
+            "CHE": self.query_check_detail,
+        }
+        query_key = request.GET.get("type")
+
+        data = query_key_to_func[query_key](request)
+        return JsonResponse(data, safe = False)
 
 
 # 病人基础信息API，用于医生获取病人基础数据
