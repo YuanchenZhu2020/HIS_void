@@ -15,7 +15,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from his.models import Department, DeptAreaBed, Staff
 from inpatient.models import HospitalRegistration, OperationInfo
-from outpatient.models import RemainingRegistration, RegistrationInfo, Prescription
+from outpatient.models import RemainingRegistration, RegistrationInfo, Prescription, PrescriptionDetail
 from patient.models import PatientUser
 from rbac.decorators import patient_login_required
 from pharmacy.models import MedicineInfo
@@ -42,7 +42,7 @@ class OutpatientAPI(View):
     def get(self, request):
         query_key_to_func = {
             # 病历首页信息查询
-            "history_sheet": self.query_medical_record,
+            "history_sheet": self.query_history_sheet,
             # 待诊患者信息查询
             "waiting_diagnosis": self.query_waiting_diagnosis_patients,
             # 诊中患者信息查询
@@ -50,20 +50,25 @@ class OutpatientAPI(View):
             # 检查结果信息查询
             "test_results": self.query_inspect_result,
             # 处方开具，药品检索
-            "CFKJ": self.query_medicine,
+            "medicine_info": self.query_medicine_info,
             # 患者基础信息查询
-            "patient_base_info": self.query_patient_base_info
+            "patient_base_info": self.query_patient_base_info,
+            # 确诊结果查询
+            "diagnosis_results": self.query_diagnosis_results,
+            # 医嘱查询
+            "medical_advice": self.query_medical_advice
         }
         # 获取需要查询的信息类型
         query_information = request.GET.get('get_param')
         data = query_key_to_func.get(query_information)(request)
         print('====== OutpatientAPI GET ======')
-        print(request.GET)
+        print('【request.GET】', request.GET)
+        print('【regis_id】', request.GET.get('regis_id'))
         print('====== OutpatientAPI GET ======')
         return JsonResponse(data, safe=False)
 
     # 病历首页查询（完成）
-    def query_medical_record(self, request):
+    def query_history_sheet(self, request):
         regis_id = request.GET.get('regis_id')
         regis_info = RegistrationInfo.objects.get(id=regis_id)
         data = {
@@ -73,7 +78,7 @@ class OutpatientAPI(View):
             'illness_date': regis_info.illness_date}
         return data
 
-    # 待诊患者查询
+    # 待诊患者查询（完成）
     def query_waiting_diagnosis_patients(self, request):
         staff_id = request.session["username"]
         TARGET_REG_TIME = get_current_reg_time()
@@ -99,14 +104,10 @@ class OutpatientAPI(View):
         print("医生编号", staff_id)
         return data
 
-    # 患者基础信息查询
+    # 患者基础信息查询（完成）
     def query_patient_base_info(self, request):
         regis_id = request.GET.get('regis_id')
         regis_info = RegistrationInfo.objects.get(id=regis_id)
-        print("=======START outpatientAPI GET========")
-        print(regis_info.__dict__)
-        print(regis_info.patient.__dict__)
-        print("========END outpatientAPI GET========")
         gender_convert = ["男", "女"]
         data = {
             'no': regis_info.patient.patient_id,
@@ -130,8 +131,7 @@ class OutpatientAPI(View):
             all_test_info = PatientTestItem.objects.filter(
                 registration_info_id=regis.id,  # 该挂号的所有检验
             )
-            print(regis.id)
-            print(all_test_info)
+            # 初始化总检验项目及已完成检验项目
             all_test_num = finished_test_num = 0
             for test_info in all_test_info:
                 all_test_num += 1
@@ -143,15 +143,35 @@ class OutpatientAPI(View):
 
     # 检查结果查询
     def query_inspect_result(self, request):
-        data = {
-            '心肺听诊': '水肿,粪便可见嗜酸性WBC',
-            '脑CT': '镜下镰形细胞,粘液变性',
-            '粪便常规': '粪便可见RBC'
-        }
+        regis_id = request.GET.get('regis_id')
+        print(regis_id)
+        test_info = PatientTestItem.objects.filter(
+            registration_info_id=regis_id
+        ).values_list(
+            'test_item__inspect_type__inspect_type_name',
+            'test_item__inspect_name',
+            'test_item__inspect_price',
+            'test_results'
+        )
+        data = []
+        for test in test_info:
+            data.append({
+                'inspect_type_name': test[0],
+                'inspect_name': test[1],
+                'inspect_price': test[2],
+                'test_results': test[3]
+            })
+        print(data)
         return data
 
+    # 确诊结果查询
+    def query_diagnosis_results(self, request):
+        print('```````````````\n' * 5)
+        regis_info = RegistrationInfo.objects.get(id=request.GET.get('regis_id'))
+        return {'diagnosis_results': regis_info.diagnosis_results}
+
     # 药品查询（已完成）
-    def query_medicine(self, request):
+    def query_medicine_info(self, request):
         with transaction.atomic():
             # 在with代码块中写事务操作
             all_medicines = MedicineInfo.objects.all().values_list(
@@ -160,9 +180,22 @@ class OutpatientAPI(View):
             data = []
             for medicine in all_medicines:
                 data.append(dict(zip(
-                    ["no", "name", "price"],
+                    ["medicine_id", "medicine_name", "retail_price"],
                     medicine
                 )))
+        return data
+
+    def query_medical_advice(self, request):
+        regis_id = request.GET.get('regis_id')
+        prescription = Prescription.objects.get(registration_info_id=regis_id)
+        medicine_info = PrescriptionDetail.objects.filter(prescription_info_id=prescription.id).values_list(
+            'medicine_info_id', 'medicine_quantity', 'medicine_info__medicine_name', 'medicine_info__retail_price'
+        )
+        medicine = []
+        for val in medicine_info:
+            medicine.append(dict(zip(['medicine_info_id', 'medicine_quantity', 'medicine_name', 'retail_price'], val)))
+        data = {'medical_advice': prescription.medical_advice,
+                'medicine': medicine}
         return data
 
     # endregion
@@ -176,6 +209,7 @@ class OutpatientAPI(View):
             "history_sheet": self.post_history_sheet,
             # 药品及医嘱提交
             "medicine": self.post_medicine,
+            # 诊断结果提交
             "diagnosis_results": self.post_diagnosis_results
         }
         data = request.POST
@@ -198,7 +232,7 @@ class OutpatientAPI(View):
         return redirect(reverse("outpatient-workspace"))
 
     def null_string_to_none(self, string):
-        return None if string == '' else string
+        return None if string.strip() == '' else string
 
     # 提交病历首页部分（完成）
     def post_history_sheet(self, request):
@@ -228,8 +262,8 @@ class OutpatientAPI(View):
                 past_illness=self.null_string_to_none(request.POST.get('past_illness'))
             )
 
-    # 检查检验部分
-    def post_inspection(self, data):
+    # 检查检验部分（完成）
+    def post_inspection(self, request):
         """【request.POST】内容
          <QueryDict: {
             'regis_id': ['19'],
@@ -242,9 +276,27 @@ class OutpatientAPI(View):
         """
         with transaction.atomic():  # 事务原子性保证
             pass  # 检查检验据库操作
+            regis_id = request.POST.get('regis_id')
+            data = dict(request.POST)
+            RegistrationInfo.objects.filter(id=regis_id).update(diagnosis_status=1)
+            test_id = len(PatientTestItem.objects.filter(registration_info_id=regis_id))
+            for param in data:
+                print('param:', param)
+                if param not in ('post_param', 'regis_id'):
+                    for test_item in data[param]:
+                        print('test_item: ', test_item)
+                        test_id += 1
+                        print(test_id)
+                        PatientTestItem.objects.create(
+                            test_id=test_id,
+                            registration_info_id=regis_id,
+                            test_item_id=test_item,
+                            payment_status=0,
+                            inspect_status=0
+                        )
 
     # 确诊结果
-    def post_diagnosis_results(self, data):
+    def post_diagnosis_results(self, request):
         """【request.POST】
         <QueryDict: {
             'regis_id': ['19'],
@@ -253,25 +305,44 @@ class OutpatientAPI(View):
         }>
         """
         with transaction.atomic():  # 事务原子性保证
-            pass  # 检查检验据库操作
+            RegistrationInfo.objects.filter(
+                id=request.POST.get('regis_id')).update(
+                diagnosis_results=self.null_string_to_none(request.POST.get('diagnosis_results')))
 
     # 药品信息、医嘱建议
-    def post_medicine(self, data):
+    def post_medicine(self, request):
         """【request.POST】
         <QueryDict: {
-            'medicine_data[0][medicine_id]': ['A00255'],
-            'medicine_data[0][medicine_num]': ['2'],
-            'medicine_data[1][medicine_id]': ['A00596'],
-            'medicine_data[1][medicine_num]': ['1'],
+            'medicine_name[]': ['A00379', 'A00197', 'A00124'],
+            'medicine_quantity[]': ['3', '2', '3'],
             'post_param': ['medicine'],
-            'medical_advice': ['用药建议、医嘱建议文本'],
-            'regis_id': ['19']
+            'medical_advice': [''],
+            'regis_id': ['1']
         }>
         """
+        regis_id = request.POST.get('regis_id')
+        data = dict(request.POST)
+        medicine_num = len(data['medicine_info_id[]'])
         with transaction.atomic():  # 事务原子性保证
-            pass  # 检查检验据库操作
+            result = Prescription.objects.get(registration_info_id=regis_id)
+            if result:
+                PrescriptionDetail.objects.filter(prescription_info_id=result.id).delete()
+                result.delete()
+            prescription = Prescription.objects.create(
+                registration_info_id=regis_id,
+                medical_advice=data['medical_advice'][0],
+                medicine_num=medicine_num,
+                payment_status=0
+            )
+            for i in range(medicine_num):
+                PrescriptionDetail.objects.create(
+                    detail_id=i + 1,
+                    medicine_quantity=data['medicine_quantity[]'][i],
+                    medicine_info_id=data['medicine_info_id[]'][i],
+                    prescription_info_id=prescription.id
+                )
 
-    # endregion
+        # endregion
 
 
 class NurseAPI(View):

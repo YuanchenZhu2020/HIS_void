@@ -147,7 +147,7 @@
                         <div id="bing_li_shou_ye" class="tab-pane fade show active">
                             <div class="card-body">
                                 <div class="basic-form">
-                                    <form id="history_sheet">
+                                    <form id="history_sheet_form">
                                         <input type="hidden" name="regis_id"/>
                                         <input type="hidden" name="post_param" value="history_sheet"/>
                                         <div class="input-group input-group-lg mb-3">
@@ -241,8 +241,9 @@
                                         <div class="card-body" id="inspection_text_copy">
                                         </div>
                                         <div class="input-group mb-3">
-                                                        <textarea class="form-control" rows="8" name="diagnosis_results"
-                                                                  placeholder="请输入您的判断"></textarea>
+                                            <textarea id="diagnosis_results" class="form-control" rows="8"
+                                                      name="diagnosis_results"
+                                                      placeholder="请输入您的判断"></textarea>
                                         </div>
                                         <div class="form-group">
                                             <div class="text-right">
@@ -275,38 +276,40 @@
                                                   onclick="collect_medicine()" id="btn">添加
                                 </button>
                                 </div>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
-                                        <thead>
-                                        <tr>
-                                            <th scope="col">药品名</th>
-                                            <th scope="col">数量</th>
-                                            <th scope="col">单价</th>
-                                            <th scope="col">总价</th>
-                                            <th scope="col" style="width: 75px">编辑</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody id="medicine_tbody"></tbody>
-                                        <tfoot>
-                                        <tr>
-                                            <th>合计</th>
-                                            <th></th>
-                                            <th></th>
-                                            <th id="medicine_count"></th>
-                                            <th></th>
-                                        </tr>
-                                        </tfoot>
-                                    </table>
-                                </div>
-                                <input type="hidden" name="regis_id" id="regis_id"/>
-                                <textarea class="form-control" rows="8" id="medical_advice"
-                                          placeholder="请输入您的医嘱"></textarea>
-                                <div class="text-right">
-                                    <button type="button" onclick="PostMedicine('{{ csrf_token }}')"
-                                            class="form-group btn btn-outline-primary btn-sm mt-2">
-                                        提交药品
-                                    </button>
-                                </div>
+                                <form id="medical_advice_form">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
+                                            <thead>
+                                            <tr>
+                                                <th scope="col">药品名</th>
+                                                <th scope="col">数量</th>
+                                                <th scope="col">单价</th>
+                                                <th scope="col">总价</th>
+                                                <th scope="col" style="width: 75px">编辑</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody id="medicine_tbody"></tbody>
+                                            <tfoot>
+                                            <tr>
+                                                <th>合计</th>
+                                                <th></th>
+                                                <th></th>
+                                                <th id="medicine_count"></th>
+                                                <th></th>
+                                            </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                    <input type="hidden" name="regis_id" id="regis_id"/>
+                                    <textarea class="form-control" rows="8" id="medical_advice"
+                                              placeholder="请输入您的医嘱"></textarea>
+                                    <div class="text-right">
+                                        <button type="button" onclick="PostMedicine('{{ csrf_token }}')"
+                                                class="form-group btn btn-outline-primary btn-sm mt-2">
+                                            提交药品
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
 
