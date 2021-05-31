@@ -56,7 +56,9 @@ class OutpatientAPI(View):
             # 确诊结果查询
             "diagnosis_results": self.query_diagnosis_results,
             # 医嘱查询
-            "medical_advice": self.query_medical_advice
+            "medical_advice": self.query_medical_advice,
+            # 入院申请
+            "application_inhospital": self.application_inhospital
         }
         # 获取需要查询的信息类型
         query_information = request.GET.get('get_param')
@@ -180,7 +182,7 @@ class OutpatientAPI(View):
             data = []
             for medicine in all_medicines:
                 data.append(dict(zip(
-                    ["medicine_id", "medicine_name", "retail_price"],
+                    ["medicine_info_id", "medicine_name", "retail_price"],
                     medicine
                 )))
         return data
@@ -197,6 +199,13 @@ class OutpatientAPI(View):
         data = {'medical_advice': prescription.medical_advice,
                 'medicine': medicine}
         return data
+
+    def application_inhospital(self, request):
+        regis_id = request.GET.get('regis_id')
+        dept_id = request.GET.get('dept_id')
+        print(regis_id, dept_id)
+        HospitalRegistration.objects.create(dept_id=dept_id, registration_info_id=regis_id)
+        RegistrationInfo.objects.filter(id=regis_id).update(diagnosis_status=2)
 
     # endregion
 
