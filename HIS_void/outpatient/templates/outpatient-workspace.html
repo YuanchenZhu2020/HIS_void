@@ -335,7 +335,23 @@
                             <div class="card-body">
                                 <div class="basic-form">
                                     <form action="#">
-                                        手术申请页面未完成
+                                        <div class="input-group">
+                                            <label class="col-md-1.5 col-form-label text-right">手术等级： </label>
+                                            <select class="form-control form-control-lg" name='HLJB'>
+                                                <option></option>
+                                                <option>1</option>
+                                                <option>2</option>
+                                                <option>3</option>
+                                                <option>4</option>
+                                                <option>5</option>
+                                            </select>
+                                        </div>
+                                        <div class="input-group input-group-lg mb-4">
+                                            <label class="col-md-1.5 col-form-label text-right">手术日期： </label>
+                                            <input name="RYRQ"
+                                                   class="col-md-10.5 datepicker-default form-control form-control-lg"
+                                                   id="datepicker"/>
+                                        </div>
                                     </form>
                                 </div>
                             </div>
@@ -399,6 +415,9 @@
                                     <a href="javascript:void(0)"
                                        class="card-link float-right">Card
                                         link</a>
+                                </div>
+                                <div class="text-right">
+                                    <button class="btn btn-primary" onclick="diagnosis_over()">诊疗结束</button>
                                 </div>
                             </div>
                         </div>

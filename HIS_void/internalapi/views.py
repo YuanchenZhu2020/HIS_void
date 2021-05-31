@@ -40,6 +40,7 @@ class OutpatientAPI(View):
 
     # region OutpatientAPI get部分
     def get(self, request):
+        print(dict(request.session))
         query_key_to_func = {
             # 病历首页信息查询
             "history_sheet": self.query_history_sheet,
@@ -58,7 +59,9 @@ class OutpatientAPI(View):
             # 医嘱查询
             "medical_advice": self.query_medical_advice,
             # 入院申请
-            "application_inhospital": self.application_inhospital
+            "application_inhospital": self.application_inhospital,
+            # 诊疗结束
+            'diagnosis_over': self.diagnosis_over,
         }
         # 获取需要查询的信息类型
         query_information = request.GET.get('get_param')
@@ -137,7 +140,7 @@ class OutpatientAPI(View):
             all_test_num = finished_test_num = 0
             for test_info in all_test_info:
                 all_test_num += 1
-                if test_info.inspect_status == 1:
+                if test_info.test_results is not None:
                     finished_test_num += 1
             data.append({'regis_id': regis.id, 'name': regis.patient.name,
                          'progress': int((finished_test_num / all_test_num) * 100)})
@@ -207,6 +210,16 @@ class OutpatientAPI(View):
         HospitalRegistration.objects.create(dept_id=dept_id, registration_info_id=regis_id)
         RegistrationInfo.objects.filter(id=regis_id).update(diagnosis_status=2)
 
+    def diagnosis_over(self, request):
+        regis_id = request.GET.get('regis_id')
+        regis_info = RegistrationInfo.objects.filter(id=regis_id, chief_complaint__isnull=False, diagnosis_results__isnull=False)
+        print(regis_info)
+        print(regis_id)
+        if regis_info.exists():
+            RegistrationInfo.objects.filter(id=regis_id).update(diagnosis_status=2)
+        else:
+            1/0
+
     # endregion
 
     # region OutpatientAPI post部分
@@ -219,7 +232,8 @@ class OutpatientAPI(View):
             # 药品及医嘱提交
             "medicine": self.post_medicine,
             # 诊断结果提交
-            "diagnosis_results": self.post_diagnosis_results
+            "diagnosis_results": self.post_diagnosis_results,
+
         }
         data = request.POST
         post_param = data['post_param']
@@ -333,13 +347,14 @@ class OutpatientAPI(View):
         data = dict(request.POST)
         medicine_num = len(data['medicine_info_id[]'])
         with transaction.atomic():  # 事务原子性保证
-            result = Prescription.objects.get(registration_info_id=regis_id)
+            result = Prescription.objects.filter(registration_info_id=regis_id)
+            print('【result】', result)
             if result:
-                PrescriptionDetail.objects.filter(prescription_info_id=result.id).delete()
+                PrescriptionDetail.objects.filter(prescription_info_id=result[0].id).delete()
                 result.delete()
             prescription = Prescription.objects.create(
                 registration_info_id=regis_id,
-                medical_advice=data['medical_advice'][0],
+                medical_advice=self.null_string_to_none(data['medical_advice'][0]),
                 medicine_num=medicine_num,
                 payment_status=0
             )
@@ -352,6 +367,7 @@ class OutpatientAPI(View):
                 )
 
         # endregion
+
 
 
 class NurseAPI(View):
