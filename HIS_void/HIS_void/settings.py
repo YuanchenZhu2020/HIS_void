@@ -24,7 +24,7 @@ SECRET_KEY = 'rx*$9b3=cd$a=&9p9e1t7k%*r0-sjxanaawmofpg-q-q5pz^k%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "39.97.170.255", "82.156.22.48"]
+ALLOWED_HOSTS = ["127.0.0.1", "formlesslab.top", "82.156.22.48"]
 
 # Application definition
 
@@ -98,11 +98,7 @@ STATIC_ROOT = 'static'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static_share'),
-    os.path.join(BASE_DIR, "his/static"),
-    os.path.join(BASE_DIR, "inpatient/static"),
-    os.path.join(BASE_DIR, "laboratory/static"),
     os.path.join(BASE_DIR, "outpatient/static"),
-    os.path.join(BASE_DIR, "pharmacy/static"),
     os.path.join(BASE_DIR, "internalapi/static"),
 )
 
@@ -149,6 +145,9 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
+
+# Auto Field Setting
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Auth user model
 AUTH_USER_MODEL = "rbac.UserInfo"

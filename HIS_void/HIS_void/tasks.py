@@ -45,35 +45,35 @@ def gen_remaining_registration():
     today = timezone.localdate()
     # 遍历一周7天
     remaining_regs = []
-    for dd in range(MAX_DAYS):
-        dt = today + timezone.timedelta(days = dd)
-        # calendar 中以 0 代表周一，作为一周起点
-        weekday = calendar.weekday(dt.year, dt.month, dt.day) + 1
-        day_duty_staffs = map(
-            lambda d: d.medical_staff,
-            staff_duty_rosters.filter(working_day = weekday)
-        )
-        # 遍历当天门诊值班医生，创建对应的剩余挂号记录
-        for ms in day_duty_staffs:
-            # 是否为 UTC 时间都可以正常以 UTC 时间存储进数据库
-            reg_datetime = {
-                "AM": dateparse.parse_datetime(dt.__str__() + " 08:00:00").astimezone(timezone.utc),
-                "PM": dateparse.parse_datetime(dt.__str__() + " 13:00:00").astimezone(timezone.utc),
-            }
-            reg_num = int(ms.title.titleregisternumber.register_number / 2)
-            remaining_regs += [
-                RemainingRegistration(
-                    medical_staff = ms,
-                    register_date = reg_datetime["AM"],
-                    remain_quantity = reg_num
-                ),
-                RemainingRegistration(
-                    medical_staff = ms,
-                    register_date = reg_datetime["PM"],
-                    remain_quantity = reg_num
-                )
-            ]
     with transaction.atomic():
+        for dd in range(MAX_DAYS):
+            dt = today + timezone.timedelta(days = dd)
+            # calendar 中以 0 代表周一，作为一周起点
+            weekday = calendar.weekday(dt.year, dt.month, dt.day) + 1
+            day_duty_staffs = map(
+                lambda d: d.medical_staff,
+                staff_duty_rosters.filter(working_day = weekday)
+            )
+            # 遍历当天门诊值班医生，创建对应的剩余挂号记录
+            for ms in day_duty_staffs:
+                # 是否为 UTC 时间都可以正常以 UTC 时间存储进数据库
+                reg_datetime = {
+                    "AM": dateparse.parse_datetime(dt.__str__() + " 08:00:00").astimezone(timezone.utc),
+                    "PM": dateparse.parse_datetime(dt.__str__() + " 13:00:00").astimezone(timezone.utc),
+                }
+                reg_num = int(ms.title.titleregisternumber.register_number / 2)
+                remaining_regs += [
+                    RemainingRegistration(
+                        medical_staff = ms,
+                        register_date = reg_datetime["AM"],
+                        remain_quantity = reg_num
+                    ),
+                    RemainingRegistration(
+                        medical_staff = ms,
+                        register_date = reg_datetime["PM"],
+                        remain_quantity = reg_num
+                    )
+                ]
         # bulk 插入记录
         RemainingRegistration.objects.bulk_create(remaining_regs)
 
@@ -95,26 +95,26 @@ def insert_day_remaining_registration():
         )
     )
     remaining_regs = []
-    for ms in day_duty_staffs:
-        # 是否为 UTC 时间都可以正常以 UTC 时间存储进数据库
-        reg_datetime = {
-            "AM": dateparse.parse_datetime(today.__str__() + " 08:00:00").astimezone(timezone.utc),
-            "PM": dateparse.parse_datetime(today.__str__() + " 13:00:00").astimezone(timezone.utc),
-        }
-        reg_num = int(ms.title.titleregisternumber.register_number / 2)
-        remaining_regs += [
-            RemainingRegistration(
-                medical_staff = ms,
-                register_date = reg_datetime["AM"],
-                remain_quantity = reg_num
-            ),
-            RemainingRegistration(
-                medical_staff = ms,
-                register_date = reg_datetime["PM"],
-                remain_quantity = reg_num
-            )
-        ]
     with transaction.atomic():
+        for ms in day_duty_staffs:
+            # 是否为 UTC 时间都可以正常以 UTC 时间存储进数据库
+            reg_datetime = {
+                "AM": dateparse.parse_datetime(today.__str__() + " 08:00:00").astimezone(timezone.utc),
+                "PM": dateparse.parse_datetime(today.__str__() + " 13:00:00").astimezone(timezone.utc),
+            }
+            reg_num = int(ms.title.titleregisternumber.register_number / 2)
+            remaining_regs += [
+                RemainingRegistration(
+                    medical_staff = ms,
+                    register_date = reg_datetime["AM"],
+                    remain_quantity = reg_num
+                ),
+                RemainingRegistration(
+                    medical_staff = ms,
+                    register_date = reg_datetime["PM"],
+                    remain_quantity = reg_num
+                )
+            ]
         # bulk 插入记录
         RemainingRegistration.objects.bulk_create(remaining_regs)
 
@@ -129,6 +129,15 @@ def insert_remaining_registration():
     """
     若剩余挂号信息表没有记录，则产生7天的记录；若存在记录，则产生今天的剩余挂号信息。
     """
+    # 使用socket绑定固定端口，以端口的唯一性保证定时任务执行的唯一性
+    try:
+        import socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind(("127.0.0.1", 47200))
+    except socket.error:
+        print("定时任务已经启动")
+
     if RemainingRegistration.objects.count() == 0:
         gen_remaining_registration()
     else:
