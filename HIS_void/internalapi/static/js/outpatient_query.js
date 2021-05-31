@@ -21,6 +21,7 @@ function clear_all_info() {
     $("#age").removeAttr('placeholder');
 }
 
+//region 查询函数
 // 查询待诊患者
 function query_waiting_diagnosis_patients() {
     $.ajax({
@@ -270,6 +271,30 @@ function QueryMedicalAndAdvice(regis_id) {
         }
     })
 }
+
+// 住院申请
+function ApplicationInhospital(dept_id) {
+    let regis_id = $('#no').attr('placeholder');
+    if (regis_id === undefined) {
+        submitToastr('您未选择病人', '提交失败！', 'error');
+        return;
+    } else {
+        $.ajax({
+            url: URL,
+            type: "get",
+            data: {'regis_id': regis_id, 'get_param': 'application_inhospital', 'dept_id': dept_id},
+            success: function () {
+                submitAlert('提交成功', '已提交至住院部', 'success', true);
+                $('.swal2-confirm').attr('onblur', 'window.location.reload()');
+            },
+            error: function () {
+                alert('入院申请提交失败！');
+            }
+        })
+    }
+}
+
+//endregion
 
 // 复制检查结果元素
 function copy_inspection_results() {
@@ -545,6 +570,7 @@ function inspectionTotalPrice() {
 
 }
 
+//region 提交函数
 // 病历首页提交
 function PostHisTorySheet(csrf_token) {
     if ($('#no').attr('placeholder') === undefined) {
@@ -564,7 +590,8 @@ function PostHisTorySheet(csrf_token) {
         },
         success: function (result) {
             submitAlert("提交成功", "病历首页已更新", "success");
-            $('.swal2-confirm').attr('onblur', 'window.location.reload()');
+            init_style('#history_sheet_form');
+
         },
         error: function (data) {
             alert("异常！");
@@ -607,7 +634,7 @@ function PostMedicine(csrf_token) {
         },
         success: function (callback) {
             submitAlert("提交成功", "药品及医嘱已更新", "success");
-            QueryMedicalAndAdvice(regis_id)
+            init_style('#medical_advice_form')
         },
         error: function (callback) {
             alert('提交失败');
@@ -633,7 +660,8 @@ function PostInspectionItem(csrf_token) {
         },
         success: function (callback) {
             submitAlert("提交成功", "患者信息已更新", "success");
-            QueryHistorySheet($('#no').attr('placeholder'));
+            $('.swal2-confirm').attr('onblur', 'window.location.reload()');
+            init_style('#inspection_form');
         },
         error: function (callback) {
             alert('提交失败');
@@ -659,7 +687,7 @@ function PostDiagnosisResults(csrf_token) {
         },
         success: function (callback) {
             submitAlert("提交成功", "诊断结果", "success");
-            QueryDiagnosisResults($('#no').attr('placeholder'));
+            init_style('#diagnosis_results_form');
         },
         error: function (callback) {
             alert('提交失败');
@@ -667,6 +695,8 @@ function PostDiagnosisResults(csrf_token) {
         }
     })
 }
+
+//endregion
 
 
 // 这里应该整一个document.ready，表示页面加载完毕后应该执行的操作，而不应该独立的放在这执行
