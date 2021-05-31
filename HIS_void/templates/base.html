@@ -131,9 +131,8 @@
 <!-- All init script -->
 <script src="{% static 'js/plugins-init/toastr-init.js' %}"></script>
 <script>
-    function submitAlert() {
-        swal("提交成功", "", "success");
-        $($('.swal2-actions').children()[0]).attr('onclick', 'window.location.href="/index"');
+    function submitAlert(title, text, status) {
+        swal(title, text, status);
     }
 </script>
 {% include 'footer.html' %}

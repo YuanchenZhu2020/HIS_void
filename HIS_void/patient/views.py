@@ -170,6 +170,7 @@ class PatientView(View):
             "DeptsData": PatientView.DEPT_DATA_CACHE,
             "RegDates": PatientView.REG_DATES_CACHE,
         }
+        print(PatientView.DEPT_DATA_CACHE)
         return render(request, PatientView.template_name, context = context)
 
 

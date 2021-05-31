@@ -141,6 +141,7 @@ function post_registration(csrf_token, doctor_id, reg_datetime, submit_url) {
             let alert_title = "提交失败";
             let alert_text = "请登录后再挂号！";
             if (success) {
+                console.log(success);
                 status = "success";
                 alert_title = "提交成功";
                 alert_text = "即将跳转至您的个人界面";
