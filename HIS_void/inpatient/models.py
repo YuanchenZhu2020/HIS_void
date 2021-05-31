@@ -77,6 +77,11 @@ class HospitalRegistration(models.Model):
         (3, '三级护理'),
         (4, '四级护理'),
     )
+    DISCHARGE_STATUS_ITEMS = (
+        (0, _("未出院")),
+        (1, _("即将出院")),
+        (2, _("已出院")),
+    )
 
     registration_info = models.OneToOneField(
         RegistrationInfo, 
@@ -94,17 +99,14 @@ class HospitalRegistration(models.Model):
     area    = models.ForeignKey(
         InpatientArea, 
         null = True,
+        blank = True,
         on_delete = models.SET_NULL,
         related_name = "hospital_reg_set",
         related_query_name = "hospital_regs",
         verbose_name = _("所属病区"),
     )
-    bed_id  = models.PositiveIntegerField(verbose_name = _("床位号"))
-    reg_date   = models.DateField(
-        auto_now_add = True,
-        editable = False,
-        verbose_name = _("入院日期"),
-    )
+    bed_id  = models.PositiveIntegerField(null = True, blank = True, verbose_name = _("床位号"))
+    reg_date   = models.DateField(null = True, blank = True, verbose_name = _("入院日期"))
     care_level = models.PositiveIntegerField(
         default = 3, 
         choices = CARE_LEVEL_ITEMS, 
@@ -115,8 +117,17 @@ class HospitalRegistration(models.Model):
         blank = True, 
         verbose_name = _("住院天数")
     )
-    kin_phone  = models.CharField(max_length = 11, verbose_name = _("家属电话"))
-    discharge_status = models.BooleanField(default = False, verbose_name = _("即将出院状态"))
+    kin_phone  = models.CharField(
+        null = True, 
+        blank = True, 
+        max_length = 11, 
+        verbose_name = _("家属电话")
+    )
+    discharge_status = models.PositiveIntegerField(
+        default = 0, 
+        choices = DISCHARGE_STATUS_ITEMS, 
+        verbose_name = _("出院状态")
+    )
 
     class Meta:
         verbose_name = _("入院登记信息")
