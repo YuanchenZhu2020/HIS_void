@@ -245,8 +245,25 @@
                                                       name="diagnosis_results"
                                                       placeholder="请输入您的判断"></textarea>
                                         </div>
-                                        <div class="form-group">
-                                            <div class="text-right">
+                                        <div class="row">
+                                            <div class="text-left col-6">
+                                                <div class="basic-dropdown">
+                                                    <div class="dropdown">
+                                                        <button type="button" class="btn btn-primary dropdown-toggle"
+                                                                data-toggle="dropdown">
+                                                            入院申请
+                                                        </button>
+                                                        <div class="dropdown-menu">
+                                                            {% for dept in DeptItems %}
+                                                                <a class="dropdown-item"
+                                                                   onclick="ApplicationInhospital({{ dept.ug_id }})">
+                                                                    {{ dept.name }}</a>
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="text-right col-6">
                                                 <button type="button"
                                                         onclick="PostDiagnosisResults('{{ csrf_token }}')"
                                                         class="form-group btn btn-outline-primary btn-bg">

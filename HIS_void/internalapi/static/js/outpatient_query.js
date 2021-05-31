@@ -420,10 +420,11 @@ function collect_medicine() {
 
 // 添加药品
 function addMedicine(medicine_obj, medicine_num) {
+    console.log(medicine_obj)
     // 药品行
     let $medicine_tr = $('<tr></tr>');
     // 在药品行中添加药品id和药品数量medicine_num
-    $medicine_tr.attr('data-medicine-no', medicine_obj.medicine_id);
+    $medicine_tr.attr('data-medicine-no', medicine_obj.medicine_info_id);
     $medicine_tr.attr('data-medicine-num', medicine_num);
     $medicine_tr.attr('name', 'medicine');
     // 药品名列
@@ -606,7 +607,6 @@ function PostMedicine(csrf_token) {
         submitToastr('提交失败！', '您未选择病人', 'error')
         return;
     }
-    let url = '/OutpatientAPI/';
     let all_medicine = document.getElementsByName('medicine');
     let medical_advice = $('#medical_advice').val();
     let regis_id = $('#regis_id').val();
@@ -618,8 +618,8 @@ function PostMedicine(csrf_token) {
     }
 
     let data = {
-        'medicine_info_id': medicine_info_id, // 药品信息
-        'medicine_quantity': medicine_quantity, // 药品信息
+        'medicine_info_id[]': medicine_info_id, // 药品信息
+        'medicine_quantity[]': medicine_quantity, // 药品信息
         'post_param': 'medicine', // 提交内容类型判断
         'medical_advice': medical_advice,
         'regis_id': regis_id

@@ -12,15 +12,15 @@ class NursingRecord(models.Model):
     护理记录
     """
     medical_staff = models.ForeignKey(
-        Staff, 
-        on_delete = models.CASCADE, 
+        Staff,
+        on_delete = models.CASCADE,
         related_name = "nursing_record_set",
         related_query_name = "nursing_records",
         verbose_name = _("责任护士"),
     )
     patient       = models.ForeignKey(
-        PatientUser, 
-        on_delete = models.CASCADE, 
+        PatientUser,
+        on_delete = models.CASCADE,
         related_name = "nursing_record_set",
         related_query_name = "nursing_records",
         verbose_name = _("患者"),
@@ -31,20 +31,20 @@ class NursingRecord(models.Model):
         verbose_name = _("护理时间"),
     )
     systolic      = models.PositiveIntegerField(
-        null = True, 
-        blank = True, 
+        null = True,
+        blank = True,
         verbose_name = _("收缩压")
     )
     diastolic     = models.PositiveIntegerField(
-        null = True, 
-        blank = True, 
+        null = True,
+        blank = True,
         verbose_name = _("舒张压")
     )
     temperature   = models.FloatField(null = True, blank = True, verbose_name = _("体温"))
     note = models.TextField(
-        max_length = 200, 
+        max_length = 200,
         null = True,
-        blank = True, 
+        blank = True,
         verbose_name = _("备注")
     )
 
@@ -52,7 +52,7 @@ class NursingRecord(models.Model):
         verbose_name = _("护理记录")
         verbose_name_plural = verbose_name
         unique_together = ["medical_staff", "patient", "nursing_date"]
-    
+
     def __str__(self) -> str:
         return "<Nursing Record {}-{}-{}>".format(
             self.medical_staff,
@@ -77,6 +77,7 @@ class HospitalRegistration(models.Model):
         (3, '三级护理'),
         (4, '四级护理'),
     )
+
     DISCHARGE_STATUS_ITEMS = (
         (0, _("未出院")),
         (1, _("即将出院")),
@@ -84,9 +85,9 @@ class HospitalRegistration(models.Model):
     )
 
     registration_info = models.OneToOneField(
-        RegistrationInfo, 
+        RegistrationInfo,
         primary_key = True,
-        on_delete = models.CASCADE, 
+        on_delete = models.CASCADE,
         verbose_name = _("挂号信息"),
     )
     dept    = models.ForeignKey(
@@ -97,7 +98,7 @@ class HospitalRegistration(models.Model):
         verbose_name = _("所属科室"),
     )
     area    = models.ForeignKey(
-        InpatientArea, 
+        InpatientArea,
         null = True,
         blank = True,
         on_delete = models.SET_NULL,
@@ -105,16 +106,20 @@ class HospitalRegistration(models.Model):
         related_query_name = "hospital_regs",
         verbose_name = _("所属病区"),
     )
-    bed_id  = models.PositiveIntegerField(null = True, blank = True, verbose_name = _("床位号"))
-    reg_date   = models.DateField(null = True, blank = True, verbose_name = _("入院日期"))
+    bed_id  = models.PositiveIntegerField(null = True, verbose_name = _("床位号"))
+    reg_date   = models.DateField(
+        null = True,
+        blank = True,
+        verbose_name = _("入院日期"),
+    )
     care_level = models.PositiveIntegerField(
-        default = 3, 
-        choices = CARE_LEVEL_ITEMS, 
+        default = 3,
+        choices = CARE_LEVEL_ITEMS,
         verbose_name = _("护理级别")
     )
     duration   = models.PositiveIntegerField(
-        null = True, 
-        blank = True, 
+        null = True,
+        blank = True,
         verbose_name = _("住院天数")
     )
     kin_phone  = models.CharField(
@@ -133,7 +138,7 @@ class HospitalRegistration(models.Model):
     class Meta:
         verbose_name = _("入院登记信息")
         verbose_name_plural = verbose_name
-    
+
     def __str__(self) -> str:
         return "<HospReg {}>".format(self.registration_info)
 
@@ -155,8 +160,8 @@ class OperationInfo(models.Model):
     )
 
     registration_info = models.ForeignKey(
-        RegistrationInfo, 
-        on_delete = models.CASCADE, 
+        RegistrationInfo,
+        on_delete = models.CASCADE,
         related_name = "operation_set",
         related_query_name = "operations",
         verbose_name = _("挂号信息"),
@@ -167,14 +172,14 @@ class OperationInfo(models.Model):
     )
     operation_level = models.PositiveIntegerField(
         default = 1,
-        choices = LEVEL_CHOICES, 
+        choices = LEVEL_CHOICES,
         verbose_name = _("手术等级")
     )
     operation_date  = models.DateField(verbose_name = _("手术日期"))
     operation_name  = models.CharField(max_length = 40, verbose_name = _("手术名称"))
 
     operation_result   = models.CharField(
-        max_length = 20, 
+        max_length = 20,
         null = True,
         blank = True,
         verbose_name = _("手术结果")
@@ -187,7 +192,7 @@ class OperationInfo(models.Model):
     )
     operation_recover  = models.CharField(
         null = True,
-        blank = True, 
+        blank = True,
         max_length = 10,
         verbose_name = _("预后结果"),
     )
@@ -197,7 +202,7 @@ class OperationInfo(models.Model):
         verbose_name = _("手术信息")
         verbose_name_plural = verbose_name
         unique_together = ["registration_info", "operation_id"]
-    
+
     def __str__(self) -> str:
         return "<Operation {}-{}>".format(self.registration_info, self.operation_id)
 
@@ -207,27 +212,27 @@ class NarcoticInfo(models.Model):
     麻醉信息反馈
     """
     operation_info = models.OneToOneField(
-        OperationInfo, 
+        OperationInfo,
         primary_key = True,
-        on_delete = models.CASCADE, 
+        on_delete = models.CASCADE,
         related_name = "narcotic_set",
         related_query_name = "narcotics",
         verbose_name = _("手术信息"),
     )
     medicine_info  = models.ForeignKey(
-        MedicineInfo, 
+        MedicineInfo,
         null = True,
         blank = True,
-        on_delete = models.SET_NULL, 
+        on_delete = models.SET_NULL,
         related_name = "narcotic_set",
         related_query_name = "narcotics",
         verbose_name = _("麻醉药品信息"),
     )
     medical_staff  = models.ForeignKey(
-        Staff, 
+        Staff,
         null = True,
         blank = True,
-        on_delete = models.SET_NULL, 
+        on_delete = models.SET_NULL,
         related_name = "narcotic_set",
         related_query_name = "narcotics",
         verbose_name = _("麻醉师"),
@@ -236,7 +241,7 @@ class NarcoticInfo(models.Model):
     class Meta:
         verbose_name = _("麻醉信息")
         verbose_name_plural = verbose_name
-    
+
     def __str__(self) -> str:
         return "<Narcotic {}-{}>".format(self.operation_info, self.medical_staff)
 
