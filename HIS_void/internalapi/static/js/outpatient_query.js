@@ -33,6 +33,8 @@ function query_waiting_diagnosis_patients() {
         },
         success: function (data) {
             console.log(data);
+            let $waiting_diagnosis_card = $('#waiting_diagnosis');
+            $waiting_diagnosis_card.empty();
             for (let i = 0; i < data.length; i++) {
                 let patient = data[i];
                 let td = '<td>' + patient.name + '</td>';
@@ -41,7 +43,7 @@ function query_waiting_diagnosis_patients() {
                 let tr = $("<tr name='patient_card_tr' onclick='QueryPatientBaseInfo(" + id + ", this)'></tr>");
                 tr.append(td);
                 tr.append(td1);
-                $("#waiting_diagnosis").append(tr);
+                $waiting_diagnosis_card.append(tr);
             }
         },
         error: function (err) {
@@ -70,7 +72,7 @@ function QueryPatientBaseInfo(regis_id, event) {
             clear_patient_card_style();
             $(event).attr('style', 'background-color: #d7dae3');
             // 设置最上面显示的患者信息
-            $("#no").attr('placeholder', data.no);
+            $("#no").attr('placeholder', regis_id);
             $("#name").attr('placeholder', data.name);
             $("#gender").attr('placeholder', data.gender);
             $("#age").attr('placeholder', data.age);
@@ -97,6 +99,7 @@ function QueryPatientBaseInfo(regis_id, event) {
 // 输入框改变后样式改变
 function clear_this_style(event) {
     $(event).removeAttr('style');
+    $(event).removeAttr('onkeyup');
     $(event).removeAttr('onchange');
 
 }
@@ -110,7 +113,9 @@ function clear_patient_card_style() {
 function init_style(id_selector) {
     $(id_selector).find('input, textarea, tr').each(function (i, tag) {
         console.log(tag);
-        $(tag).attr('style', 'color: #6b81a7;');
+        if ($(tag).val())
+            $(tag).attr('style', 'color: #6b81a7;');
+        $(tag).attr('onkeyup', 'clear_this_style(this)')
         $(tag).attr('onchange', 'clear_this_style(this)')
     })
 }
@@ -149,10 +154,10 @@ function QueryInDiagnosisPatient() {
         url: URL,
         dataType: 'json',
         data: {
-            d_no: '000000',
             get_param: 'in_diagnosis'
         },
         success: function (data) {
+            let $in_diagnosis_card = $("#in_diagnosis");
             console.log(data);
             for (let i = 0; i < data.length; i++) {
                 let patient = data[i];
@@ -171,7 +176,7 @@ function QueryInDiagnosisPatient() {
                     patient.name,
                     progress
                 );
-                $("#in_diagnosis").append(tr);
+                $in_diagnosis_card.append(tr);
             }
         },
         error: function (err) {
@@ -179,7 +184,6 @@ function QueryInDiagnosisPatient() {
             console.log(err);
         }
     });
-    self.location = '#jian_cha_jian_yan'
 }
 
 // 检查结果查询
@@ -697,9 +701,30 @@ function PostDiagnosisResults(csrf_token) {
 }
 
 //endregion
-
+function diagnosis_over() {
+    let regis_id = $('#no').attr('placeholder');
+    if (regis_id === undefined) {
+        submitAlert('提交失败', '您未选择病人', 'error');
+        return;
+    }
+    $.ajax({
+        url: URL,
+        type: 'get',
+        data: {'get_param': 'diagnosis_over', 'regis_id': regis_id},
+        success: function () {
+            submitAlert('提交成功', '诊疗已结束', 'success');
+            $('.swal2-confirm').attr('onblur', 'window.location.reload()');
+        },
+        error: function () {
+            alert('诊疗结束失败');
+        }
+    })
+}
 
 // 这里应该整一个document.ready，表示页面加载完毕后应该执行的操作，而不应该独立的放在这执行
+/*
+window.setInterval(query_waiting_diagnosis_patients, 10000);
+window.setInterval(QueryInDiagnosisPatient, 10000);*/
 query_waiting_diagnosis_patients()
 QueryInDiagnosisPatient()
 
