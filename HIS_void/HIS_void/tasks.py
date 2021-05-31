@@ -1,4 +1,5 @@
 import calendar
+import socket
 
 from django.utils import timezone, dateparse
 from django.db import transaction
@@ -12,9 +13,9 @@ from django_apscheduler.jobstores import DjangoJobStore, register_events, regist
 
 
 # 应该在全局设置中储存
-AM_DELETE_TIME = dateparse.parse_time("12:05:00")
-PM_DELETE_TIME = dateparse.parse_time("00:05:00")
-DAY_INSERT_TIME = dateparse.parse_time("00:00:01")
+AM_DELETE_TIME = dateparse.parse_time("20:10:00")
+PM_DELETE_TIME = dateparse.parse_time("20:11:00")
+DAY_INSERT_TIME = dateparse.parse_time("20:08:01")
 
 # 测试用
 # AM_DELETE_TIME = dateparse.parse_time("03:05:00")
@@ -28,6 +29,27 @@ DAY_INSERT_TIME = dateparse.parse_time("00:00:01")
 
 scheduler = BackgroundScheduler()
 scheduler.add_jobstore(DjangoJobStore(), "default")
+
+
+class MultiJobExecError(Exception):
+    """
+    多线程下，多任务同时执行的错误
+    """
+    def __str__(self) -> str:
+        return "\033[1;31m重复启动定时任务!!!\033[m"
+
+
+def ensure_uniqueness_in_multiprocess(port):
+    """
+    使用socket绑定固定端口，以端口的唯一性保证定时任务执行的唯一性
+    """
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind(("127.0.0.1", port))
+    except socket.error:
+        print("定时任务已经启动")
+        raise MultiJobExecError()
 
 
 def gen_remaining_registration():
@@ -76,6 +98,7 @@ def gen_remaining_registration():
                 ]
         # bulk 插入记录
         RemainingRegistration.objects.bulk_create(remaining_regs)
+
 
 def insert_day_remaining_registration():
     """
@@ -129,19 +152,15 @@ def insert_remaining_registration():
     """
     若剩余挂号信息表没有记录，则产生7天的记录；若存在记录，则产生今天的剩余挂号信息。
     """
-    # 使用socket绑定固定端口，以端口的唯一性保证定时任务执行的唯一性
     try:
-        import socket
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind(("127.0.0.1", 47200))
-    except socket.error:
-        print("定时任务已经启动")
-
-    if RemainingRegistration.objects.count() == 0:
-        gen_remaining_registration()
+        ensure_uniqueness_in_multiprocess(47200)
+    except MultiJobExecError:
+        pass
     else:
-        insert_day_remaining_registration()
+        if RemainingRegistration.objects.count() == 0:
+            gen_remaining_registration()
+        else:
+            insert_day_remaining_registration()
 
 
 @register_job(
@@ -154,13 +173,18 @@ def delete_past_am_remaining_registration():
     """
     删除过去上午时段的剩余挂号记录
     """
-    now = dateparse.parse_datetime(
-        timezone.localdate().__str__() + " " + AM_DELETE_TIME.__str__()
-    ).astimezone(timezone.utc)
-    with transaction.atomic():
-        RemainingRegistration.objects.filter(
-            register_date__lt = now
-        ).delete()
+    try:
+        ensure_uniqueness_in_multiprocess(47201)
+    except MultiJobExecError:
+        pass
+    else:
+        now = dateparse.parse_datetime(
+            timezone.localdate().__str__() + " " + AM_DELETE_TIME.__str__()
+        ).astimezone(timezone.utc)
+        with transaction.atomic():
+            RemainingRegistration.objects.filter(
+                register_date__lt = now
+            ).delete()
 
 
 @register_job(
@@ -173,13 +197,18 @@ def delete_past_pm_remaining_registration():
     """
     删除过去下午时段的剩余挂号记录
     """
-    now = dateparse.parse_datetime(
-        timezone.localdate().__str__() + " " + PM_DELETE_TIME.__str__()
-    ).astimezone(timezone.utc)
-    with transaction.atomic():
-        RemainingRegistration.objects.filter(
-            register_date__lt = now
-        ).delete()
+    try:
+        ensure_uniqueness_in_multiprocess(47202)
+    except MultiJobExecError:
+        pass
+    else:
+        now = dateparse.parse_datetime(
+            timezone.localdate().__str__() + " " + PM_DELETE_TIME.__str__()
+        ).astimezone(timezone.utc)
+        with transaction.atomic():
+            RemainingRegistration.objects.filter(
+                register_date__lt = now
+            ).delete()
 
 
 # 当第一次进行 migrate 时，表不存在，抛出 django.db.utils.OperationalError
