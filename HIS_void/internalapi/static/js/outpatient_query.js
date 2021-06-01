@@ -114,7 +114,7 @@ function init_style(id_selector) {
     $(id_selector).find('input, textarea, tr').each(function (i, tag) {
         console.log(tag);
         if ($(tag).val())
-            $(tag).attr('style', 'color: #6b81a7;');
+            $(tag).attr('style', 'color: #a2a5a8;');
         $(tag).attr('onkeyup', 'clear_this_style(this)')
         $(tag).attr('onchange', 'clear_this_style(this)')
     })
@@ -219,7 +219,7 @@ function QueryTestResults(regis_id) {
             for (let i = 0; i < data.length; i++) {
                 let inspect_info = data[i];
                 $inspection_cost_body.append(StringFormat(
-                    '<tr style="color: #6b81a7;"><td>{0}</td><td>{1}</td><td name="inspection_price">{2}</td></tr>',
+                    '<tr style="color: #a2a5a8;"><td>{0}</td><td>{1}</td><td name="inspection_price">{2}</td></tr>',
                     inspect_info.inspect_type_name,
                     inspect_info.inspect_name,
                     inspect_info.inspect_price

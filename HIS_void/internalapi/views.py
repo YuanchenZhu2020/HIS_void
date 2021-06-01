@@ -255,7 +255,7 @@ class OutpatientAPI(View):
         return redirect(reverse("outpatient-workspace"))
 
     def null_string_to_none(self, string):
-        return None if string.strip() == '' else string
+        return None if string.strip() == '' else string.strip()
 
     # 提交病历首页部分（完成）
     def post_history_sheet(self, request):
