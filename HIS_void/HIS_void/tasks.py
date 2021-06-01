@@ -13,9 +13,9 @@ from django_apscheduler.jobstores import DjangoJobStore, register_events, regist
 
 
 # 应该在全局设置中储存
-AM_DELETE_TIME = dateparse.parse_time("20:10:00")
-PM_DELETE_TIME = dateparse.parse_time("20:11:00")
-DAY_INSERT_TIME = dateparse.parse_time("20:08:01")
+AM_ZERO_TIME = dateparse.parse_time("12:05:00")
+PAST_DELETE_TIME = dateparse.parse_time("00:05:00")
+DAY_INSERT_TIME = dateparse.parse_time("00:00:01")
 
 # 测试用
 # AM_DELETE_TIME = dateparse.parse_time("03:05:00")
@@ -45,7 +45,8 @@ def ensure_uniqueness_in_multiprocess(port):
     """
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        # 端口复用，即多个socket绑定到同一端口，这里不能使用
+        # sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         sock.bind(("127.0.0.1", port))
     except socket.error:
         print("定时任务已经启动")
@@ -146,6 +147,7 @@ def insert_day_remaining_registration():
     scheduler, "cron", 
     hour = DAY_INSERT_TIME.hour, minute = DAY_INSERT_TIME.minute, second = DAY_INSERT_TIME.second, 
     id = "insert_remaining_registration",
+    max_instances = 1,
     replace_existing = True
 )
 def insert_remaining_registration():
@@ -165,13 +167,18 @@ def insert_remaining_registration():
 
 @register_job(
     scheduler, "cron", 
-    hour = AM_DELETE_TIME.hour, minute = AM_DELETE_TIME.minute, second = AM_DELETE_TIME.second, 
-    id = "delete_am_regs",
+    hour = AM_ZERO_TIME.hour, minute = AM_ZERO_TIME.minute, second = AM_ZERO_TIME.second, 
+    id = "zero_past_am_regs",
+    max_instances = 1,
     replace_existing = True
 )
-def delete_past_am_remaining_registration():
+def zero_past_am_remaining_registration():
     """
-    删除过去上午时段的剩余挂号记录
+    将上午时段的剩余挂号数置为0
+
+    筛选条件：挂号时间小于当日12:00:00 am
+
+    p.s. 这里应该记录下当日12:00:00之前的剩余挂号数，以便进行数据分析
     """
     try:
         ensure_uniqueness_in_multiprocess(47201)
@@ -179,23 +186,26 @@ def delete_past_am_remaining_registration():
         pass
     else:
         now = dateparse.parse_datetime(
-            timezone.localdate().__str__() + " " + AM_DELETE_TIME.__str__()
+            timezone.localdate().__str__() + " 12:00:00"
         ).astimezone(timezone.utc)
         with transaction.atomic():
             RemainingRegistration.objects.filter(
                 register_date__lt = now
-            ).delete()
+            ).update(remain_quantity = 0)
 
 
 @register_job(
     scheduler, "cron", 
-    hour = PM_DELETE_TIME.hour, minute = PM_DELETE_TIME.minute, second = PM_DELETE_TIME.second, 
-    id = "delete_pm_regs",
+    hour = PAST_DELETE_TIME.hour, minute = PAST_DELETE_TIME.minute, second = PAST_DELETE_TIME.second, 
+    id = "delete_past_regs",
+    max_instances = 1,
     replace_existing = True
 )
-def delete_past_pm_remaining_registration():
+def delete_past_remaining_registration():
     """
-    删除过去下午时段的剩余挂号记录
+    删除前一天的剩余挂号记录
+
+    筛选条件：挂号时间小于当天零点
     """
     try:
         ensure_uniqueness_in_multiprocess(47202)
@@ -203,7 +213,7 @@ def delete_past_pm_remaining_registration():
         pass
     else:
         now = dateparse.parse_datetime(
-            timezone.localdate().__str__() + " " + PM_DELETE_TIME.__str__()
+            timezone.localdate().__str__() + " 00:00:00"
         ).astimezone(timezone.utc)
         with transaction.atomic():
             RemainingRegistration.objects.filter(
@@ -213,7 +223,6 @@ def delete_past_pm_remaining_registration():
 
 # 当第一次进行 migrate 时，表不存在，抛出 django.db.utils.OperationalError
 try:
-    register_events(scheduler)
     scheduler.start()
     print("\033[1;33mScheduler started!\033[0m")
 except OperationalError:

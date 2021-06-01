@@ -482,6 +482,9 @@ class PatientRegisterAPI(View):
     patient_next_url_name = "patient-details"
 
     def query_registration_info(self, request):
+        """
+        查询
+        """
         # 数据格式示例：[{
         #     "doctor_id": "999",
         #     "doctor_name": "lisa",
