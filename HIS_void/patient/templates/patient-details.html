@@ -24,6 +24,13 @@
                                                     </a>
                                                 </li>
                                                 <li>
+                                                    <a class="timeline-panel text-muted" href="#waiting-pay">
+                                                        <div class="icon bg-primary"><i class="las la-play"></i>
+                                                        </div>
+                                                        <h4 class="mt-3">等待缴费</h4>
+                                                    </a>
+                                                </li>
+                                                <li>
                                                     <a class="timeline-panel text-muted" href="#now">
                                                         <div class="icon bg-primary"><i class="las la-clock"></i>
                                                         </div>
@@ -215,6 +222,157 @@
                         </div>
                     </div>
 
+                    <!--等待缴费-->
+                    <div class="col-lg-12" id="waiting-pay">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">等待缴费</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="profile-tab">
+                                    <div class="custome-tab-1">
+                                        <!-- 上部导航栏信息 -->
+                                        <ul class="nav nav-tabs">
+                                            <li class="nav-item"><a href="#pay-check" data-toggle="tab" class="nav-link">检查缴费</a>
+                                            </li>
+                                            <li class="nav-item"><a href="#pay-operation" data-toggle="tab" class="nav-link">手术缴费</a>
+                                            </li>
+                                            <li class="nav-item"><a href="#pay-prescription" data-toggle="tab" class="nav-link">处方缴费</a>
+                                            </li>
+                                        </ul>
+
+                                        <!-- 下部展示信息，包括以下内容 -->
+                                        <div class="tab-content">
+
+                                            <!-- 检查缴费 -->
+                                            <div id="pay-check" class="tab-pane fade show active">
+                                                <div class="profile-all-record">
+                                                    <div class="counter">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-responsive-md" style="text-align: center;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th><strong>名称</strong></th>
+                                                                        <th><strong>地点</strong></th>
+                                                                        <th><strong>科室</strong></th>
+                                                                        <th><strong>开具医生</strong></th>
+                                                                        <th><strong>费用</strong></th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for item in no_pay_tests_data %}
+                                                                    <tr>
+                                                                        <td>{{ item.name }}</td>
+                                                                        <td>{{ item.location }}</td>
+                                                                        <td>{{ item.dept }}</td>
+                                                                        <td>{{ item.doctor_name }}</td>
+                                                                        <td><strong>{{ item.price }}</strong></td>
+                                                                        <td>
+                                                                            <button type="button" 
+                                                                                    onclick="{{ item.test_id }}"
+                                                                                    class="btn btn-success light sharp" 
+                                                                                    style="width: 80px">
+                                                                                缴费
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 手术缴费 -->
+                                            <div id="pay-operation" class="tab-pane fade show">
+                                                <div class="profile-all-record">
+                                                    <div class="counter">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-responsive-md" style="text-align: center;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th><strong>名称</strong></th>
+                                                                        <th><strong>等级</strong></th>
+                                                                        <th><strong>时间</strong></th>
+                                                                        <th><strong>费用</strong></th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for item in no_pay_operations_data %}
+                                                                    <tr>
+                                                                        <td>{{ item.name }}</td>
+                                                                        <td>{{ item.level }}</td>
+                                                                        <td>{{ item.date|date:"Y年m月d日" }}</td>
+                                                                        <td><strong>{{ item.price }}</strong></td>
+                                                                        <td>
+                                                                            <button type="button" 
+                                                                                    onclick="{{ item.reg_id }} {{ item.operation_id }}"
+                                                                                    class="btn btn-success light sharp" 
+                                                                                    style="width: 80px">
+                                                                                缴费
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 处方缴费 -->
+                                            <div id="pay-prescription" class="tab-pane fade show">
+                                                <div class="profile-all-record">
+                                                    <div class="counter">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-responsive-md" style="text-align: center;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th><strong>挂号编号</strong></th>
+                                                                        <th><strong>开具日期</strong></th>
+                                                                        <th><strong>开具医生</strong></th>
+                                                                        <th><strong>药品种类</strong></th>
+                                                                        <th><strong>总费用</strong></th>
+                                                                        <!-- <th><strong>检查医生</strong></th> -->
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for item in no_pay_prescriptions_data %}
+                                                                    <tr>
+                                                                        <td>{{ item.reg_id }}</td>
+                                                                        <td>{{ item.date|date:"Y年m月d日" }}</td>
+                                                                        <td>{{ item.doctor_name }}</td>
+                                                                        <td>{{ item.medicine_num }}</td>
+                                                                        <td><strong>{{ item.price }}</strong></td>
+                                                                        <td>
+                                                                            <button type="button" 
+                                                                                    onclick="{{ item.reg_id }} {{ item.date }}"
+                                                                                    class="btn btn-success light sharp" 
+                                                                                    style="width: 80px">
+                                                                                缴费
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!--当前就诊（包括目前就诊的时候医生需要你进行的所有未进行过的检查）-->
                     <div class="col-lg-12" id="now">
                         <div class="card">
@@ -288,7 +446,7 @@
                                                                         <td>{{ item.name }}</td>
                                                                         <td>{{ item.location }}</td>
                                                                         <td>{{ item.dept }}</td>
-                                                                        <td>{{ item.doctor_name }}</td>
+                                                                        <!-- <td>{{ item.doctor_name }}</td> -->
                                                                     </tr>
                                                                     {% endfor %}
                                                                 </tbody>

@@ -1,8 +1,8 @@
-from django.utils import dateparse
-
 import random
 import re
 from datetime import datetime, timedelta
+
+from django.utils import dateparse
 
 import externalapi.constant as const
 
@@ -126,3 +126,7 @@ class IDInfoQuery:
     def get_name(self):
         name_len = random.randint(2, 5)
         return self.create_han_name(name_len)
+
+
+class Alipay:
+    pass
