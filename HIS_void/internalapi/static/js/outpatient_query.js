@@ -507,7 +507,7 @@ function copyMedicine() {
     let medicine_tbody = document.getElementById('medicine_tbody');
     let all_medicines = medicine_tbody.childNodes;
     for (let i = 0; i < all_medicines.length; i++) {
-        let $tr = $('<tr style="color: #36c95f"></tr>');
+        let $tr = $('<tr></tr>');
         let all_td = all_medicines[i].childNodes;
         for (let j = 0; j < all_td.length - 1; j++) {
             let $td = $('<td></td>');
