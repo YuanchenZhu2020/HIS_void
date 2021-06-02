@@ -192,15 +192,17 @@ class OutpatientAPI(View):
 
     def query_medical_advice(self, request):
         regis_id = request.GET.get('regis_id')
-        prescription = Prescription.objects.get(registration_info_id=regis_id)
-        medicine_info = PrescriptionDetail.objects.filter(prescription_info_id=prescription.id).values_list(
-            'medicine_info_id', 'medicine_quantity', 'medicine_info__medicine_name', 'medicine_info__retail_price'
-        )
-        medicine = []
-        for val in medicine_info:
-            medicine.append(dict(zip(['medicine_info_id', 'medicine_quantity', 'medicine_name', 'retail_price'], val)))
-        data = {'medical_advice': prescription.medical_advice,
-                'medicine': medicine}
+        data = {'medical_advice': None, 'medicine': []}
+        prescription = Prescription.objects.filter(registration_info_id=regis_id)
+        if prescription.exists():
+            medicine_info = PrescriptionDetail.objects.filter(prescription_info_id=prescription.id).values_list(
+                'medicine_info_id', 'medicine_quantity', 'medicine_info__medicine_name', 'medicine_info__retail_price'
+            )
+            medicine = []
+            for val in medicine_info:
+                medicine.append(dict(zip(['medicine_info_id', 'medicine_quantity', 'medicine_name', 'retail_price'], val)))
+            data = {'medical_advice': prescription.medical_advice,
+                    'medicine': medicine}
         return data
 
     def application_inhospital(self, request):
@@ -212,13 +214,17 @@ class OutpatientAPI(View):
 
     def diagnosis_over(self, request):
         regis_id = request.GET.get('regis_id')
-        regis_info = RegistrationInfo.objects.filter(id=regis_id, chief_complaint__isnull=False, diagnosis_results__isnull=False)
+        regis_info = RegistrationInfo.objects.get(id=regis_id)
         print(regis_info)
         print(regis_id)
-        if regis_info.exists():
-            RegistrationInfo.objects.filter(id=regis_id).update(diagnosis_status=2)
+        if not regis_info.diagnosis_results:
+            return {'status': -1, 'message': '尚不存在患者主诉！'}
+        elif not regis_info.chief_complaint:
+            return {'status': -1, 'message': '尚不存在确诊结果！'}
         else:
-            1/0
+            RegistrationInfo.objects.filter(id=regis_id).update(diagnosis_status=2)
+            return {'status': 0, 'message': '诊疗完毕！'}
+
 
     # endregion
 
@@ -249,10 +255,8 @@ class OutpatientAPI(View):
         history_sheet -> 病历首页
         '''
         # 根据参数直接映射对应的函数，并执行
-        post_key_to_func[post_param](request)
-
-        # 这条语句并不会使页面刷新
-        return redirect(reverse("outpatient-workspace"))
+        data = post_key_to_func[post_param](request)
+        return JsonResponse(data, safe=False)
 
     def null_string_to_none(self, string):
         return None if string.strip() == '' else string.strip()
@@ -303,10 +307,14 @@ class OutpatientAPI(View):
             data = dict(request.POST)
             RegistrationInfo.objects.filter(id=regis_id).update(diagnosis_status=1)
             test_id = len(PatientTestItem.objects.filter(registration_info_id=regis_id))
+            status = -1
+            message = '请至少选择一个检验项目！'
             for param in data:
                 print('param:', param)
                 if param not in ('post_param', 'regis_id'):
                     for test_item in data[param]:
+                        status = 0
+                        message = '检验项目已更新'
                         print('test_item: ', test_item)
                         test_id += 1
                         print(test_id)
@@ -317,6 +325,8 @@ class OutpatientAPI(View):
                             payment_status=0,
                             inspect_status=0
                         )
+        print(status, message)
+        return {'status': status, 'message': message}
 
     # 确诊结果
     def post_diagnosis_results(self, request):

@@ -682,7 +682,15 @@ function PostInspectionItem(csrf_token) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
         success: function (callback) {
-            submitAlert("提交成功", "患者信息已更新", "success");
+            console.log(callback);
+            console.log(callback);
+            console.log(callback);
+            console.log(callback);
+            if (callback.status === -1) {
+                submitAlert("提交失败", callback.message, "error");
+                return;
+            }
+            submitAlert("提交成功", callback.message, "success");
             $('.swal2-confirm').attr('onblur', 'window.location.reload()');
             init_style('#inspection_form');
         },
@@ -730,8 +738,12 @@ function diagnosis_over() {
         url: URL,
         type: 'get',
         data: {'get_param': 'diagnosis_over', 'regis_id': regis_id},
-        success: function () {
-            submitAlert('提交成功', '诊疗已结束', 'success');
+        success: function (callback) {
+            if (callback.status === -1) {
+                submitAlert('提交失败', callback.message, 'error');
+                return;
+            }
+            submitAlert('提交成功', callback.message, 'success');
             $('.swal2-confirm').attr('onblur', 'window.location.reload()');
         },
         error: function () {
