@@ -3,7 +3,6 @@
 {% block title %}门诊医生工作台{% endblock %}
 {% block body-context %}
     <link rel="stylesheet" type="text/css" href="{% static 'css/outpatient.css' %}">
-
     {# 两侧留白较小的容器 #}
     <div class="container-fluid row">
         {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病历首页，检查检验等 #}
@@ -66,7 +65,7 @@
                 <div class="card-body">
                     {# 这里时当前患者的信息，放在了最上面 #}
                     <div class="basic-form">
-                        <form>
+                        <form id="patient_basic_info">
                             <div class="form-row justify-content-center">
                                 <div class="col-md-3">
                                     <div class="input-group input-group-sm mb-3">
@@ -128,11 +127,11 @@
                                 <a href="#chu_fang_kai_ju" class="nav-link" data-toggle="tab"
                                    aria-expanded="true">处方开具</a>
                             </li>
-                            {# 手术申请按钮 #}
+                            {% comment %}{# 手术申请按钮 #}
                             <li class="nav-item">
                                 <a href="#shou_shu_shen_qing" class="nav-link" data-toggle="tab"
                                    aria-expanded="true">手术申请</a>
-                            </li>
+                            </li>{% endcomment %}
                             {# 患者账单按钮 #}
                             <li class="nav-item">
                                 <a href="#huan_zhe_zhang_dan" class="nav-link" data-toggle="tab"
@@ -331,7 +330,7 @@
                         </div>
 
                         {# 手术申请页面信息 #}
-                        <div id="shou_shu_shen_qing" class="tab-pane fade">
+                        {% comment %}<div id="shou_shu_shen_qing" class="tab-pane fade">
                             <div class="card-body">
                                 <div class="basic-form">
                                     <form action="#">
@@ -352,10 +351,26 @@
                                                    class="col-md-10.5 datepicker-default form-control form-control-lg"
                                                    id="datepicker"/>
                                         </div>
+                                        <div class="row input-group input-group-lg mb-4">
+                                            <label class="col-md-1.5 col-form-label text-right">手术名称： </label>
+                                <select class="dropdown-groups">
+                                    <option>无</option>
+                                    <optgroup label="Group Name">
+                                        <option>Nested option 1</option>
+                                        <option>Nested option 2</option>
+                                        <option>Nested option 3</option>
+                                    </optgroup>
+                                    <optgroup label="Another Group Name">
+                                        <option>Nested option 1</option>
+                                        <option>Nested option 2</option>
+                                        <option>Nested option 3</option>
+                                    </optgroup>
+                                </select>
+                                        </div>
                                     </form>
                                 </div>
                             </div>
-                        </div>
+                        </div>{% endcomment %}
 
                         {# 患者账单页面信息 #}
                         <div id="huan_zhe_zhang_dan" class="tab-pane fade">
@@ -410,12 +425,6 @@
                                         </table>
                                     </div>
                                 </div>
-                                <div class="card-footer border-0 pt-0">
-                                    <p class="card-text d-inline">Card footer</p>
-                                    <a href="javascript:void(0)"
-                                       class="card-link float-right">Card
-                                        link</a>
-                                </div>
                                 <div class="text-right">
                                     <button class="btn btn-primary" onclick="diagnosis_over()">诊疗结束</button>
                                 </div>
@@ -427,5 +436,12 @@
         </div>
     </div>
     <script src="{% static 'js/outpatient_query.js' %}"></script>
+    <script src="{% static 'js/custom_utils.js' %}"></script>
+
+
+
+
+
+
 
 {% endblock %}

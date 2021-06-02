@@ -15,10 +15,26 @@ function StringFormat() {
 
 
 function clear_all_info() {
-    $("#no").removeAttr('placeholder');
-    $("#name").removeAttr('placeholder');
-    $("#gender").removeAttr('placeholder');
-    $("#age").removeAttr('placeholder');
+    // 清除最上方病人信息
+    $('#patient_basic_info').find('input').each(function (i, tag) {
+        $(tag).val('');
+        $(tag).removeAttr('placeholder');
+    });
+    // 清空病历首页的内容
+    $('#history_sheet_form').find('input:visible, textarea').each(function (i, tag) {
+        $(tag).val('');
+        $(tag).removeAttr('placeholder');
+    })
+    $('#inspection_text').empty();
+    $('#inspection_text_copy').empty();
+    $('#medicine_tbody').empty();
+    $('#diagnosis_results').val('');
+    $('#medical_advice').val('');
+    $('#medicine_count').text(0);
+    $('#medicine_copy_total_price').text(0);
+    $('#inspection_count').text(0);
+    $('#medicine_copy_tbody').empty();
+    $('#inspection_cost_body').empty();
 }
 
 //region 查询函数
@@ -111,7 +127,7 @@ function clear_patient_card_style() {
 }
 
 function init_style(id_selector) {
-    $(id_selector).find('input, textarea, tr').each(function (i, tag) {
+    $(id_selector).find('input:visible, textarea, tr').each(function (i, tag) {
         console.log(tag);
         if ($(tag).val())
             $(tag).attr('style', 'color: #a2a5a8;');
@@ -159,6 +175,9 @@ function QueryInDiagnosisPatient() {
         success: function (data) {
             let $in_diagnosis_card = $("#in_diagnosis");
             console.log(data);
+            data.sort(function (a, b) {
+                return b.progress - a.progress;
+            })
             for (let i = 0; i < data.length; i++) {
                 let patient = data[i];
                 let progress = '<div class="progress"><div class="progress-bar {1}"' +
@@ -288,7 +307,7 @@ function ApplicationInhospital(dept_id) {
             type: "get",
             data: {'regis_id': regis_id, 'get_param': 'application_inhospital', 'dept_id': dept_id},
             success: function () {
-                submitAlert('提交成功', '已提交至住院部', 'success', true);
+                submitAlert('提交成功', '已移交至住院部', 'success');
                 $('.swal2-confirm').attr('onblur', 'window.location.reload()');
             },
             error: function () {
@@ -690,7 +709,7 @@ function PostDiagnosisResults(csrf_token) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
         success: function (callback) {
-            submitAlert("提交成功", "诊断结果", "success");
+            submitAlert("提交成功", "诊断结果已更新", "success");
             init_style('#diagnosis_results_form');
         },
         error: function (callback) {

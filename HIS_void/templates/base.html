@@ -9,10 +9,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>{% block title %}{% endblock %} - 医院信息管理系统</title>
     <!-- Favicon icon -->
+    <link rel="stylesheet" href="{% static 'vendor/select2/css/select2.min.css' %}">
+
     <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon.png' %}">
     <link href="{% static 'vendor/owl-carousel/owl.carousel.css' %}" rel="stylesheet">
-    <link href="{% static 'vendor/bootstrap-select/css/bootstrap-select.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="https://cdn.lineicons.com/2.0/LineIcons.css" rel="stylesheet">
     <!-- Daterange picker -->
     <link href="{% static 'vendor/bootstrap-daterangepicker/daterangepicker.css' %}" rel="stylesheet">
@@ -28,10 +28,10 @@
     <link rel="stylesheet" href="{% static 'vendor/pickadate/themes/default.date.css' %}">
     <!-- Custom Stylesheet -->
     <link href="{% static 'vendor/bootstrap-select/css/bootstrap-select.min.css' %}" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
 
     <link rel="stylesheet" href="{% static 'vendor/toastr/css/toastr.min.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/sweetalert2/sweetalert2.min.css' %}">
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/breadcrumb-adjust.css' %}">
 
     <!-- 调整左上角Logo位置 -->
@@ -74,6 +74,9 @@
     Scripts
 ***********************************-->
 <!-- Required vendors -->
+<script src="{% static 'vendor/select2/js/select2.full.min.js' %}"></script>
+<script src="{% static 'js/plugins-init/select2-init.js' %}"></script>
+
 <script src="{% static 'vendor/global/global.min.js' %}"></script>
 <script src="{% static 'vendor/bootstrap-select/js/bootstrap-select.min.js' %}"></script>
 <script src="{% static 'js/custom.min.js' %}"></script>
@@ -125,8 +128,6 @@
 <script src="{% static 'vendor/toastr/js/toastr.min.js' %}"></script>
 <script src="{% static 'vendor/sweetalert2/sweetalert2.min.js' %}"></script>
 
-<!-- select 2-->
-<script src="https://cdn.bootcdn.net/ajax/libs/select2/3.3.2/select2.min.js"></script>
 
 <!-- All init script -->
 <script src="{% static 'js/plugins-init/toastr-init.js' %}"></script>
