@@ -269,10 +269,15 @@
                                                                         <td>{{ item.doctor_name }}</td>
                                                                         <td><strong>{{ item.price }}</strong></td>
                                                                         <td>
-                                                                            <button type="button" 
-                                                                                    onclick="{{ item.test_id }}"
-                                                                                    class="btn btn-success light sharp" 
-                                                                                    style="width: 80px">
+                                                                            <!-- 使用 form 提交，避免函数拥有过多的参数 -->
+                                                                            <!-- <form action="/PaymentAPI/" method="POST">
+                                                                                {% csrf_token %}
+                                                                                <input type="text" name="item" value="test" hidden>
+                                                                                <input type="text" name="price" value="{{ item.price }}" hidden>
+                                                                                <input type="text" name="pk" value="{{ item.reg_id }}-{{ item.test_id }}" hidden>
+                                                                            </form> -->
+                                                                            <button type="suubmit" class="btn btn-success light sharp" style="width: 80px"
+                                                                                    onclick="third_party_pay('{{ csrf_token }}', 'test', {{ item.price }}, '{{ request.session.patient_id }}-{{ item.reg_id }}-{{ item.test_id }}', '{{ item.name }}', '{{ return_url }}');">
                                                                                 缴费
                                                                             </button>
                                                                         </td>
@@ -308,10 +313,8 @@
                                                                         <td>{{ item.date|date:"Y年m月d日" }}</td>
                                                                         <td><strong>{{ item.price }}</strong></td>
                                                                         <td>
-                                                                            <button type="button" 
-                                                                                    onclick="{{ item.reg_id }} {{ item.operation_id }}"
-                                                                                    class="btn btn-success light sharp" 
-                                                                                    style="width: 80px">
+                                                                            <button type="button" class="btn btn-success light sharp" style="width: 80px" 
+                                                                                    onclick="third_party_pay('{{ csrf_token }}', 'operation', {{ item.price }}, '{{ request.session.patient_id }}-{{ item.reg_id }}-{{ item.operation_id }}', '{{ item.name }}', '{{ return_url }}');">
                                                                                 缴费
                                                                             </button>
                                                                         </td>
@@ -350,10 +353,8 @@
                                                                         <td>{{ item.medicine_num }}</td>
                                                                         <td><strong>{{ item.price }}</strong></td>
                                                                         <td>
-                                                                            <button type="button" 
-                                                                                    onclick="{{ item.reg_id }} {{ item.date }}"
-                                                                                    class="btn btn-success light sharp" 
-                                                                                    style="width: 80px">
+                                                                            <button type="button" class="btn btn-success light sharp" style="width: 80px"
+                                                                                    onclick="third_party_pay('{{ csrf_token }}', 'prescription', {{ item.price }}, `{{ request.session.patient_id }}-{{ item.reg_id }}-{{ item.date|date:'Y_m_d_H_i_s' }}`, '处方', '{{ return_url }}');">
                                                                                 缴费
                                                                             </button>
                                                                         </td>

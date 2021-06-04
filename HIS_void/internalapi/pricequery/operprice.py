@@ -9,8 +9,8 @@ class OperPriceQuery:
         self.oper_name = operation_name
         self.oper_level = int(operation_level)
 
-        self.factor = random.random() * len(self.oper_name) * 10
-        self.price_range = [10000, int(10000 * self.factor)]
+        self.factor = random.random() * len(self.oper_name) * 100
+        self.price_range = [1000, int(1000 * self.factor)]
         self.large_factor = pow(2, self.oper_level)
 
     def query(self):

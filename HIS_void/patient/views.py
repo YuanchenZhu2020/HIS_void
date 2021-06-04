@@ -1,4 +1,5 @@
 from collections import Counter
+from django.conf import settings
 from django.db import models
 
 from django.db.models import Sum, F
@@ -333,7 +334,8 @@ class PatientDetailsView(View):
         )
         waiting_tests_data = []
         for test in waiting_tests:
-            location = DeptLocQuery(test[2], is_outpatient = False).query()
+            inspection_dept_id = 10
+            location = DeptLocQuery(inspection_dept_id, is_outpatient = False).query()
             waiting_tests_data.append(dict(zip(
                 # ["test_id", "name", "dept", "doctor_id", "doctor_name", "location"],
                 ["test_id", "name", "dept", "location"],
@@ -356,6 +358,7 @@ class PatientDetailsView(View):
         ).order_by(
             "-test_id"
         ).values_list(
+            "registration_info__reg_id",
             "test_id", 
             "test_item__inspect_name",
             "registration_info__medical_staff__name", 
@@ -365,7 +368,7 @@ class PatientDetailsView(View):
         for test in no_pay_tests:
             location = DeptLocQuery(test[2], is_outpatient = False).query()
             no_pay_tests_data.append(dict(zip(
-                ["test_id", "name", "doctor_name", "price", "dept", "location"],
+                ["reg_id", "test_id", "name", "doctor_name", "price", "dept", "location"],
                 test + ("检验科", location,)
             )))
 
@@ -432,7 +435,7 @@ class PatientDetailsView(View):
                 ["reg_id", "date", "doctor_name", "medicine_num", "price"],
                 pres_info
             )))
-            print(no_pay_prescriptions_data)
+            # print(no_pay_prescriptions_data)
 
         # 历史检查记录
         # 已完成的检查，即 inspect_status 为 1 (True)
@@ -480,15 +483,19 @@ class PatientDetailsView(View):
             err_msg = ex_context.get("error_message")
             suc_msg = ex_context.get("success_message")
         context = {
+            # 诊疗信息部分
             "diagnosis_data": diagnosis_data,
             "reg_doctors_data": reg_doctors_data,
             "tests_data": tests_data,
             "waiting_regs_data": waiting_regs_data,
             "waiting_tests_data": waiting_tests_data,
             "person_data": person_data,
+            # 缴费信息部分
             "no_pay_tests_data": no_pay_tests_data,
             "no_pay_operations_data": no_pay_operations_data,
             "no_pay_prescriptions_data": no_pay_prescriptions_data,
+            "return_url": reverse(settings.ALIPAY_APP_RETURN_URL_NAME),
+            # 个人信息部分
             "login_form": PatientLoginForm(),
             "reg_dates": PatientDetailsView.REG_DATES_CACHE,
             "error_message": err_msg,

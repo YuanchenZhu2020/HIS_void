@@ -185,6 +185,9 @@ SAFE_URL = [
     r"/news/",
     r"/PatientFastRegisterAPI", # 患者快速挂号API
     r"/PatientTreatmentDetailAPI", # 患者治疗信息查询API
+    r"/PaymentAPI", # 支付接口
+    r"/PaymentNotifyAPI", # 支付成功回调接口
+    r"/payment-check", # 支付验证页面
 ]
 
 # setup session engine to improve performance
@@ -221,10 +224,12 @@ APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
 # alipay sandbox
 # 支付宝沙箱 APP_ID
 ALIPAY_APPID = '2021000117667930'
-# 支付宝网站回调 URL
-ALIPAY_APP_NOTIFY_URL = None
-# 支付宝同步 return_url 地址
-ALIPAY_APP_RETURN_URL = None
+# 支付宝网站回调 URL 名称
+ALIPAY_APP_NOTIFY_URL_NAME = "payment-notify"
+# 支付宝同步 return_url 名称
+ALIPAY_APP_RETURN_URL_NAME = "payment-check"
+# 支付宝订单超时失效时间
+ALIPAY_TIMEOUT_MINUTE = 15
 # 网站私钥文件路径
 APP_PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'externalapi/alipay_keys/app_private.key')
 # 支付宝公钥文件路径

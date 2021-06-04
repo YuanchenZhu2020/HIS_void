@@ -222,6 +222,7 @@ function QueryDocReg(doctor_id, doctor_name, date) {
     })
 }
 
+
 // 获取挂号信息详情
 function diagnosis_detail(reg_id) {
     let URL = "/PatientTreatmentDetailAPI"
@@ -246,6 +247,7 @@ function diagnosis_detail(reg_id) {
     })
 }
 
+
 // 获取检查信息详情
 function check_detail(reg_id, test_id) {
     let URL = "/PatientTreatmentDetailAPI"
@@ -267,6 +269,38 @@ function check_detail(reg_id, test_id) {
         error: error => {
             console.log(error);
             alert("无法获取数据，请检查您是否联网");
+        }
+    })
+}
+
+
+// 患者缴费函数
+function third_party_pay(csrf_token, item, price, pk_str, subject, return_url) {
+    let URL = "/PaymentAPI/";
+    // 目前只支持支付宝支付
+    let pay_type = "alipay";
+    $.ajax({
+        type: "POST",
+        url: URL,
+        dataType: 'json',
+        data: {
+            "type": pay_type,
+            "item": item,
+            "price": price,
+            "pk": pk_str,
+            "subject": subject,
+            "return_url": return_url,
+        },
+        beforeSend: function (xhr, setting) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        success: data => {
+            console.log(data);
+            window.location.href = data["url"];
+        },
+        error: error => {
+            console.log(error);
+            alert("暂不能进行支付，请稍后再试！")
         }
     })
 }
