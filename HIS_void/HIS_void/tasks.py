@@ -84,7 +84,7 @@ def gen_remaining_registration():
                     "AM": dateparse.parse_datetime(dt.__str__() + " 08:00:00").astimezone(timezone.utc),
                     "PM": dateparse.parse_datetime(dt.__str__() + " 13:00:00").astimezone(timezone.utc),
                 }
-                reg_num = int(ms.title.titleregisternumber.register_number / 2)
+                reg_num = int(ms.title.titleregisternumber.registration_number / 2)
                 remaining_regs += [
                     RemainingRegistration(
                         medical_staff = ms,
@@ -126,7 +126,7 @@ def insert_day_remaining_registration():
                 "AM": dateparse.parse_datetime(today.__str__() + " 08:00:00").astimezone(timezone.utc),
                 "PM": dateparse.parse_datetime(today.__str__() + " 13:00:00").astimezone(timezone.utc),
             }
-            reg_num = int(ms.title.titleregisternumber.register_number / 2)
+            reg_num = int(ms.title.titleregisternumber.registration_number / 2)
             remaining_regs += [
                 RemainingRegistration(
                     medical_staff = ms,
