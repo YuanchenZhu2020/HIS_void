@@ -163,7 +163,7 @@ class AlipayClient:
         )
         return client
 
-    def get_pay_url(self, pay_data):
+    def get_page_pay_url(self, pay_data):
         # 获得支付宝客户端
         client = AlipayClient.CLIENT
         # 构造请求参数
@@ -176,7 +176,7 @@ class AlipayClient:
         )
         pay_url = settings.ALIPAY_URL + "?" + order_string
         return {'res': 0, 'msg': '正在支付中...', 'url': pay_url}
-    
+
     @staticmethod
     def verify(request):
         data = request.GET.dict()

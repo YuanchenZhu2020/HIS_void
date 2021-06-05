@@ -7,9 +7,9 @@ from outpatient.models import (
 
 
 class TitleRegisterNumberAdmin(admin.ModelAdmin):
-    list_display = ("title", "register_number")
+    list_display = ("title", "registration_number")
     list_filter = ("title", )
-    search_fields = ("title", "register_number")
+    search_fields = ("title", "registration_number")
 
 admin.site.register(TitleRegisterNumber, TitleRegisterNumberAdmin)
 

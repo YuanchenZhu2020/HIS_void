@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
 
 from patient.models import PatientUser
@@ -8,7 +9,7 @@ from pharmacy.models import MedicineInfo
 
 class TitleRegisterNumber(models.Model):
     """
-    职称-挂号数对应表
+    职称-挂号数-挂号费用对应表
     """
     title = models.OneToOneField(
         HospitalTitle, 
@@ -16,14 +17,21 @@ class TitleRegisterNumber(models.Model):
         on_delete = models.CASCADE,
         verbose_name = _("职称")
     )
-    register_number = models.PositiveIntegerField(verbose_name = _("挂号数限额"))
+    registration_number = models.PositiveIntegerField(verbose_name = _("挂号数限额"))
+    registration_price = models.FloatField(
+        null = True,
+        blank = True,
+        validators = [MinValueValidator(1),],
+        verbose_name = _("挂号费用"),
+        help_text = _("单位为￥"),
+    )
 
     class Meta:
         verbose_name = _("职称-挂号数")
         verbose_name_plural = verbose_name
     
     def __str__(self) -> str:
-        return "<Title {} | RegNum {}>".format(self.title, self.register_number)
+        return "<Title {} | RegNum {}>".format(self.title, self.registration_number)
 
 
 class RemainingRegistration(models.Model):

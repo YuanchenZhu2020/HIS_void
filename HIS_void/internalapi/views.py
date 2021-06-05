@@ -496,31 +496,37 @@ class PatientRegisterAPI(View):
         #     "doctor_name": "lisa",
         #     "AM": 3,
         #     "PM": 4,
+        #     "price": 25,
         # },...]
         reg_date = request.GET.get('date')
+        # 构造挂号时段
         reg_datetime = {
             "AM": dateparse.parse_datetime(reg_date + " 08:00:00").astimezone(timezone.utc), 
             "PM": dateparse.parse_datetime(reg_date + " 13:00:00").astimezone(timezone.utc)
         }
         dept_id = int(request.GET.get('KS_id'))
+        # 获取指定科室、指定时段的剩余挂号信息
         reginfo_detail = RemainingRegistration.objects.filter(
             medical_staff__dept__usergroup__ug_id = dept_id,
             register_date__in = reg_datetime.values()
         ).values_list(
             "medical_staff__user__username",
             "medical_staff__name",
+            "medical_staff__title__titleregisternumber__registration_price",
             "register_date",
             "remain_quantity",
         )
         doctor_info = reginfo_detail.values_list(
             "medical_staff__user__username",
-            "medical_staff__name"
+            "medical_staff__name",
+            "medical_staff__title__titleregisternumber__registration_price",
         ).distinct()
         reginfo = []
         for regdetail in doctor_info:
             doc_reg = {
                 "doctor_id": regdetail[0],
                 "doctor_name": regdetail[1],
+                "price": regdetail[2],
                 "AM": reginfo_detail.filter(
                         medical_staff__user__username = regdetail[0],
                         register_date = reg_datetime["AM"]
@@ -540,6 +546,7 @@ class PatientRegisterAPI(View):
         from django.middleware.csrf import get_token
         token = get_token(request)
         data = {
+            "query_source": request.session["patient_id"],
             "query_data": query_data, 
             "token": token, 
             "submit_url": reverse(PatientRegisterAPI.SUBMIT_URL_NAME)
@@ -838,7 +845,7 @@ class PaymentAPI(View):
             )
 
     def pay_alipay(self, pay_data):
-        pay_info = AlipayClient().get_pay_url(pay_data)
+        pay_info = AlipayClient().get_page_pay_url(pay_data)
         return pay_info
 
 
