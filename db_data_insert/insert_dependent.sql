@@ -7,8 +7,8 @@ insert into his_department
     (13,0,'');
 -- 职称-挂号数reference职称
 insert into outpatient_titleregisternumber 
-(title_id, register_number) values
-    (1,120),(2,80),(3,60),(4,40);
+(title_id, registration_number, registration_price) values
+    (1,120,15),(2,80,30),(3,60,45),(4,40,60);
 -- 科室-病区-床位reference科室部门,病区
 -- 字段顺序：编号, 床位号, 病区, 科室
 insert into his_deptareabed 

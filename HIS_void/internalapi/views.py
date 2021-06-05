@@ -1,22 +1,27 @@
-import datetime
 import json
 from time import sleep
+import uuid
 
+from django.conf import settings
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import redirect
+from django.http.response import HttpResponse
+from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils import timezone, dateparse
 from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 
 from his.models import Department, DeptAreaBed, Staff
-from inpatient.models import HospitalRegistration
-from outpatient.models import RemainingRegistration, RegistrationInfo
+from inpatient.models import HospitalRegistration, OperationInfo
+from outpatient.models import RemainingRegistration, RegistrationInfo, Prescription
 from patient.models import PatientUser
 from rbac.decorators import patient_login_required
 from pharmacy.models import MedicineInfo
 from laboratory.models import PatientTestItem
+from internalapi.models import PaymentRecord
+from externalapi.external_api import AlipayClient
 
 
 def get_current_reg_time():
@@ -479,39 +484,49 @@ class PatientRegisterAPI(View):
     患者挂号查询与提交API
     """
     SUBMIT_URL_NAME = "PatientRegisterAPI"
+    RE_REG_REDIRECT_URL_NAME = "patient"
     patient_next_url_name = "patient-details"
 
     def query_registration_info(self, request):
+        """
+        查询
+        """
         # 数据格式示例：[{
         #     "doctor_id": "999",
         #     "doctor_name": "lisa",
         #     "AM": 3,
         #     "PM": 4,
+        #     "price": 25,
         # },...]
         reg_date = request.GET.get('date')
+        # 构造挂号时段
         reg_datetime = {
             "AM": dateparse.parse_datetime(reg_date + " 08:00:00").astimezone(timezone.utc), 
             "PM": dateparse.parse_datetime(reg_date + " 13:00:00").astimezone(timezone.utc)
         }
         dept_id = int(request.GET.get('KS_id'))
+        # 获取指定科室、指定时段的剩余挂号信息
         reginfo_detail = RemainingRegistration.objects.filter(
             medical_staff__dept__usergroup__ug_id = dept_id,
             register_date__in = reg_datetime.values()
         ).values_list(
             "medical_staff__user__username",
             "medical_staff__name",
+            "medical_staff__title__titleregisternumber__registration_price",
             "register_date",
             "remain_quantity",
         )
         doctor_info = reginfo_detail.values_list(
             "medical_staff__user__username",
-            "medical_staff__name"
+            "medical_staff__name",
+            "medical_staff__title__titleregisternumber__registration_price",
         ).distinct()
         reginfo = []
         for regdetail in doctor_info:
             doc_reg = {
                 "doctor_id": regdetail[0],
                 "doctor_name": regdetail[1],
+                "price": regdetail[2],
                 "AM": reginfo_detail.filter(
                         medical_staff__user__username = regdetail[0],
                         register_date = reg_datetime["AM"]
@@ -531,6 +546,7 @@ class PatientRegisterAPI(View):
         from django.middleware.csrf import get_token
         token = get_token(request)
         data = {
+            "query_source": request.session["patient_id"],
             "query_data": query_data, 
             "token": token, 
             "submit_url": reverse(PatientRegisterAPI.SUBMIT_URL_NAME)
@@ -538,6 +554,7 @@ class PatientRegisterAPI(View):
         return JsonResponse(data, safe = False)
 
     def post(self, request):
+        # 获取请求中的信息
         reg_info = json.loads(request.body.decode())
         reg_info["reg_datetime"] = timezone.make_aware(
             dateparse.parse_datetime(reg_info["reg_datetime"])
@@ -545,6 +562,24 @@ class PatientRegisterAPI(View):
         reg_info["is_emergency"] = Staff.objects.get_by_user(
             reg_info["doctor_id"]
         ).dept == Department.objects.get_by_dept_name("急诊科")
+        # 获取病人与医生对象
+        patient_id = request.session["patient_id"]
+        patient = PatientUser.objects.get_by_patient_id(patient_id)
+        doctor = Staff.objects.get_by_user(reg_info["doctor_id"])
+        # 检查是否存在重复的挂号记录
+        if RegistrationInfo.objects.filter(
+            patient = patient,
+            medical_staff = doctor,
+            registration_date = reg_info["reg_datetime"],
+        ).count() > 0:
+            return JsonResponse(
+                {
+                    "status": False, 
+                    "msg": "您已重复挂号！",
+                    "redirect_url": reverse(PatientRegisterAPI.RE_REG_REDIRECT_URL_NAME)
+                }, 
+                safe = False
+            )
         with transaction.atomic():
             # 更新剩余挂号数
             remain_reg_record = RemainingRegistration.objects.get(
@@ -554,9 +589,6 @@ class PatientRegisterAPI(View):
             remain_reg_record.remain_quantity = remain_reg_record.remain_quantity - 1
             remain_reg_record.save()
             # 写入挂号信息
-            patient_id = request.session["patient_id"]
-            patient = PatientUser.objects.get_by_patient_id(patient_id)
-            doctor = Staff.objects.get_by_user(reg_info["doctor_id"])
             reg_id = patient.registration_set.count() + 1
             reg_record = RegistrationInfo.objects.create(
                 patient = patient,
@@ -566,7 +598,11 @@ class PatientRegisterAPI(View):
                 reg_class = 1 if reg_info["is_emergency"] else 0
             )
         return JsonResponse(
-            {"status": True, "redirect_url": reverse(PatientRegisterAPI.patient_next_url_name)}, 
+            {
+                "status": True, 
+                "msg": "即将跳转至您的个人界面", 
+                "redirect_url": reverse(PatientRegisterAPI.patient_next_url_name)
+            },
             safe = False
         )
 
@@ -736,3 +772,330 @@ class InpatientAPI(View):
                 "bed": 64,
             }]
         return JsonResponse(data, safe=False)
+
+
+@method_decorator(patient_login_required(login_url = "/login-patient/"), name = "post")
+class PaymentAPI(View):
+    """
+    支付API
+
+    （暂时只支持支付宝Alipay）
+    """
+    NOTIFY_URL_NAME = settings.ALIPAY_APP_NOTIFY_URL_NAME
+    # 支付项目类型名称(str, name) -> 支付项目类型存储值(int)
+    # e.g. 挂号 -> 0
+    ITEM_TYPE_DICT = {item[1]:item[0] for item in PaymentRecord.ITEM_TYPE_ITEMS}
+    # 支付项目类型存储值(int) -> 支付项目类型名称(str, name)
+    # e.g. 0 -> 挂号
+    ITEM_TYPE_DICT_REV = dict(PaymentRecord.ITEM_TYPE_ITEMS)
+    # 支付项目类型代码(str, code) -> 支付项目类型名称(str, name)
+    # e.g. registration -> 挂号
+    ITEM_TYPE_STR_MAP = dict(zip(
+        ["registration", "test", "operation", "prescription", "discharge"],
+        ITEM_TYPE_DICT.keys()
+    ))
+
+    def post(self, request):
+        pay_type_to_func = {
+            # 支付宝支付
+            "alipay": self.pay_alipay,
+            # 微信支付
+            # "wechatpay": self.pay_wechatpay,
+        }
+        # 获取支付类型（支付平台代号）
+        pay_type = request.POST.get("type")
+        # 获取协议与域名，用于构造 return/notify url
+        schema = request.scheme
+        host = request.get_host()
+        url_pattern = "{}://{}/{}".format(schema, host, '{}')
+        # 构造支付信息字典，并加入支付成功的回调URL
+        pay_data = {
+            "item": request.POST.get("item"),
+            "price": request.POST.get("price"),
+            "pk": request.POST.get("pk"),
+            "subject": request.POST.get("subject"),
+            "return_url": url_pattern.format(request.POST.get("return_url").strip('/')),
+            "notify_url": '',
+            "out_trade_no": '',
+        }
+        pay_data["notify_url"] = url_pattern.format(reverse(PaymentAPI.NOTIFY_URL_NAME).strip('/'))
+        # 这里使用 uuid1 算法保证唯一性，但可能泄露主机 MAC，需要更换
+        pay_data["out_trade_no"] = pay_data["item"] + uuid.uuid1().hex
+        # 记录订单信息
+        self.create_payment_record(pay_data)
+        # 获取支付信息，包括：
+        # @res: 标志
+        # @msg: 提示信息
+        # @url: 支付URL
+        pay_info = pay_type_to_func[pay_type](pay_data)
+        return JsonResponse(pay_info, safe = False)
+
+    def create_payment_record(self, pay_data):
+        # return
+        item_type = PaymentAPI.ITEM_TYPE_DICT[
+            PaymentAPI.ITEM_TYPE_STR_MAP[pay_data["item"]]
+        ]
+        with transaction.atomic():
+            PaymentRecord.objects.create(
+                trade_no = pay_data["out_trade_no"],
+                total_amount = pay_data["price"],
+                item_type = item_type,
+                item_name = pay_data["subject"],
+                item_pk = pay_data["pk"]
+            )
+
+    def pay_alipay(self, pay_data):
+        pay_info = AlipayClient().get_page_pay_url(pay_data)
+        return pay_info
+
+
+class PaymentCheck(View):
+    """
+    检查支付是否成功。成功则跳转回主页，失败则显示失败页面，然后跳转回目标页面
+    """
+    PAYMENT_ERROR_PAGE = "payment_error.html"
+    PAYMENT_SUCCESS_NAME = "index"
+
+    def get(self, request):
+        success = AlipayClient().verify(request)
+        
+        # ##### 测试各表 payment 字段的更新 #####
+        # out_trade_no = request.GET.get("out_trade_no")
+        # # 2. 根据订单号将数据库中的数据进行更新（修改订单状态）
+        # pr = PaymentRecord.objects.get(trade_no = out_trade_no)
+        # # 2.1 根据订单记录中的 item_type 找到要更新的表，更新对应的缴费字段
+        # status = self.update_payment_field(pr.item_type, pr.item_pk)
+        # # 2.2 更新缴费记录中的缴费字段
+        # self.update_payment_status(out_trade_no)
+        # ##### END #####
+        
+        if success:
+            return redirect(reverse(PaymentCheck.PAYMENT_SUCCESS_NAME))
+        return render(request, PaymentCheck.PAYMENT_ERROR_PAGE)
+
+    def update_payment_field(self, item_type, item_pk):
+        value_to_func = {
+            0: self.update_registration_info, # 挂号
+            1: self.update_patient_test_item, # 患者检验项目
+            2: self.update_operation_info, # 手术
+            3: self.update_prescription, # 处方
+            4: self.update_hospital_registration, # 住院记录
+        }
+        item_pk_list = item_pk.split('-')
+        status = value_to_func.get(item_type)(item_pk_list)
+        return status
+    
+    def update_payment_status(self, pk):
+        """
+        更新缴费记录表中对应订单的缴费状态字段
+        """
+        with transaction.atomic():
+            pr = PaymentRecord.objects.get(trade_no = pk)
+            pr.is_pay = 1
+            pr.save()
+    
+    def update_registration_info(self, pk_list):
+        """
+        根据主键列表找到对应挂号信息中的记录，更新缴费状态字段。
+        """
+        patient_id, reg_id = pk_list[0:2]
+        patient = PatientUser.objects.get_by_patient_id(patient_id)
+        with transaction.atomic():
+            ri = RegistrationInfo.objects.get(patient = patient, reg_id = reg_id)
+            ri.payment_status = True
+            ri.save()
+        return True
+    
+    def update_patient_test_item(self, pk_list):
+        """
+        根据主键列表找到对应患者检验项目中的记录，更新缴费状态字段。
+        """
+        patient_id, reg_id, test_id = pk_list[0:3]
+        with transaction.atomic():
+            pti = PatientTestItem.objects.get(
+                registration_info__patient__patient_id = patient_id,
+                registration_info__reg_id = reg_id, 
+                test_id = test_id
+            )
+            pti.payment_status = True
+            pti.save()
+        return True
+    
+    def update_operation_info(self, pk_list):
+        """
+        根据主键列表找到对应手术信息中的记录，更新缴费状态字段。
+        """
+        patient_id, reg_id, operation_id = pk_list[0:3]
+        with transaction.atomic():
+            oi = OperationInfo.objects.get(
+                registration_info__patient__patient_id = patient_id,
+                registration_info__reg_id = reg_id,
+                operation_id = operation_id
+            )
+            oi.payment_status = True
+            oi.save()
+        return True
+
+    def update_prescription(self, pk_list):
+        """
+        根据主键列表找到对应入院信息中的记录，更新缴费状态字段。
+        """
+        patient_id, reg_id, prescription_date = pk_list[0:3]
+        prescription_date = prescription_date.split('_')
+        pres_date = '-'.join(prescription_date[0:3]) + " " + ':'.join(prescription_date[3:6])
+        pres_date = dateparse.parse_datetime(pres_date).astimezone(timezone.utc)
+        with transaction.atomic():
+            pp = Prescription.objects.get(
+                registration_info__patient__patient_id = patient_id,
+                registration_info__reg_id = reg_id,
+                prescription_date = pres_date
+            )
+            pp.payment_status = True
+            pp.save()
+        return True
+
+    def update_hospital_registration(self, pk_list):
+        """
+        根据主键列表找到对应挂号信息中的记录，更新缴费状态字段。
+        """
+        patient_id, reg_id = pk_list[0:2]
+        with transaction.atomic():
+            hr = HospitalRegistration.objects.get(
+                registration_info__patient__patient_id = patient_id,
+                registration_info__reg_id = reg_id
+            )
+            hr.payment_status = True
+            hr.save()
+        return True
+
+
+@method_decorator(csrf_exempt, name = "post")
+class PaymentNotifyAPI(View):
+    """
+    支付回调视图函数，用于在支付成功后，接收支付宝发送的 POST 请求，然后修改订单状态。
+
+    公网下才能够执行
+    ---------------
+    """
+
+    def post(self, request):
+        from urllib.parse import parse_qs
+
+        body_str = request.body.decode('utf-8')
+        post_data = parse_qs(body_str)
+        print("update order: ", post_data)
+
+        post_dict = {}
+        for k, v in post_data.items():
+            post_dict[k] = v[0]
+        
+        client = AlipayClient().CLIENT
+        sign = post_dict.pop('sign', None)
+        status = client.verify(post_dict, sign)
+        if status:
+            # 1. 获取订单号
+            out_trade_no = request.GET.get("out_trade_no")
+            # 2. 根据订单号将数据库中的数据进行更新（修改订单状态）
+            pr = PaymentRecord.objects.get(trade_no = out_trade_no)
+            # 2.1 根据订单记录中的 item_type 找到要更新的表，更新对应的缴费字段
+            status = self.update_payment_field(pr.item_type, pr.item_pk)
+            # 2.2 更新缴费记录中的缴费字段
+            self.update_payment_status(out_trade_no)
+            return HttpResponse('success')
+        # 3. 最终需要返回 "success" 字符给支付宝，否则支付宝将一直请求该地址并发送回调结果（具体看官方文档）
+        return HttpResponse('success')
+    
+    def update_payment_field(self, item_type, item_pk):
+        value_to_func = {
+            0: self.update_registration_info, # 挂号
+            1: self.update_patient_test_item, # 患者检验项目
+            2: self.update_operation_info, # 手术
+            3: self.update_prescription, # 处方
+            4: self.update_hospital_registration, # 住院记录
+        }
+        item_pk_list = item_pk.split('-')
+        status = value_to_func.get(item_type)(item_pk_list)
+        return status
+    
+    def update_payment_status(self, pk):
+        """
+        更新缴费记录表中对应订单的缴费状态字段
+        """
+        with transaction.atomic():
+            pr = PaymentRecord.objects.get(trade_no = pk)
+            pr.is_pay = 1
+            pr.save()
+    
+    def update_registration_info(self, pk_list):
+        """
+        根据主键列表找到对应挂号信息中的记录，更新缴费状态字段。
+        """
+        patient_id, reg_id = pk_list[0:2]
+        patient = PatientUser.objects.get_by_patient_id(patient_id)
+        with transaction.atomic():
+            ri = RegistrationInfo.objects.get(patient = patient, reg_id = reg_id)
+            ri.payment_status = True
+            ri.save()
+        return True
+    
+    def update_patient_test_item(self, pk_list):
+        """
+        根据主键列表找到对应患者检验项目中的记录，更新缴费状态字段。
+        """
+        patient_id, reg_id, test_id = pk_list[0:3]
+        with transaction.atomic():
+            pti = PatientTestItem.objects.get(
+                registration_info__patient__patient_id = patient_id,
+                registration_info__reg_id = reg_id, 
+                test_id = test_id
+            )
+            pti.payment_status = True
+            pti.save()
+        return True
+    
+    def update_operation_info(self, pk_list):
+        """
+        根据主键列表找到对应手术信息中的记录，更新缴费状态字段。
+        """
+        patient_id, reg_id, operation_id = pk_list[0:3]
+        with transaction.atomic():
+            oi = OperationInfo.objects.get(
+                registration_info__patient__patient_id = patient_id,
+                registration_info__reg_id = reg_id,
+                operation_id = operation_id
+            )
+            oi.payment_status = True
+            oi.save()
+        return True
+
+    def update_prescription(self, pk_list):
+        """
+        根据主键列表找到对应入院信息中的记录，更新缴费状态字段。
+        """
+        patient_id, reg_id, prescription_date = pk_list[0:3]
+        prescription_date = prescription_date.split('_')
+        pres_date = '-'.join(prescription_date[0:3]) + " " + ':'.join(prescription_date[3:6])
+        pres_date = dateparse.parse_datetime(pres_date).astimezone(timezone.utc)
+        with transaction.atomic():
+            pp = Prescription.objects.get(
+                registration_info__patient__patient_id = patient_id,
+                registration_info__reg_id = reg_id,
+                prescription_date = pres_date
+            )
+            pp.payment_status = True
+            pp.save()
+        return True
+
+    def update_hospital_registration(self, pk_list):
+        """
+        根据主键列表找到对应挂号信息中的记录，更新缴费状态字段。
+        """
+        patient_id, reg_id = pk_list[0:2]
+        with transaction.atomic():
+            hr = HospitalRegistration.objects.get(
+                registration_info__patient__patient_id = patient_id,
+                registration_info__reg_id = reg_id
+            )
+            hr.payment_status = True
+            hr.save()
+        return True

@@ -128,6 +128,7 @@ class HospitalRegistration(models.Model):
         choices = DISCHARGE_STATUS_ITEMS, 
         verbose_name = _("出院状态")
     )
+    payment_status = models.BooleanField(default = False, verbose_name = _("缴费状态"))
 
     class Meta:
         verbose_name = _("入院登记信息")

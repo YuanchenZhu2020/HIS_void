@@ -1,5 +1,8 @@
 from collections import Counter
+from django.conf import settings
+from django.db import models
 
+from django.db.models import Sum, F
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
@@ -12,9 +15,11 @@ from patient.forms import PatientLoginForm, PatientRegisterForm
 from patient.models import PatientUser
 from his.models import Department, Staff
 from laboratory.models import PatientTestItem
-from outpatient.models import RemainingRegistration, RegistrationInfo
+from outpatient.models import RemainingRegistration, RegistrationInfo, Prescription
+from inpatient.models import OperationInfo
 from rbac.decorators import patient_login_required
 from internalapi.locquery import DeptLocQuery
+from internalapi.pricequery import OperPriceQuery
 from externalapi.external_api import IDInfoQuery
 
 
@@ -170,7 +175,6 @@ class PatientView(View):
             "DeptsData": PatientView.DEPT_DATA_CACHE,
             "RegDates": PatientView.REG_DATES_CACHE,
         }
-        print(PatientView.DEPT_DATA_CACHE)
         return render(request, PatientView.template_name, context = context)
 
 
@@ -217,7 +221,7 @@ class PatientDetailsView(View):
             PatientDetailsView.UPDATE_DATE = timezone.localdate()
 
         # 确诊记录（历史已完成挂号）
-        # Cond: 患者此次挂号确诊，即确诊结果 diagnosis_results 不为空。
+        # Cond: 患者此次挂号确诊，即诊疗状态为2（完毕）。
         # 数据格式示例：[{
         #     "reg_id": "333",
         #     "date": "2020-4-9",
@@ -227,7 +231,7 @@ class PatientDetailsView(View):
         # },...]
         history_regs = RegistrationInfo.objects.filter(
             patient = patient,
-            diagnosis_results__isnull = False,
+            diagnosis_status = 2,
         ).order_by(
             "-reg_id"
         ).values_list(
@@ -266,25 +270,29 @@ class PatientDetailsView(View):
                 key + (value,)
             )))
 
-        # 当前就诊信息
-        # 预约挂号，即挂号日期大于等于系统本地日期
+        # 预约挂号信息
+        # 预约挂号，即挂号日期大于等于系统本地日期，若等于本地日期，则判断是否已过挂号时段
+        # 例如：现在为 12:01:00，则当日上午时段的预约已经过期。
         # 数据格式示例：[{
         #       "reg_id": 3,
         #       "reg_date": datetime.datetime(2021,5,23,8,0,0),
         #       "location": "诊疗地点",
         #       "dept": "科室",
         #       "doctor_id": "000001",
-        #       "doctor": "王医生"
+        #       "doctor_name": "王医生"
         # }]
         now_datetime = timezone.localtime()
-        # REG_TIME = dateparse.parse_time("08:00:00")
-        # # UTC 04:00:00 is Asia/Shanghai 12:00:00
-        # if now_datetime.time() >= dateparse.parse_time("04:00:00"):
-        #     REG_TIME = dateparse.parse_time("13:00:00")
+        # 若本地时间超过中午 12:00:00，则排除当天上午预约的挂号（即挂号时间为当天 08:00:00）
+        # 若没有超过中午 12:00:00，则使用不应该作为挂号时间的 REG_TIME 作为筛选条件，使得 exclude 无效
+        REG_TIME = dateparse.parse_time("23:59:59")
+        if now_datetime.time() >= dateparse.parse_time("12:00:00"):
+            REG_TIME = dateparse.parse_time("08:00:00")
         waiting_regs = RegistrationInfo.objects.filter(
             patient = patient,
             registration_date__date__gte = now_datetime.date(),
-            # registration_date__time = REG_TIME
+        ).exclude(
+            registration_date__date = now_datetime.date(),
+            registration_date__time = REG_TIME
         ).order_by(
             "-reg_id"
         ).values_list(
@@ -304,8 +312,9 @@ class PatientDetailsView(View):
         
         # 等待检查
         # 数据格式示例：[{
-        #     "id": "444",
+        #     "test_id": "444",
         #     "name": "CT2",
+        #     "dept": "检验科",
         #     "location": "综合二层102",
         #     "order": 199,
         #     "status": "等待检查",
@@ -319,18 +328,115 @@ class PatientDetailsView(View):
         ).values_list(
             "test_id", 
             "test_item__inspect_name",
-            "handle_staff__dept__usergroup__name",
-            "handle_staff__user__username", 
-            "handle_staff__name", 
+            # "handle_staff__dept__usergroup__name",
+            # "handle_staff__user__username", 
+            # "handle_staff__name", 
         )
         waiting_tests_data = []
         for test in waiting_tests:
-            location = DeptLocQuery(test[2], is_outpatient = False).query()
+            inspection_dept_id = 10
+            location = DeptLocQuery(inspection_dept_id, is_outpatient = False).query()
             waiting_tests_data.append(dict(zip(
-                ["test_id", "name", "dept", "doctor_id", "doctor_name", "location"],
-                test + (location,)
+                # ["test_id", "name", "dept", "doctor_id", "doctor_name", "location"],
+                ["test_id", "name", "dept", "location"],
+                test + ("检验科", location,)
             )))
         
+        # 还未缴费的检查
+        # 数据格式示例：[{
+        #     "test_id": "444",
+        #     "name": "CT2",
+        #     "dept": "检验科",
+        #     "location": "综合二层102",
+        #     "doctor_name": "adasdf",
+        #     "price": 12.3,
+        # },...]
+        no_pay_tests = PatientTestItem.objects.filter(
+            registration_info__patient = patient,
+            payment_status = False,
+            inspect_status = False,
+        ).order_by(
+            "-test_id"
+        ).values_list(
+            "registration_info__reg_id",
+            "test_id", 
+            "test_item__inspect_name",
+            "registration_info__medical_staff__name", 
+            "test_item__inspect_price",
+        )
+        no_pay_tests_data = []
+        for test in no_pay_tests:
+            location = DeptLocQuery(test[2], is_outpatient = False).query()
+            no_pay_tests_data.append(dict(zip(
+                ["reg_id", "test_id", "name", "doctor_name", "price", "dept", "location"],
+                test + ("检验科", location,)
+            )))
+
+        # 还未缴费的检查
+        # 数据格式示例：[{
+        #     "reg_id": "12",
+        #     "operation_id": "444",
+        #     "name": "CT2",
+        #     "dept": "检验科",
+        #     "location": "综合二层102",
+        #     "doctor_name": "adasdf",
+        #     "price": 12.3,
+        # },...]
+        no_pay_operations = OperationInfo.objects.filter(
+            registration_info__patient = patient,
+            payment_status = False,
+        ).order_by(
+            "-operation_date"
+        ).values_list(
+            "registration_info__reg_id", 
+            "operation_id",
+            "operation_level",
+            "operation_date", 
+            "operation_name",
+        )
+        no_pay_operations_data = []
+        for oper in no_pay_operations:
+            price = OperPriceQuery(oper[4], oper[2]).query()
+            no_pay_operations_data.append(dict(zip(
+                ["reg_id", "operation_id", "level", "date", "name", "price"],
+                oper + (price,)
+            )))
+        
+        # 还未缴费的处方
+        # 数据格式示例：[{
+        #     "reg_id": "12",
+        #     "date": "2021-04-12 03:12:00",
+        #     "doctor_name": "adasdf",
+        #     "price": 12.3,
+        # },...]
+        no_pay_prescriptions = Prescription.objects.filter(
+            registration_info__patient = patient,
+            payment_status = False,
+        ).order_by(
+            "-prescription_date"
+        ) 
+        no_pay_prescriptions_data = []
+        for pres in no_pay_prescriptions:
+            price = pres.prescription_detail_set.aggregate(
+                total = Sum(
+                    F("medicine_info__retail_price") * F("medicine_quantity"), 
+                    output_field = models.FloatField()
+                )
+            )["total"]
+            price = round(price, 2)
+            pres_info = [
+                pres.registration_info.reg_id, 
+                pres.prescription_date, 
+                pres.registration_info.medical_staff.name,
+                pres.medicine_num,
+                price
+            ]
+            no_pay_prescriptions_data.append(dict(zip(
+                ["reg_id", "date", "doctor_name", "medicine_num", "price"],
+                pres_info
+            )))
+            # print(no_pay_prescriptions_data)
+
         # 历史检查记录
         # 已完成的检查，即 inspect_status 为 1 (True)
         # 数据格式示例：[{
@@ -377,12 +483,19 @@ class PatientDetailsView(View):
             err_msg = ex_context.get("error_message")
             suc_msg = ex_context.get("success_message")
         context = {
+            # 诊疗信息部分
             "diagnosis_data": diagnosis_data,
             "reg_doctors_data": reg_doctors_data,
             "tests_data": tests_data,
             "waiting_regs_data": waiting_regs_data,
             "waiting_tests_data": waiting_tests_data,
             "person_data": person_data,
+            # 缴费信息部分
+            "no_pay_tests_data": no_pay_tests_data,
+            "no_pay_operations_data": no_pay_operations_data,
+            "no_pay_prescriptions_data": no_pay_prescriptions_data,
+            "return_url": reverse(settings.ALIPAY_APP_RETURN_URL_NAME),
+            # 个人信息部分
             "login_form": PatientLoginForm(),
             "reg_dates": PatientDetailsView.REG_DATES_CACHE,
             "error_message": err_msg,

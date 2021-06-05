@@ -24,7 +24,7 @@ SECRET_KEY = 'rx*$9b3=cd$a=&9p9e1t7k%*r0-sjxanaawmofpg-q-q5pz^k%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "formlesslab.top", "82.156.22.48"]
+ALLOWED_HOSTS = ["127.0.0.1", "his.formlesslab.top", "82.156.22.48"]
 
 # Application definition
 
@@ -185,6 +185,9 @@ SAFE_URL = [
     r"/news/",
     r"/PatientFastRegisterAPI", # 患者快速挂号API
     r"/PatientTreatmentDetailAPI", # 患者治疗信息查询API
+    r"/PaymentAPI", # 支付接口
+    r"/PaymentNotifyAPI", # 支付成功回调接口
+    r"/payment-check", # 支付验证页面
 ]
 
 # setup session engine to improve performance
@@ -216,3 +219,22 @@ APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 # that supports multiple background worker processes instead (e.g. Dramatiq, Celery, Django-RQ,
 # etc. See: https://djangopackages.org/grids/g/workers-queues-tasks/ for popular options).
 APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
+
+
+# alipay sandbox
+# 支付宝沙箱 APP_ID
+ALIPAY_APPID = '2021000117667930'
+# 支付宝网站回调 URL 名称
+ALIPAY_APP_NOTIFY_URL_NAME = "payment-notify"
+# 支付宝同步 return_url 名称
+ALIPAY_APP_RETURN_URL_NAME = "payment-check"
+# 支付宝订单超时失效时间
+ALIPAY_TIMEOUT_MINUTE = 15
+# 网站私钥文件路径
+APP_PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'externalapi/alipay_keys/app_private.key')
+# 支付宝公钥文件路径
+ALIPAY_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'externalapi/alipay_keys/alipay_public.key')
+# 支付宝沙箱的开发模式
+ALIPAY_DEBUG = True
+# 支付宝沙箱支付网关
+ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
