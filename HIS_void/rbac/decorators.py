@@ -36,7 +36,11 @@ def user_passes_test(test_func, login_url=None, redirect_field_name=REDIRECT_FIE
             # 若不使用 ajax，则直接进行重定向
             if request.is_ajax():
                 return JsonResponse(
-                    {"status": False, "redirect_url": resolved_login_url}, 
+                    {
+                        "status": False, 
+                        "msg": "请登录后再挂号！",
+                        "redirect_url": resolved_login_url
+                    }, 
                     safe = False
                 )
             else:

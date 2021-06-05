@@ -484,6 +484,7 @@ class PatientRegisterAPI(View):
     患者挂号查询与提交API
     """
     SUBMIT_URL_NAME = "PatientRegisterAPI"
+    RE_REG_REDIRECT_URL_NAME = "patient"
     patient_next_url_name = "patient-details"
 
     def query_registration_info(self, request):
@@ -546,6 +547,7 @@ class PatientRegisterAPI(View):
         return JsonResponse(data, safe = False)
 
     def post(self, request):
+        # 获取请求中的信息
         reg_info = json.loads(request.body.decode())
         reg_info["reg_datetime"] = timezone.make_aware(
             dateparse.parse_datetime(reg_info["reg_datetime"])
@@ -553,6 +555,24 @@ class PatientRegisterAPI(View):
         reg_info["is_emergency"] = Staff.objects.get_by_user(
             reg_info["doctor_id"]
         ).dept == Department.objects.get_by_dept_name("急诊科")
+        # 获取病人与医生对象
+        patient_id = request.session["patient_id"]
+        patient = PatientUser.objects.get_by_patient_id(patient_id)
+        doctor = Staff.objects.get_by_user(reg_info["doctor_id"])
+        # 检查是否存在重复的挂号记录
+        if RegistrationInfo.objects.filter(
+            patient = patient,
+            medical_staff = doctor,
+            registration_date = reg_info["reg_datetime"],
+        ).count() > 0:
+            return JsonResponse(
+                {
+                    "status": False, 
+                    "msg": "您已重复挂号！",
+                    "redirect_url": reverse(PatientRegisterAPI.RE_REG_REDIRECT_URL_NAME)
+                }, 
+                safe = False
+            )
         with transaction.atomic():
             # 更新剩余挂号数
             remain_reg_record = RemainingRegistration.objects.get(
@@ -562,9 +582,6 @@ class PatientRegisterAPI(View):
             remain_reg_record.remain_quantity = remain_reg_record.remain_quantity - 1
             remain_reg_record.save()
             # 写入挂号信息
-            patient_id = request.session["patient_id"]
-            patient = PatientUser.objects.get_by_patient_id(patient_id)
-            doctor = Staff.objects.get_by_user(reg_info["doctor_id"])
             reg_id = patient.registration_set.count() + 1
             reg_record = RegistrationInfo.objects.create(
                 patient = patient,
@@ -574,7 +591,11 @@ class PatientRegisterAPI(View):
                 reg_class = 1 if reg_info["is_emergency"] else 0
             )
         return JsonResponse(
-            {"status": True, "redirect_url": reverse(PatientRegisterAPI.patient_next_url_name)}, 
+            {
+                "status": True, 
+                "msg": "即将跳转至您的个人界面", 
+                "redirect_url": reverse(PatientRegisterAPI.patient_next_url_name)
+            },
             safe = False
         )
 
@@ -823,13 +844,14 @@ class PaymentAPI(View):
 
 class PaymentCheck(View):
     """
-    检查支付是否成功。成功则跳转回目标页面，失败则显示失败页面，然后跳转回目标页面
+    检查支付是否成功。成功则跳转回主页，失败则显示失败页面，然后跳转回目标页面
     """
     PAYMENT_ERROR_PAGE = "payment_error.html"
     PAYMENT_SUCCESS_NAME = "index"
 
     def get(self, request):
         success = AlipayClient().verify(request)
+        
         ##### 测试各表 payment 字段的更新 #####
         out_trade_no = request.GET.get("out_trade_no")
         # 2. 根据订单号将数据库中的数据进行更新（修改订单状态）
@@ -840,6 +862,7 @@ class PaymentCheck(View):
         # 2.2 更新缴费记录中的缴费字段
         self.update_payment_status(out_trade_no)
         ##### END #####
+        
         if success:
             return redirect(reverse(PaymentCheck.PAYMENT_SUCCESS_NAME))
         return render(request, PaymentCheck.PAYMENT_ERROR_PAGE)

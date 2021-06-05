@@ -112,7 +112,7 @@ function registration_confirm(
     );
     $("#modal-body").append(note);
     $("#registration").attr("onclick", StringFormat(
-        "post_registration('{0}', '{1}', '{2}', '{3}')",
+        "post_registration('{0}', '{1}', '{2}', '{3}');",
         token, doctor_id, reg_datetime, submit_url
     ));
 }
@@ -139,16 +139,15 @@ function post_registration(csrf_token, doctor_id, reg_datetime, submit_url) {
             let success = data.status;
             let status = "error";
             let alert_title = "提交失败";
-            let alert_text = "请登录后再挂号！";
+            let alert_text = data.msg;
             if (success) {
                 console.log(success);
                 status = "success";
                 alert_title = "提交成功";
-                alert_text = "即将跳转至您的个人界面";
             }
             submitAlert(alert_title, alert_text, status);
             console.log(data.redirect_url);
-            $($('.swal-button-container').children()[0]).attr(
+            $(".swal2-actions").attr(
                 'onclick',
                 StringFormat("window.location.href = '{0}'", data.redirect_url)
             );
