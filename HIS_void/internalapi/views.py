@@ -859,16 +859,15 @@ class PaymentCheck(View):
     def get(self, request):
         success = AlipayClient().verify(request)
         
-        ##### 测试各表 payment 字段的更新 #####
-        out_trade_no = request.GET.get("out_trade_no")
-        # 2. 根据订单号将数据库中的数据进行更新（修改订单状态）
-        pr = PaymentRecord.objects.get(trade_no = out_trade_no)
-        # 2.1 根据订单记录中的 item_type 找到要更新的表，更新对应的缴费字段
-        status = self.update_payment_field(pr.item_type, pr.item_pk)
-        print("Update: ", status)
-        # 2.2 更新缴费记录中的缴费字段
-        self.update_payment_status(out_trade_no)
-        ##### END #####
+        # ##### 测试各表 payment 字段的更新 #####
+        # out_trade_no = request.GET.get("out_trade_no")
+        # # 2. 根据订单号将数据库中的数据进行更新（修改订单状态）
+        # pr = PaymentRecord.objects.get(trade_no = out_trade_no)
+        # # 2.1 根据订单记录中的 item_type 找到要更新的表，更新对应的缴费字段
+        # status = self.update_payment_field(pr.item_type, pr.item_pk)
+        # # 2.2 更新缴费记录中的缴费字段
+        # self.update_payment_status(out_trade_no)
+        # ##### END #####
         
         if success:
             return redirect(reverse(PaymentCheck.PAYMENT_SUCCESS_NAME))
@@ -995,16 +994,15 @@ class PaymentNotifyAPI(View):
         status = client.verify(post_dict, sign)
         if status:
             # 1. 获取订单号
-            out_trade_no = post_dict.get('out_trade_no')
-            print(out_trade_no)
+            out_trade_no = request.GET.get("out_trade_no")
             # 2. 根据订单号将数据库中的数据进行更新（修改订单状态）
             pr = PaymentRecord.objects.get(trade_no = out_trade_no)
             # 2.1 根据订单记录中的 item_type 找到要更新的表，更新对应的缴费字段
             status = self.update_payment_field(pr.item_type, pr.item_pk)
             # 2.2 更新缴费记录中的缴费字段
-            self.update_payment_record(out_trade_no)
+            self.update_payment_status(out_trade_no)
             return HttpResponse('success')
-            # 3. 最终需要返回 "success" 字符给支付宝，否则支付宝将一直请求该地址并发送回调结果（具体看官方文档）
+        # 3. 最终需要返回 "success" 字符给支付宝，否则支付宝将一直请求该地址并发送回调结果（具体看官方文档）
         return HttpResponse('success')
     
     def update_payment_field(self, item_type, item_pk):
