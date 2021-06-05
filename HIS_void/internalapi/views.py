@@ -634,12 +634,12 @@ class PatientRegisterAPI(View):
         from django.middleware.csrf import get_token
         token = get_token(request)
         data = {
-            "query_source": request.session["patient_id"],
+            # "query_source": request.session["patient_id"],
             "query_data": query_data, 
             "token": token, 
             "submit_url": reverse(PatientRegisterAPI.SUBMIT_URL_NAME)
         }
-        return JsonResponse(data, safe=False)
+        return JsonResponse(data, safe = False)
 
     def post(self, request):
         # 获取请求中的信息
@@ -711,22 +711,26 @@ class PatientFastRegisterAPI(PatientRegisterAPI):
             "PM": dateparse.parse_datetime(reg_date + " 13:00:00").astimezone(timezone.utc)
         }
         reginfo_detail = RemainingRegistration.objects.filter(
-            medical_staff__user__username=doctor_id,
-            register_date__in=reg_datetime.values(),
+            medical_staff__user__username = doctor_id,
+            register_date__in = reg_datetime.values(),
         )
         doc_reg = None
         if len(reginfo_detail) > 0:
             doc_reg = {
                 "dept_name": reginfo_detail.values_list(
                     "medical_staff__dept__usergroup__name",
-                    flat=True,
+                    flat = True,
                 ).distinct()[0],
+                "price": reginfo_detail.values_list(
+                    "medical_staff__title__titleregisternumber__registration_price",
+                    flat = True,
+                )[0],
                 "AM": reginfo_detail.filter(
-                    register_date=reg_datetime["AM"]
-                ).values_list("remain_quantity", flat=True)[0],
+                    register_date = reg_datetime["AM"]
+                ).values_list("remain_quantity", flat = True)[0],
                 "PM": reginfo_detail.filter(
-                    register_date=reg_datetime["PM"]
-                ).values_list("remain_quantity", flat=True)[0],
+                    register_date = reg_datetime["PM"]
+                ).values_list("remain_quantity", flat = True)[0],
             }
         return doc_reg
 

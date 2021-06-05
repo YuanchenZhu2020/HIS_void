@@ -32,12 +32,12 @@ function QueryGH(date, department) {
             date: date,
         },
         success: function (data) {
-            let patient_id = data["query_source"];
+            // let patient_id = data["query_source"];
             let query_data = data["query_data"];
             let token = data["token"];
             let submit_url = data["submit_url"];
-            // 科室名称、医生姓名、crsf_token、患者ID、医生ID、挂号日期、AM/PM、提交地址
-            let registration_confirm_str = "registration_confirm(this, '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}')";
+            // 科室名称、医生姓名、crsf_token、医生ID、挂号日期、AM/PM、提交地址
+            let registration_confirm_str = "registration_confirm(this, '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')";
             // 清除原有数据行
             $("#" + department.id + '-' + YmdToMd(date)).children().remove();
             // 插入新的数据行
@@ -75,12 +75,12 @@ function QueryGH(date, department) {
                 AM_btn.attr('onclick', StringFormat(
                     registration_confirm_str,
                     department.name, DoctorInfo.doctor_name,
-                    token, patient_id, DoctorInfo.doctor_id, date, 'AM', submit_url
+                    token, DoctorInfo.doctor_id, date, 'AM', submit_url
                 ));
                 PM_btn.attr('onclick', StringFormat(
                     registration_confirm_str,
                     department.name, DoctorInfo.doctor_name,
-                    token, patient_id, DoctorInfo.doctor_id, date, 'PM', submit_url
+                    token, DoctorInfo.doctor_id, date, 'PM', submit_url
                 ));
                 // 创建行
                 let tr = $("<tr></tr>");
@@ -205,6 +205,10 @@ function QueryDocReg(doctor_id, doctor_name, date) {
                 // 向按钮行中添加按钮
                 AM_remain_td.append(AM_btn);
                 PM_remain_td.append(PM_btn);
+                // 在按钮上添加挂号费用
+                AM_btn.attr("data-price", query_data.price);
+                AM_btn.attr("data-price", query_data.price);
+                // 添加事件
                 AM_btn.attr('onclick', StringFormat(
                     "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')", 
                     query_data.dept_name, doctor_name, token, doctor_id, date, 'AM', submit_url
