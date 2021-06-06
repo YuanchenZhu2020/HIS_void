@@ -13,7 +13,7 @@ function StringFormat() {
     return str;
 }
 
-
+// 清空医生工作区信息
 function clear_all_info() {
     // 清除最上方病人信息
     $('#patient_basic_info').find('input').each(function (i, tag) {
@@ -37,11 +37,10 @@ function clear_all_info() {
     $('#inspection_cost_body').empty();
 }
 
-//region 查询函数
-// 查询待诊患者
+// 待诊患者查询
 function query_waiting_diagnosis_patients() {
     $.ajax({
-        type: "get",
+        type: "GET",
         url: URL,
         dataType: 'json',
         data: {
@@ -77,7 +76,7 @@ function QueryPatientBaseInfo(regis_id, event) {
         return;
     }
     $.ajax({
-        type: "get",
+        type: "GET",
         url: URL,
         dataType: 'json',
         data: {
@@ -92,13 +91,14 @@ function QueryPatientBaseInfo(regis_id, event) {
             $("#name").attr('placeholder', data.name);
             $("#gender").attr('placeholder', data.gender);
             $("#age").attr('placeholder', data.age);
-            // 给每一个需要提交的表格设置挂号编号
+            // 给每一个需要提交的表格设置挂号记录编号
             $("input[name='regis_id']").each(function (i, value) {
                 $(value).val(regis_id);
             })
-            /* 其他需要的信息：
-             已经选择的检验项目
-             患者账单
+            /*
+            其他需要的信息：
+                - 已经选择的检验项目
+                - 患者账单
             */
             QueryHistorySheet(regis_id);
             QueryTestResults(regis_id);
@@ -117,29 +117,30 @@ function clear_this_style(event) {
     $(event).removeAttr('style');
     $(event).removeAttr('onkeyup');
     $(event).removeAttr('onchange');
-
 }
 
+// 清除患者队列样式
 function clear_patient_card_style() {
     $('[name=patient_card_tr]').each(function (i, tag) {
         $(tag).removeAttr('style');
     })
 }
 
+// 设置 textarea 样式
 function init_style(id_selector) {
     $(id_selector).find('input:visible, textarea, tr').each(function (i, tag) {
-        console.log(tag);
+        // console.log(tag);
         if ($(tag).val())
             $(tag).attr('style', 'color: #a2a5a8;');
-        $(tag).attr('onkeyup', 'clear_this_style(this)')
-        $(tag).attr('onchange', 'clear_this_style(this)')
+        $(tag).attr('onkeyup', 'clear_this_style(this);')
+        $(tag).attr('onchange', 'clear_this_style(this);')
     })
 }
 
 // 病历首页查询
 function QueryHistorySheet(regis_id) {
     $.ajax({
-        type: "get",
+        type: "GET",
         url: URL,
         dataType: 'json',
         data: {
@@ -147,12 +148,13 @@ function QueryHistorySheet(regis_id) {
             get_param: 'history_sheet'
         },
         success: function (data) {
-            console.log("病历首页数据")
-            console.log(data);
+            // console.log("病历首页数据")
+            // console.log(data);
             $("#chief_complaint").val(data.chief_complaint);
             $("#past_illness").val(data.past_illness);
             $("#allegic_history").val(data.allegic_history);
             $("#illness_date").val(data.illness_date);
+
             init_style('#history_sheet_form');
             $("#togo_history_sheet").click();
         },
@@ -166,7 +168,7 @@ function QueryHistorySheet(regis_id) {
 // 查询诊中患者
 function QueryInDiagnosisPatient() {
     $.ajax({
-        type: "get",
+        type: "GET",
         url: URL,
         dataType: 'json',
         data: {
@@ -174,7 +176,7 @@ function QueryInDiagnosisPatient() {
         },
         success: function (data) {
             let $in_diagnosis_card = $("#in_diagnosis");
-            console.log(data);
+            // console.log(data);
             data.sort(function (a, b) {
                 return b.progress - a.progress;
             })
@@ -188,7 +190,7 @@ function QueryInDiagnosisPatient() {
                 } else {
                     progress = StringFormat(progress, patient.progress, 'bg-info progress-bar-striped')
                 }
-                console.log(progress)
+                // console.log(progress)
                 let tr = StringFormat(
                     '<tr name="patient_card_tr" onclick="QueryPatientBaseInfo({0}, this)"><td>{1}</td><td>{2}</td></tr>',
                     patient.regis_id,
@@ -207,9 +209,8 @@ function QueryInDiagnosisPatient() {
 
 // 检查结果查询
 function QueryTestResults(regis_id) {
-
     $.ajax({
-        type: "get",
+        type: "GET",
         url: URL,
         dataType: 'json',
         data: {
@@ -217,12 +218,13 @@ function QueryTestResults(regis_id) {
             get_param: 'test_results'
         },
         success: function (data) {
-            console.log(data);
-            //region 添加检查结果到检查检验及门诊确诊
+            // 添加检查结果到检查检验及门诊确诊
             let $inspection_text = $('#inspection_text')
             $inspection_text.empty();
             for (let i = 0; i < data.length; i++) {
-                if (data[i].test_results == null) data[i].test_results = '暂无结果'
+                if (data[i].test_results == null) {
+                    data[i].test_results = '暂无结果'
+                }
                 let $inspection_result_p = $(StringFormat(
                     '<p class="mb-0"><strong>{0}：</strong>{1}</p><hr class="mt-0"/>',
                     data[i].inspect_name,
@@ -231,8 +233,7 @@ function QueryTestResults(regis_id) {
                 $inspection_text.append($inspection_result_p);
             }
             copy_inspection_results();
-            //endregion
-            //region 添加检查金额到患者账单
+            // 添加检查金额到患者账单
             let $inspection_cost_body = $('#inspection_cost_body');
             $inspection_cost_body.empty();
             for (let i = 0; i < data.length; i++) {
@@ -245,8 +246,6 @@ function QueryTestResults(regis_id) {
                 ))
             }
             inspectionTotalPrice();
-            //endregion
-
         },
         error: function (err) {
             alert("请求服务器失败！");
@@ -258,9 +257,10 @@ function QueryTestResults(regis_id) {
 // 确诊结果查询
 function QueryDiagnosisResults(regis_id) {
     $.ajax({
+        type: "GET",
         url: URL,
         data: {
-            'regis_id': regis_id,
+            regis_id: regis_id,
             get_param: 'diagnosis_results',
         },
         dataType: 'json',
@@ -269,7 +269,7 @@ function QueryDiagnosisResults(regis_id) {
             init_style('#diagnosis_results_form');
         },
         error: function (data) {
-            pass
+            alert("无法连接服务器");
         }
     })
 }
@@ -277,20 +277,24 @@ function QueryDiagnosisResults(regis_id) {
 // 药品医嘱查询
 function QueryMedicalAndAdvice(regis_id) {
     $.ajax({
+        type: "GET",
         url: URL,
         data: {
-            'regis_id': regis_id,
+            regis_id: regis_id,
             get_param: 'medical_advice',
         },
         dataType: 'json',
         success: function (data) {
-            console.log(data);
+            // console.log(data);
             $('#medicine_tbody').empty();
             for (let i = 0; i < data['medicine'].length; i++) {
                 addMedicine(data['medicine'][i], data['medicine'][i].medicine_quantity)
             }
             $('#medical_advice').val(data['medical_advice']);
             init_style('#medical_advice_form');
+        },
+        error: data => {
+            alert("无法连接服务器");
         }
     })
 }
@@ -303,9 +307,13 @@ function ApplicationInhospital(dept_id) {
         return;
     } else {
         $.ajax({
+            type: "GET",
             url: URL,
-            type: "get",
-            data: {'regis_id': regis_id, 'get_param': 'application_inhospital', 'dept_id': dept_id},
+            data: {
+                regis_id: regis_id, 
+                get_param: 'application_inhospital', 
+                dept_id: dept_id
+            },
             success: function () {
                 submitAlert('提交成功', '已移交至住院部', 'success');
                 $('.swal2-confirm').attr('onblur', 'window.location.reload()');
@@ -317,8 +325,6 @@ function ApplicationInhospital(dept_id) {
     }
 }
 
-//endregion
-
 // 复制检查结果元素
 function copy_inspection_results() {
     let inpspection_results_source = $('#inspection_text');
@@ -328,12 +334,10 @@ function copy_inspection_results() {
     inspection_position.append(inpspction_results_copy);
 }
 
-
-//region 处方开具所有函数
 // 搜索框中查询药品
 function QueryMedicine() {
     $.ajax({
-        type: "get",
+        type: "GET",
         url: URL,
         dataType: 'json',
         cache: true,
@@ -347,29 +351,37 @@ function QueryMedicine() {
                 for (let i = 0; i < data.length; i++) {
                     keyWords[i] = data[i]['medicine_name'];
                 }
-                //每次按下抬起时都要先清除一下div以免乜有数据时扔存在div边框
+                // 删除匹配元素 div，以免有数据时仍然存在 div 边框
                 display_delete();
                 let txt = document.getElementById('txt');
-                let tempArr = [];//定义临时数组用来存储用户与之相匹配的句子
-                let text = txt.value;//获取用户所输入的文本框内容
+                // 定义临时数组用来存储用户与之相匹配的句子
+                let tempArr = [];
+                // 获取用户所输入的文本框内容
+                let text = txt.value;
                 for (let i = 0; i < keyWords.length; i++) {
-                    if (keyWords[i].indexOf(text) !== -1) {//将用户输入的文本框内容与数组进行比对，输入内容在数组中匹配到，并且开头的值存入临时数组中
+                    // 将用户输入的文本框内容与数组进行比对，输入内容在数组中匹配到，并且开头的值存入临时数组中
+                    if (keyWords[i].indexOf(text) !== -1) {
                         tempArr.push(keyWords[i]);
                     }
                 }
                 // console.log(tempArr);
-                let dvObj = document.createElement("div");//创建一个div用来放提示的语句
+                // 创建一个 div 用来放提示的语句
+                let dvObj = document.createElement("div");
                 dvObj.setAttribute('class', 'offset-2 basic-list-group col-md-4');
                 document.getElementById("box").appendChild(dvObj);
                 dvObj.id = "dv";
-                if (txt.value.length === 0 || tempArr.length === 0) {//当文本框中乜有内容或者临时数组中没有元素是将div进行删除
+                // 当文本框中有内容或者临时数组中没有元素时，删除 div
+                if (txt.value.length === 0 || tempArr.length === 0) {
                     display_delete();
                 } else {
-                    document.getElementById('txt').setAttribute("style", "border-radius: 0.7rem 0.7rem 0 0; border-bottom:none");
+                    document.getElementById('txt').setAttribute(
+                        "style", "border-radius: 0.7rem 0.7rem 0 0; border-bottom:none"
+                    );
                     let ulObj = document.createElement("ul");
                     ulObj.setAttribute('class', 'list-group');
                     dvObj.append(ulObj);
-                    for (let i = 0; i < tempArr.length; i++) {//创建临时数组长度个的p元素用来显示提示的语句
+                    // 创建临时数组长度个的 p 元素用来显示提示的语句
+                    for (let i = 0; i < tempArr.length; i++) {
                         let liObj = document.createElement("li");
                         liObj.setAttribute('class', 'list-group-item');
                         liObj.setAttribute('onclick', 'add_name(this)');
@@ -386,9 +398,9 @@ function QueryMedicine() {
     })
 }
 
-// 通过点击提示框中<li>元素将药品名添加到input中
+// 通过点击提示框中 li 元素将药品名添加到 input 中
 function add_name(e) {
-    console.log(e)
+    // console.log(e)
     document.getElementById('txt').value = e.innerText.trim();
     display_delete();
 }
@@ -404,46 +416,43 @@ function display_delete() {
 // 添加药品按钮，收集药品名和药品数量
 function collect_medicine() {
     $.ajax({
-            type: "get",
-            url: URL,
-            dataType: 'json',
-            cache: true,
-            data: {
-                get_param: 'medicine_info'
-            },
-            success: function (data) {
-                let medicine_name = document.getElementById('txt').value;
-                let num = document.getElementById('num').value;
-                if (data.length > 0) {
-                    // 获取所有的药品名
-                    for (let i = 0; i < data.length; i++) {
-                        if (data[i]["medicine_name"] === medicine_name) {
-                            if ((/(^[1-9]\d*$)/.test(num))) {
-                                addMedicine(data[i], num);
-                                document.getElementById('txt').value = '';
-                                document.getElementById('num').value = '';
-                                return;
-                            } else {
-                                submitToastr('药品数量不是正整数', '药品数量错误！', 'error');
-                                return;
-                            }
+        type: "GET",
+        url: URL,
+        dataType: 'json',
+        data: {
+            get_param: 'medicine_info'
+        },
+        success: function (data) {
+            let medicine_name = document.getElementById('txt').value;
+            let num = document.getElementById('num').value;
+            if (data.length > 0) {
+                // 获取所有的药品名
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i]["medicine_name"] === medicine_name) {
+                        if ((/(^[1-9]\d*$)/.test(num))) {
+                            addMedicine(data[i], num);
+                            document.getElementById('txt').value = '';
+                            document.getElementById('num').value = '';
+                            return;
+                        } else {
+                            submitToastr('药品数量不是正整数', '药品数量错误！', 'error');
+                            return;
                         }
                     }
-                    submitToastr('药品不存在', '药品名称错误！', 'error');
-
                 }
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                // 状态码
-                alert(XMLHttpRequest.status);
+                submitToastr('药品不存在', '药品名称错误！', 'error');
+
             }
+        },
+        error: function (XMLHttpRequest, textStatus, errorThrown) {
+            // 状态码
+            alert(XMLHttpRequest.status);
         }
-    );
+    });
 }
 
 // 添加药品
 function addMedicine(medicine_obj, medicine_num) {
-    console.log(medicine_obj)
     // 药品行
     let $medicine_tr = $('<tr></tr>');
     // 在药品行中添加药品id和药品数量medicine_num
@@ -466,15 +475,19 @@ function addMedicine(medicine_obj, medicine_num) {
     $medicine_total_price.text(total_price);
     $medicine_total_price.attr('name', 'total_price');
     let $medicine_delete_td = $('<td></td>');
-    $medicine_delete_td.append('<a onclick="deleteMedicine(this)" data-toggle="tooltip" data-placement="top" title="Close"><i class="fa fa-close color-danger"></i></a>');
-    $medicine_tr.append($medicine_name_td, $medicine_num_td, $medicine_price_td, $medicine_total_price, $medicine_delete_td);
+    $medicine_delete_td.append(
+        '<a onclick="deleteMedicine(this)" data-toggle="tooltip" data-placement="top" title="Close"><i class="fa fa-close color-danger"></i></a>'
+    );
+    $medicine_tr.append(
+        $medicine_name_td, $medicine_num_td, $medicine_price_td, 
+        $medicine_total_price, $medicine_delete_td
+    );
     $('#medicine_tbody').append($medicine_tr);
     medicineTotalPrice();
 }
 
 // 删除药品
 function deleteMedicine(event) {
-    console.log($(event).parent().parent().html());
     $(event).parent().parent().remove();
     medicineTotalPrice();
 
@@ -492,7 +505,7 @@ function medicineTotalPrice() {
     $('#medicine_copy_total_price').text(total.toFixed(2));
 }
 
-// 提交提示
+// 提交提示框
 function submitToastr(content, title, status) {
     let func = toastr.info
     if (status === 'success') {
@@ -537,8 +550,6 @@ function copyMedicine() {
     }
 }
 
-//endregion
-
 // 复制检查项目到患者账单
 function copyInspection(event) {
     let $event = $(event);
@@ -549,34 +560,31 @@ function copyInspection(event) {
         $('#inspection_cost_body').find('[name=' + inspection_type + ']').remove();
     }
     $event.find('option:selected').each(function (i, val) {
-            let inspection_name = $(val).data('name');
-            let inspection_price = $(val).data('price');
+        let inspection_name = $(val).data('name');
+        let inspection_price = $(val).data('price');
 
-            console.log(inspection_name);
-            console.log(inspection_type);
-            console.log(inspection_price);
+        console.log(inspection_name);
+        console.log(inspection_type);
+        console.log(inspection_price);
 
-            let $tr = $("<tr></tr>");
-            $tr.attr('name', inspection_type);
-            let $inspection_type_td = $('<td></td>');
-            $inspection_type_td.text(inspection_type);
+        let $tr = $("<tr></tr>");
+        $tr.attr('name', inspection_type);
+        let $inspection_type_td = $('<td></td>');
+        $inspection_type_td.text(inspection_type);
 
-            let $inspection_name_td = $('<td></td>');
-            $inspection_name_td.text(inspection_name);
+        let $inspection_name_td = $('<td></td>');
+        $inspection_name_td.text(inspection_name);
 
-            let $inspection_price_td = $('<td></td>');
-            $inspection_price_td.attr('name', 'inspection_price');
-            $inspection_price_td.text(inspection_price);
+        let $inspection_price_td = $('<td></td>');
+        $inspection_price_td.attr('name', 'inspection_price');
+        $inspection_price_td.text(inspection_price);
 
-            $tr.append($inspection_type_td);
-            $tr.append($inspection_name_td);
-            $tr.append($inspection_price_td);
+        $tr.append($inspection_type_td);
+        $tr.append($inspection_name_td);
+        $tr.append($inspection_price_td);
 
-            //
-
-            $('#inspection_cost_body').append($tr);
-        }
-    )
+        $('#inspection_cost_body').append($tr);
+    })
     inspectionTotalPrice();
 }
 
@@ -584,7 +592,7 @@ function copyInspection(event) {
 function inspectionTotalPrice() {
     let total_price = 0;
     let all_inspection_prices = document.getElementsByName('inspection_price');
-    console.log(all_inspection_prices)
+    // console.log(all_inspection_prices);
     for (let i = 0; i < all_inspection_prices.length; i++) {
         total_price += parseFloat(all_inspection_prices[i].innerText);
     }
@@ -594,7 +602,6 @@ function inspectionTotalPrice() {
 
 }
 
-//region 提交函数
 // 病历首页提交
 function PostHisTorySheet(csrf_token) {
     if ($('#no').attr('placeholder') === undefined) {
@@ -615,7 +622,6 @@ function PostHisTorySheet(csrf_token) {
         success: function (result) {
             submitAlert("提交成功", "病历首页已更新", "success");
             init_style('#history_sheet_form');
-
         },
         error: function (data) {
             alert("异常！");
@@ -647,11 +653,11 @@ function PostMedicine(csrf_token) {
         'medical_advice': medical_advice,
         'regis_id': regis_id
     }
-    console.log(data);
+    // console.log(data);
     $.ajax({
         url: URL,
         type: 'POST',
-        data: data, // 注意这里要将发送的数据转换成字符串
+        data: data,
         beforeSend: function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
@@ -675,17 +681,13 @@ function PostInspectionItem(csrf_token) {
     let data = $('#inspection_form').serialize();
     console.log(data);
     $.ajax({
-        url: URL,
         type: 'POST',
+        url: URL,
         data: data,
         beforeSend: function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
         success: function (callback) {
-            console.log(callback);
-            console.log(callback);
-            console.log(callback);
-            console.log(callback);
             if (callback.status === -1) {
                 submitAlert("提交失败", callback.message, "error");
                 return;
@@ -696,7 +698,6 @@ function PostInspectionItem(csrf_token) {
         },
         error: function (callback) {
             alert('提交失败');
-            console.log(callback);
         }
     })
 }
@@ -710,9 +711,9 @@ function PostDiagnosisResults(csrf_token) {
     let data = $('#diagnosis_results_form').serialize();
     console.log(data);
     $.ajax({
-        url: URL,
         type: 'POST',
-        data: data, // 注意这里要将发送的数据转换成字符串
+        url: URL,
+        data: data,
         beforeSend: function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
@@ -727,7 +728,7 @@ function PostDiagnosisResults(csrf_token) {
     })
 }
 
-//endregion
+// 确诊结果提交
 function diagnosis_over() {
     let regis_id = $('#no').attr('placeholder');
     if (regis_id === undefined) {
@@ -735,9 +736,12 @@ function diagnosis_over() {
         return;
     }
     $.ajax({
+        type: 'GET',
         url: URL,
-        type: 'get',
-        data: {'get_param': 'diagnosis_over', 'regis_id': regis_id},
+        data: {
+            get_param: 'diagnosis_over', 
+            regis_id: regis_id
+        },
         success: function (callback) {
             if (callback.status === -1) {
                 submitAlert('提交失败', callback.message, 'error');
@@ -753,8 +757,7 @@ function diagnosis_over() {
 }
 
 // 这里应该整一个document.ready，表示页面加载完毕后应该执行的操作，而不应该独立的放在这执行
-/*
-window.setInterval(query_waiting_diagnosis_patients, 10000);
+/* window.setInterval(query_waiting_diagnosis_patients, 10000);
 window.setInterval(QueryInDiagnosisPatient, 10000);*/
 query_waiting_diagnosis_patients()
 QueryInDiagnosisPatient()

@@ -2,10 +2,10 @@
 {% load static %}
 {% block title %}门诊医生工作台{% endblock %}
 {% block body-context %}
+    {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病历首页，检查检验等 #}
     <link rel="stylesheet" type="text/css" href="{% static 'css/outpatient.css' %}">
-    {# 两侧留白较小的容器 #}
     <div class="container-fluid row">
-        {# 栅格布局，在行中指定列的宽度，这里将整个屏幕分成左3右9的布局，左边为诊中患者和待诊患者信息，右边为分页表格（病历首页，检查检验等 #}
+        {# 面包屑导航 #}
         <div class="col-md-12 align-content-center">
             <nav class="breadcrumb-div" aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-adjust">
@@ -18,16 +18,14 @@
                 </ol>
             </nav>
         </div>
-        {# 第一列宽度为3，用于放置诊中患者信息和待诊患者信息 #}
+        {# 诊中患者信息和待诊患者，宽度为3 #}
         <div class="col-md-3">
             {# 诊中患者信息 #}
             <div class="container">
-                <div class="card">{# 我目前只会使用card（卡片）布局 #}
-                    {# 设置卡片头 #}
+                <div class="card">
                     <div class="card-header">诊中患者</div>
                     {# 固定卡片大小，使得患者过多时可以滚动 #}
                     <div style="overflow-x: auto; overflow-y: auto; height: 250px; ">
-                        {# 设置诊中患者表（试一试就知道了 #}
                         <table class="table table-hover small text-center">
                             <thead>
                             <tr>
@@ -59,11 +57,11 @@
                 </div>
             </div>
         </div>
-        {# 第二列的宽度为9，用于放置分页表格（病历首页、检查检验等） #}
+        {# 医生分页工作区，宽度为9 #}
         <div class="col-md-9">
             <div class="card">
                 <div class="card-body">
-                    {# 这里时当前患者的信息，放在了最上面 #}
+                    {# 当前患者基础信息 #}
                     <div class="basic-form">
                         <form id="patient_basic_info">
                             <div class="form-row justify-content-center">
@@ -103,46 +101,58 @@
                         </form>
                     </div>
 
-                    {# 分页导航栏列表，用于放置分页按钮 #}
+                    {# 分页导航栏 #}
                     <div class="default-tab">
                         <ul class="nav nav-tabs justify-content-center" role="tablist">
-                            {# 病历首页按钮 #}
+                            {# 病历首页 #}
                             <li class="nav-item">
                                 <a id="togo_history_sheet" href="#bing_li_shou_ye" class="nav-link active"
                                    data-toggle="tab"
-                                   aria-expanded="false">病历首页</a>
+                                   aria-expanded="false">
+                                   病历首页
+                                </a>
                             </li>
-                            {# 检查检验按钮 #}
+                            {# 检查检验 #}
                             <li class="nav-item">
                                 <a id="JCJY_a" href="#jian_cha_jian_yan" class="nav-link" data-toggle="tab"
-                                   aria-expanded="false">检查检验</a>
+                                   aria-expanded="false">
+                                   检查检验
+                                </a>
                             </li>
-                            {# 门诊确诊按钮 #}
+                            {# 门诊确诊 #}
                             <li class="nav-item">
                                 <a href="#men_zhen_que_zhen" class="nav-link" data-toggle="tab"
-                                   aria-expanded="true">门诊确诊</a>
+                                   aria-expanded="true">
+                                   门诊确诊
+                                </a>
                             </li>
-                            {# 处方开具按钮 #}
+                            {# 处方开具 #}
                             <li class="nav-item">
                                 <a href="#chu_fang_kai_ju" class="nav-link" data-toggle="tab"
-                                   aria-expanded="true">处方开具</a>
+                                   aria-expanded="true">
+                                   处方开具
+                                </a>
                             </li>
-                            {% comment %}{# 手术申请按钮 #}
+                            {% comment %}{# 手术申请 #}
                             <li class="nav-item">
                                 <a href="#shou_shu_shen_qing" class="nav-link" data-toggle="tab"
-                                   aria-expanded="true">手术申请</a>
+                                   aria-expanded="true">
+                                   手术申请
+                                </a>
                             </li>{% endcomment %}
-                            {# 患者账单按钮 #}
+                            {# 患者账单 #}
                             <li class="nav-item">
                                 <a href="#huan_zhe_zhang_dan" class="nav-link" data-toggle="tab"
-                                   aria-expanded="true">患者账单</a>
+                                   aria-expanded="true">
+                                   患者账单
+                                </a>
                             </li>
                         </ul>
                     </div>
 
                     {# 分页页面内容 #}
                     <div class="tab-content">
-                        {# 病历首页页面信息，第一次进入页面默认显示这个 #}
+                        {# 病历首页 #}
                         <div id="bing_li_shou_ye" class="tab-pane fade show active">
                             <div class="card-body">
                                 <div class="basic-form">
@@ -150,28 +160,28 @@
                                         <input type="hidden" name="regis_id"/>
                                         <input type="hidden" name="post_param" value="history_sheet"/>
                                         <div class="input-group input-group-lg mb-3">
-                                            <label class="col-md-1.5 col-form-label text-right">患者主诉： </label>
-                                            <textarea id="chief_complaint" name="chief_complaint" type="text"
-                                                      rows="3"
-                                                      class="form-control"></textarea>
+                                            <label class="col-md-1.5 col-form-label text-right">
+                                                患者主诉：
+                                            </label>
+                                            <textarea id="chief_complaint" name="chief_complaint" type="text" rows="3" class="form-control"></textarea>
                                         </div>
                                         <div class="input-group input-group-lg mb-3">
-                                            <label class="col-md-1.5 col-form-label text-right">既往病史：
+                                            <label class="col-md-1.5 col-form-label text-right">
+                                                既往病史：
                                             </label>
-                                            <textarea id="past_illness" type="text" name="past_illness"
-                                                      class="form-control"></textarea>
+                                            <textarea id="past_illness" type="text" name="past_illness" class="form-control"></textarea>
                                         </div>
                                         <div class="input-group input-group-lg mb-3">
-                                            <label class="col-md-1.5 col-form-label text-right">过敏病史：
+                                            <label class="col-md-1.5 col-form-label text-right">
+                                                过敏病史：
                                             </label>
-                                            <textarea id="allegic_history" type="text" name="allegic_history"
-                                                      class="form-control"></textarea>
+                                            <textarea id="allegic_history" type="text" name="allegic_history" class="form-control"></textarea>
                                         </div>
                                         <div class="input-group input-group-lg mb-3">
-                                            <label class="col-md-1.5 col-form-label text-right">发病时间：
+                                            <label class="col-md-1.5 col-form-label text-right">
+                                                发病时间：
                                             </label>
-                                            <input class="datepicker-default form-control"
-                                                   id="illness_date" name="illness_date" readonly/>
+                                            <input class="datepicker-default form-control" id="illness_date" name="illness_date" readonly/>
                                         </div>
 
                                         <div class="text-right">
@@ -184,7 +194,7 @@
                             </div>
                         </div>
 
-                        {# 检查检验页面信息 #}
+                        {# 检查检验 #}
                         <div id="jian_cha_jian_yan" class="tab-pane fade">
                             <div class="card-body">
                                 {# 检验表单 #}
@@ -192,6 +202,7 @@
                                     <form id="inspection_form">
                                         <input type="hidden" name="regis_id"/>
                                         <input type="hidden" name="post_param" value="inspection">
+                                        <!-- 检验项目多选栏 -->
                                         {% for item in TestItems %}
                                             <div class="form-group">
                                                 <div class="input-group input-group-sm mb-3">
@@ -204,7 +215,9 @@
                                                         {% for testitems in item.content %}
                                                             <option data-name="{{ testitems.inspect_name }}"
                                                                     data-price="{{ testitems.inspect_price }}"
-                                                                    value="{{ testitems.inspect_id }}">{{ testitems.inspect_name }}</option>
+                                                                    value="{{ testitems.inspect_id }}">
+                                                                {{ testitems.inspect_name }}
+                                                            </option>
                                                         {% endfor %}
                                                     </select>
                                                 </div>
@@ -227,7 +240,7 @@
                             </div>
                         </div>
 
-                        {# 门诊确诊页面信息 #}
+                        {# 门诊确诊 #}
                         <div id="men_zhen_que_zhen" class="tab-pane fade">
                             <div class="card-body">
                                 <div class="basic-form">
@@ -255,8 +268,9 @@
                                                         <div class="dropdown-menu">
                                                             {% for dept in DeptItems %}
                                                                 <a class="dropdown-item"
-                                                                   onclick="ApplicationInhospital({{ dept.ug_id }})">
-                                                                    {{ dept.name }}</a>
+                                                                   onclick="ApplicationInhospital({{ dept.dept_id }})">
+                                                                    {{ dept.dept_name }}
+                                                                </a>
                                                             {% endfor %}
                                                         </div>
                                                     </div>
@@ -275,7 +289,7 @@
                             </div>
                         </div>
 
-                        {# 处方开具页面信息 #}
+                        {# 处方开具 #}
                         <div id="chu_fang_kai_ju" class="tab-pane fade">
                             <div class="card-body">
                                 <div class="row">
@@ -329,8 +343,8 @@
                             </div>
                         </div>
 
-                        {# 手术申请页面信息 #}
-                        {% comment %}<div id="shou_shu_shen_qing" class="tab-pane fade">
+                        {% comment %}{# 手术申请 #}
+                        <div id="shou_shu_shen_qing" class="tab-pane fade">
                             <div class="card-body">
                                 <div class="basic-form">
                                     <form action="#">
@@ -372,7 +386,7 @@
                             </div>
                         </div>{% endcomment %}
 
-                        {# 患者账单页面信息 #}
+                        {# 患者账单 #}
                         <div id="huan_zhe_zhang_dan" class="tab-pane fade">
                             <div class="card-body">
                                 <div class="card-header border-0 pb-0">
