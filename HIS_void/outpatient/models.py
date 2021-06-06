@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator
 from django.utils.translation import gettext_lazy as _
 
 from patient.models import PatientUser
@@ -8,22 +9,29 @@ from pharmacy.models import MedicineInfo
 
 class TitleRegisterNumber(models.Model):
     """
-    职称-挂号数对应表
+    职称-挂号数-挂号费用对应表
     """
     title = models.OneToOneField(
-        HospitalTitle, 
+        HospitalTitle,
         primary_key = True,
         on_delete = models.CASCADE,
         verbose_name = _("职称")
     )
-    register_number = models.PositiveIntegerField(verbose_name = _("挂号数限额"))
+    registration_number = models.PositiveIntegerField(verbose_name = _("挂号数限额"))
+    registration_price = models.FloatField(
+        null = True,
+        blank = True,
+        validators = [MinValueValidator(1),],
+        verbose_name = _("挂号费用"),
+        help_text = _("单位为￥"),
+    )
 
     class Meta:
         verbose_name = _("职称-挂号数")
         verbose_name_plural = verbose_name
-    
+
     def __str__(self) -> str:
-        return "<Title {} | RegNum {}>".format(self.title, self.register_number)
+        return "<Title {} | RegNum {}>".format(self.title, self.registration_number)
 
 
 class RemainingRegistration(models.Model):
@@ -31,8 +39,8 @@ class RemainingRegistration(models.Model):
     医生剩余挂号数
     """
     medical_staff = models.ForeignKey(
-        Staff, 
-        on_delete = models.CASCADE, 
+        Staff,
+        on_delete = models.CASCADE,
         related_name = "remaining_registration_set",
         related_query_name = "remaining_registrations",
         verbose_name = _("剩余挂号数"),
@@ -48,7 +56,7 @@ class RemainingRegistration(models.Model):
         verbose_name = _("医生剩余挂号数")
         verbose_name_plural = verbose_name
         unique_together = ["medical_staff", "register_date"]
-    
+
     def __str__(self) -> str:
         return "<RemRegNum {} | {} | {}>".format(
             self.medical_staff, self.register_date, self.remain_quantity
@@ -64,8 +72,14 @@ class RegistrationInfo(models.Model):
         (1, _("急诊")),
     ]
 
+    INDIAGNOSIS_ITEMS = [
+        (0, _("待诊")),
+        (1, _("诊中")),
+        (2, _("完毕"))
+    ]
+
     patient = models.ForeignKey(
-        PatientUser, 
+        PatientUser,
         on_delete = models.CASCADE,
         related_name = "registration_set",
         related_query_name = "registrations",
@@ -77,8 +91,8 @@ class RegistrationInfo(models.Model):
     )
 
     medical_staff     = models.ForeignKey(
-        Staff, 
-        on_delete = models.CASCADE, 
+        Staff,
+        on_delete = models.CASCADE,
         related_name = "registration_set",
         related_query_name = "registrations",
         verbose_name = _("医生"),
@@ -94,29 +108,34 @@ class RegistrationInfo(models.Model):
         help_text = _("预约就诊的时间"),
     )
     reg_class         = models.IntegerField(
-        choices = RCLASS_ITEMS, 
-        default = 0, 
+        choices = RCLASS_ITEMS,
+        default = 0,
         verbose_name = _("就诊类别")
     )
 
     illness_date      = models.DateField(null = True, blank = True, verbose_name = _("患病日期"))
     chief_complaint   = models.TextField(
-        max_length = 512, 
+        max_length = 512,
         null = True,
-        blank = True, 
+        blank = True,
         verbose_name = _("患者主诉")
     )
     diagnosis_results = models.TextField(
-        max_length = 512, 
+        max_length = 512,
         null = True,
-        blank = True, 
+        blank = True,
         verbose_name = _("确诊结果")
+    )
+    diagnosis_status  = models.IntegerField(
+        choices = INDIAGNOSIS_ITEMS,
+        default = 0,
+        verbose_name = _("诊疗状态")
     )
 
     class Meta:
         verbose_name = _("挂号信息")
         verbose_name_plural = verbose_name
-        unique_together = ["patient", "reg_id"]
+        unique_together = [["patient", "reg_id"], ["patient", "medical_staff", "registration_date"]]
 
     def __str__(self) -> str:
         return "<Registration {}-{}>".format(self.patient.get_patient_id(), self.reg_id)
@@ -127,8 +146,8 @@ class Prescription(models.Model):
     患者处方文件
     """
     registration_info = models.ForeignKey(
-        RegistrationInfo, 
-        on_delete = models.CASCADE, 
+        RegistrationInfo,
+        on_delete = models.CASCADE,
         related_name = "prescription_set",
         related_query_name = "prescriptions",
         verbose_name = _("挂号信息"),
@@ -165,15 +184,15 @@ class PrescriptionDetail(models.Model):
     患者处方细节
     """
     prescription_info = models.ForeignKey(
-        Prescription, 
-        on_delete = models.CASCADE, 
+        Prescription,
+        on_delete = models.CASCADE,
         related_name = "prescription_detail_set",
         related_query_name = "prescription_details",
         verbose_name = _("处方"),
     )
     detail_id         = models.PositiveIntegerField(verbose_name = _("细节编号"))
     medicine_info     = models.ForeignKey(
-        MedicineInfo, 
+        MedicineInfo,
         on_delete = models.CASCADE,
         related_name = "prescription_detail_set",
         related_query_name = "prescription_details",

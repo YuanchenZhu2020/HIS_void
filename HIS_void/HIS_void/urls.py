@@ -28,8 +28,9 @@ from outpatient.views import OutpatientView
 from inpatient.views import NurseView, InpatientWorkspaceView
 from laboratory.views import InspectionView
 from internalapi.views import (
-    NurseAPI, OutpatientAPI, InspectionAPI, PatientViewAPI, PatientUserAPI, 
-    InpatientAPI, PatientDetailsViewAPI
+    NurseAPI, OutpatientAPI, InspectionAPI, PatientRegisterAPI, PatientUserAPI, 
+    InpatientAPI, PatientFastRegisterAPI, PatientTreatmentDetails, 
+    PaymentAPI, PaymentNotifyAPI, PaymentCheck, 
 )
 
 from rbac.management import create_urlpermissions
@@ -66,6 +67,8 @@ urlpatterns = [
     path('inspection-workspace/', InspectionView.as_view(), name="inspection-workspace"),
     # 住院医生
     path('inpatient-workspace/', InpatientWorkspaceView.as_view(), name="inpatient-workspace"),
+    # 近期新闻
+    path('news/', NewsView.as_view(), name="news"),
     # 查询机器检验的各种信息
     path('InspectionAPI/', InspectionAPI.as_view(), name="InspectionAPI"),
     # 查询门诊医生的各种信息
@@ -75,13 +78,19 @@ urlpatterns = [
     # 保存个人信息
     path('PatientUserAPI/', PatientUserAPI.as_view(), name="PatientUserAPI"),
     # 挂号API 保存挂号信息
-    path('PatientViewAPI/', PatientViewAPI.as_view(), name="PatientViewAPI"),
+    path('PatientRegisterAPI/', PatientRegisterAPI.as_view(), name="PatientRegisterAPI"),
     # 保存住院医生能查询到的住院人信息
     path('InhospitalAPI/', InpatientAPI.as_view(), name="InhospitalAPI"),
-    # 近期新闻
-    path('news/', NewsView.as_view(), name="news"),
     # 患者详情页面API
-    path('PatientDetailsViewAPI/', PatientDetailsViewAPI.as_view(), name = "PatientDetailsAPI"),
+    path('PatientFastRegisterAPI/', PatientFastRegisterAPI.as_view(), name = "PatientFastRegisterAPI"),
+    # 患者治疗信息查询API
+    path('PatientTreatmentDetailAPI/', PatientTreatmentDetails.as_view(), name = "PatientTreatmentDetailAPI"),
+    # 支付接口
+    path("PaymentAPI/", PaymentAPI.as_view(), name = "PaymentAPI"),
+    # 支付回调接口
+    path("PaymentNotifyAPI/", PaymentNotifyAPI.as_view(), name = "payment-notify"),
+    # 支付状态检查页面
+    path("payment-check/", PaymentCheck.as_view(), name = "payment-check"),
 ]
 
 # 每次执行 makemigrations, migrate, runserver 等命令时会执行以下过程，

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.utils import timezone
 from django.views import View
 
+from his.models import Department
 from laboratory.models import TestItemType
 
 
@@ -24,6 +25,11 @@ class OutpatientView(View):
             #         ['临床检查2', 价格2]
             #        ]
             # }, ...]
+            dept_items = []
+            dept_info = Department.objects.filter(usergroup__ug_id__range=[1, 8]).values_list('usergroup__ug_id', 'usergroup__name')
+            for dept in dept_info:
+                dept_items.append({'ug_id': dept[0], 'name': dept[1]})
+
             test_items = []
             for tit in TestItemType.objects.all():
                 # 存放指定检验类型下的所有检验项目
@@ -34,7 +40,8 @@ class OutpatientView(View):
                     "content": content
                 })
             OutpatientView.TEST_ITEMS_CACHE = test_items
+            OutpatientView.DEPT_ITEMS_CACHE = dept_items
             OutpatientView.CACHE_DATE = today
 
-        context = {"TestItems": OutpatientView.TEST_ITEMS_CACHE}
+        context = {"TestItems": OutpatientView.TEST_ITEMS_CACHE, 'DeptItems': OutpatientView.DEPT_ITEMS_CACHE}
         return render(request, OutpatientView.template_name, context = context)

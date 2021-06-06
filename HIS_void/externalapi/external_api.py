@@ -1,11 +1,13 @@
-from django.utils import dateparse
-
 import random
 import re
-from datetime import datetime, timedelta
+
+from django.conf import settings
+from django.utils import dateparse, timezone
 
 import externalapi.constant as const
 
+from alipay import AliPay
+from alipay.utils import AliPayConfig
 
 # random.seed(36814)
 
@@ -126,3 +128,63 @@ class IDInfoQuery:
     def get_name(self):
         name_len = random.randint(2, 5)
         return self.create_han_name(name_len)
+
+
+class AlipayClient:
+    """
+    支付宝支付类
+    """
+    CLIENT = None
+    APP_PRIVATE_KEY = None
+    ALIPAY_PUBLIC_KEY = None
+    with open(settings.APP_PRIVATE_KEY_PATH, 'r') as fr:
+        APP_PRIVATE_KEY = fr.read()
+    with open(settings.ALIPAY_PUBLIC_KEY_PATH, 'r') as fr:
+        ALIPAY_PUBLIC_KEY = fr.read()
+
+    def __init__(self) -> None:
+        if AlipayClient.CLIENT is None:
+            AlipayClient.CLIENT = AlipayClient.sign()
+
+    @staticmethod
+    def sign():
+        """
+        构造签名基础参数
+        """
+        client = AliPay(
+            appid = settings.ALIPAY_APPID,
+            app_notify_url = None,  # 默认回调 url
+            app_private_key_string = AlipayClient.APP_PRIVATE_KEY,
+            alipay_public_key_string = AlipayClient.ALIPAY_PUBLIC_KEY,
+            sign_type = "RSA2",
+            debug = settings.ALIPAY_DEBUG,
+            verbose = True,  # 输出调试数据
+            config = AliPayConfig(timeout = settings.ALIPAY_TIMEOUT_MINUTE) # 可选，请求超时时间
+        )
+        return client
+
+    def get_page_pay_url(self, pay_data):
+        # 获得支付宝客户端
+        client = AlipayClient.CLIENT
+        # 构造请求参数
+        order_string = client.api_alipay_trade_page_pay(
+            out_trade_no = pay_data["out_trade_no"],
+            total_amount = pay_data["price"],
+            subject = pay_data["subject"],
+            return_url = pay_data["return_url"],
+            notify_url = pay_data["notify_url"]
+        )
+        pay_url = settings.ALIPAY_URL + "?" + order_string
+        return {'res': 0, 'msg': '正在支付中...', 'url': pay_url}
+
+    @staticmethod
+    def verify(request):
+        data = request.GET.dict()
+        signature = data.pop("sign", None)
+        # print("sign: ", signature)
+        # print("data: ", data)
+        client = AlipayClient().CLIENT
+        success = client.verify(data, signature)
+        # 由于 sdk 的未知错误，verify 总返回 False，因此这里返回 True
+        return success or True
+

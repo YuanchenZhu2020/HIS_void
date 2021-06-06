@@ -22,7 +22,7 @@ backlog = 512
 # 超时
 timeout = 30
 # 调试状态
-debug = False
+debug = True
 
 # gunicorn要切换到的目的工作目录
 chdir = BASE_DIR
@@ -35,7 +35,7 @@ workers = multiprocessing.cpu_count() * 2 + 1
 threads = multiprocessing.cpu_count() * 2
 
 # 日志级别，这个日志级别指的是错误日志的级别(debug、info、warning、error、critical)，而访问日志的级别无法设置
-loglevel = "info"    
+loglevel = "debug"    
 # 日志格式
 access_log_format = '%(t)s %(p)s %(h)s "%(r)s" %(s)s %(L)s %(b)s %(f)s" "%(a)s"'
 # 其每个选项的含义如下：

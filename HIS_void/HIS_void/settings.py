@@ -24,7 +24,7 @@ SECRET_KEY = 'rx*$9b3=cd$a=&9p9e1t7k%*r0-sjxanaawmofpg-q-q5pz^k%'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "39.97.170.255", "82.156.22.48"]
+ALLOWED_HOSTS = ["127.0.0.1", "his.formlesslab.top", "82.156.22.48"]
 
 # Application definition
 
@@ -98,11 +98,7 @@ STATIC_ROOT = 'static'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static_share'),
-    os.path.join(BASE_DIR, "his/static"),
-    os.path.join(BASE_DIR, "inpatient/static"),
-    os.path.join(BASE_DIR, "laboratory/static"),
     os.path.join(BASE_DIR, "outpatient/static"),
-    os.path.join(BASE_DIR, "pharmacy/static"),
     os.path.join(BASE_DIR, "internalapi/static"),
 )
 
@@ -150,6 +146,9 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Auto Field Setting
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
 # Auth user model
 AUTH_USER_MODEL = "rbac.UserInfo"
 # Auth backends
@@ -181,10 +180,14 @@ SAFE_URL = [
     r"/InspectionAPI/",  # 检验医生数据API
     r"/OutpatientAPI/",  # 门诊医生数据API
     r"/NurseAPI/",  # 护士医生数据API
-    r"/PatientViewAPI/",  # 病人数据API
+    r"/PatientRegisterAPI/",  # 患者挂号查询与提交API
     r"/InpatientAPI/",  # 住院医生数据API
     r"/news/",
-    r"/PatientDetailsViewAPI", # 患者详情页面API
+    r"/PatientFastRegisterAPI", # 患者快速挂号API
+    r"/PatientTreatmentDetailAPI", # 患者治疗信息查询API
+    r"/PaymentAPI", # 支付接口
+    r"/PaymentNotifyAPI", # 支付成功回调接口
+    r"/payment-check", # 支付验证页面
 ]
 
 # setup session engine to improve performance
@@ -216,3 +219,22 @@ APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 # that supports multiple background worker processes instead (e.g. Dramatiq, Celery, Django-RQ,
 # etc. See: https://djangopackages.org/grids/g/workers-queues-tasks/ for popular options).
 APSCHEDULER_RUN_NOW_TIMEOUT = 25  # Seconds
+
+
+# alipay sandbox
+# 支付宝沙箱 APP_ID
+ALIPAY_APPID = '2021000117667930'
+# 支付宝网站回调 URL 名称
+ALIPAY_APP_NOTIFY_URL_NAME = "payment-notify"
+# 支付宝同步 return_url 名称
+ALIPAY_APP_RETURN_URL_NAME = "payment-check"
+# 支付宝订单超时失效时间
+ALIPAY_TIMEOUT_MINUTE = 15
+# 网站私钥文件路径
+APP_PRIVATE_KEY_PATH = os.path.join(BASE_DIR, 'externalapi/alipay_keys/app_private.key')
+# 支付宝公钥文件路径
+ALIPAY_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'externalapi/alipay_keys/alipay_public.key')
+# 支付宝沙箱的开发模式
+ALIPAY_DEBUG = True
+# 支付宝沙箱支付网关
+ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'

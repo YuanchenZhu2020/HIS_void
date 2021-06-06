@@ -22,7 +22,7 @@ function YmdToStr(date) {
 
 // 获取挂号医生信息
 function QueryGH(date, department) {
-    let URL = '/PatientViewAPI';
+    let URL = "/PatientRegisterAPI";
     $.ajax({
         type: "get",
         url: URL,
@@ -32,9 +32,12 @@ function QueryGH(date, department) {
             date: date,
         },
         success: function (data) {
+            // let patient_id = data["query_source"];
             let query_data = data["query_data"];
             let token = data["token"];
             let submit_url = data["submit_url"];
+            // 科室名称、医生姓名、crsf_token、医生ID、挂号日期、AM/PM、提交地址
+            let registration_confirm_str = "registration_confirm(this, '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')";
             // 清除原有数据行
             $("#" + department.id + '-' + YmdToMd(date)).children().remove();
             // 插入新的数据行
@@ -56,6 +59,9 @@ function QueryGH(date, department) {
                 // 在按钮上添加剩余人数
                 AM_btn.text(DoctorInfo.AM);
                 PM_btn.text(DoctorInfo.PM);
+                // 在按钮上添加挂号费用
+                AM_btn.attr("data-price", DoctorInfo.price);
+                PM_btn.attr("data-price", DoctorInfo.price);
                 // 如果剩余人数为0，则禁用按钮
                 if (DoctorInfo.AM === 0) {
                     AM_btn.attr('disabled', true);
@@ -67,12 +73,12 @@ function QueryGH(date, department) {
                 AM_remain_td.append(AM_btn);
                 PM_remain_td.append(PM_btn);
                 AM_btn.attr('onclick', StringFormat(
-                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                    registration_confirm_str,
                     department.name, DoctorInfo.doctor_name,
                     token, DoctorInfo.doctor_id, date, 'AM', submit_url
                 ));
                 PM_btn.attr('onclick', StringFormat(
-                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')",
+                    registration_confirm_str,
                     department.name, DoctorInfo.doctor_name,
                     token, DoctorInfo.doctor_id, date, 'PM', submit_url
                 ));
@@ -93,9 +99,10 @@ function QueryGH(date, department) {
 
 // 挂号确认弹窗
 function registration_confirm(
-    department_name, doctor_name, token, doctor_id, reg_date, AM_PM, submit_url
+    event_obj, department_name, doctor_name, token, patient_id, doctor_id, reg_date, AM_PM, submit_url
 ) {
     let reg_time, reg_time_str, reg_datetime;
+    let price = event_obj.dataset.price;
     if (AM_PM === "AM"){
         reg_time = "08:00:00";
         reg_time_str = "上午 8:00 - 11:00";
@@ -112,7 +119,7 @@ function registration_confirm(
     );
     $("#modal-body").append(note);
     $("#registration").attr("onclick", StringFormat(
-        "post_registration('{0}', '{1}', '{2}', '{3}')",
+        "post_registration('{0}', '{1}', '{2}', '{3}');",
         token, doctor_id, reg_datetime, submit_url
     ));
 }
@@ -139,15 +146,15 @@ function post_registration(csrf_token, doctor_id, reg_datetime, submit_url) {
             let success = data.status;
             let status = "error";
             let alert_title = "提交失败";
-            let alert_text = "请登录后再挂号！";
+            let alert_text = data.msg;
             if (success) {
+                console.log(success);
                 status = "success";
                 alert_title = "提交成功";
-                alert_text = "即将跳转至您的个人界面";
             }
             submitAlert(alert_title, alert_text, status);
             console.log(data.redirect_url);
-            $($('.swal-button-container').children()[0]).attr(
+            $(".swal2-actions").attr(
                 'onclick',
                 StringFormat("window.location.href = '{0}'", data.redirect_url)
             );
@@ -160,9 +167,9 @@ function post_registration(csrf_token, doctor_id, reg_datetime, submit_url) {
 }
 
 
-// 再次挂号，获取指定医生在指定日期的剩余挂号数
+// 快速挂号，获取指定医生在指定日期的剩余挂号数
 function QueryDocReg(doctor_id, doctor_name, date) {
-    let URL = "/PatientDetailsViewAPI";
+    let URL = "/PatientFastRegisterAPI";
     $.ajax({
         type: "GET",
         url: URL,
@@ -198,6 +205,10 @@ function QueryDocReg(doctor_id, doctor_name, date) {
                 // 向按钮行中添加按钮
                 AM_remain_td.append(AM_btn);
                 PM_remain_td.append(PM_btn);
+                // 在按钮上添加挂号费用
+                AM_btn.attr("data-price", query_data.price);
+                AM_btn.attr("data-price", query_data.price);
+                // 添加事件
                 AM_btn.attr('onclick', StringFormat(
                     "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')", 
                     query_data.dept_name, doctor_name, token, doctor_id, date, 'AM', submit_url
@@ -217,6 +228,89 @@ function QueryDocReg(doctor_id, doctor_name, date) {
         error: function(error) {
             console.log(error);
             alert("无法获取数据，请检查您是否联网");
+        }
+    })
+}
+
+
+// 获取挂号信息详情
+function diagnosis_detail(reg_id) {
+    let URL = "/PatientTreatmentDetailAPI"
+    $.ajax({
+        type: "GET",
+        url: URL,
+        data: {
+            "reg_id": reg_id,
+            "type": "REG"
+        },
+        success: data => {
+            $("#" + reg_id + "-ap-date").children("span").text(data["ap_date"]);
+            $("#" + reg_id + "-reg-class").children("span").text(data["reg_class"]);
+            $("#" + reg_id + "-ill-date").children("span").text(data["ill_date"]);
+            $("#" + reg_id + "-chief-complaint").children("span").text(data["chief_complaint"]);
+            $("#" + reg_id + "-diag-result").children("span").text(data["diag_result"]);
+        },
+        error: error => {
+            console.log(error);
+            alert("无法获取数据，请检查您是否联网");
+        }
+    })
+}
+
+
+// 获取检查信息详情
+function check_detail(reg_id, test_id) {
+    let URL = "/PatientTreatmentDetailAPI"
+    $.ajax({
+        type: "GET",
+        url: URL,
+        data: {
+            "reg_id": reg_id,
+            "test_id": test_id,
+            "type": "CHE"
+        },
+        success: data => {
+            let pre_id = StringFormat("#{0}-{1}-", reg_id, test_id);
+            $(pre_id + "test-name").children("span").text(data["test_name"]);
+            $(pre_id + "doctor-name").children("span").text(data["doctor_name"]);
+            $(pre_id + "issue-date").children("span").text(data["issue_date"]);
+            $(pre_id + "result").children("span").text(data["result"]);
+        },
+        error: error => {
+            console.log(error);
+            alert("无法获取数据，请检查您是否联网");
+        }
+    })
+}
+
+
+// 患者缴费函数
+function third_party_pay(csrf_token, item, price, pk_str, subject, return_url) {
+    let URL = "/PaymentAPI/";
+    // 目前只支持支付宝支付
+    let pay_type = "alipay";
+    $.ajax({
+        type: "POST",
+        url: URL,
+        dataType: 'json',
+        data: {
+            "type": pay_type,
+            "item": item,
+            "price": price,
+            "pk": pk_str,
+            "subject": subject,
+            "return_url": return_url,
+        },
+        beforeSend: function (xhr, setting) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        success: data => {
+            console.log(data);
+            window.location.href = data["url"];
+        },
+        error: error => {
+            console.log(error);
+            alert("暂不能进行支付，请稍后再试！")
         }
     })
 }

@@ -82,8 +82,8 @@ class PatientUser(AbstractBaseUser):
         verbose_name = _("手机号码")
     )
 
-    past_illness    = models.TextField(verbose_name = _("既往史"))
-    allegic_history = models.TextField(verbose_name = _("过敏史"))
+    past_illness    = models.TextField(null = True, blank = True, verbose_name = _("既往史"))
+    allegic_history = models.TextField(null = True, blank = True, verbose_name = _("过敏史"))
 
     create_time = models.DateTimeField(
         auto_now_add = True, 

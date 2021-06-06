@@ -24,6 +24,13 @@
                                                     </a>
                                                 </li>
                                                 <li>
+                                                    <a class="timeline-panel text-muted" href="#waiting-pay">
+                                                        <div class="icon bg-primary"><i class="las la-play"></i>
+                                                        </div>
+                                                        <h4 class="mt-3">等待缴费</h4>
+                                                    </a>
+                                                </li>
+                                                <li>
                                                     <a class="timeline-panel text-muted" href="#now">
                                                         <div class="icon bg-primary"><i class="las la-clock"></i>
                                                         </div>
@@ -215,6 +222,158 @@
                         </div>
                     </div>
 
+                    <!--等待缴费-->
+                    <div class="col-lg-12" id="waiting-pay">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 class="card-title">等待缴费</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="profile-tab">
+                                    <div class="custome-tab-1">
+                                        <!-- 上部导航栏信息 -->
+                                        <ul class="nav nav-tabs">
+                                            <li class="nav-item"><a href="#pay-check" data-toggle="tab" class="nav-link">检查缴费</a>
+                                            </li>
+                                            <li class="nav-item"><a href="#pay-operation" data-toggle="tab" class="nav-link">手术缴费</a>
+                                            </li>
+                                            <li class="nav-item"><a href="#pay-prescription" data-toggle="tab" class="nav-link">处方缴费</a>
+                                            </li>
+                                        </ul>
+
+                                        <!-- 下部展示信息，包括以下内容 -->
+                                        <div class="tab-content">
+
+                                            <!-- 检查缴费 -->
+                                            <div id="pay-check" class="tab-pane fade show active">
+                                                <div class="profile-all-record">
+                                                    <div class="counter">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-responsive-md" style="text-align: center;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th><strong>名称</strong></th>
+                                                                        <th><strong>地点</strong></th>
+                                                                        <th><strong>科室</strong></th>
+                                                                        <th><strong>开具医生</strong></th>
+                                                                        <th><strong>费用</strong></th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for item in no_pay_tests_data %}
+                                                                    <tr>
+                                                                        <td>{{ item.name }}</td>
+                                                                        <td>{{ item.location }}</td>
+                                                                        <td>{{ item.dept }}</td>
+                                                                        <td>{{ item.doctor_name }}</td>
+                                                                        <td><strong>{{ item.price }}</strong></td>
+                                                                        <td>
+                                                                            <!-- 使用 form 提交，避免函数拥有过多的参数 -->
+                                                                            <!-- <form action="/PaymentAPI/" method="POST">
+                                                                                {% csrf_token %}
+                                                                                <input type="text" name="item" value="test" hidden>
+                                                                                <input type="text" name="price" value="{{ item.price }}" hidden>
+                                                                                <input type="text" name="pk" value="{{ item.reg_id }}-{{ item.test_id }}" hidden>
+                                                                            </form> -->
+                                                                            <button type="suubmit" class="btn btn-success light sharp" style="width: 80px"
+                                                                                    onclick="third_party_pay('{{ csrf_token }}', 'test', {{ item.price }}, '{{ request.session.patient_id }}-{{ item.reg_id }}-{{ item.test_id }}', '{{ item.name }}', '{{ return_url }}');">
+                                                                                缴费
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 手术缴费 -->
+                                            <div id="pay-operation" class="tab-pane fade show">
+                                                <div class="profile-all-record">
+                                                    <div class="counter">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-responsive-md" style="text-align: center;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th><strong>名称</strong></th>
+                                                                        <th><strong>等级</strong></th>
+                                                                        <th><strong>时间</strong></th>
+                                                                        <th><strong>费用</strong></th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for item in no_pay_operations_data %}
+                                                                    <tr>
+                                                                        <td>{{ item.name }}</td>
+                                                                        <td>{{ item.level }}</td>
+                                                                        <td>{{ item.date|date:"Y年m月d日" }}</td>
+                                                                        <td><strong>{{ item.price }}</strong></td>
+                                                                        <td>
+                                                                            <button type="button" class="btn btn-success light sharp" style="width: 80px" 
+                                                                                    onclick="third_party_pay('{{ csrf_token }}', 'operation', {{ item.price }}, '{{ request.session.patient_id }}-{{ item.reg_id }}-{{ item.operation_id }}', '{{ item.name }}', '{{ return_url }}');">
+                                                                                缴费
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- 处方缴费 -->
+                                            <div id="pay-prescription" class="tab-pane fade show">
+                                                <div class="profile-all-record">
+                                                    <div class="counter">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-responsive-md" style="text-align: center;">
+                                                                <thead>
+                                                                    <tr>
+                                                                        <th><strong>挂号编号</strong></th>
+                                                                        <th><strong>开具日期</strong></th>
+                                                                        <th><strong>开具医生</strong></th>
+                                                                        <th><strong>药品种类</strong></th>
+                                                                        <th><strong>总费用</strong></th>
+                                                                        <!-- <th><strong>检查医生</strong></th> -->
+                                                                        <th></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for item in no_pay_prescriptions_data %}
+                                                                    <tr>
+                                                                        <td>{{ item.reg_id }}</td>
+                                                                        <td>{{ item.date|date:"Y年m月d日" }}</td>
+                                                                        <td>{{ item.doctor_name }}</td>
+                                                                        <td>{{ item.medicine_num }}</td>
+                                                                        <td><strong>{{ item.price }}</strong></td>
+                                                                        <td>
+                                                                            <button type="button" class="btn btn-success light sharp" style="width: 80px"
+                                                                                    onclick="third_party_pay('{{ csrf_token }}', 'prescription', {{ item.price }}, `{{ request.session.patient_id }}-{{ item.reg_id }}-{{ item.date|date:'Y_m_d_H_i_s' }}`, '处方', '{{ return_url }}');">
+                                                                                缴费
+                                                                            </button>
+                                                                        </td>
+                                                                    </tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <!--当前就诊（包括目前就诊的时候医生需要你进行的所有未进行过的检查）-->
                     <div class="col-lg-12" id="now">
                         <div class="card">
@@ -288,7 +447,7 @@
                                                                         <td>{{ item.name }}</td>
                                                                         <td>{{ item.location }}</td>
                                                                         <td>{{ item.dept }}</td>
-                                                                        <td>{{ item.doctor_name }}</td>
+                                                                        <!-- <td>{{ item.doctor_name }}</td> -->
                                                                     </tr>
                                                                     {% endfor %}
                                                                 </tbody>
@@ -347,38 +506,81 @@
                                                                         <td>{{ item.date|date:"Y-m-d" }}</td>
                                                                         <td>{{ item.doctor_name }}</td>
                                                                         <td>{{ item.diagnosis_result|default_if_none:"" }}</td>
-                                                                        <!-- <td>
-                                                                            <button type="button"
-                                                                                    class="btn btn-success light sharp"
-                                                                                    href="#"
-                                                                                    style="width: 80px">
-                                                                                再次预约
-                                                                            </button>
-                                                                        </td> -->
                                                                         <td>
                                                                             <button
-                                                                                    {#onclick="Details({{ item.id }})"#}
+                                                                                    onclick="diagnosis_detail('{{ item.reg_id }}')"
                                                                                     type="button"
                                                                                     class="btn btn-success light sharp"
                                                                                     data-toggle="modal"
-                                                                                    data-target="#QZXQModal{{ item.id }}"
+                                                                                    data-target="#QZXQModal{{ item.reg_id }}"
                                                                                     style="width: 80px">
                                                                                 确诊详情
                                                                             </button>
                                                                             <!-- 确诊详情弹窗 -->
                                                                             <div class="modal fade"
-                                                                                 id="QZXQModal{{ item.id }}">
-                                                                                <div class="modal-dialog">
+                                                                                 id="QZXQModal{{ item.reg_id }}">
+                                                                                <div class="modal-dialog modal-lg">
                                                                                     <div class="modal-content">
                                                                                         <div class="modal-header">
                                                                                             <h4 class="modal-title"
                                                                                                 id="JGXQModalLabel">
-                                                                                                确诊详情{{ item.id }}
+                                                                                                确诊详情
                                                                                             </h4>
                                                                                         </div>
                                                                                         <div class="modal-body">
-                                                                                            在这里添加一些文本
-                                                                                            写下很多很多很多结果信息，或许可以放图片
+                                                                                            <div class="diagnosis-info">
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">挂号编号<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-reg-id"><span>{{ item.reg_id }}</span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">责任医生<span class="pull-right">:</span>
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-doctor-name"><span>{{ item.doctor_name }}</span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">预约时间<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-ap-date"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">挂号时间<span class="pull-right">:</span>
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-reg-date"><span>{{ item.date|date:"Y年m月d日 D H:i:s" }}</span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">挂号类别<span class="pull-right">:</span>
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-reg-class"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">患病时间<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-ill-date"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">病情描述<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-chief-complaint"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">确诊结果<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-diag-result"><span></span></div>
+                                                                                                </div>
+                                                                                            </div>
                                                                                         </div>
                                                                                         <div class="modal-footer">
                                                                                             <button type="button"
@@ -420,26 +622,65 @@
                                                                         <td>{{ item.name }}</td>
                                                                         <td>{{ item.result|default_if_none:"（等待结果中）" }}</td>
                                                                         <td>
-                                                                            <button type="button"
+                                                                            <button onclick="check_detail({{ item.reg_id }},{{ item.test_id }})"
+                                                                                    type="button"
                                                                                     class="btn btn-success light sharp"
                                                                                     data-toggle="modal"
-                                                                                    data-target="#JGXQModal{{ item.id }}"
+                                                                                    data-target="#JGXQModal{{ item.reg_id }}-{{ item.test_id }}"
                                                                                     style="width: 80px">
                                                                                 检查详情
                                                                             </button>
                                                                             <!-- 检查详情弹窗 -->
                                                                             <div class="modal fade"
-                                                                                    id="JGXQModal{{ item.id }}">
+                                                                                    id="JGXQModal{{ item.reg_id }}-{{ item.test_id }}">
                                                                                 <div class="modal-dialog">
                                                                                     <div class="modal-content">
                                                                                         <div class="modal-header">
                                                                                             <h4 class="modal-title" id="">
-                                                                                                检查结果{{ item.id }}
+                                                                                                检查结果
                                                                                             </h4>
                                                                                         </div>
                                                                                         <div class="modal-body">
-                                                                                            在这里添加一些文本
-                                                                                            写下很多很多很多结果信息，或许可以放图片
+                                                                                            <div class="test-info">
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">挂号编号<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-reg-id"><span>{{ item.reg_id }}</span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">检验编号<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-test-id"><span>{{ item.test_id }}</span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">检验项目<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-test-name"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">责任医生<span class="pull-right">:</span>
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-doctor-name"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">开具时间<span class="pull-right">:</span></h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-issue-date"><span></span></div>
+                                                                                                </div>
+                                                                                                <div class="row mb-2">
+                                                                                                    <div class="col-3">
+                                                                                                        <h5 class="f-w-500">检验结果<span class="pull-right">:</span>
+                                                                                                        </h5>
+                                                                                                    </div>
+                                                                                                    <div class="col-9" id="{{ item.reg_id }}-{{ item.test_id }}-result"><span></span></div>
+                                                                                                </div>
+                                                                                            </div>
                                                                                         </div>
                                                                                         <div class="modal-footer">
                                                                                             <button type="button"
