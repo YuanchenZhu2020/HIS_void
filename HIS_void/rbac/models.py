@@ -137,7 +137,7 @@ class URLPermission(models.Model):
         ordering = ["codename", "url_regex"]
 
     def __str__(self):
-        return "<URL Perm {}-{}>".format(self.codename, self.url)
+        return "<URL Perm {}-{}>".format(self.codename, self.url_regex)
 
 
 class Role(models.Model):

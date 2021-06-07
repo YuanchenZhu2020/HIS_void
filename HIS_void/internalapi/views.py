@@ -932,7 +932,7 @@ class PaymentCheck(View):
     """
     检查支付是否成功。成功则跳转回主页，失败则显示失败页面，然后跳转回目标页面
     """
-    PAYMENT_ERROR_PAGE = "payment_error.html"
+    PAYMENT_ERROR_PAGE = "payment-error.html"
     PAYMENT_SUCCESS_NAME = "index"
 
     def get(self, request):
@@ -1180,3 +1180,13 @@ class PaymentNotifyAPI(View):
             hr.payment_status = True
             hr.save()
         return True
+
+
+class PaymentError(View):
+    """
+    缴费失败页面
+    """
+    payment_error_template = "payment-error.html"
+
+    def get(self, request):
+        return render(request, PaymentError.payment_error_template)
