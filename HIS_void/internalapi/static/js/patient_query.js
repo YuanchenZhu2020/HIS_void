@@ -99,7 +99,7 @@ function QueryGH(date, department) {
 
 // 挂号确认弹窗
 function registration_confirm(
-    event_obj, department_name, doctor_name, token, patient_id, doctor_id, reg_date, AM_PM, submit_url
+    event_obj, department_name, doctor_name, token, doctor_id, reg_date, AM_PM, submit_url
 ) {
     let reg_time, reg_time_str, reg_datetime;
     let price = event_obj.dataset.price;

@@ -13,6 +13,7 @@ from django.views import View
 from patient import login, init_patient_url_permission
 from patient.forms import PatientLoginForm, PatientRegisterForm
 from patient.models import PatientUser
+from rbac.models import UserInfo
 from his.models import Department, Staff
 from laboratory.models import PatientTestItem
 from outpatient.models import RemainingRegistration, RegistrationInfo, Prescription
@@ -26,10 +27,17 @@ from externalapi.external_api import IDInfoQuery
 class PatientLoginView(View):
     template_name = "page-login.html"
     patient_next_url_name = "patient"
+    error_wrong_user_login_template = "wrong-user-login-error.html"
+    error_412_template = "page-error-412.html"
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect(reverse(PatientLoginView.patient_next_url_name))
+            if isinstance(request.user, PatientUser):
+                return redirect(reverse(PatientLoginView.patient_next_url_name))
+            elif isinstance(request.user, UserInfo):
+                return render(request, PatientLoginView.error_wrong_user_login_template)
+            else:
+                return render(request, PatientLoginView.error_412_template)
         else:
             loginform = PatientLoginForm()
             context = {"user_type": "patient", "loginform": loginform}

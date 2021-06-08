@@ -194,6 +194,7 @@ PERMISSION_OBJ_KEY = "obj_key"
 # RBAC Accessed URLs without Login
 SAFE_URL = [
     r"/admin/",  # 后台管理
+    r"/", # 主页 alias
     r"/index/",  # 主页
     r"/login-staff/",  # 职工登录
     r"/login-patient/",  # 医生登录
@@ -202,6 +203,7 @@ SAFE_URL = [
     r"/forgot-password/",  # 忘记密码
     r"/patient/",  # 患者挂号页面
     r"/PaymentNotifyAPI/", # 支付成功回调接口
+    r"/PatientRegisterAPI/",  # 患者挂号查询与提交API
 ]
 
 # setup session engine to improve performance
