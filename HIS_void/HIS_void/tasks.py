@@ -103,13 +103,13 @@ def gen_remaining_registration():
 
 def insert_day_remaining_registration():
     """
-    插入当天的剩余挂号信息
+    插入第7天的剩余挂号信息，当天为第1天。
     """
-    today = timezone.localdate()
+    today = timezone.localdate() + timezone.timedelta(days = 6)
     # calendar 中以 0 代表周一，作为一周起点
     weekday = calendar.weekday(today.year, today.month, today.day) + 1
     # 垃圾代码
-    # 待修改
+    # 待修改，获取当天在门诊值班的医生
     day_duty_staffs = map(
         lambda d: d.medical_staff,
         DutyRoster.objects.filter(
@@ -120,6 +120,7 @@ def insert_day_remaining_registration():
     )
     remaining_regs = []
     with transaction.atomic():
+        # 对每位医生插入上午和下午两条记录
         for ms in day_duty_staffs:
             # 是否为 UTC 时间都可以正常以 UTC 时间存储进数据库
             reg_datetime = {
