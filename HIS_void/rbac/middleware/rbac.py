@@ -60,15 +60,17 @@ class RBACMiddleware:
         # Cond 0: 超级用户，具有完全权限
         if hasattr(request.user, "is_superuser") \
             and request.user.is_superuser:
-            print("\033[1;31m[RBAC Cond 1]\033[0m")
+            print("\033[1;31m[RBAC Cond 0]\033[0m")
             return None
         # Cond 1: 访问页面不存在
         # print(list(all_urls))
         if request_url not in all_urls:
+            print("\033[1;31m[RBAC Cond 1]\033[0m")
             return render(request, RBACMiddleware.page_404)
         # Cond 2: URL 白名单
         for url in settings.SAFE_URL:
-            if re.match(url, request_url):
+            url_pattern = "^{}$".format(url)
+            if re.match(url_pattern, request_url):
                 # print("第", self.count, "调用中间件")
                 # print("··········匹配成功·············")
                 print("\033[1;31m[RBAC Cond 2]\033[0m")
@@ -84,6 +86,7 @@ class RBACMiddleware:
         for code_name, url in url_permissions:
             url_pattern = "^{}$".format(url)
             if re.match(url_pattern, request_url):
+                print("\033[1;31m[RBAC Cond 4]\033[0m")
                 flag = True
                 break
         if not flag:

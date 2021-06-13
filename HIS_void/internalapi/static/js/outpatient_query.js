@@ -47,7 +47,7 @@ function query_waiting_diagnosis_patients() {
             get_param: 'waiting_diagnosis'
         },
         success: function (data) {
-            console.log(data);
+            // console.log(data);
             let $waiting_diagnosis_card = $('#waiting_diagnosis');
             $waiting_diagnosis_card.empty();
             for (let i = 0; i < data.length; i++) {
@@ -176,7 +176,7 @@ function QueryInDiagnosisPatient() {
         },
         success: function (data) {
             let $in_diagnosis_card = $("#in_diagnosis");
-            // console.log(data);
+            console.log(data);
             data.sort(function (a, b) {
                 return b.progress - a.progress;
             })

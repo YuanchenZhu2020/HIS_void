@@ -136,9 +136,9 @@ class OutpatientAPI(View):
             diagnosis_status = 1  # 诊断状态为诊中
         )
         for regis in regis_info:
-            # 找到该挂号下所有的检验信息
+            # 获取该挂号对应的所有检验信息
             all_test_info = PatientTestItem.objects.filter(
-                registration_info_id=regis.id,  # 该挂号的所有检验
+                registration_info_id = regis.id,
             )
             # 初始化总检验项目及已完成检验项目
             all_test_num = finished_test_num = 0
@@ -146,8 +146,11 @@ class OutpatientAPI(View):
                 all_test_num += 1
                 if test_info.test_results is not None:
                     finished_test_num += 1
-            data.append({'regis_id': regis.id, 'name': regis.patient.name,
-                         'progress': int((finished_test_num / all_test_num) * 100)})
+            data.append({
+                "regis_id": regis.id, 
+                "name": regis.patient.name,
+                "progress": (finished_test_num / all_test_num) * 100
+            })
         return data
 
     def query_inspect_result(self, request):
@@ -287,7 +290,7 @@ class OutpatientAPI(View):
                 id = regis_id
             ).update(
                 chief_complaint = null_string_to_none(chief_complaint),
-                illness_date = null_string_to_none(illness_date)
+                illness_date = illness_date
             )
             PatientUser.objects.filter(
                 registrations__id = null_string_to_none(regis_id)
@@ -364,7 +367,6 @@ class OutpatientAPI(View):
                 )
 
     # endregion
-
 
 
 class NurseAPI(View):
