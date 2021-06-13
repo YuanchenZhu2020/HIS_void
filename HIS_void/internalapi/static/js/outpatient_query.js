@@ -154,7 +154,6 @@ function QueryHistorySheet(regis_id) {
             $("#past_illness").val(data.past_illness);
             $("#allegic_history").val(data.allegic_history);
             $("#illness_date").val(data.illness_date);
-
             init_style('#history_sheet_form');
             $("#togo_history_sheet").click();
         },
@@ -453,6 +452,7 @@ function collect_medicine() {
 
 // 添加药品
 function addMedicine(medicine_obj, medicine_num) {
+    console.log(medicine_obj)
     // 药品行
     let $medicine_tr = $('<tr></tr>');
     // 在药品行中添加药品id和药品数量medicine_num
@@ -602,6 +602,7 @@ function inspectionTotalPrice() {
 
 }
 
+//region 提交函数
 // 病历首页提交
 function PostHisTorySheet(csrf_token) {
     if ($('#no').attr('placeholder') === undefined) {

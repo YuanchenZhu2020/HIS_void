@@ -14,7 +14,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
 from his.models import Department, DeptAreaBed, Staff
-from inpatient.models import HospitalRegistration, OperationInfo
+from inpatient.models import HospitalRegistration, NursingRecord
 from outpatient.models import RemainingRegistration, RegistrationInfo, Prescription, PrescriptionDetail
 from patient.models import PatientUser
 from rbac.decorators import patient_login_required
@@ -45,6 +45,7 @@ class OutpatientAPI(View):
 
     # region OutpatientAPI GET
     def get(self, request):
+        print(dict(request.session))
         query_key_to_func = {
             # 病历首页信息查询
             "history_sheet": self.query_history_sheet,
@@ -366,7 +367,6 @@ class OutpatientAPI(View):
                     prescription_info_id = prescription.id
                 )
 
-    # endregion
 
 
 class NurseAPI(View):
@@ -375,13 +375,17 @@ class NurseAPI(View):
     """
 
     def get(self, request):
+        print('====== START NurseAPI GET ======')
+        for param in request.GET:
+            print(f'【{param}】{request.GET.get(param)}')
+        print('======  END NurseAPI GET ======')
         query_key_to_func = {
             # 医嘱处理信息查询
             "MEDICAL_ADVICE_QUERY": self.query_medical_advice_process,
             # 住院患者信息查询
             "INPATIENTS_QUERY": self.query_inpatients,
             # 患者入院登记基础信息查询
-            "REGISTER_QUERY": self.query_register_patient_info,
+            "PATIENT_INFO_QUERY": self.query_patient_info,
             # 待收患者信息查询
             "WAITING_QUERY": self.query_waiting_patients,
             # 空床位查询
@@ -389,82 +393,84 @@ class NurseAPI(View):
         }
 
         # 获取需要查询的信息类型
-        query_information = request.GET.get('information')
+        query_information = request.GET.get('get_param')
         data = query_key_to_func.get(query_information)(request)
         return JsonResponse(data, safe=False)
 
     def query_medical_advice_process(self, request):
-        patient_id = request.GET.get('patient_id')
-        print(patient_id)
+        regis_id = request.GET.get('regis_id')
+        medical_advice_info = Prescription.objects.filter(
+            registration_info_id=regis_id
+        ).values_list('medical_advice')
+        medicine_info = PrescriptionDetail.objects.filter(
+            prescription_info__registration_info_id=regis_id
+        ).values_list(
+            'medicine_quantity', 'medicine_info__medicine_name')
+        inspect_info = PatientTestItem.objects.filter(
+            registration_info_id=regis_id,
+            issue_time__date=timezone.localdate()
+        ).values_list('test_item__inspect_name')
+
+        medical_advice_info = [info[0] for info in medical_advice_info]
+        medicine_info = list(medicine_info)
+        inspect_info = [info[0] for info in inspect_info]
+        print(medical_advice_info, medicine_info, inspect_info)
         data = {
-            "no": 114514,
-            "name": "肖云冲",
-            "gender": "男",
-            "age": 18,
-            "HZZS": "患者主诉文本",
-            "ZLQK": "治疗情况文本",
-            "JWBS": "既往病史文本",
-            "GMBS": "过敏病史文本",
-            "TGJC": "体格检查文本",
-            "FBSJ": "发病事件文本",
-        }
+            'medicine_info': medicine_info,
+            'medical_advice_info': medical_advice_info,
+            'inspect_info': inspect_info
+            }
         return data
 
     def query_inpatients(self, request):
-        data = [
-            {
-                "pid": "183771**",
-                "name": "李国铭",
-                "status": "危机",
-            },
-            {
-                "pid": "183771--",
-                "name": "肖云冲",
-                "status": "普通",
-            },
-            {
-                "pid": "183771++",
-                "name": "朱元琛",
-                "status": "安全",
-            },
-        ]
+        dept_id = request.session.get('dept_id')
+        regis_info = HospitalRegistration.objects.filter(
+            reg_date__isnull=False,
+            dept_id=dept_id
+        ).values_list(
+            'registration_info_id',
+            'registration_info__patient__name',
+            'care_level'
+        )
+        data = [dict(zip(
+            ['regis_id', 'name', 'care_level'],
+            regis
+        )) for regis in regis_info]
         # 传入医生主键，这样可以有选择的返回病人信息
-        d_no = request.GET.get('d_no')
-        print(d_no)
         return data
 
-    def query_register_patient_info(self, request):
+    def query_patient_info(self, request):
+        regis_id = request.GET.get('regis_id')
+        hospital_regis_info = HospitalRegistration.objects.get(registration_info_id=regis_id)
+        gender_convert = ['男', '女']
         data = {
-            "no": 114514,
-            "name": "代收患者姓名",
-            "gender": "男",
-            "age": 18
+            'regis_id': hospital_regis_info.registration_info.id,
+            'name': hospital_regis_info.registration_info.patient.name,
+            'gender': gender_convert[hospital_regis_info.registration_info.patient.gender],
+            'age': timezone.localdate().year - hospital_regis_info.registration_info.patient.birthday.year,
         }
         return data
 
+    #  查询待收患者
     def query_waiting_patients(self, request):
-        data = [
-            {
-                "p_no": "183771**",
-                "name": "李国铭（待收患者）",
-                "status": "危机",
-            },
-            {
-                "p_no": "183771--",
-                "name": "肖云冲（待收患者）",
-                "status": "普通",
-            },
-            {
-                "p_no": "183771++",
-                "name": "朱元琛（待收患者）",
-                "status": "安全",
-            },
-        ]
-        # 传入医生主键，这样可以有选择的返回病人信息
-        d_no = request.GET.get('d_no')
-        print(d_no)
+        dept_id = request.session.get('dept_id')
+        regis_info = HospitalRegistration.objects.filter(
+            reg_date__isnull=True,
+            dept_id=dept_id
+        ).values_list(
+            'registration_info_id',
+            'registration_info__patient__name',
+            'registration_info__patient__gender'
+        )
+        gender_convert = ['男', '女']
+        data = [dict(zip(
+            ['regis_id', 'name', 'gender'],
+            (regis[0], regis[1], gender_convert[regis[2]])
+        )) for regis in regis_info]
+        print(data)
         return data
 
+    # 查询空床位
     def query_empty_beds(self, request):
         # 数据示例：{"AREA": "A","BED": [1, 3, 4, 5, 6]}
         inpatient_area_info = []
@@ -487,15 +493,55 @@ class NurseAPI(View):
         return inpatient_area_info
 
     def post(self, request):
-        print("================================")
-        print(request.POST.get('SZY'))
-        print("================================")
+        print("========= START NurseAPI POST =========")
+        for param in request.POST:
+            print(f'【{param}】{request.POST.get(param)}')
+        print("=========  END NurseAPI POST ==========")
+        post_key_to_func = {
+            "hospital_registration": self.post_hospital_registration,
+            'nursing_record': self.post_nursing_record
+        }
+        callback = post_key_to_func[request.POST.get('post_param')](request)
+        return JsonResponse(callback, safe=False)
 
-        print("================================")
-        print(request.POST.get('RYRQ'))
-        print("================================")
-        sleep(1)
-        return redirect(reverse("nurse-workspace"))
+    # 提交护理记录
+    def post_nursing_record(self, request):
+        with transaction.atomic():
+            nursing_info = NursingRecord.objects.filter(
+                registration_info_id=request.POST.get('regis_id'),
+                nursing_date=timezone.localdate()
+            )
+            if nursing_info.exists():
+                nursing_info.update(
+                    registration_info_id=request.POST.get('regis_id'),
+                    medical_staff_id=request.session.get('username'),
+                    systolic=request.POST.get('systolic'),
+                    diastolic=request.POST.get('diastolic'),
+                    temperature=request.POST.get('temperature'),
+                    note=request.POST.get('note')
+                )
+            else:
+                NursingRecord.objects.create(
+                    registration_info_id=request.POST.get('regis_id'),
+                    medical_staff_id=request.session.get('username'),
+                    systolic=request.POST.get('systolic'),
+                    diastolic=request.POST.get('diastolic'),
+                    temperature=request.POST.get('temperature'),
+                    note=request.POST.get('note')
+                )
+        return {'status': 0, 'message': '护理记录已更新'}
+
+    # 提交入院登记
+    def post_hospital_registration(self, request):
+        with transaction.atomic():
+            HospitalRegistration.objects.filter(registration_info_id=request.POST.get('regis_id')).update(
+                reg_date=request.POST.get('reg_date'),
+                care_level=request.POST.get('care_level'),
+                area_id=request.POST.get('area_bed')[0],
+                bed_id=request.POST.get('area_bed')[1],
+                kin_phone=request.POST.get('kin_phone')
+            )
+            return {'status': 0, 'message': "入院登记已记录"}
 
 
 class InspectionAPI(View):
@@ -745,7 +791,7 @@ class PatientTreatmentDetails(View):
         )[0]
         reg_info = dict(zip(
             [
-                "reg_id", "doctor_name", "ap_date", "reg_date", "reg_class", 
+                "reg_id", "doctor_name", "ap_date", "reg_date", "reg_class",
                 "ill_date", "chief_complaint", "diag_result"
             ],
             (reg_id,) + reg_info
@@ -762,13 +808,13 @@ class PatientTreatmentDetails(View):
         reg_id = request.GET.get("reg_id")
         test_id = request.GET.get("test_id")
         test_info = PatientTestItem.objects.filter(
-            registration_info__patient = patient, 
-            registration_info__reg_id = reg_id, 
+            registration_info__patient = patient,
+            registration_info__reg_id = reg_id,
             test_id = test_id
         ).values_list(
-            "test_item__inspect_name", 
+            "test_item__inspect_name",
             "handle_staff__name",
-            "issue_time", 
+            "issue_time",
             "test_results",
         )[0]
         test_info = dict(zip(

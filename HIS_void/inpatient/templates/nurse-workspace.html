@@ -23,7 +23,7 @@
             <div class="col-md-3">
                 {# 住院患者信息 #}
                 <div class="container">
-                    <div class="card">
+                    <div class="card" name="patient_card">
                         {# 设置卡片头 #}
                         <div class="card-header">住院患者</div>
                         {# 固定卡片大小，使得患者过多时可以滚动 #}
@@ -33,10 +33,10 @@
                                 <thead>
                                 <tr>
                                     <th>姓名</th>
-                                    <th>状态</th>
+                                    <th>护理级别</th>
                                 </tr>
                                 </thead>
-                                <tbody id="Inpatients">
+                                <tbody id="inpatisnts_card">
                                 </tbody>
                             </table>
                         </div>
@@ -44,17 +44,17 @@
                 </div>
                 {# 待收患者信息 #}
                 <div class="container">
-                    <div class="card">
+                    <div class="card" name="patient_card">
                         <div class="card-header">待收患者</div>
                         <div style="overflow-x: auto; overflow-y: auto; height: 300px; ">
                             <table class="table table-hover small text-center">
                                 <thead>
                                 <tr>
                                     <th>姓名</th>
-                                    <th>紧急程度</th>
+                                    <th>性别</th>
                                 </tr>
                                 </thead>
-                                <tbody id="WaitingPatients">
+                                <tbody id="waiting_patients_card">
                                 </tbody>
                             </table>
                         </div>
@@ -74,7 +74,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">病历号</span>
                                             </div>
-                                            <input id="no" type="text" class="form-control" readonly placeholder="">
+                                            <input id="no" type="text" class="form-control" readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -82,7 +82,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">姓名</span>
                                             </div>
-                                            <input id="name" type="text" class="form-control" readonly placeholder="">
+                                            <input id="name" type="text" class="form-control" readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -90,7 +90,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">性别</span>
                                             </div>
-                                            <input id="gender" type="text" class="form-control" readonly placeholder="">
+                                            <input id="gender" type="text" class="form-control" readonly>
                                         </div>
                                     </div>
                                     <div class="col-md-2">
@@ -98,7 +98,7 @@
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">年龄</span>
                                             </div>
-                                            <input id="age" type="text" class="form-control" readonly placeholder="">
+                                            <input id="age" type="text" class="form-control" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -111,7 +111,7 @@
                                 {# 医嘱处理按钮 #}
                                 <li class="nav-item">
                                     <a id="MedicalAdviceProcess" href="#yi_zhu_chu_li" class="nav-link active"
-                                       data-toggle="tab" aria-expanded="false">医嘱处理</a>
+                                       data-toggle="tab" aria-expanded="false">今日医嘱</a>
                                 </li>
                                 {# 体征记录按钮 #}
                                 <li class="nav-item">
@@ -120,7 +120,7 @@
                                 </li>
                                 {# 入院登记按钮 #}
                                 <li class="nav-item">
-                                    <a id="RYDJ_a" href="#ru_yuan_deng_ji" class="nav-link" data-toggle="tab"
+                                    <a id="registration_a" href="#ru_yuan_deng_ji" class="nav-link" data-toggle="tab"
                                        aria-expanded="true">入院登记</a>
                                 </li>
                                 <li class="ml-3 mb-0">
@@ -163,45 +163,44 @@
                         </div>
                         {# 分页页面内容 #}
                         <div class="tab-content">
-                            {# 病历首页页面信息，第一次进入页面默认显示这个 #}
-                            <div id="yi_zhu_chu_li" class="tab-pane fade show active">
-                                <div class="card-body">
-                                    <div class="basic-form">
-                                        <form action="#">
-                                            <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-2 col-form-label text-right">患者主诉： </label>
-                                                <textarea type="text" class="form-control" placeholder=""></textarea>
-                                            </div>
-                                            <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-2 col-form-label text-right">现病史：</label>
-                                                <textarea type="text" class="form-control" placeholder=""></textarea>
-                                            </div>
-                                            <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-2 col-form-label text-right">现病治疗情况：
-                                                </label> <textarea type="text" class="form-control"
-                                                                   placeholder=""></textarea>
-                                            </div>
-                                            <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-2 col-form-label text-right">既往史：
-                                                </label> <textarea id="jiwangshi" type="text" class="form-control"
-                                                                   placeholder=""></textarea>
-                                            </div>
-                                            <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-2 col-form-label text-right">过敏史：
-                                                </label> <textarea id="guominshi" type="text" class="form-control"
-                                                                   placeholder=""></textarea>
-                                            </div>
-                                            <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-2 col-form-label text-right">体格检查：
-                                                </label> <textarea id="tigejiancha" type="text" class="form-control"
-                                                                   placeholder=""></textarea>
-                                            </div>
-                                            <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-2 col-form-label text-right">发病时间：
-                                                </label> <textarea id="fabingshijian" type="text" class="form-control"
-                                                                   placeholder=""></textarea>
-                                            </div>
-                                        </form>
+                            {# 医嘱处理页面信息，第一次进入页面默认显示这个 #}
+                            <div id="yi_zhu_chu_li" class="tab-pane fade show active mt-5">
+                                <div id="accordion-one" class="accordion accordion-bordered">
+                                    <div class="accordion__item">
+                                        <div class="accordion__header rounded-lg" data-toggle="collapse"
+                                             data-target="#default_collapseOne">
+                                            <span class="accordion__header--text">医嘱</span>
+                                            <span class="accordion__header--indicator"></span>
+                                        </div>
+                                        <div id="default_collapseOne" class="collapse accordion__body show"
+                                             data-parent="#accordion-one">
+                                            <div class="accordion__body--text row text-center" id="medical_advice"><p
+                                                    class="col-12">今日暂无医嘱</p></div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion__item">
+                                        <div class="accordion__header collapsed rounded-lg" data-toggle="collapse"
+                                             data-target="#default_collapseTwo">
+                                            <span class="accordion__header--text">药品</span>
+                                            <span class="accordion__header--indicator"></span>
+                                        </div>
+                                        <div id="default_collapseTwo" class="collapse accordion__body"
+                                             data-parent="#accordion-one">
+                                            <div class="accordion__body--text row text-center" id="medicine_info"><p
+                                                    class="col-12">今日暂无药品信息</p></div>
+                                        </div>
+                                    </div>
+                                    <div class="accordion__item">
+                                        <div class="accordion__header collapsed rounded-lg" data-toggle="collapse"
+                                             data-target="#default_collapseThree">
+                                            <span class="accordion__header--text">检查检验</span>
+                                            <span class="accordion__header--indicator"></span>
+                                        </div>
+                                        <div id="default_collapseThree" class="collapse accordion__body "
+                                             data-parent="#accordion-one">
+                                            <div class="accordion__body--text row text-center" id="test_item"><p
+                                                    class="col-12">今日暂无检查检验项目</p></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -211,25 +210,25 @@
                                 <div class="card-body">
                                     {# 检验表单 #}
                                     <div class="basic-form">
-                                        <form action="{% url 'NurseAPI' %}" method="POST">
-                                            {% csrf_token %}
+                                        <form id="nursing_record_form">
+                                            <input type="hidden" name="post_param" value="nursing_record">
+                                            <input type="hidden" name="regis_id">
                                             <div class="input-group input-group-lg mb-3">
                                                 <label class="col-md-1.5 col-form-label text-right">收缩压：
-                                                </label> <input type="text" name="SSY" class="form-control">
+                                                </label> <input type="text" name="systolic" class="form-control">
                                             </div>
                                             <div class="input-group input-group-lg mb-3">
                                                 <label class="col-md-1.5 col-form-label text-right">舒张压：
-                                                </label> <input type="text" name="SZY" class="form-control">
+                                                </label> <input type="text" name="diastolic" class="form-control">
                                             </div>
                                             <div class="input-group input-group-lg mb-3">
                                                 <label class="col-md-1.5 col-form-label text-right">体&emsp;温：
-                                                </label> <input type="text" name="TW" class="form-control">
+                                                </label> <input type="text" name="temperature" class="form-control">
                                             </div>
-                                            <textarea class="form-control mb-3" rows="10"
+                                            <textarea name="note" class="form-control mb-3" rows="10"
                                                       placeholder="如有其他情况，请在此说明"></textarea>
-
                                             <div class="col-md-12 text-right">
-                                                <button type="submit" onclick="submitAlert()"
+                                                <button type="button" onclick="postNursingRecord('{{ csrf_token }}')"
                                                         class="form-group btn btn-outline-primary btn-sm">
                                                     提交记录
                                                 </button>
@@ -240,58 +239,57 @@
 
                                 </div>
                             </div>
-
                             {# 入院登记页面信息 #}
                             <div id="ru_yuan_deng_ji" class="tab-pane fade">
-                                <div class="container">
-                                    <div class="card-body">
-                                        <div class="basic-form">
-                                            <form action="{% url 'NurseAPI' %}" method="POST">
-                                                {% csrf_token %}
-                                                <div class="form-group">
-                                                    <div class="input-group input-group-lg mb-4">
-                                                        <label class="col-md-1.5 col-form-label text-right">入院日期： </label>
-                                                        <input name="RYRQ"
-                                                               class="col-md-10.5 datepicker-default form-control form-control-lg"
-                                                               id="datepicker"/>
-                                                    </div>
+                                <div class="card-body">
+                                    <div class="basic-form">
+                                        <form id="hospital_registration_form">
+                                            <input type="hidden" name="regis_id">
+                                            <input type="hidden" name="post_param" value="hospital_registration">
+                                            <div class="form-group">
+                                                <div class="input-group input-group-lg mb-4">
+                                                    <label class="col-md-1.5 col-form-label text-right">入院日期： </label>
+                                                    <input name="reg_date"
+                                                           class="col-md-10.5 datepicker-default form-control form-control-lg"
+                                                           id="datepicker"/>
                                                 </div>
-                                                <div class="form-group">
-                                                    <div class="input-group">
-                                                        <label class="col-md-1.5 col-form-label text-right">护理级别： </label>
-                                                        <select class="form-control form-control-lg" name='HLJB'>
-                                                            <option></option>
-                                                            <option>1</option>
-                                                            <option>2</option>
-                                                            <option>3</option>
-                                                            <option>4</option>
-                                                            <option>5</option>
-                                                        </select>
-                                                    </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="input-group">
+                                                    <label class="col-md-1.5 col-form-label text-right">护理级别： </label>
+                                                    <select id="care_level" class="form-control form-control-lg"
+                                                            name='care_level'>
+                                                        <option></option>
+                                                        <option>1</option>
+                                                        <option>2</option>
+                                                        <option>3</option>
+                                                        <option>4</option>
+                                                    </select>
                                                 </div>
-                                                <div class="form-group">
-                                                    <div class="input-group input-group-lg mb-4">
-                                                        <label class="col-md-1.5 col-form-label text-right">病区床位：</label>
-                                                        <input id="AreaBed" class="form-control form-control-lg"
-                                                               onfocus="$('#queryBedBtn').click()" name='BQCW'>
-                                                    </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="input-group input-group-lg mb-4">
+                                                    <label class="col-md-1.5 col-form-label text-right">病区床位：</label>
+                                                    <input id="AreaBed" class="form-control form-control-lg" readonly
+                                                           onfocus="$('#queryBedBtn').click()" name='area_bed'>
                                                 </div>
-                                                <div class="form-group">
-                                                    <div class="input-group input-group-lg mb-3">
-                                                        <label class="=col-md-1.5 col-form-label text-right">家属电话：</label>
-                                                        <input class="form-control form-control-lg" type="tel"
-                                                               name="JSDH">
-                                                    </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="input-group input-group-lg mb-3">
+                                                    <label class="=col-md-1.5 col-form-label text-right">家属电话：</label>
+                                                    <input class="form-control form-control-lg" type="tel"
+                                                           name="kin_phone">
                                                 </div>
-                                                <div class="form-group">
-                                                    <div class="text-right">
-                                                        <button type="submit" onclick="submitAlert()"
-                                                                class="btn btn-outline-primary">提 交
-                                                        </button>
-                                                    </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <div class="text-right">
+                                                    <button type="button"
+                                                            onclick="postHospitalRegistration('{{ csrf_token }}')"
+                                                            class="btn btn-outline-primary">提 交
+                                                    </button>
                                                 </div>
-                                            </form>
-                                        </div>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -301,5 +299,7 @@
             </div>
         </div>
     </div>
+{% endblock %}
+{% block script-content %}
     <script src="{% static 'js/nurse_query.js' %}"></script>
 {% endblock %}

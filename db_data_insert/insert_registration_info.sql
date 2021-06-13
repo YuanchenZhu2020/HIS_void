@@ -1020,7 +1020,7 @@ insert into inpatient_operationinfo
 -- ([0-9]{4}-[0-9]{2}-[0-9]{2}),([0-9]*),((?:[0-9]{2,3},){2})([0-9]{2}.[0-9]) ,(.*),([0-9]{6}),([0-9]*)
 --     ('$1',$2,$3$4,'$5','$6',$7),
 insert into inpatient_nursingrecord 
-(nursing_date, id, systolic, diastolic, temperature, note, medical_staff_id, patient_id) values 
+(nursing_date, id, systolic, diastolic, temperature, note, medical_staff_id, hospital_reg_id) values 
     ('2021-05-18',1,120,80,36.8,'','000002',1),
     ('2021-05-23',2,155,110,36.5,'','000020',2),
     ('2021-05-20',3,115,79,36.8,'心率不齐','000034',3),
