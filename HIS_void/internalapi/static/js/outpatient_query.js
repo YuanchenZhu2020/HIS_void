@@ -492,33 +492,7 @@ function medicineTotalPrice() {
     $('#medicine_copy_total_price').text(total.toFixed(2));
 }
 
-// 提交提示
-function submitToastr(content, title, status) {
-    let func = toastr.info
-    if (status === 'success') {
-        func = toastr.error;
-    } else if (status === 'error') {
-        func = toastr.error;
-    }
-    func(content, title, {
-        positionClass: "toast-top-center",
-        timeOut: 5e3,
-        closeButton: !0,
-        debug: !1,
-        newestOnTop: !0,
-        progressBar: !0,
-        preventDuplicates: !0,
-        onclick: null,
-        showDuration: "300",
-        hideDuration: "1000",
-        extendedTimeOut: "1000",
-        showEasing: "swing",
-        hideEasing: "linear",
-        showMethod: "fadeIn",
-        hideMethod: "fadeOut",
-        tapToDismiss: !1
-    })
-}
+
 
 // 复制药品结果到患者账单处
 function copyMedicine() {

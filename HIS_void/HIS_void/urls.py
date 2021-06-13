@@ -28,9 +28,9 @@ from outpatient.views import OutpatientView
 from inpatient.views import NurseView, InpatientWorkspaceView
 from laboratory.views import InspectionView
 from internalapi.views import (
-    NurseAPI, OutpatientAPI, InspectionAPI, PatientRegisterAPI, PatientUserAPI, 
-    InpatientAPI, PatientFastRegisterAPI, PatientTreatmentDetails, 
-    PaymentAPI, PaymentNotifyAPI, PaymentCheck, 
+    NurseAPI, OutpatientAPI, InspectionAPI, PatientRegisterAPI, PatientUserAPI,
+    InpatientAPI, PatientFastRegisterAPI, PatientTreatmentDetails,
+    PaymentAPI, PaymentNotifyAPI, PaymentCheck,
 )
 
 from rbac.management import create_urlpermissions
@@ -80,7 +80,7 @@ urlpatterns = [
     # 挂号API 保存挂号信息
     path('PatientRegisterAPI/', PatientRegisterAPI.as_view(), name="PatientRegisterAPI"),
     # 保存住院医生能查询到的住院人信息
-    path('InhospitalAPI/', InpatientAPI.as_view(), name="InhospitalAPI"),
+    path('InpatientAPI/', InpatientAPI.as_view(), name="InpatientAPI"),
     # 患者详情页面API
     path('PatientFastRegisterAPI/', PatientFastRegisterAPI.as_view(), name = "PatientFastRegisterAPI"),
     # 患者治疗信息查询API
