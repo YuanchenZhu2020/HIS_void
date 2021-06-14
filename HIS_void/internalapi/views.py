@@ -33,6 +33,7 @@ def get_current_reg_time():
         TARGET_REG_TIME = dateparse.parse_time("13:00:00")
     return TARGET_REG_TIME
 
+# 可以考虑删除
 def null_string_to_none(string):
     return None if string.strip() == '' else string.strip()
 
@@ -46,7 +47,6 @@ class OutpatientAPI(View):
 
     # region OutpatientAPI GET
     def get(self, request):
-        print(dict(request.session))
         query_key_to_func = {
             # 病历首页信息查询
             "history_sheet": self.query_history_sheet,
@@ -138,9 +138,9 @@ class OutpatientAPI(View):
             diagnosis_status = 1  # 诊断状态为诊中
         )
         for regis in regis_info:
-            # 获取该挂号对应的所有检验信息
+            # 找到该挂号下所有的检验信息
             all_test_info = PatientTestItem.objects.filter(
-                registration_info_id = regis.id,
+                registration_info_id=regis.id,  # 该挂号的所有检验
             )
             # 初始化总检验项目及已完成检验项目
             all_test_num = finished_test_num = 0
@@ -148,11 +148,8 @@ class OutpatientAPI(View):
                 all_test_num += 1
                 if test_info.test_results is not None:
                     finished_test_num += 1
-            data.append({
-                "regis_id": regis.id, 
-                "name": regis.patient.name,
-                "progress": (finished_test_num / all_test_num) * 100
-            })
+            data.append({'regis_id': regis.id, 'name': regis.patient.name,
+                         'progress': int((finished_test_num / all_test_num) * 100)})
         return data
 
     def query_inspect_result(self, request):
@@ -220,10 +217,16 @@ class OutpatientAPI(View):
             }
         return data
 
+    # 入院申请函数
     def application_inhospital(self, request):
         """ 创建入院申请记录，更新挂号信息中的就诊状态 """
         regis_id = request.GET.get('regis_id')
         dept_id = request.GET.get('dept_id')
+        # 病人在住院时需要有门诊的确诊结果作为预诊结果
+        regis_info = RegistrationInfo.objects.get(id=regis_id)
+        if not regis_info.diagnosis_results:
+            return {'status': -1, 'message': '请先提交预诊结果再进行转院操作！'}
+
         with transaction.atomic():
             HospitalRegistration.objects.create(
                 dept_id = dept_id,
@@ -232,14 +235,17 @@ class OutpatientAPI(View):
             RegistrationInfo.objects.filter(
                 id = regis_id
             ).update(diagnosis_status = 2)
+        return {'status': 0, 'message': '已移交至住院部！'}
 
+    # 诊疗完毕函数
     def diagnosis_over(self, request):
         regis_id = request.GET.get('regis_id')
         regis_info = RegistrationInfo.objects.get(id = regis_id)
-        if not regis_info.diagnosis_results:
-            return {'status': -1, 'message': '尚不存在确诊结果！'}
-        elif not regis_info.chief_complaint:
+        # 修改了一下提示的顺序，应该先判断是否存在患者主诉
+        if not regis_info.chief_complaint:
             return {'status': -1, 'message': '尚不存在患者主诉！'}
+        elif not regis_info.diagnosis_results:
+            return {'status': -1, 'message': '尚不存在确诊结果！'}
         else:
             with transaction.atomic():
                 RegistrationInfo.objects.filter(
@@ -282,24 +288,36 @@ class OutpatientAPI(View):
         """
         提交病历首页
         """
+        callback = {'status': -1, 'message': '未知原因提交失败！'} # 默认的提交失败提示可以修改
         regis_id = request.POST.get('regis_id')
         chief_complaint = request.POST.get('chief_complaint')
         illness_date = dateparse.parse_date(request.POST.get('illness_date'))
         allegic_history = request.POST.get('allegic_history')
         past_illness = request.POST.get('past_illness')
+        # 判断是否存在患者主诉
+        if not chief_complaint:
+            callback['message'] = '未填写患者主诉！'
+            return callback
+        # 判断是否存在发病时间
+        elif not illness_date:
+            callback['message'] = '未填写发病时间！'
+            return callback
         with transaction.atomic():
             RegistrationInfo.objects.filter(
                 id = regis_id
             ).update(
-                chief_complaint = null_string_to_none(chief_complaint),
-                illness_date = illness_date
+                chief_complaint = chief_complaint or None,  # 将空字符串转换为None，不用再定义专门的函数 null_string_to_none
+                illness_date = illness_date or None  # 将空字符串转换为None，不用再定义专门的函数 null_string_to_none
             )
             PatientUser.objects.filter(
-                registrations__id = null_string_to_none(regis_id)
+                registrations__id = regis_id
             ).update(
-                allegic_history = null_string_to_none(allegic_history),
-                past_illness = null_string_to_none(past_illness)
+                allegic_history = allegic_history or None,
+                past_illness = past_illness or None
             )
+            callback['status'] = 1
+            callback['message'] = '病历首页提交成功！'
+            return callback
 
     def post_inspection(self, request):
         """
@@ -307,18 +325,14 @@ class OutpatientAPI(View):
         """
         regis_id = request.POST.get('regis_id')
         data = dict(request.POST)
+        callback = {'status': -1, 'message': '请至少选择一个检验项目！'}
         with transaction.atomic():
-            RegistrationInfo.objects.filter(
-                id = regis_id
-            ).update(diagnosis_status = 1)
             test_id = PatientTestItem.objects.filter(registration_info_id = regis_id).count()
-            status = -1
-            message = "请至少选择一个检验项目！"
             for param in data:
                 if param not in ('post_param', 'regis_id'):
                     for test_item in data[param]:
-                        status = 0
-                        message = '检验项目已更新'
+                        callback['status'] = 0
+                        callback['message'] = '检验项目已更新'
                         test_id += 1
                         PatientTestItem.objects.create(
                             test_id = test_id,
@@ -327,20 +341,33 @@ class OutpatientAPI(View):
                             payment_status = 0,
                             inspect_status = 0
                         )
-        return {'status': status, 'message': message}
+            # 之前的逻辑有问题，虽然提示了未选择检验项目，但仍将就诊状态修改为1，即没有检验却变成检中患者
+            if callback['status'] == -1:
+                return callback
+            else:
+                RegistrationInfo.objects.filter(
+                    id=regis_id
+                ).update(diagnosis_status=1)
+                return callback
 
     def post_diagnosis_results(self, request):
         """
         提交确诊结果
         """
+        callback = {'status': -1, 'message': '未填写确诊信息！'}
         regis_id = request.POST.get('regis_id')
         diagnosis_results = request.POST.get('diagnosis_results')
+        if not diagnosis_results:
+            return callback
         with transaction.atomic():
             RegistrationInfo.objects.filter(
                 id = regis_id
             ).update(
-                diagnosis_results = null_string_to_none(diagnosis_results)
+                diagnosis_results = diagnosis_results or None  # 由于上述的判断，确诊结果应该不会是空字符了，不知是否还需要 or None
             )
+            callback['status'] = 0
+            callback['message'] = '确诊结果提交成功！'
+            return callback
 
     def post_medicine(self, request):
         """
@@ -348,6 +375,8 @@ class OutpatientAPI(View):
         """
         regis_id = request.POST.get('regis_id')
         data = dict(request.POST)
+        if 'medicine_info_id[]' not in data:
+            return {'status': -1, 'message': '请至少选择一种药品！'}
         medicine_num = len(data['medicine_info_id[]'])
         result = Prescription.objects.filter(registration_info_id = regis_id)
         with transaction.atomic():
@@ -356,7 +385,7 @@ class OutpatientAPI(View):
                 result.delete()
             prescription = Prescription.objects.create(
                 registration_info_id = regis_id,
-                medical_advice = null_string_to_none(data['medical_advice'][0]),
+                medical_advice = data['medical_advice'][0] or None, # 使用 or None 代替 null_string_to_none
                 medicine_num = medicine_num,
                 payment_status = 0
             )
@@ -367,6 +396,9 @@ class OutpatientAPI(View):
                     medicine_info_id = data['medicine_info_id[]'][i],
                     prescription_info_id = prescription.id
                 )
+            return {'status': 0, 'message': '药品及医嘱提交成功！'}
+
+    # endregion
 
 
 
