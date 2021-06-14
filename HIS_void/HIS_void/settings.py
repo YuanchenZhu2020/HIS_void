@@ -161,33 +161,50 @@ PERMISSION_URL_KEY = "url_key"
 PERMISSION_OBJ_KEY = "obj_key"
 # PERMISSION_MENU_KEY = "menu_key"
 
+# SAFE_URL = [
+#     r"/index/",  # 主页
+#     r"/login-staff/",  # 职工登录
+#     r"/login-patient/",  # 医生登录
+#     r"/logout/",  # 注销
+#     r"/register/",  # 注册
+#     r"/register-success/",  # 注册成功页面
+#     r"/forgot-password/",  # 忘记密码
+#     r"/admin/.*",  # 后台管理？
+#     r"/workhub/",  # 职工工作中心页面
+#     r"/patient/",  # 病人主页
+#     r"/patient-details/",  # 病人详细页面
+#     r"/nurse-workspace/",  # 护士工作台
+#     r"/outpatient-workspace/",  # 门诊医生工作台
+#     r"/inpatient-workspace/",  # 住院医生工作台
+#     r"/inspection-workspace/",  # 检验医生工作台
+#     r"/InspectionAPI/",  # 检验医生数据API
+#     r"/OutpatientAPI/",  # 门诊医生数据API
+#     r"/NurseAPI/",  # 护士数据API
+#     r"/PatientRegisterAPI/",  # 患者挂号查询与提交API
+#     r"/InpatientAPI/",  # 住院医生数据API
+#     r"/news/",
+#     r"/PatientFastRegisterAPI", # 患者快速挂号API
+#     r"/PatientTreatmentDetailAPI", # 患者治疗信息查询API
+#     r"/PaymentAPI", # 支付接口
+#     r"/PaymentNotifyAPI", # 支付成功回调接口
+#     r"/payment-check", # 支付验证页面
+#     r"/payment-error/", # 支付失败页面
+# ]
+
+# RBAC Accessed URLs without Login
 SAFE_URL = [
+    r"/admin/",  # 后台管理
+    r"/admin/login/", # 后台登陆
+    r"/", # 主页 alias
     r"/index/",  # 主页
     r"/login-staff/",  # 职工登录
     r"/login-patient/",  # 医生登录
-    r"/logout/",  # 注销
     r"/register/",  # 注册
     r"/register-success/",  # 注册成功页面
     r"/forgot-password/",  # 忘记密码
-    r"/admin/.*",  # 后台管理？
-    r"/workhub/",  # 职工工作中心页面
-    r"/patient/",  # 病人主页
-    r"/patient-details/",  # 病人详细页面
-    r"/nurse-workspace/",  # 护士工作台
-    r"/outpatient-workspace/",  # 门诊医生工作台
-    r"/inpatient-workspace/",  # 住院医生工作台
-    r"/inspection-workspace/",  # 检验医生工作台
-    r"/InspectionAPI/",  # 检验医生数据API
-    r"/OutpatientAPI/",  # 门诊医生数据API
-    r"/NurseAPI/",  # 护士医生数据API
+    r"/patient/",  # 患者挂号页面
+    r"/PaymentNotifyAPI/", # 支付成功回调接口
     r"/PatientRegisterAPI/",  # 患者挂号查询与提交API
-    r"/InpatientAPI/",  # 住院医生数据API
-    r"/news/",
-    r"/PatientFastRegisterAPI", # 患者快速挂号API
-    r"/PatientTreatmentDetailAPI", # 患者治疗信息查询API
-    r"/PaymentAPI", # 支付接口
-    r"/PaymentNotifyAPI", # 支付成功回调接口
-    r"/payment-check", # 支付验证页面
 ]
 
 # setup session engine to improve performance
@@ -238,3 +255,25 @@ ALIPAY_PUBLIC_KEY_PATH = os.path.join(BASE_DIR, 'externalapi/alipay_keys/alipay_
 ALIPAY_DEBUG = True
 # 支付宝沙箱支付网关
 ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
+
+
+# 患者 URL 访问权限
+# /logout/
+# /patient-details/
+
+# 角色
+#   职工
+#       /workhub/
+#       /logout/
+#   门诊医生
+#       /outpatient-workspace/
+#       /OutpatientAPI/
+#   住院医生
+#       /inpatient-workspace/
+#       /InpatientAPI/
+#   护士
+#       /nurse-workspace/
+#       /NurseAPI/
+# 检验技师
+# 财务人员
+# 

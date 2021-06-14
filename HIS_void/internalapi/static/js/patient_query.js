@@ -37,7 +37,7 @@ function QueryGH(date, department) {
             let token = data["token"];
             let submit_url = data["submit_url"];
             // 科室名称、医生姓名、crsf_token、医生ID、挂号日期、AM/PM、提交地址
-            let registration_confirm_str = "registration_confirm(this, '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')";
+            let registration_confirm_str = "registration_confirm(this, '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}');";
             // 清除原有数据行
             $("#" + department.id + '-' + YmdToMd(date)).children().remove();
             // 插入新的数据行
@@ -99,7 +99,7 @@ function QueryGH(date, department) {
 
 // 挂号确认弹窗
 function registration_confirm(
-    event_obj, department_name, doctor_name, token, patient_id, doctor_id, reg_date, AM_PM, submit_url
+    event_obj, department_name, doctor_name, token, doctor_id, reg_date, AM_PM, submit_url
 ) {
     let reg_time, reg_time_str, reg_datetime;
     let price = event_obj.dataset.price;
@@ -182,6 +182,8 @@ function QueryDocReg(doctor_id, doctor_name, date) {
             let query_data = data["query_data"];
             let token = data["token"];
             let submit_url = data["submit_url"];
+            // 科室名称、医生姓名、crsf_token、医生ID、挂号日期、AM/PM、提交地址
+            let registration_confirm_str = "registration_confirm(this, '{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}');";
             if (query_data !== null) {
                 // 清除原有数据行
                 $("#" + YmdToMd(date)).children().remove();
@@ -210,11 +212,11 @@ function QueryDocReg(doctor_id, doctor_name, date) {
                 AM_btn.attr("data-price", query_data.price);
                 // 添加事件
                 AM_btn.attr('onclick', StringFormat(
-                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')", 
+                    registration_confirm_str, 
                     query_data.dept_name, doctor_name, token, doctor_id, date, 'AM', submit_url
                 ));
                 PM_btn.attr('onclick', StringFormat(
-                    "registration_confirm('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}')", 
+                    registration_confirm_str, 
                     query_data.dept_name, doctor_name, token, doctor_id, date, 'PM', submit_url
                 ));
                 // 创建行

@@ -47,7 +47,7 @@ function query_waiting_diagnosis_patients() {
             get_param: 'waiting_diagnosis'
         },
         success: function (data) {
-            console.log(data);
+            // console.log(data);
             let $waiting_diagnosis_card = $('#waiting_diagnosis');
             $waiting_diagnosis_card.empty();
             for (let i = 0; i < data.length; i++) {
@@ -154,7 +154,6 @@ function QueryHistorySheet(regis_id) {
             $("#past_illness").val(data.past_illness);
             $("#allegic_history").val(data.allegic_history);
             $("#illness_date").val(data.illness_date);
-
             init_style('#history_sheet_form');
             $("#togo_history_sheet").click();
         },
@@ -176,7 +175,7 @@ function QueryInDiagnosisPatient() {
         },
         success: function (data) {
             let $in_diagnosis_card = $("#in_diagnosis");
-            // console.log(data);
+            console.log(data);
             data.sort(function (a, b) {
                 return b.progress - a.progress;
             })
@@ -458,6 +457,7 @@ function collect_medicine() {
 
 // 添加药品
 function addMedicine(medicine_obj, medicine_num) {
+    console.log(medicine_obj)
     // 药品行
     let $medicine_tr = $('<tr></tr>');
     // 在药品行中添加药品id和药品数量medicine_num
@@ -607,6 +607,7 @@ function inspectionTotalPrice() {
 
 }
 
+//region 提交函数
 // 病历首页提交
 function PostHisTorySheet(csrf_token) {
     if ($('#no').attr('placeholder') === undefined) {

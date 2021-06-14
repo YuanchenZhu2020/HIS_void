@@ -13,6 +13,7 @@ from django.views import View
 from patient import login, init_patient_url_permission
 from patient.forms import PatientLoginForm, PatientRegisterForm
 from patient.models import PatientUser
+from rbac.models import UserInfo
 from his.models import Department, Staff
 from laboratory.models import PatientTestItem
 from outpatient.models import RemainingRegistration, RegistrationInfo, Prescription
@@ -26,10 +27,17 @@ from externalapi.external_api import IDInfoQuery
 class PatientLoginView(View):
     template_name = "page-login.html"
     patient_next_url_name = "patient"
+    error_wrong_user_login_template = "wrong-user-login-error.html"
+    error_412_template = "page-error-412.html"
 
     def get(self, request):
         if request.user.is_authenticated:
-            return redirect(reverse(PatientLoginView.patient_next_url_name))
+            if isinstance(request.user, PatientUser):
+                return redirect(reverse(PatientLoginView.patient_next_url_name))
+            elif isinstance(request.user, UserInfo):
+                return render(request, PatientLoginView.error_wrong_user_login_template)
+            else:
+                return render(request, PatientLoginView.error_412_template)
         else:
             loginform = PatientLoginForm()
             context = {"user_type": "patient", "loginform": loginform}
@@ -71,6 +79,11 @@ class PatientLoginView(View):
 
 
 class PatientRegisterView(View):
+    """
+    患者注册视图函数。
+
+    若注册成功，则将必要信息写入session，跳转到注册用户信息展示页面。
+    """
     template_name = "page-register.html"
     patient_next_url_name = "register-success"
 
@@ -114,7 +127,7 @@ class PatientRegisterView(View):
                     "性别": user.get_gender_display(),
                     "出生日期": user.birthday.strftime("%Y-%m-%d"),
                     "手机号码": user.phone,
-                    "注册时间": user.create_time.strftime("%Y-%m-%d %H:%M:%S")
+                    "注册时间": timezone.make_naive(user.create_time).strftime("%Y-%m-%d %H:%M:%S")
                 }
                 return redirect(reverse(PatientRegisterView.patient_next_url_name))
             # 已存在与已填写信息对应的患者用户
@@ -179,9 +192,16 @@ class PatientView(View):
 
 
 class PatientRegisterSuccessView(View):
+    """
+    患者注册账号成功后的信息展示页面，主要用于提示患者其账号的登录名。
+    """
     template_name = "register-success.html"
 
     def get(self, request):
+        """
+        从 session 中获取注册用户信息并展示。
+        若已经将注册用户信息写入 context，则删去 session 中对应的信息。
+        """
         account_info = request.session.get("register_user_info")
         login_name = None
         if account_info:

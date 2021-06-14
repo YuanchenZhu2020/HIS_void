@@ -7,60 +7,6 @@ from outpatient.models import RegistrationInfo
 from pharmacy.models import MedicineInfo
 
 
-class NursingRecord(models.Model):
-    """
-    护理记录
-    """
-    medical_staff = models.ForeignKey(
-        Staff,
-        on_delete = models.CASCADE,
-        related_name = "nursing_record_set",
-        related_query_name = "nursing_records",
-        verbose_name = _("责任护士"),
-    )
-    patient       = models.ForeignKey(
-        PatientUser,
-        on_delete = models.CASCADE,
-        related_name = "nursing_record_set",
-        related_query_name = "nursing_records",
-        verbose_name = _("患者"),
-    )
-    nursing_date  = models.DateField(
-        auto_now_add = True,
-        editable = False,
-        verbose_name = _("护理时间"),
-    )
-    systolic      = models.PositiveIntegerField(
-        null = True,
-        blank = True,
-        verbose_name = _("收缩压")
-    )
-    diastolic     = models.PositiveIntegerField(
-        null = True,
-        blank = True,
-        verbose_name = _("舒张压")
-    )
-    temperature   = models.FloatField(null = True, blank = True, verbose_name = _("体温"))
-    note = models.TextField(
-        max_length = 200,
-        null = True,
-        blank = True,
-        verbose_name = _("备注")
-    )
-
-    class Meta:
-        verbose_name = _("护理记录")
-        verbose_name_plural = verbose_name
-        unique_together = ["medical_staff", "patient", "nursing_date"]
-
-    def __str__(self) -> str:
-        return "<Nursing Record {}-{}-{}>".format(
-            self.medical_staff,
-            self.patient,
-            self.nursing_date
-        )
-
-
 class HospitalRegistration(models.Model):
     """
     入院登记信息文件
@@ -123,14 +69,14 @@ class HospitalRegistration(models.Model):
         verbose_name = _("住院天数")
     )
     kin_phone  = models.CharField(
-        null = True, 
-        blank = True, 
-        max_length = 11, 
+        null = True,
+        blank = True,
+        max_length = 11,
         verbose_name = _("家属电话")
     )
     discharge_status = models.PositiveIntegerField(
-        default = 0, 
-        choices = DISCHARGE_STATUS_ITEMS, 
+        default = 0,
+        choices = DISCHARGE_STATUS_ITEMS,
         verbose_name = _("出院状态")
     )
     payment_status = models.BooleanField(default = False, verbose_name = _("缴费状态"))
@@ -141,6 +87,60 @@ class HospitalRegistration(models.Model):
 
     def __str__(self) -> str:
         return "<HospReg {}>".format(self.registration_info)
+
+
+class NursingRecord(models.Model):
+    """
+    护理记录
+    """
+    medical_staff = models.ForeignKey(
+        Staff,
+        on_delete = models.CASCADE,
+        related_name = "nursing_record_set",
+        related_query_name = "nursing_records",
+        verbose_name = _("责任护士"),
+    )
+    hospital_reg  = models.ForeignKey(
+        HospitalRegistration,
+        on_delete = models.CASCADE,
+        related_name = "nursing_record_set",
+        related_query_name = "nursing_records",
+        verbose_name = _("入院记录"),
+    )
+    nursing_date  = models.DateField(
+        auto_now_add = True,
+        editable = False,
+        verbose_name = _("护理时间"),
+    )
+    systolic      = models.PositiveIntegerField(
+        null = True,
+        blank = True,
+        verbose_name = _("收缩压")
+    )
+    diastolic     = models.PositiveIntegerField(
+        null = True,
+        blank = True,
+        verbose_name = _("舒张压")
+    )
+    temperature   = models.FloatField(null = True, blank = True, verbose_name = _("体温"))
+    note          = models.TextField(
+        max_length = 200,
+        null = True,
+        blank = True,
+        verbose_name = _("备注")
+    )
+
+    class Meta:
+        verbose_name = _("护理记录")
+        verbose_name_plural = verbose_name
+        unique_together = ["hospital_reg", "medical_staff", "nursing_date"]
+
+    def __str__(self) -> str:
+        return "<Nursing Record {}-{}-{}>".format(
+            self.hospital_reg,
+            self.medical_staff,
+            self.nursing_date
+        )
 
 
 class OperationInfo(models.Model):

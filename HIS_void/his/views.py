@@ -42,12 +42,15 @@ class StaffLoginView(View):
     """
     template_name = "page-login.html"
     staff_next_url_name = "workhub"
+    error_wrong_user_login_template = "wrong-user-login-error.html"
     error_412_template = "page-error-412.html"
 
     def get(self, request):
         if request.user.is_authenticated:
             if isinstance(request.user, UserInfo):
                 return redirect(reverse(StaffLoginView.staff_next_url_name))
+            elif isinstance(request.user, PatientUser):
+                return render(request, StaffLoginView.error_wrong_user_login_template)
             else:
                 return render(request, StaffLoginView.error_412_template)
         else:
