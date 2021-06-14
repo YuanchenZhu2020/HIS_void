@@ -50,5 +50,6 @@ class InpatientWorkspaceView(View):
             'dept_id': nurse_info[0][0],
             'dept_name': nurse_info[0][1]
         }
+        context['area'] = 'B'
 
         return render(request, InpatientWorkspaceView.template_name, context=context)
