@@ -111,8 +111,7 @@ class PatientUserAdmin(BaseUserAdmin):
 @admin.register(PatientURLPermission)
 class PatientURLPermissionAdmin(admin.ModelAdmin):
     list_display = (
-        "codename", "url_regex", "create_time",
+        "url_perm", 
     )
-    list_filter = ("create_time", )
-    search_fields = ("codename", "url_regex")
+    search_fields = ("url_perm", )
 

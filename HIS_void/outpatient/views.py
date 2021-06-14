@@ -43,6 +43,11 @@ class OutpatientView(View):
             #         ['临床检查2', 价格2]
             #        ]
             # }, ...]
+            dept_items = []
+            dept_info = Department.objects.filter(usergroup__ug_id__range=[1, 8]).values_list('usergroup__ug_id', 'usergroup__name')
+            for dept in dept_info:
+                dept_items.append({'ug_id': dept[0], 'name': dept[1]})
+
             test_items = []
             for tit in TestItemType.objects.all():
                 # 存放指定检验类型下的所有检验项目

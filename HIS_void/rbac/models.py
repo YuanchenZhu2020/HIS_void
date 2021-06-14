@@ -137,7 +137,7 @@ class URLPermission(models.Model):
         ordering = ["codename", "url_regex"]
 
     def __str__(self):
-        return "<URL Perm {}-{}>".format(self.codename, self.url)
+        return "<URL Perm {}-{}>".format(self.codename, self.url_regex)
 
 
 class Role(models.Model):
@@ -173,7 +173,7 @@ class Role(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self) -> str:
-        return "<Role {}>".format(self.title)
+        return "<Role {}>".format(self.name)
 
 
 class GroupManager(models.Manager):

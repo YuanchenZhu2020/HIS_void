@@ -52,6 +52,7 @@ for i in range(len(sid)):
     staff.gender = int(gender[i])
     staff.id_num = str(idnum[i])
     staff.dept = Department.objects.get_by_dept_id(int(dept[i]))
+    ui.groups.set([staff.dept.usergroup])
     if title[i] != '':
         staff.title = HospitalTitle.objects.get_by_title_id(int(title[i]))
     staff.job = JobType.objects.get_by_job_id(jobtype[i])

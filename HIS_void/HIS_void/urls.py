@@ -30,7 +30,7 @@ from laboratory.views import InspectionView
 from internalapi.views import (
     NurseAPI, OutpatientAPI, InspectionAPI, PatientRegisterAPI, PatientUserAPI,
     InpatientAPI, PatientFastRegisterAPI, PatientTreatmentDetails,
-    PaymentAPI, PaymentNotifyAPI, PaymentCheck,
+    PaymentAPI, PaymentNotifyAPI, PaymentCheck, PaymentError,
 )
 
 from rbac.management import create_urlpermissions
@@ -53,7 +53,7 @@ urlpatterns = [
     path('forgot-password/', ForgotPasswordView.as_view(), name="forgot-password"),
     # 登出页面
     path('logout/', StaffLogoutView.as_view(), name="logout"),
-    # 个人信息页面
+    # 职工工作中心页面
     path('workhub/', WorkHubView.as_view(), name="workhub"),
     # 门诊医生工作页面
     path('outpatient-workspace/', OutpatientView.as_view(), name="outpatient-workspace"),
@@ -91,6 +91,8 @@ urlpatterns = [
     path("PaymentNotifyAPI/", PaymentNotifyAPI.as_view(), name = "payment-notify"),
     # 支付状态检查页面
     path("payment-check/", PaymentCheck.as_view(), name = "payment-check"),
+    # 缴费失败提示页面
+    path("payment-error/", PaymentError.as_view(), name = "payment-error"),
 ]
 
 # 每次执行 makemigrations, migrate, runserver 等命令时会执行以下过程，
@@ -98,7 +100,7 @@ urlpatterns = [
 from django.apps import apps as global_apps
 
 app_config = global_apps.get_app_config("rbac")
-create_urlpermissions(app_config)
+create_urlpermissions(app_config, add_admin = True)
 
 # 定时任务
 # 使用如下代码将定时任务引入本文件，应用运行时开始执行

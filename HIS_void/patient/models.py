@@ -18,15 +18,23 @@ def update_last_login(sender, user, **kwargs):
     user.save(update_fields = ['last_login'])
 
 
-class PatientURLPermission(URLPermission):
-    
+class PatientURLPermission(models.Model):
+    """
+    患者 URL 访问权限
+    """
+    url_perm = models.OneToOneField(
+        URLPermission,
+        primary_key = True,
+        on_delete = models.CASCADE,
+        verbose_name = _("URL访问权限"),
+    )
+
     class Meta:
         verbose_name = _("患者URL访问权限")
         verbose_name_plural = verbose_name
-        ordering = ["codename", "url_regex"]
 
     def __str__(self):
-        return "<URL Perm {}-{}>".format(self.codename, self.url_regex)
+        return "<URL Perm {}-{}>".format(self.url_perm.codename, self.url_perm.url_regex)
 
 
 class PatientUserManager(BaseUserManager):
@@ -150,7 +158,7 @@ class PatientUser(AbstractBaseUser):
         urlperm_cache_name = "_urlperm_cache"
         if not hasattr(self, urlperm_cache_name):
             perms = PatientURLPermission.objects.all()
-            perms = perms.values_list("codename", "url_regex").order_by()
+            perms = perms.values_list("url_perm__codename", "url_perm__url_regex").order_by()
             # 设置URL访问权限缓存
             setattr(self, urlperm_cache_name, {"{}.{}".format(cn, url) for cn, url in perms})
         return getattr(self, urlperm_cache_name)

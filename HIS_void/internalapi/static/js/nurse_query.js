@@ -1,3 +1,5 @@
+const URL = '/NurseAPI/';
+
 // 字符串格式化函数
 function StringFormat() {
     if (arguments.length == 0)
@@ -10,50 +12,39 @@ function StringFormat() {
     return str;
 }
 
-// 医嘱处理查询
-function QueryMedicalAdviceProcess(patient_id) {
-    let URL = '/NurseAPI';
-    console.log(URL);
-    $.ajax({
-        type: "get",
-        url: URL,
-        dataType: 'json',
-        data: {
-            patient_id: patient_id,
-            information: 'MEDICAL_ADVICE_QUERY'
-        },
-        success: function (data) {
-            console.log(data);/** */
-            document.getElementById("MedicalAdviceProcess").click();
-        },
-        error: function (err) {
-            alert("请求服务器失败！");
-            console.log(err);/** */
-        },
+function clear_patient_card_style() {
+    $('[name=patient_card]').each(function (i, tag) {
+        $(tag).find('tr').each(function (j, tr) {
+            $(tr).removeAttr('style');
+        })
     })
 }
 
 // 住院患者查询
 function QueryInpatients() {
-    let URL = '/NurseAPI';
     console.log(URL);
     $.ajax({
         type: "get",
         url: URL,
         dataType: 'json',
         data: {
-            information: 'INPATIENTS_QUERY'
+            get_param: 'INPATIENTS_QUERY'
         },
         success: function (data) {
+            let $inpatients_card = $('#inpatisnts_card');
+            $inpatients_card.empty();
             console.log(data);/** */
             for (let i = 0; i < data.length; i++) {
-                let patient = data[i];
-                let td = StringFormat('<td>{0}</td>', patient.name);
-                let pid = patient.pid
-                console.log(pid)/** */
-                let tr = $("<tr onclick='QueryMedicalAdviceProcess(this.pid)'></tr>");
+                let patient_info = data[i];
+                let td = StringFormat('<td>{0}</td><td>{1}</td>', patient_info.name, patient_info.care_level);
+                /** */
+                let tr = $(StringFormat(
+                    "<tr name='inpatient' onclick='QueryPatientInfo({0}, {1})'></tr>",
+                    patient_info.regis_id,
+                    'this'
+                ));
                 tr.append(td);
-                $("#Inpatients").append(tr);
+                $inpatients_card.append(tr);
             }
         },
         error: function (err) {
@@ -65,26 +56,27 @@ function QueryInpatients() {
 
 // 待收患者查询
 function QueryWaitingPatients() {
-    let URL = '/NurseAPI';
-    console.log(URL);
     $.ajax({
         type: "get",
         url: URL,
         dataType: 'json',
         data: {
-            d_no: '000000',
-            information: 'WAITING_QUERY'
+            'get_param': 'WAITING_QUERY'
         },
         success: function (data) {
             console.log(data);
+            let $waiting_patients_card = $('#waiting_patients_card');
+            $waiting_patients_card.empty();
             for (let i = 0; i < data.length; i++) {
-                let patient = data[i];
-                let td = '<td>' + patient.name + '</td>';
-                let p_no = patient.p_no
-                console.log(p_no)
-                let tr = $("<tr onclick='QueryRegisterPatient(this.p_no)'></tr>");
+                let patient_info = data[i];
+                let td = StringFormat('<td>{0}</td><td>{1}</td>', patient_info.name, patient_info.gender);
+                let tr = $(StringFormat(
+                    "<tr name='waiting_patient' onclick='QueryPatientInfo({0}, {1})'></tr>",
+                    patient_info.regis_id,
+                    'this'
+                ));
                 tr.append(td);
-                $("#WaitingPatients").append(tr);
+                $waiting_patients_card.append(tr);
             }
         },
         error: function (err) {
@@ -94,27 +86,52 @@ function QueryWaitingPatients() {
     });
 }
 
-// 患者入院登记基础信息查询
-function QueryRegisterPatient(patient_id) {
-    let URL = '/NurseAPI';
+function clear_all_info() {
+    $('#no').removeAttr('placeholder');
+    $('#name').removeAttr('placeholder');
+    $('#age').removeAttr('placeholder');
+    $('#gender').removeAttr('placeholder');
+    $('#medical_advice').html('<p class="col-12">今日暂无医嘱</p>');
+    $('#medicine_info').html('<p class="col-12">今日暂无药品信息</p>');
+    $('#test_item').html('<p class="col-12">今日暂无检查检验项目</p>');
+    $('input, textarea').each(function (i, tag) {
+        if ($(tag).attr('name') !== 'post_param')
+            $(tag).val('');
+    })
+}
 
-    console.log(URL);/** */
+// 患者基础信息查询
+function QueryPatientInfo(regis_id, event) {
     $.ajax({
         type: "get",
         url: URL,
         dataType: 'json',
         data: {
-            patient_id: patient_id,
-            information: 'REGISTER_QUERY'
+            'regis_id': regis_id,
+            'get_param': 'PATIENT_INFO_QUERY'
         },
         success: function (data) {
+            clear_all_info();
+            if ($(event).attr("style")) {
+                $(event).removeAttr('style');
+                return;
+            }
+            clear_patient_card_style();
+            $(event).attr('style', 'background-color: #d7dae3');
             console.log("入院登记QueryPegisterPatient函数")
             console.log(data);
-            document.getElementById("no").setAttribute('placeholder', data.no);
-            document.getElementById("name").setAttribute('placeholder', data.name);
-            document.getElementById("gender").setAttribute('placeholder', data.gender);
-            document.getElementById("age").setAttribute('placeholder', data.age);
-            document.getElementById("RYDJ_a").click();
+            $("#no").attr('placeholder', data.regis_id);
+            $("#name").attr('placeholder', data.name);
+            $("#gender").attr('placeholder', data.gender);
+            $("#age").attr('placeholder', data.age);
+            $('input[name=regis_id]').each(function (i, tags) {
+                $(tags).val(data.regis_id);
+            })
+
+            document.getElementById("care_level").options.selectedIndex = 0; //回到初始状态
+            $("#care_level").selectpicker('refresh');//对searchPayState这个下拉框进行重置刷新
+            QueryMedicalAdviceProcess(data.regis_id)
+
         },
         error: function (err) {
             alert("请求服务器失败！");
@@ -123,8 +140,57 @@ function QueryRegisterPatient(patient_id) {
     })
 }
 
-QueryInpatients()
-QueryWaitingPatients()
+// 医嘱处理查询
+function QueryMedicalAdviceProcess(regis_id) {
+    console.log(URL);
+    $.ajax({
+        type: "get",
+        url: URL,
+        dataType: 'json',
+        data: {
+            regis_id: regis_id,
+            get_param: 'MEDICAL_ADVICE_QUERY'
+        },
+        success: function (data) {
+
+            console.log(data);
+            /** */
+            let $medical_advice = $('#medical_advice');
+            let $medicine_info = $('#medicine_info');
+            let $test_item = $('#test_item');
+            if (data.medicine_info.length) $medical_advice.empty();
+            if (data.medical_advice_info.length) $medicine_info.empty();
+            if (data.inspect_info.length) $test_item.empty();
+            for (let i = 0; i < data.medicine_info.length; i++) {
+                let medicine = data.medicine_info[i];
+                $medicine_info.append(StringFormat(
+                    '<p class="col-6">{0}</p><span class="col-6">数量：{1}</span>',
+                    medicine[1],
+                    medicine[0]
+                ));
+            }
+            for (let i = 0; i < data.medical_advice_info.length; i++) {
+                $medical_advice.append(StringFormat(
+                    '<p class="col-12">{0}</p>',
+                    data.medical_advice_info[i]
+                ))
+            }
+
+            for (let i = 0; i < data.inspect_info.length; i++) {
+                $test_item.append(StringFormat(
+                    '<p class="col-12">{0}</p>',
+                    data.inspect_info[i]
+                ))
+            }
+
+            document.getElementById("MedicalAdviceProcess").click();
+        },
+        error: function (err) {
+            alert("请求服务器失败！");
+            console.log(err);/** */
+        },
+    })
+}
 
 // 床位选择
 function BedSelect() {
@@ -139,13 +205,12 @@ function BedSelect() {
 
 // 可用床位查询
 function QueryBed() {
-    let URL = '/NurseAPI';
     $.ajax({
         type: "get",
         url: URL,
         dataType: 'json',
         data: {
-            information: 'BED_QUERY'
+            get_param: 'BED_QUERY'
         },
         success: function (data) {
             $("#areas").empty();
@@ -184,3 +249,78 @@ function QueryBed() {
         }
     });
 }
+
+// 提交护理记录
+function postNursingRecord(csrf_token) {
+    let data = $('#nursing_record_form').serialize();
+    console.log(data);
+    if ($('#no').attr('placeholder') === undefined) {
+        submitAlert('提交失败', '未选择病人', 'error');
+        return;
+    }
+    $.ajax({
+        type: 'POST',
+        url: URL,
+        data: data,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        success: function (callback) {
+            if (callback.status === 0) {
+                submitAlert('提交成功', callback.message, 'success');
+            } else {
+                submitAlert('提交失败', callback.message, 'error');
+            }
+        },
+        error: function () {
+            alert('提交护理记录失败');
+        }
+    })
+}
+
+// 提交入院登记
+function postHospitalRegistration(csrf_token) {
+    let data = $('#hospital_registration_form').serialize();
+    console.log(data);
+    if ($('#no').attr('placeholder') === undefined) {
+        submitAlert('提交失败', '未选择病人', 'error');
+        return;
+    }
+    $.ajax({
+        type: 'POST',
+        url: URL,
+        data: data,
+        beforeSend: function (xhr) {
+            xhr.setRequestHeader("X-CSRFToken", csrf_token);
+        },
+        success: function (callback) {
+            if (callback.status === 0) {
+                submitAlert('提交成功', callback.message, 'success');
+                $('.swal2-confirm').attr('onblur', 'window.location.reload()');
+            } else {
+                submitAlert('提交失败', callback.message, 'error');
+            }
+        },
+        error: function () {
+            alert('入院登记记录失败');
+        }
+    })
+}
+
+QueryInpatients()
+QueryWaitingPatients()
+
+
+/*
+function queryWaitingRegistrationPatient() {
+    $.ajax({
+        url: URL,
+        dataType: 'json',
+        data: {'information': 'WAITING_QUERY'},
+        success:function(data){
+            console.log(data);
+        }
+    })
+}
+*/
+

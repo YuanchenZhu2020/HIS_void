@@ -600,7 +600,6 @@
                                                     </div>
                                                 </div>
                                             </div>
-
                                             <!-- 检查记录 -->
                                             <div id="all-check" class="tab-pane fade">
                                                 <div class="profile-all-check">
@@ -706,7 +705,6 @@
                             </div>
                         </div>
                     </div>
-
                     <!--个人的设置信息（包括修改电话号码、邮箱、密码等等）-->
                     <div class="col-lg-12" id="settings">
                         <div class="card">
@@ -800,7 +798,7 @@
                                                             {% if error_message %}
                                                             <script>
                                                                 window.onload = function() {
-                                                                    $('#err_btn').on('click', error_top_full_width('{{ error_message }}'));
+                                                                    $('#err_btn').on('click', error_top_right('{{ error_message }}'));
                                                                     $('#err_btn').click();
                                                                     console.log("Done");/** */
                                                                 }
@@ -809,7 +807,7 @@
                                                             {% if success_message %}
                                                             <script>
                                                                 window.onload = function() {
-                                                                    $('#err_btn').on('click', success_top_full_width());
+                                                                    $('#err_btn').on('click', success_top_right());
                                                                     $('#err_btn').click();
                                                                     console.log("Done");/** */
                                                                 }
@@ -853,9 +851,9 @@
     <script src="{% static 'js/patient_query.js' %}"></script>
     <script src="{% static 'js/plugins-init/toastr-init.js' %}"></script>
     <script>
-        function error_top_full_width(error_message) {
-            toastr.error(error_message, "账号验证错误", {
-                positionClass: "toast-top-full-width",
+        function error_top_right(error_message) {
+            toastr.error(error_message, "验证错误", {
+                positionClass: "toast-top-right",
                 timeOut: 5e4,
                 closeButton: !0,
                 debug: !1,
@@ -873,9 +871,9 @@
                 tapToDismiss: !1
             })
         }
-        function success_top_full_width() {
+        function success_top_right() {
             toastr.success("账户信息修改成功", "修改成功", {
-                positionClass: "toast-top-full-width",
+                positionClass: "toast-top-right",
                 timeOut: 5e4,
                 closeButton: !0,
                 debug: !1,
