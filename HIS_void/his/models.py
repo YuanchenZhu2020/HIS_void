@@ -92,7 +92,7 @@ def create_usergroup_department(sender, instance, created, **kwargs):
         Department.objects.create(dept = instance)
     else:
         # print(Department.objects.filter(dept__ug_id = instance.ug_id))
-        Department.objects.filter(dept__ug_id = instance.ug_id).update(dept = instance)
+        Department.objects.filter(usergroup__ug_id = instance.ug_id).update(usergroup = instance)
 
 
 class DeptAreaBed(models.Model):

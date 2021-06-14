@@ -173,7 +173,7 @@ class Role(models.Model):
         verbose_name_plural = verbose_name
 
     def __str__(self) -> str:
-        return "<Role {}>".format(self.title)
+        return "<Role {}>".format(self.name)
 
 
 class GroupManager(models.Manager):
