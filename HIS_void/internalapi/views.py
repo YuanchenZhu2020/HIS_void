@@ -221,13 +221,12 @@ class OutpatientAPI(View):
             }
         return data
 
-    # 入院申请函数
     def application_inhospital(self, request):
         """ 创建入院申请记录，更新挂号信息中的就诊状态 """
         regis_id = request.GET.get('regis_id')
         dept_id = request.GET.get('dept_id')
         # 病人在住院时需要有门诊的确诊结果作为预诊结果
-        regis_info = RegistrationInfo.objects.get(id=regis_id)
+        regis_info = RegistrationInfo.objects.get(id = regis_id)
         if not regis_info.diagnosis_results:
             return {'status': -1, 'message': '请先提交预诊结果再进行转院操作！'}
 
@@ -241,11 +240,10 @@ class OutpatientAPI(View):
             ).update(diagnosis_status = 2)
         return {'status': 0, 'message': '已移交至住院部！'}
 
-    # 诊疗完毕函数
     def diagnosis_over(self, request):
         regis_id = request.GET.get('regis_id')
         regis_info = RegistrationInfo.objects.get(id = regis_id)
-        # 修改了一下提示的顺序，应该先判断是否存在患者主诉
+        # 先判断是否存在患者主诉
         if not regis_info.chief_complaint:
             return {'status': -1, 'message': '尚不存在患者主诉！'}
         elif not regis_info.diagnosis_results:
@@ -401,6 +399,7 @@ class OutpatientAPI(View):
                     prescription_info_id = prescription.id
                 )
             return {'status': 0, 'message': '药品即医嘱提交成功！'}
+    # endregion
 
 
 class NurseAPI(View):
@@ -912,8 +911,10 @@ class PatientTreatmentDetails(View):
         return JsonResponse(data, safe = False)
 
 
-# 病人基础信息API，用于医生获取病人基础数据
 class PatientUserAPI(View):
+    """
+    病人基础信息API，用于医生获取病人基础数据
+    """
     def get(self, request):
         # 获取需要查询的信息类型
         query_information = request.GET.get('information')
