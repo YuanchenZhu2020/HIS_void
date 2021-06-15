@@ -309,13 +309,18 @@ function ApplicationInhospital(dept_id) {
             type: "GET",
             url: URL,
             data: {
-                regis_id: regis_id, 
-                get_param: 'application_inhospital', 
+                regis_id: regis_id,
+                get_param: 'application_inhospital',
                 dept_id: dept_id
             },
-            success: function () {
-                submitAlert('提交成功', '已移交至住院部', 'success');
-                $('.swal2-confirm').attr('onblur', 'window.location.reload()');
+            success: function (callback) {
+                if (callback.status === -1) {
+                    submitAlert('提交失败', callback.message, 'error');
+                    return;
+                } else {
+                    submitAlert('提交成功', callback.message, 'success');
+                    $('.swal2-confirm').attr('onblur', 'window.location.reload()');
+                }
             },
             error: function () {
                 alert('入院申请提交失败！');
@@ -479,7 +484,7 @@ function addMedicine(medicine_obj, medicine_num) {
         '<a onclick="deleteMedicine(this)" data-toggle="tooltip" data-placement="top" title="Close"><i class="fa fa-close color-danger"></i></a>'
     );
     $medicine_tr.append(
-        $medicine_name_td, $medicine_num_td, $medicine_price_td, 
+        $medicine_name_td, $medicine_num_td, $medicine_price_td,
         $medicine_total_price, $medicine_delete_td
     );
     $('#medicine_tbody').append($medicine_tr);
@@ -620,9 +625,13 @@ function PostHisTorySheet(csrf_token) {
         beforeSend: function (xhr) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
-        success: function (result) {
-            submitAlert("提交成功", "病历首页已更新", "success");
-            init_style('#history_sheet_form');
+        success: function (callback) {
+            if (callback.status === -1) {
+                submitAlert('提交失败', callback.message, 'error');
+            } else {
+                submitAlert("提交成功", callback.message, "success");
+                init_style('#history_sheet_form');
+            }
         },
         error: function (data) {
             alert("异常！");
@@ -663,8 +672,12 @@ function PostMedicine(csrf_token) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
         success: function (callback) {
-            submitAlert("提交成功", "药品及医嘱已更新", "success");
-            init_style('#medical_advice_form')
+            if (callback.status === -1) {
+                submitAlert("提交失败", callback.message, "error");
+            } else {
+                submitAlert("提交成功", callback.message, "success");
+                init_style('#medical_advice_form')
+            }
         },
         error: function (callback) {
             alert('提交失败');
@@ -719,8 +732,13 @@ function PostDiagnosisResults(csrf_token) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
         success: function (callback) {
-            submitAlert("提交成功", "诊断结果已更新", "success");
-            init_style('#diagnosis_results_form');
+            if (callback.status === -1) {
+                submitAlert("提交失败", callback.message, "error");
+                return;
+            } else {
+                submitAlert("提交成功", callback.message, "success");
+                init_style('#diagnosis_results_form');
+            }
         },
         error: function (callback) {
             alert('提交失败');
@@ -740,7 +758,7 @@ function diagnosis_over() {
         type: 'GET',
         url: URL,
         data: {
-            get_param: 'diagnosis_over', 
+            get_param: 'diagnosis_over',
             regis_id: regis_id
         },
         success: function (callback) {

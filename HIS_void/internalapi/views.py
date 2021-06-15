@@ -34,8 +34,8 @@ def get_current_reg_time():
         TARGET_REG_TIME = dateparse.parse_time("13:00:00")
     return TARGET_REG_TIME
 
-def null_string_to_none(string):
-    return None if string.strip() == '' else string.strip()
+# def null_string_to_none(string):
+#     return None if string.strip() == '' else string.strip()
 
 
 class OutpatientAPI(View):
@@ -206,13 +206,13 @@ class OutpatientAPI(View):
             medicine_info = PrescriptionDetail.objects.filter(
                 prescription_info_id = prescription.id
             ).values_list(
-                'medicine_info_id', 'medicine_quantity', 
+                'medicine_info_id', 'medicine_quantity',
                 'medicine_info__medicine_name', 'medicine_info__retail_price'
             )
             medicine = []
             for val in medicine_info:
                 medicine.append(dict(zip(
-                    ['medicine_info_id', 'medicine_quantity', 'medicine_name', 'retail_price'], 
+                    ['medicine_info_id', 'medicine_quantity', 'medicine_name', 'retail_price'],
                     val
                 )))
             data = {
@@ -221,26 +221,35 @@ class OutpatientAPI(View):
             }
         return data
 
+    # 入院申请函数
     def application_inhospital(self, request):
         """ 创建入院申请记录，更新挂号信息中的就诊状态 """
         regis_id = request.GET.get('regis_id')
         dept_id = request.GET.get('dept_id')
+        # 病人在住院时需要有门诊的确诊结果作为预诊结果
+        regis_info = RegistrationInfo.objects.get(id=regis_id)
+        if not regis_info.diagnosis_results:
+            return {'status': -1, 'message': '请先提交预诊结果再进行转院操作！'}
+
         with transaction.atomic():
             HospitalRegistration.objects.create(
-                dept_id = dept_id, 
+                dept_id = dept_id,
                 registration_info_id = regis_id
             )
             RegistrationInfo.objects.filter(
                 id = regis_id
             ).update(diagnosis_status = 2)
+        return {'status': 0, 'message': '已移交至住院部！'}
 
+    # 诊疗完毕函数
     def diagnosis_over(self, request):
         regis_id = request.GET.get('regis_id')
         regis_info = RegistrationInfo.objects.get(id = regis_id)
-        if not regis_info.diagnosis_results:
-            return {'status': -1, 'message': '尚不存在确诊结果！'}
-        elif not regis_info.chief_complaint:
+        # 修改了一下提示的顺序，应该先判断是否存在患者主诉
+        if not regis_info.chief_complaint:
             return {'status': -1, 'message': '尚不存在患者主诉！'}
+        elif not regis_info.diagnosis_results:
+            return {'status': -1, 'message': '尚不存在确诊结果！'}
         else:
             with transaction.atomic():
                 RegistrationInfo.objects.filter(
@@ -283,24 +292,36 @@ class OutpatientAPI(View):
         """
         提交病历首页
         """
+        callback = {'status': -1, 'message': '未知原因提交失败！'} # 默认的提交失败提示可以修改
         regis_id = request.POST.get('regis_id')
         chief_complaint = request.POST.get('chief_complaint')
         illness_date = dateparse.parse_date(request.POST.get('illness_date'))
         allegic_history = request.POST.get('allegic_history')
         past_illness = request.POST.get('past_illness')
+        # 判断是否存在患者主诉
+        if not chief_complaint:
+            callback['message'] = '未填写患者主诉！'
+            return callback
+        # 判断是否存在发病时间
+        elif not illness_date:
+            callback['message'] = '未填写发病时间！'
+            return callback
         with transaction.atomic():
             RegistrationInfo.objects.filter(
                 id = regis_id
             ).update(
-                chief_complaint = null_string_to_none(chief_complaint),
-                illness_date = illness_date
+                chief_complaint = chief_complaint or None,  # 将空字符串转换为None，不用再定义专门的函数 null_string_to_none
+                illness_date = illness_date or None
             )
             PatientUser.objects.filter(
-                registrations__id = null_string_to_none(regis_id)
+                registrations__id = regis_id
             ).update(
-                allegic_history = null_string_to_none(allegic_history),
-                past_illness = null_string_to_none(past_illness)
+                allegic_history = allegic_history or None,
+                past_illness = past_illness or None
             )
+            callback['status'] = 1
+            callback['message'] = '病历首页提交成功！'
+            return callback
 
     def post_inspection(self, request):
         """
@@ -308,18 +329,14 @@ class OutpatientAPI(View):
         """
         regis_id = request.POST.get('regis_id')
         data = dict(request.POST)
+        callback = {'status': -1, 'message': '请至少选择一个检验项目！'}
         with transaction.atomic():
-            RegistrationInfo.objects.filter(
-                id = regis_id
-            ).update(diagnosis_status = 1)
             test_id = PatientTestItem.objects.filter(registration_info_id = regis_id).count()
-            status = -1
-            message = "请至少选择一个检验项目！"
             for param in data:
                 if param not in ('post_param', 'regis_id'):
                     for test_item in data[param]:
-                        status = 0
-                        message = '检验项目已更新'
+                        callback['status'] = 0
+                        callback['message'] = '检验项目已更新'
                         test_id += 1
                         PatientTestItem.objects.create(
                             test_id = test_id,
@@ -328,20 +345,33 @@ class OutpatientAPI(View):
                             payment_status = 0,
                             inspect_status = 0
                         )
-        return {'status': status, 'message': message}
+            # 之前的逻辑有问题，虽然提示了未选择检验项目，但仍将就诊状态修改为1，即没有检验却变成检中患者
+            if callback['status'] == -1:
+                return callback
+            else:
+                RegistrationInfo.objects.filter(
+                    id=regis_id
+                ).update(diagnosis_status=1)
+                return callback
 
     def post_diagnosis_results(self, request):
         """
         提交确诊结果
         """
+        callback = {'status': -1, 'message': '未填写确诊信息！'}
         regis_id = request.POST.get('regis_id')
         diagnosis_results = request.POST.get('diagnosis_results')
+        if not diagnosis_results:
+            return callback
         with transaction.atomic():
             RegistrationInfo.objects.filter(
                 id = regis_id
             ).update(
-                diagnosis_results = null_string_to_none(diagnosis_results)
+                diagnosis_results = diagnosis_results or None  # 由于上述的判断，确诊结果应该不会是空字符了，不知是否还需要 or None
             )
+            callback['status'] = 0
+            callback['message'] = '确诊结果提交成功！'
+            return callback
 
     def post_medicine(self, request):
         """
@@ -349,6 +379,8 @@ class OutpatientAPI(View):
         """
         regis_id = request.POST.get('regis_id')
         data = dict(request.POST)
+        if 'medicine_info_id[]' not in data:
+            return {'status': -1, 'message': '请至少选择一种药品！'}
         medicine_num = len(data['medicine_info_id[]'])
         result = Prescription.objects.filter(registration_info_id = regis_id)
         with transaction.atomic():
@@ -357,7 +389,7 @@ class OutpatientAPI(View):
                 result.delete()
             prescription = Prescription.objects.create(
                 registration_info_id = regis_id,
-                medical_advice = null_string_to_none(data['medical_advice'][0]),
+                medical_advice = data['medical_advice'][0] or None, # 使用 or None 代替 null_string_to_none
                 medicine_num = medicine_num,
                 payment_status = 0
             )
@@ -368,6 +400,7 @@ class OutpatientAPI(View):
                     medicine_info_id = data['medicine_info_id[]'][i],
                     prescription_info_id = prescription.id
                 )
+            return {'status': 0, 'message': '药品即医嘱提交成功！'}
 
 
 class NurseAPI(View):
@@ -709,8 +742,8 @@ class PatientRegisterAPI(View):
         token = get_token(request)
         data = {
             # "query_source": request.session["patient_id"],
-            "query_data": query_data, 
-            "token": token, 
+            "query_data": query_data,
+            "token": token,
             "submit_url": reverse(PatientRegisterAPI.SUBMIT_URL_NAME)
         }
         return JsonResponse(data, safe = False)
@@ -736,10 +769,10 @@ class PatientRegisterAPI(View):
         ).count() > 0:
             return JsonResponse(
                 {
-                    "status": False, 
+                    "status": False,
                     "msg": "您已重复挂号！",
                     "redirect_url": reverse(PatientRegisterAPI.RE_REG_REDIRECT_URL_NAME)
-                }, 
+                },
                 safe = False
             )
         with transaction.atomic():
@@ -761,8 +794,8 @@ class PatientRegisterAPI(View):
             )
         return JsonResponse(
             {
-                "status": True, 
-                "msg": "即将跳转至您的个人界面", 
+                "status": True,
+                "msg": "即将跳转至您的个人界面",
                 "redirect_url": reverse(PatientRegisterAPI.patient_next_url_name)
             },
             safe = False
@@ -1024,7 +1057,7 @@ class PaymentCheck(View):
 
     def get(self, request):
         success = AlipayClient().verify(request)
-        
+
         # ##### 测试各表 payment 字段的更新 #####
         # out_trade_no = request.GET.get("out_trade_no")
         # # 2. 根据订单号将数据库中的数据进行更新（修改订单状态）
@@ -1034,7 +1067,7 @@ class PaymentCheck(View):
         # # 2.2 更新缴费记录中的缴费字段
         # self.update_payment_status(out_trade_no)
         # ##### END #####
-        
+
         if success:
             return redirect(reverse(PaymentCheck.PAYMENT_SUCCESS_NAME))
         return render(request, PaymentCheck.PAYMENT_ERROR_PAGE)
@@ -1050,7 +1083,7 @@ class PaymentCheck(View):
         item_pk_list = item_pk.split('-')
         status = value_to_func.get(item_type)(item_pk_list)
         return status
-    
+
     def update_payment_status(self, pk):
         """
         更新缴费记录表中对应订单的缴费状态字段
@@ -1059,7 +1092,7 @@ class PaymentCheck(View):
             pr = PaymentRecord.objects.get(trade_no = pk)
             pr.is_pay = 1
             pr.save()
-    
+
     def update_registration_info(self, pk_list):
         """
         根据主键列表找到对应挂号信息中的记录，更新缴费状态字段。
@@ -1071,7 +1104,7 @@ class PaymentCheck(View):
             ri.payment_status = True
             ri.save()
         return True
-    
+
     def update_patient_test_item(self, pk_list):
         """
         根据主键列表找到对应患者检验项目中的记录，更新缴费状态字段。
@@ -1080,13 +1113,13 @@ class PaymentCheck(View):
         with transaction.atomic():
             pti = PatientTestItem.objects.get(
                 registration_info__patient__patient_id = patient_id,
-                registration_info__reg_id = reg_id, 
+                registration_info__reg_id = reg_id,
                 test_id = test_id
             )
             pti.payment_status = True
             pti.save()
         return True
-    
+
     def update_operation_info(self, pk_list):
         """
         根据主键列表找到对应手术信息中的记录，更新缴费状态字段。
@@ -1156,7 +1189,7 @@ class PaymentNotifyAPI(View):
         post_dict = {}
         for k, v in post_data.items():
             post_dict[k] = v[0]
-        
+
         client = AlipayClient().CLIENT
         sign = post_dict.pop('sign', None)
         status = client.verify(post_dict, sign)
@@ -1172,7 +1205,7 @@ class PaymentNotifyAPI(View):
             return HttpResponse('success')
         # 3. 最终需要返回 "success" 字符给支付宝，否则支付宝将一直请求该地址并发送回调结果（具体看官方文档）
         return HttpResponse('success')
-    
+
     def update_payment_field(self, item_type, item_pk):
         value_to_func = {
             0: self.update_registration_info, # 挂号
@@ -1184,7 +1217,7 @@ class PaymentNotifyAPI(View):
         item_pk_list = item_pk.split('-')
         status = value_to_func.get(item_type)(item_pk_list)
         return status
-    
+
     def update_payment_status(self, pk):
         """
         更新缴费记录表中对应订单的缴费状态字段
@@ -1193,7 +1226,7 @@ class PaymentNotifyAPI(View):
             pr = PaymentRecord.objects.get(trade_no = pk)
             pr.is_pay = 1
             pr.save()
-    
+
     def update_registration_info(self, pk_list):
         """
         根据主键列表找到对应挂号信息中的记录，更新缴费状态字段。
@@ -1205,7 +1238,7 @@ class PaymentNotifyAPI(View):
             ri.payment_status = True
             ri.save()
         return True
-    
+
     def update_patient_test_item(self, pk_list):
         """
         根据主键列表找到对应患者检验项目中的记录，更新缴费状态字段。
@@ -1214,13 +1247,13 @@ class PaymentNotifyAPI(View):
         with transaction.atomic():
             pti = PatientTestItem.objects.get(
                 registration_info__patient__patient_id = patient_id,
-                registration_info__reg_id = reg_id, 
+                registration_info__reg_id = reg_id,
                 test_id = test_id
             )
             pti.payment_status = True
             pti.save()
         return True
-    
+
     def update_operation_info(self, pk_list):
         """
         根据主键列表找到对应手术信息中的记录，更新缴费状态字段。
