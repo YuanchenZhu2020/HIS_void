@@ -82,3 +82,32 @@ class IDNumberValidator:
                 self.error_messages["invalid"],
                 code = "invalid"
             )
+
+
+@deconstructible
+class PhoneNumberValidator:
+    """
+    验证中国大陆手机号
+    """
+    regex = re.compile(r"^1(3\d|4[5-9]|5[0-35-9]|6[567]|7[0-8]|8\d|9[0-35-9])\d{8}$")
+    error_messages = {
+        "invalid": _("请使用正确的手机号码"),
+    }
+    
+    def __init__(self):
+        pass
+
+    def __call__(self, value):
+        regex_matches = self.regex.fullmatch(str(value))
+        if not regex_matches:
+            raise ValidationError(
+                self.error_messages["invalid"], 
+                code = "invalid"
+            )
+
+    def __eq__(self, other):
+        return (
+            isinstance(other, PhoneNumberValidator) and
+            self.regex == other.regex and
+            self.error_messages == other.error_messages
+        )

@@ -46,7 +46,7 @@ class OutpatientView(View):
             dept_items = []
             dept_info = Department.objects.filter(usergroup__ug_id__range=[1, 8]).values_list('usergroup__ug_id', 'usergroup__name')
             for dept in dept_info:
-                dept_items.append({'ug_id': dept[0], 'name': dept[1]})
+                dept_items.append({'dept_id': dept[0], 'dept_name': dept[1]})
 
             test_items = []
             for tit in TestItemType.objects.all():
@@ -65,4 +65,5 @@ class OutpatientView(View):
             "TestItems": OutpatientView.TEST_ITEMS_CACHE, 
             "DeptItems": OutpatientView.DEPT_ITEMS_CACHE
         }
+        print("DEPTS", context["DeptItems"])
         return render(request, OutpatientView.template_name, context = context)

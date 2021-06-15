@@ -22,9 +22,9 @@ function clear_patient_card_style() {
 
 // 住院患者查询
 function QueryInpatients() {
-    console.log(URL);
+    // console.log(URL);
     $.ajax({
-        type: "get",
+        type: "GET",
         url: URL,
         dataType: 'json',
         data: {
@@ -57,14 +57,14 @@ function QueryInpatients() {
 // 待收患者查询
 function QueryWaitingPatients() {
     $.ajax({
-        type: "get",
+        type: "GET",
         url: URL,
         dataType: 'json',
         data: {
             'get_param': 'WAITING_QUERY'
         },
         success: function (data) {
-            console.log(data);
+            console.log(data);/** */
             let $waiting_patients_card = $('#waiting_patients_card');
             $waiting_patients_card.empty();
             for (let i = 0; i < data.length; i++) {
@@ -103,7 +103,7 @@ function clear_all_info() {
 // 患者基础信息查询
 function QueryPatientInfo(regis_id, event) {
     $.ajax({
-        type: "get",
+        type: "GET",
         url: URL,
         dataType: 'json',
         data: {
@@ -118,8 +118,8 @@ function QueryPatientInfo(regis_id, event) {
             }
             clear_patient_card_style();
             $(event).attr('style', 'background-color: #d7dae3');
-            console.log("入院登记QueryPegisterPatient函数")
-            console.log(data);
+            // console.log("入院登记QueryPegisterPatient函数")
+            console.log(data);/** */
             $("#no").attr('placeholder', data.regis_id);
             $("#name").attr('placeholder', data.name);
             $("#gender").attr('placeholder', data.gender);
@@ -142,9 +142,9 @@ function QueryPatientInfo(regis_id, event) {
 
 // 医嘱处理查询
 function QueryMedicalAdviceProcess(regis_id) {
-    console.log(URL);
+    // console.log(URL);
     $.ajax({
-        type: "get",
+        type: "GET",
         url: URL,
         dataType: 'json',
         data: {
@@ -206,13 +206,14 @@ function BedSelect() {
 // 可用床位查询
 function QueryBed() {
     $.ajax({
-        type: "get",
+        type: "GET",
         url: URL,
         dataType: 'json',
         data: {
             get_param: 'BED_QUERY'
         },
         success: function (data) {
+            // 清空原有数据
             $("#areas").empty();
             // 生成病区分页按钮
             for (let i in data) {
@@ -230,7 +231,7 @@ function QueryBed() {
                 // 床位 labels
                 let labels_html = ''
                 let format_str_inside = '<label class="radio-inline mr-3"><input type="radio" value="{0}{1}" name="BED">{0}{1}</label>'
-                for (let bed in data[i].BED) {
+                for (let bed of data[i].BED) {
                     labels_html += StringFormat(format_str_inside, data[i].AREA, bed)
                 }
                 // 床位 html

@@ -23,6 +23,8 @@ from laboratory.models import PatientTestItem
 from internalapi.models import PaymentRecord
 from externalapi.external_api import AlipayClient
 
+from patient.validators import PhoneNumberValidator
+
 
 def get_current_reg_time():
     # 获取本地日期时间
@@ -368,7 +370,6 @@ class OutpatientAPI(View):
                 )
 
 
-
 class NurseAPI(View):
     """
     护士工作站数据查询API
@@ -470,16 +471,24 @@ class NurseAPI(View):
         print(data)
         return data
 
-    # 查询空床位
     def query_empty_beds(self, request):
-        # 数据示例：{"AREA": "A","BED": [1, 3, 4, 5, 6]}
+        """
+        空床位查询
+
+        数据示例：{"AREA": "A","BED": [1, 3, 4, 5, 6]}
+        """
+        dept_id = request.session["dept_id"]
         inpatient_area_info = []
-        nurse_dept = Department.objects.get_by_dept_id(request.session["dept_id"])
+        nurse_dept = Department.objects.get_by_dept_id(dept_id)
+        # 所有病区与床位
         area_beds = DeptAreaBed.objects.filter(
-            dept=nurse_dept
+            dept = nurse_dept
         ).values_list("area", "bed_id")
+        # 已用病区与床位
+        # 筛选条件为：入院登记表中，属于本科室，同时未出院的患者所在的病区与床位
         used_beds = HospitalRegistration.objects.filter(
-            dept=nurse_dept
+            dept = nurse_dept,
+            discharge_status = 0
         ).values_list("area", "bed_id")
         empty_beds = set(area_beds) - set(used_beds)
         areas = sorted(list(dict(empty_beds).keys()))
@@ -490,6 +499,7 @@ class NurseAPI(View):
                     "BED": sorted([ab[1] for ab in filter(lambda ab: ab[0] == area, empty_beds)])
                 }
             )
+        print(inpatient_area_info)
         return inpatient_area_info
 
     def post(self, request):
@@ -533,13 +543,23 @@ class NurseAPI(View):
 
     # 提交入院登记
     def post_hospital_registration(self, request):
+        regis_id = request.POST.get("regis_id")
+        reg_date = request.POST.get("reg_date")
+        reg_level = int(request.POST.get("care_level"))
+        area_id = request.POST.get('area_bed')[0]
+        bed_id = request.POST.get('area_bed')[1]
+        kin_phone = request.POST.get('kin_phone')
+        try:
+            PhoneNumberValidator()(kin_phone)
+        except Exception as e:
+            return {'status': 1, 'message': e.message}
         with transaction.atomic():
-            HospitalRegistration.objects.filter(registration_info_id=request.POST.get('regis_id')).update(
-                reg_date=request.POST.get('reg_date'),
-                care_level=request.POST.get('care_level'),
-                area_id=request.POST.get('area_bed')[0],
-                bed_id=request.POST.get('area_bed')[1],
-                kin_phone=request.POST.get('kin_phone')
+            HospitalRegistration.objects.filter(registration_info_id = regis_id).update(
+                reg_date = reg_date,
+                care_level = reg_level,
+                area_id = area_id,
+                bed_id = bed_id,
+                kin_phone = kin_phone
             )
             return {'status': 0, 'message': "入院登记已记录"}
 
