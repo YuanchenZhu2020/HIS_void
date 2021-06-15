@@ -183,11 +183,11 @@ PERMISSION_OBJ_KEY = "obj_key"
 #     r"/PatientRegisterAPI/",  # 患者挂号查询与提交API
 #     r"/InpatientAPI/",  # 住院医生数据API
 #     r"/news/",
-#     r"/PatientFastRegisterAPI", # 患者快速挂号API
-#     r"/PatientTreatmentDetailAPI", # 患者治疗信息查询API
-#     r"/PaymentAPI", # 支付接口
-#     r"/PaymentNotifyAPI", # 支付成功回调接口
-#     r"/payment-check", # 支付验证页面
+#     r"/PatientFastRegisterAPI/", # 患者快速挂号API
+#     r"/PatientTreatmentDetailAPI/", # 患者治疗信息查询API
+#     r"/PaymentAPI/", # 支付接口
+#     r"/PaymentNotifyAPI/", # 支付成功回调接口
+#     r"/payment-check/", # 支付验证页面
 #     r"/payment-error/", # 支付失败页面
 # ]
 
@@ -267,15 +267,35 @@ ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
 #   职工
 #       /workhub/
 #       /logout/
+#       /news/
 #   门诊医生
 #       /outpatient-workspace/
 #       /OutpatientAPI/
 #   住院医生
 #       /inpatient-workspace/
 #       /InpatientAPI/
-#   护士
+#   住院护士
 #       /nurse-workspace/
 #       /NurseAPI/
-# 检验技师
-# 财务人员
-# 
+#   医学检验师
+#       /inspection-workspace/
+#       /InspectionAPI/
+
+# 用于在展示充数的角色
+#   支付包支付接口开发
+#       /PaymentAPI/
+#       /PaymentNotifyAPI/
+#       /payment-check/
+#       /patient-details/
+#       /patient-error/
+#       /patient-detail/
+#   内部数据API测试
+#       /PatientRegisterAPI/
+#       /PatientFastRegisterAPI/
+#       /PatientTreatmentDetailAPI/
+#       /OutpatientAPI/
+#       /InspectionAPI/
+#       /NurseAPI/
+#       /InpatientAPI/
+#   患者快速挂号API压力测试
+#       /PatientFastRegisterAPI/

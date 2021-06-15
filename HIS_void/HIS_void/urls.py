@@ -32,13 +32,14 @@ from internalapi.views import (
     InpatientAPI, PatientFastRegisterAPI, PatientTreatmentDetails, 
     PaymentAPI, PaymentNotifyAPI, PaymentCheck, PaymentError, 
 )
-
 from rbac.management import create_urlpermissions
 
+
 urlpatterns = [
-    path('', IndexView.as_view(), name='index-alias'),
     # 管理员
     path('admin/', admin.site.urls),
+    # 主页 alias
+    path('', IndexView.as_view(), name='index-alias'),
     # 主页
     path('index/', IndexView.as_view(), name="index"),
     # 职工登录页面
@@ -53,20 +54,20 @@ urlpatterns = [
     path('forgot-password/', ForgotPasswordView.as_view(), name="forgot-password"),
     # 登出页面
     path('logout/', StaffLogoutView.as_view(), name="logout"),
-    # 职工工作中心页面
-    path('workhub/', WorkHubView.as_view(), name="workhub"),
-    # 门诊医生工作页面
-    path('outpatient-workspace/', OutpatientView.as_view(), name="outpatient-workspace"),
     # 患者挂号首页
     path('patient/', PatientView.as_view(), name="patient"),
     # 患者个人界面
     path('patient-details/', PatientDetailsView.as_view(), name="patient-details"),
-    # 护士门诊
-    path('nurse-workspace/', NurseView.as_view(), name="nurse-workspace"),
-    # 检查检验
-    path('inspection-workspace/', InspectionView.as_view(), name="inspection-workspace"),
-    # 住院医生
+    # 职工工作中心页面
+    path('workhub/', WorkHubView.as_view(), name="workhub"),
+    # 门诊医生工作台
+    path('outpatient-workspace/', OutpatientView.as_view(), name="outpatient-workspace"),
+    # 住院医生工作台
     path('inpatient-workspace/', InpatientWorkspaceView.as_view(), name="inpatient-workspace"),
+    # 住院护士工作台
+    path('nurse-workspace/', NurseView.as_view(), name="nurse-workspace"),
+    # 检查检验工作台
+    path('inspection-workspace/', InspectionView.as_view(), name="inspection-workspace"),
     # 近期新闻
     path('news/', NewsView.as_view(), name="news"),
     # 查询机器检验的各种信息
@@ -81,7 +82,7 @@ urlpatterns = [
     path('PatientRegisterAPI/', PatientRegisterAPI.as_view(), name="PatientRegisterAPI"),
     # 保存住院医生能查询到的住院人信息
     path('InhospitalAPI/', InpatientAPI.as_view(), name="InhospitalAPI"),
-    # 患者详情页面API
+    # 患者详情页面API，主要用于快速挂号
     path('PatientFastRegisterAPI/', PatientFastRegisterAPI.as_view(), name = "PatientFastRegisterAPI"),
     # 患者治疗信息查询API
     path('PatientTreatmentDetailAPI/', PatientTreatmentDetails.as_view(), name = "PatientTreatmentDetailAPI"),
