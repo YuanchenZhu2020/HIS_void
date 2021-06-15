@@ -1,6 +1,6 @@
 -- 患者 URL 访问权限
 insert into patient_patienturlpermission 
-(url_perm_id) values ("logout"), ("patient-details");
+(url_perm_id) values ("logout"), ("patient-details"), ("PatientFastRegisterAPI"), ("PatientTreatmentDetailAPI");
 -- role
 insert into rbac_role
 (id, name, description, create_time) values 

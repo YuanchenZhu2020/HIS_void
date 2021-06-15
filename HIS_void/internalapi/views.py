@@ -516,29 +516,48 @@ class NurseAPI(View):
 
     # 提交护理记录
     def post_nursing_record(self, request):
+        regis_id = request.POST.get("regis_id")
+        today = timezone.localdate()
+        nurse_id = request.session.get('username')
+        systolic = request.POST.get("systolic")
+        diastolic = request.POST.get("diastolic")
+        temperature = request.POST.get("temperature")
+        note = request.POST.get("note")
         with transaction.atomic():
-            nursing_info = NursingRecord.objects.filter(
-                registration_info_id=request.POST.get('regis_id'),
-                nursing_date=timezone.localdate()
+            NursingRecord.objects.update_or_create(
+                registration_info_id = regis_id,
+                nursing_date = today,
+                defaults = {
+                    "registration_info_id": regis_id,
+                    "medical_staff_id": nurse_id,
+                    "systolic": systolic,
+                    "diastolic": diastolic,
+                    "temperature": temperature,
+                    "note": note,
+                }
             )
-            if nursing_info.exists():
-                nursing_info.update(
-                    registration_info_id=request.POST.get('regis_id'),
-                    medical_staff_id=request.session.get('username'),
-                    systolic=request.POST.get('systolic'),
-                    diastolic=request.POST.get('diastolic'),
-                    temperature=request.POST.get('temperature'),
-                    note=request.POST.get('note')
-                )
-            else:
-                NursingRecord.objects.create(
-                    registration_info_id=request.POST.get('regis_id'),
-                    medical_staff_id=request.session.get('username'),
-                    systolic=request.POST.get('systolic'),
-                    diastolic=request.POST.get('diastolic'),
-                    temperature=request.POST.get('temperature'),
-                    note=request.POST.get('note')
-                )
+            # nursing_info = NursingRecord.objects.filter(
+            #     registration_info_id = regis_id,
+            #     nursing_date = timezone.localdate()
+            # )
+            # if nursing_info.exists():
+            #     nursing_info.update(
+            #         registration_info_id = regis_id,
+            #         medical_staff_id = nurse_id,
+            #         systolic = request.POST.get('systolic'),
+            #         diastolic = request.POST.get('diastolic'),
+            #         temperature = request.POST.get('temperature'),
+            #         note = request.POST.get('note')
+            #     )
+            # else:
+            #     NursingRecord.objects.create(
+            #         registration_info_id = regis_id,
+            #         medical_staff_id = nurse_id,
+            #         systolic = request.POST.get('systolic'),
+            #         diastolic = request.POST.get('diastolic'),
+            #         temperature = request.POST.get('temperature'),
+            #         note = request.POST.get('note')
+            #     )
         return {'status': 0, 'message': '护理记录已更新'}
 
     # 提交入院登记
