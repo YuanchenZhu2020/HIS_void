@@ -205,6 +205,8 @@ SAFE_URL = [
     r"/patient/",  # 患者挂号页面
     r"/PaymentNotifyAPI/", # 支付成功回调接口
     r"/PatientRegisterAPI/",  # 患者挂号查询与提交API
+    r"/inpatient-workspace/",  # 临时添加住院医生工作台
+    r"/InpatientAPI/",  # 临时添加住院医生API
 ]
 
 # setup session engine to improve performance
@@ -224,14 +226,14 @@ PATIENT_ID_LEN = 6
 # Format string for displaying run time timestamps in the Django admin site. The default
 # just adds seconds to the standard Django format, which is useful for displaying the timestamps
 # for jobs that are scheduled to run on intervals of less than one minute.
-# 
+#
 # See https://docs.djangoproject.com/en/dev/ref/settings/#datetime-format for format string
 # syntax details.
 APSCHEDULER_DATETIME_FORMAT = "N j, Y, f:s a"
 
 # Maximum run time allowed for jobs that are triggered manually via the Django admin site, which
 # prevents admin site HTTP requests from timing out.
-# 
+#
 # Longer running jobs should probably be handed over to a background task processing library
 # that supports multiple background worker processes instead (e.g. Dramatiq, Celery, Django-RQ,
 # etc. See: https://djangopackages.org/grids/g/workers-queues-tasks/ for popular options).
@@ -278,4 +280,4 @@ ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
 #       /NurseAPI/
 # 检验技师
 # 财务人员
-# 
+#

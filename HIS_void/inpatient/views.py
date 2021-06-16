@@ -44,11 +44,13 @@ class InpatientWorkspaceView(View):
             working_day=timezone.now().weekday(),
             medical_staff_id=username
         ).values_list('duty_area_id')
+        print(area)
+        print(nurse_info)
         context = {
             "TestItems": InpatientWorkspaceView.TEST_ITEMS_CACHE,
-            "area": area[0][0] if area else '',
-            'dept_id': nurse_info[0][0],
-            'dept_name': nurse_info[0][1]
+            # "area": area[0][0] if area else '',
+            # 'dept_id': nurse_info[0][0],
+            # 'dept_name': nurse_info[0][1]
         }
         context['area'] = 'B'
 
