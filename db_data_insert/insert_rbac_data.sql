@@ -20,13 +20,13 @@ insert into rbac_role_url_permissions
 (id, role_id, urlpermission_id) values 
     (1,1,"workhub"),(2,1,"logout"),(3,1,"news"),
     (4,2,"outpatient-workspace"),(5,2,"OutpatientAPI"),
-    (6,3,"inpatient-workspace"),(7,3,"InpatientAPI"),
+    (6,3,"inpatient-workspace"),(7,3,"InhospitalAPI"),
     (8,4,"nurse-workspace"),(9,4,"NurseAPI"),
     (10,5,"inspection-workspace"),(11,5,"InspectionAPI"),
     -- 无实际应用
-    (12,6,"PaymentAPI"),(13,6,"PaymentNotifyAPI"),(14,6,"payment-check"),(15,6,"patient-details"),(16,6,"patient-error"),(17,6,"patient-detail"),
-    (18,7,"PatientRegisterAPI"),(19,7,"PatientFastRegisterAPI"),(20,7,"PatientTreatmentDetailAPI"),(21,7,"OutpatientAPI"),(22,7,"InspectionAPI"),(23,7,"NurseAPI"),(24,7,"InpatientAPI"),
-    (25,8,"PatientFastRegisterAPI");
+    (12,6,"PaymentAPI"),(13,6,"payment-notify"),(14,6,"payment-check"),(15,6,"payment-error"),(16,6,"patient-details"),
+    (17,7,"PatientRegisterAPI"),(18,7,"PatientFastRegisterAPI"),(19,7,"PatientTreatmentDetailAPI"),(20,7,"OutpatientAPI"),(21,7,"InspectionAPI"),(22,7,"NurseAPI"),(23,7,"InhospitalAPI"),
+    (24,8,"PatientFastRegisterAPI");
 
 -- usergroup roles
 insert into rbac_usergroup_roles
