@@ -4,6 +4,7 @@ import uuid
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import query
 from django.http import JsonResponse
 from django.http.response import HttpResponse
 from django.shortcuts import redirect, render
@@ -622,54 +623,121 @@ class InspectionAPI(View):
 
     def get(self, request):
         query_key_to_func = {
-            "InspectingInformation": self.query_inspecting_info,
-            "InspectingPatient": self.query_inspecting_patient
+            "INSPECTION": self.query_inspection_info,
+            "WAITING": self.query_inspection_patient
         }
-        query_information = request.GET.get('information')
+        query_information = request.GET.get("info")
         data = query_key_to_func.get(query_information)(request)
-        return JsonResponse(data, safe=False)
+        return JsonResponse(data, safe = False)
 
-    def query_inspecting_info(self, request):
-        p_no = request.GET.get('p_no')
-        data = {
-            "no": 114514,
+    def query_inspection_info(self, request):
+        """
+        data = [{
+            "regis_id": 25,
+            "test_id": 25,
+            "patient_id": 000001,
             "name": "肖云冲",
             "gender": "男",
             "age": 18,
-            "JYMC": "血常规",
-            "KJSJ": "2021.05.1 20：00",
-            "KJYS": "王医生"
+            "inspect_name": "血常规",
+            "issue_time": "2021.05.01 20:00:20",
+        },...]
+        """
+        # staff_id = request.session["username"]
+        inspection_id = request.GET.get("inspection_id")
+        inspection_info = PatientTestItem.objects.get(
+            id = inspection_id,
+        )
+        patient = inspection_info.registration_info.patient
+        patient_info = {
+            "patient_id": patient.patient_id,
+            "name": patient.name,
+            "gender": patient.get_gender_display(),
+            "age": timezone.localdate().year - patient.birthday.year
         }
-        return data
+        info_dict = {
+            "inspection_id": inspection_id,
+            "inspection_name": inspection_info.test_item.inspect_name,
+            "issue_time": timezone.make_naive(inspection_info.issue_time).strftime("%Y-%m-%d %H:%M:%S"),
+            "medical_staff": inspection_info.registration_info.medical_staff.name
+        }
+        info_dict.update(patient_info)
+        return info_dict
 
-    def query_inspecting_patient(self, request):
-        data = [
-            {
-                "p_no": "183771**",
-                "name": "李国铭",
-                "status": "危机",
-            },
-            {
-                "p_no": "183771--",
-                "name": "肖云冲",
-                "status": "普通",
-            },
-            {
-                "p_no": "183771++",
-                "name": "朱元琛",
-                "status": "安全",
-            },
-        ]
-        # 传入医生主键，这样可以有选择的返回病人信息
-        d_no = request.GET.get('d_no')
+    def query_inspection_patient(self, request):
+        """
+        data = [{
+            "patient_id": "183771**",
+            "name": "李国铭",
+            "inspection_id": 25,
+        },...]
+        """
+        data = []
+        inspection_info = PatientTestItem.objects.filter(
+            payment_status = 1,
+            inspect_status = 0,
+        ).order_by("issue_time")
+        for inspect in inspection_info:
+            data.append({
+                "patient_id": inspect.registration_info.patient.patient_id,
+                "name": inspect.registration_info.patient.name,
+                "inspection_id": inspect.id
+            })
         return data
 
     def post(self, request):
-        print("================================")
-        print(request.POST.get('PDXX'))
-        print("================================")
-        sleep(1)
-        return redirect(reverse("inspection-workspace"))
+        """
+        检查检验工作台POST提交视图函数
+        """
+        post_key_to_func = {
+            # 提交检查结果
+            "RESULT": self.post_inspection_result,
+        }
+        param = request.POST.get("post_param")
+        status = post_key_to_func[param](request)
+        return JsonResponse(status, safe = False)
+    
+    def post_inspection_result(self, request):
+        """
+        提交检查检验结果
+        """
+        return_info = {"status": 0, "msg": "检查结果提交成功！"}
+
+        username = request.session["username"]
+        handle_staff = Staff.objects.get_by_user(username)
+        inspection_id = request.POST.get("inspection_id")
+        result = request.POST.get("result")
+
+        status, msg = self._clean_inspection_result({"staff": handle_staff, "result": result})
+        if status == -1:
+            return_info["status"] = status
+            return_info["msg"] = msg
+            return return_info
+
+        with transaction.atomic():
+            PatientTestItem.objects.filter(
+                id = inspection_id
+            ).update(
+                test_results = result,
+                inspect_status = 1,
+                handle_staff = handle_staff,
+            )
+        return return_info
+    
+    def _clean_inspection_result(self, data):
+        """
+        整理并验证检查检验结果
+        """
+        status, msg = 0, ''
+        if data["staff"] is None:
+            status = -1
+            msg += "无法识别检查检验人员！"
+        
+        if data["result"].strip() == '':
+            status = -1
+            msg += "必须填写检查检验结果！"
+        
+        return status, msg
 
 
 @method_decorator(patient_login_required(login_url = "/login-patient/"), name = "post")

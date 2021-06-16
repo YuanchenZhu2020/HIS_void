@@ -175,7 +175,7 @@ function QueryInDiagnosisPatient() {
         },
         success: function (data) {
             let $in_diagnosis_card = $("#in_diagnosis");
-            console.log(data);
+            // console.log(data);
             data.sort(function (a, b) {
                 return b.progress - a.progress;
             })
@@ -368,7 +368,6 @@ function QueryMedicine() {
                         tempArr.push(keyWords[i]);
                     }
                 }
-                // console.log(tempArr);
                 // 创建一个 div 用来放提示的语句
                 let dvObj = document.createElement("div");
                 dvObj.setAttribute('class', 'offset-2 basic-list-group col-md-4');
@@ -396,8 +395,9 @@ function QueryMedicine() {
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("无法连接服务器");
             // 状态码
-            alert(XMLHttpRequest.status);
+            console.log(XMLHttpRequest.status);
         }
     })
 }
@@ -449,8 +449,9 @@ function collect_medicine() {
             }
         },
         error: function (XMLHttpRequest, textStatus, errorThrown) {
+            alert("无法连接服务器");
             // 状态码
-            alert(XMLHttpRequest.status);
+            // console.log(XMLHttpRequest.status);
         }
     });
 }
