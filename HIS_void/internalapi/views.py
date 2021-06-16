@@ -24,6 +24,8 @@ from internalapi.models import PaymentRecord
 from externalapi.external_api import AlipayClient
 from django.core.paginator import Paginator
 
+from patient.validators import PhoneNumberValidator
+
 
 def get_current_reg_time():
     # 获取本地日期时间
@@ -33,9 +35,8 @@ def get_current_reg_time():
         TARGET_REG_TIME = dateparse.parse_time("13:00:00")
     return TARGET_REG_TIME
 
-# 可以考虑删除
-def null_string_to_none(string):
-    return None if string.strip() == '' else string.strip()
+# def null_string_to_none(string):
+#     return None if string.strip() == '' else string.strip()
 
 
 class OutpatientAPI(View):
@@ -148,8 +149,11 @@ class OutpatientAPI(View):
                 all_test_num += 1
                 if test_info.test_results is not None:
                     finished_test_num += 1
-            data.append({'regis_id': regis.id, 'name': regis.patient.name,
-                         'progress': int((finished_test_num / all_test_num) * 100)})
+            data.append({
+                "regis_id": regis.id,
+                "name": regis.patient.name,
+                "progress": (finished_test_num / all_test_num) * 100
+            })
         return data
 
     def query_inspect_result(self, request):
@@ -217,13 +221,12 @@ class OutpatientAPI(View):
             }
         return data
 
-    # 入院申请函数
     def application_inhospital(self, request):
         """ 创建入院申请记录，更新挂号信息中的就诊状态 """
         regis_id = request.GET.get('regis_id')
         dept_id = request.GET.get('dept_id')
         # 病人在住院时需要有门诊的确诊结果作为预诊结果
-        regis_info = RegistrationInfo.objects.get(id=regis_id)
+        regis_info = RegistrationInfo.objects.get(id = regis_id)
         if not regis_info.diagnosis_results:
             return {'status': -1, 'message': '请先提交预诊结果再进行转院操作！'}
 
@@ -237,11 +240,10 @@ class OutpatientAPI(View):
             ).update(diagnosis_status = 2)
         return {'status': 0, 'message': '已移交至住院部！'}
 
-    # 诊疗完毕函数
     def diagnosis_over(self, request):
         regis_id = request.GET.get('regis_id')
         regis_info = RegistrationInfo.objects.get(id = regis_id)
-        # 修改了一下提示的顺序，应该先判断是否存在患者主诉
+        # 先判断是否存在患者主诉
         if not regis_info.chief_complaint:
             return {'status': -1, 'message': '尚不存在患者主诉！'}
         elif not regis_info.diagnosis_results:
@@ -503,16 +505,24 @@ class NurseAPI(View):
         print(data)
         return data
 
-    # 查询空床位
     def query_empty_beds(self, request):
-        # 数据示例：{"AREA": "A","BED": [1, 3, 4, 5, 6]}
+        """
+        空床位查询
+
+        数据示例：{"AREA": "A","BED": [1, 3, 4, 5, 6]}
+        """
+        dept_id = request.session["dept_id"]
         inpatient_area_info = []
-        nurse_dept = Department.objects.get_by_dept_id(request.session["dept_id"])
+        nurse_dept = Department.objects.get_by_dept_id(dept_id)
+        # 所有病区与床位
         area_beds = DeptAreaBed.objects.filter(
-            dept=nurse_dept
+            dept = nurse_dept
         ).values_list("area", "bed_id")
+        # 已用病区与床位
+        # 筛选条件为：入院登记表中，属于本科室，同时未出院的患者所在的病区与床位
         used_beds = HospitalRegistration.objects.filter(
-            dept=nurse_dept
+            dept = nurse_dept,
+            discharge_status = 0
         ).values_list("area", "bed_id")
         empty_beds = set(area_beds) - set(used_beds)
         areas = sorted(list(dict(empty_beds).keys()))
@@ -523,6 +533,7 @@ class NurseAPI(View):
                     "BED": sorted([ab[1] for ab in filter(lambda ab: ab[0] == area, empty_beds)])
                 }
             )
+        print(inpatient_area_info)
         return inpatient_area_info
 
     def post(self, request):
@@ -539,40 +550,69 @@ class NurseAPI(View):
 
     # 提交护理记录
     def post_nursing_record(self, request):
+        regis_id = request.POST.get("regis_id")
+        today = timezone.localdate()
+        nurse_id = request.session.get('username')
+        systolic = request.POST.get("systolic")
+        diastolic = request.POST.get("diastolic")
+        temperature = request.POST.get("temperature")
+        note = request.POST.get("note")
         with transaction.atomic():
-            nursing_info = NursingRecord.objects.filter(
-                registration_info_id=request.POST.get('regis_id'),
-                nursing_date=timezone.localdate()
+            NursingRecord.objects.update_or_create(
+                registration_info_id = regis_id,
+                nursing_date = today,
+                defaults = {
+                    "registration_info_id": regis_id,
+                    "medical_staff_id": nurse_id,
+                    "systolic": systolic,
+                    "diastolic": diastolic,
+                    "temperature": temperature,
+                    "note": note,
+                }
             )
-            if nursing_info.exists():
-                nursing_info.update(
-                    registration_info_id=request.POST.get('regis_id'),
-                    medical_staff_id=request.session.get('username'),
-                    systolic=request.POST.get('systolic'),
-                    diastolic=request.POST.get('diastolic'),
-                    temperature=request.POST.get('temperature'),
-                    note=request.POST.get('note')
-                )
-            else:
-                NursingRecord.objects.create(
-                    registration_info_id=request.POST.get('regis_id'),
-                    medical_staff_id=request.session.get('username'),
-                    systolic=request.POST.get('systolic'),
-                    diastolic=request.POST.get('diastolic'),
-                    temperature=request.POST.get('temperature'),
-                    note=request.POST.get('note')
-                )
+            # nursing_info = NursingRecord.objects.filter(
+            #     registration_info_id = regis_id,
+            #     nursing_date = timezone.localdate()
+            # )
+            # if nursing_info.exists():
+            #     nursing_info.update(
+            #         registration_info_id = regis_id,
+            #         medical_staff_id = nurse_id,
+            #         systolic = request.POST.get('systolic'),
+            #         diastolic = request.POST.get('diastolic'),
+            #         temperature = request.POST.get('temperature'),
+            #         note = request.POST.get('note')
+            #     )
+            # else:
+            #     NursingRecord.objects.create(
+            #         registration_info_id = regis_id,
+            #         medical_staff_id = nurse_id,
+            #         systolic = request.POST.get('systolic'),
+            #         diastolic = request.POST.get('diastolic'),
+            #         temperature = request.POST.get('temperature'),
+            #         note = request.POST.get('note')
+            #     )
         return {'status': 0, 'message': '护理记录已更新'}
 
     # 提交入院登记
     def post_hospital_registration(self, request):
+        regis_id = request.POST.get("regis_id")
+        reg_date = request.POST.get("reg_date")
+        reg_level = int(request.POST.get("care_level"))
+        area_id = request.POST.get('area_bed')[0]
+        bed_id = request.POST.get('area_bed')[1]
+        kin_phone = request.POST.get('kin_phone')
+        try:
+            PhoneNumberValidator()(kin_phone)
+        except Exception as e:
+            return {'status': 1, 'message': e.message}
         with transaction.atomic():
-            HospitalRegistration.objects.filter(registration_info_id=request.POST.get('regis_id')).update(
-                reg_date=request.POST.get('reg_date'),
-                care_level=request.POST.get('care_level'),
-                area_id=request.POST.get('area_bed')[0],
-                bed_id=request.POST.get('area_bed')[1],
-                kin_phone=request.POST.get('kin_phone')
+            HospitalRegistration.objects.filter(registration_info_id = regis_id).update(
+                reg_date = reg_date,
+                care_level = reg_level,
+                area_id = area_id,
+                bed_id = bed_id,
+                kin_phone = kin_phone
             )
             return {'status': 0, 'message': "入院登记已记录"}
 
@@ -1103,8 +1143,10 @@ class PatientTreatmentDetails(View):
         return JsonResponse(data, safe = False)
 
 
-# 病人基础信息API，用于医生获取病人基础数据
 class PatientUserAPI(View):
+    """
+    病人基础信息API，用于医生获取病人基础数据
+    """
     def get(self, request):
         # 获取需要查询的信息类型
         query_information = request.GET.get('information')

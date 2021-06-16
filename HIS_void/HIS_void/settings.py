@@ -260,6 +260,8 @@ ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
 # 患者 URL 访问权限
 # /logout/
 # /patient-details/
+# /PatientFastRegisterAPI/
+# /PatientTreatmentDetailAPI/
 
 # 角色
 #   职工

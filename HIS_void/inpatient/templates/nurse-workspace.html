@@ -2,9 +2,7 @@
 {% load static %}
 {% block title %}护士工作台{% endblock %}
 {% block body-context %}
-    <script>
-
-    </script>
+<link rel="stylesheet" href="{% static 'css/input-spinner.css' %}">
     {# 两侧留白较小的容器 #}
     <div class="container-fluid">
         <nav class="breadcrumb-div" aria-label="breadcrumb" style="padding-right: 0px;">
@@ -214,16 +212,41 @@
                                             <input type="hidden" name="post_param" value="nursing_record">
                                             <input type="hidden" name="regis_id">
                                             <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-1.5 col-form-label text-right">收缩压：
-                                                </label> <input type="text" name="systolic" class="form-control">
+                                                <label class="col-md-1.5 col-form-label text-right">
+                                                    收缩压：
+                                                </label>
+                                                <input type="text" name="systolic" class="form-control" oninput="validate_float(this);">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">mmHg</span>
+                                                </div>
                                             </div>
                                             <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-1.5 col-form-label text-right">舒张压：
-                                                </label> <input type="text" name="diastolic" class="form-control">
+                                                <label class="col-md-1.5 col-form-label text-right">
+                                                    舒张压：
+                                                </label>
+                                                <input type="text" name="diastolic" class="form-control" oninput="validate_float(this);">
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">mmHg</span>
+                                                </div>
                                             </div>
                                             <div class="input-group input-group-lg mb-3">
-                                                <label class="col-md-1.5 col-form-label text-right">体&emsp;温：
-                                                </label> <input type="text" name="temperature" class="form-control">
+                                                <label class="col-md-1.5 col-form-label text-right">
+                                                    体&emsp;温：
+                                                </label>
+                                                <!-- <div class="input-group-prepend">
+                                                    <span class="input-group-text">$</span>
+                                                </div> -->
+                                                <!-- <input type="text" name="temperature" class="form-control"> -->
+                                                <div class="spinner">
+                                                    <input type="text" name="temperature" class="form-control" value="37.5" oninput="validate_float(this);">
+                                                    <div class="input-group-btn-vertical">
+                                                        <button class="btn btn-default" type="button"><i class="fa fa-caret-up"></i></button>
+                                                        <button class="btn btn-default" type="button"><i class="fa fa-caret-down"></i></button>
+                                                    </div>
+                                                </div>
+                                                <div class="input-group-append">
+                                                    <span class="input-group-text">℃</span>
+                                                </div>
                                             </div>
                                             <textarea name="note" class="form-control mb-3" rows="10"
                                                       placeholder="如有其他情况，请在此说明"></textarea>
@@ -277,8 +300,7 @@
                                             <div class="form-group">
                                                 <div class="input-group input-group-lg mb-3">
                                                     <label class="=col-md-1.5 col-form-label text-right">家属电话：</label>
-                                                    <input class="form-control form-control-lg" type="tel"
-                                                           name="kin_phone">
+                                                    <input class="form-control form-control-lg" type="tel" maxlength="11" name="kin_phone" oninput="validate_kin_phone(this);">
                                                 </div>
                                             </div>
                                             <div class="form-group">
@@ -302,4 +324,5 @@
 {% endblock %}
 {% block script-content %}
     <script src="{% static 'js/nurse_query.js' %}"></script>
+    <script src="{% static 'js/nurse-workspace-validate.js' %}"></script>
 {% endblock %}
