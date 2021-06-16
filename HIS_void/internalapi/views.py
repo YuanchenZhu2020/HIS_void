@@ -634,7 +634,8 @@ class InpatientAPI(View):
             'history_sheet': self.query_history_sheet,
             'patient_info': self.query_patient_info,
             'search_medicines': self.query_search_medicines,
-            'medicine_details': self.query_medicine_details
+            'medicine_details': self.query_medicine_details,
+            'history_inspect': self.query_history_inspect
         }
 
         data = query_key_to_func[get_param](request)
@@ -729,10 +730,11 @@ class InpatientAPI(View):
     def query_history_sheet(self, request):
         regis_id = request.GET.get('regis_id')
         patient_info = RegistrationInfo.objects.filter(id=regis_id).values_list(
-            'chief_complaint', 'patient__allegic_history', 'illness_date', 'patient__past_illness', 'diagnosis_results'
+            'chief_complaint', 'patient__allegic_history', 'illness_date', 'patient__past_illness', 'diagnosis_results',
+            'hospitalregistration__kin_phone', 'hospitalregistration__reg_date'
         )
         patient_info_dict = dict(zip(
-            ('chief_complaint', 'allegic_history', 'illness_date', 'past_illness', 'diagnosis_results'),
+            ('chief_complaint', 'allegic_history', 'illness_date', 'past_illness', 'diagnosis_results', 'kin_phone', 'reg_date'),
             patient_info[0]
         ))
         print(patient_info_dict)
@@ -755,10 +757,23 @@ class InpatientAPI(View):
             medical_advice.append({
                 'medical_advice': prescription[1],
                 'medicine_info': list(prescription_details_info),
-                'issue_time': prescription[2]
+                'issue_time': prescription[2].strftime('%Y-%m-%d')
             })
         print(medical_advice)
         return medical_advice
+
+    def query_history_inspect(self, request):
+        regis_id = request.GET.get('regis_id')
+        inspect_list = PatientTestItem.objects.filter(registration_info_id=regis_id).values_list(
+            'issue_time', 'test_item__inspect_name', 'test_results'
+        )
+        data = []
+        for inspect in inspect_list:
+            data.append(dict(zip(
+                ['issue_time', 'inspect_name', 'test_result'],
+                [inspect[0].strftime('%Y-%m-%d'), inspect[1], inspect[2]]
+            )))
+            return data
 
     # endregion
 

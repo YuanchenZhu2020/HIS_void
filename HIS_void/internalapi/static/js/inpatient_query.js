@@ -12,6 +12,15 @@ function StringFormat() {
 
 const URL = '/InpatientAPI/';
 
+// 清除患者td选中样式
+function clear_patient_card_style() {
+    $('[name="patient_card"]').each(function (i, tag) {
+        $(tag).find('tr').each(function (j, tr) {
+            $(tr).removeAttr('style');
+        })
+    })
+}
+
 // 查询住院患者
 function queryInhospitalPatient() {
     $.ajax({
@@ -30,7 +39,7 @@ function queryInhospitalPatient() {
                 let patient_info = data[i];
                 $inhospital_tbody.append(StringFormat(
                     '<tr onclick="{0}"><td>{1}</td><td>{2}</td><td>{3}</td></tr>',
-                    StringFormat('queryPatientBaseInfo({0})', patient_info.regis_id),
+                    StringFormat('queryPatientBaseInfo({0}, this)', patient_info.regis_id),
                     patient_info.patient_name,
                     patient_info.bed_id,
                     patient_info.care_level
@@ -62,7 +71,7 @@ function queryRecentlyDischarged() {
                 let patient_info = data[i];
                 $inhospital_tbody.append(StringFormat(
                     '<tr onclick="{0}"><td>{1}</td><td>{2}</td><td>{3}</td></tr>',
-                    StringFormat('queryPatientBaseInfo({0})', patient_info.regis_id),
+                    StringFormat('queryPatientBaseInfo({0}, this)', patient_info.regis_id),
                     patient_info.patient_name,
                     patient_info.bed_id,
                     patient_info.care_level
@@ -78,13 +87,18 @@ function queryRecentlyDischarged() {
 }
 
 // 查询病人基础信息
-function queryPatientBaseInfo(regis_id) {
+function queryPatientBaseInfo(regis_id, event) {
     $.ajax({
         url: URL,
         dataType: 'json',
         data: {'get_param': 'patient_info', 'regis_id': regis_id},
         success: function (data) {
-            console.log(data)
+            if ($(event).attr("style")) {
+                $(event).removeAttr('style');
+                return;
+            }
+            clear_patient_card_style();
+            $(event).attr('style', 'background-color: #d7dae3');
             $('#patient_base_info_form').find('input').each(function (i, tag) {
                 console.log(tag);
                 $(tag).val(data[i]);
@@ -94,6 +108,7 @@ function queryPatientBaseInfo(regis_id) {
             })
             queryMedicalAdvice(regis_id);
             queryHistorySheet(regis_id);
+            queryHistoryInspection(regis_id);
         }
     })
 }
@@ -115,23 +130,31 @@ function queryMedicalAdvice(regis_id) {
                 return b.issue_time - a.issue_time;
             })
             console.log(data);
-            let $all_medical_advice = $('#all_medical_advice');
-            $all_medical_advice.empty();
+            let all_history_sheet = $('#all_history_sheet');
+            all_history_sheet.empty();
             for (let i = 0; i < data.length; i++) {
-                $all_medical_advice.append(StringFormat(
-                    '<p class="col-12 mb-0"><small>{0}</small></p>',
-                    data[i].issue_time));
-                for (let j = 0; j < data[i].medicine_info.length; j++) {
-                    $all_medical_advice.append(StringFormat(
-                        '<p class="col-12 mt-0 mb-0">{0}（数量：{1}）</p>',
-                        data[i].medicine_info[j][0],
-                        data[i].medicine_info[j][1]
-                    ))
+                let medicine_info_list = data[i].medicine_info;
+                let medical_advice = data[i].medical_advice;
+                let issue_time = data[i].issue_time;
+                let accordion = '<div class="accordion__item">' +
+                    '<div class="accordion__header pb-1 pt-1" data-toggle="collapse" data-target="#bordered_no-gutter_' + issue_time + '">' +
+                    '<span class="accordion__header--text">' + issue_time + '</span>' +
+                    '<span class="accordion__header--indicator style_two"></span>' +
+                    '</div>' +
+                    '<div id="bordered_no-gutter_' + issue_time + '" class="collapse accordion__body" data-parent="#all_history_sheet">' +
+                    '<div class="accordion__body--text row">';
+                for (let j = 0; j < medicine_info_list.length; j++) {
+                    accordion += StringFormat(
+                        '<p class=" col-10 pt-1 pb-0 mt-0 mb-0">药品名{0}（数量：{1}）<p class="pt-1 pb-0 mt-0 mb-0 text-right col-2">' +
+                        '<button class="mb-1 btn btn-sm btn-outline-primary">已完成</button></p></p>',
+                        medicine_info_list[j][0],
+                        medicine_info_list[j][1]
+                    )
                 }
-                $all_medical_advice.append(StringFormat(
-                    '<p class="col-12"><strong>医嘱：</strong>{0}</p>',
-                    data[i].medical_advice
-                ))
+                accordion += StringFormat('<hr /><p class="col-12">{0}</p>', medical_advice);
+                accordion += '</div></div></div>';
+                console.log(accordion)
+                all_history_sheet.append($(accordion));
             }
         }
     })
@@ -148,21 +171,46 @@ function queryHistorySheet(regis_id) {
             $history_sheet = $('#history_sheet');
             $history_sheet.empty();
             $history_sheet.append(StringFormat(
-                '<p class="col-12 border-info">患者主诉：{0}</p>' +
-                '<p class="col-12">发病时间：{1}</p>' +
-                '<p class="col-12">既往病史：{3}</p>' +
-                '<p class="col-12">过敏病史：{2}</p>' +
-                '<p class="col-12">门诊预诊：{4}</p>',
+                '<p class="col-12 mb-0">患者主诉：{0}</p><hr class="mt-1"/>' +
+                '<p class="col-12 mb-0">发病时间：{1}</p><hr class="mt-1"/>' +
+                '<p class="col-12 mb-0">过敏病史：{2}</p><hr class="mt-1"/>' +
+                '<p class="col-12 mb-0">既往病史：{3}</p><hr class="mt-1"/>' +
+                '<p class="col-12 mb-0">门诊预诊：{4}</p><hr class="mt-1"/>' +
+                '<p class="col-12 mb-0">家属电话：{5}</p><hr class="mt-1"/>' +
+                '<p class="col-12 mb-0">住院日期：{6}</p><hr class="mt-1"/>',
                 data.chief_complaint || '无',
                 data.illness_date || '无',
                 data.past_illness || '无',
                 data.allegic_history || '无',
-                data.diagnosis_results || '无'
+                data.diagnosis_results || '无',
+                data.kin_phone || '无',
+                data.reg_date
             ))
         }
     })
 }
 
+// 查询历史检查检验记录
+function queryHistoryInspection(regis_id) {
+    $.ajax({
+        url: URL,
+        type: 'GET',
+        data: {'get_param': 'history_inspect', 'regis_id': regis_id},
+        success: function (data) {
+            console.log(data)
+            let all_history_inspect = $('#all_history_inspect');
+            all_history_inspect.empty();
+            for (let i = 0; i < data.length; i++) {
+                all_history_inspect.append(StringFormat(
+                    '<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>',
+                    data[i]['issue_time'],
+                    data[i]['inspect_name'],
+                    data[i]['test_result'],
+                ))
+            }
+        }
+    })
+}
 
 //region select2插件实现药品选择
 $(".ajax-search-medicine").select2({
@@ -295,7 +343,6 @@ function postMedicalAdvice(csrf_token) {
     })
 }
 
-o
 
 // 检查检验提交
 function PostInspectionItem(csrf_token) {
@@ -304,7 +351,6 @@ function PostInspectionItem(csrf_token) {
         return;
     }
     let data = $('#inspection_form').serialize();
-    console.log(data);
     $.ajax({
         url: URL,
         type: 'POST',
@@ -313,10 +359,6 @@ function PostInspectionItem(csrf_token) {
             xhr.setRequestHeader("X-CSRFToken", csrf_token);
         },
         success: function (callback) {
-            console.log(callback);
-            console.log(callback);
-            console.log(callback);
-            console.log(callback);
             if (callback.status === -1) {
                 submitAlert("提交失败", callback.message, "error");
                 return;

@@ -55,7 +55,7 @@
                                         <th>护理级别</th>
                                     </tr>
                                     </thead>
-                                    <tbody id="inhospital_tbody">
+                                    <tbody id="inhospital_tbody" name="patient_card">
                                     </tbody>
                                 </table>
                             </div>
@@ -75,7 +75,7 @@
                                         <th>床号</th>
                                     </tr>
                                     </thead>
-                                    <tbody id="recently_discharged_tbody">
+                                    <tbody id="recently_discharged_tbody" name="patient_card">
                                     </tbody>
                                 </table>
                             </div>
@@ -173,7 +173,8 @@
 
                                 <!-- 病历记录 -->
                                 <div id="bing_li_ji_lu" class="tab-pane fade show active">
-                                    <div class="card-body" id="history_sheet">
+                                    <div class="card-body">
+                                        <div id="history_sheet" class="col-10 offset-1"></div>
                                     </div>
                                 </div>
 
@@ -278,13 +279,67 @@
                                                 </div>
                                                 <div id="with-icon_collapseOne" class="collapse accordion__body show"
                                                      data-parent="#accordion-six">
-                                                    <div class="accordion__body--text row"
-                                                         id="all_medical_advice">
+                                                    <div class="accordion__body--text row">
+                                                        <div id="all_history_sheet"
+                                                             class="accordion accordion-no-gutter accordion-bordered col-12">
+                                                            <div class="accordion__item">
+                                                                <div class="accordion__header pb-1 pt-1"
+                                                                     data-toggle="collapse"
+                                                                     data-target="#bordered_no-gutter_collapseOne">
+                                                                    <span class="accordion__header--text">2021-6-16</span>
+                                                                    <span class="accordion__header--indicator style_two"></span>
+                                                                </div>
+                                                                <div id="bordered_no-gutter_collapseOne"
+                                                                     class="collapse accordion__body show"
+                                                                     data-parent="#all_history_sheet">
+                                                                    <div class="accordion__body--text row">
+                                                                        <p class="col-5 pb-0 pt-0">药品名：金嗓子喉片</p>
+                                                                        <p class="col-5">数量：2</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion__item">
+                                                                <div class="accordion__header pb-1 pt-1 collapsed"
+                                                                     data-toggle="collapse"
+                                                                     data-target="#bordered_no-gutter_collapseTwo">
+                                                                    <span class="accordion__header--text">2021-6-15</span>
+                                                                    <span class="accordion__header--indicator style_two"></span>
+                                                                </div>
+                                                                <div id="bordered_no-gutter_collapseTwo"
+                                                                     class="collapse accordion__body"
+                                                                     data-parent="#all_history_sheet">
+                                                                    <div class="accordion__body--text row">
+                                                                        <p class="col-5">药品名：金嗓子喉片</p>
+                                                                        <p class="col-5">数量：2</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="accordion__item">
+                                                                <div class="accordion__header collapsed"
+                                                                     data-toggle="collapse"
+                                                                     data-target="#bordered_no-gutter_collapseThree">
+                                                                    <span class="accordion__header--text">Accordion Header Three</span>
+                                                                    <span class="accordion__header--indicator style_two"></span>
+                                                                </div>
+                                                                <div id="bordered_no-gutter_collapseThree"
+                                                                     class="collapse accordion__body"
+                                                                     data-parent="#all_history_sheet">
+                                                                    <div class="accordion__body--text">
+                                                                        Anim pariatur cliche reprehenderit, enim eiusmod
+                                                                        high life accusamus terry richardson ad squid. 3
+                                                                        wolf moon officia aute, non cupidatat skateboard
+                                                                        dolor brunch. Food truck quinoa nesciunt laborum
+                                                                        eiusmod.
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="accordion__item">
-                                                <div class="accordion__header collapsed" data-toggle="collapse"
+                                                <div class="accordion__header" data-toggle="collapse"
                                                      data-target="#with-icon_collapseTwo">
                                                     <span class="accordion__header--text">历史检验结果</span>
                                                     <span class="accordion__header--indicator indicator_bordered"></span>
@@ -292,70 +347,26 @@
                                                 <div id="with-icon_collapseTwo" class="collapse accordion__body"
                                                      data-parent="#accordion-six">
                                                     <div class="accordion__body--text" id="all_inspect_items">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-responsive-md"
+                                                                       style="text-align: center;">
+                                                                    <thead>
+                                                                    <tr>
+                                                                        <th><strong>日期</strong></th>
+                                                                        <th><strong>名称</strong></th>
+                                                                        <th><strong>检查结果</strong></th>
+                                                                        <th></th>
+                                                                    </tr>
+                                                                    </thead>
+                                                                    <tbody id="all_history_inspect">
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div class="counter">
-                                            <div class="table-responsive">
-                                                <table class="table table-responsive-md"
-                                                       style="text-align: center;">
-                                                    <thead>
-                                                    <tr>
-                                                        <th><strong>日期</strong></th>
-                                                        <th><strong>名称</strong></th>
-                                                        <th><strong>检查结果</strong></th>
-                                                        <th></th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    <!-- 这里需要进行一些更改 -->
-                                                    {% for item in tests_data %}
-                                                        <tr>
-                                                            <td>{{ item.date|date:"Y-m-d H:m:s" }}</td>
-                                                            <td>{{ item.name }}</td>
-                                                            <td>{{ item.result|default_if_none:"（等待结果中）" }}</td>
-                                                            <td>
-                                                                <button type="button"
-                                                                        class="btn btn-success light sharp"
-                                                                        data-toggle="modal"
-                                                                        data-target="#JGXQModal{{ item.id }}"
-                                                                        style="width: 80px">
-                                                                    检查详情
-                                                                </button>
-                                                                <!-- 检查详情弹窗 -->
-                                                                <div class="modal fade"
-                                                                     id="JGXQModal{{ item.id }}">
-                                                                    <div class="modal-dialog">
-                                                                        <div class="modal-content">
-                                                                            <div class="modal-header">
-                                                                                <h4 class="modal-title"
-                                                                                    id="">
-                                                                                    检查结果{{ item.id }}
-                                                                                </h4>
-                                                                            </div>
-                                                                            <div class="modal-body">
-                                                                                在这里添加一些文本
-                                                                                写下很多很多很多结果信息，或许可以放图片
-                                                                            </div>
-                                                                            <div class="modal-footer">
-                                                                                <button type="button"
-                                                                                        class="btn btn-primary"
-                                                                                        data-dismiss="modal">
-                                                                                    确定
-                                                                                </button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    {% endfor %}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
                                     </div>
                                 </div>
 
@@ -675,6 +686,9 @@
         </div>
     </div>
 
+{% endblock %}
+
+{% block script-content %}
     <script src="{% static 'vendor/chart.js/Chart.bundle.min.js' %}"></script>
     <script src="{% static 'vendor/select2/js/select2.full.min.js' %}"></script>
     <script src="{% static 'vendor/datatables/js/jquery.dataTables.min.js' %}"></script>
@@ -685,6 +699,5 @@
     {#    <script src="./vendor/datatables/js/jquery.dataTables.min.js"></script>#}
     {#    <script src="./vendor/select2/js/select2.full.min.js"></script>#}
     {#    <script src="{% static './static/js/inpatient.js' %}"></script>#}
-
 {% endblock %}
 

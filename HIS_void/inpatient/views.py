@@ -48,10 +48,10 @@ class InpatientWorkspaceView(View):
         print(nurse_info)
         context = {
             "TestItems": InpatientWorkspaceView.TEST_ITEMS_CACHE,
-            # "area": area[0][0] if area else '',
-            # 'dept_id': nurse_info[0][0],
-            # 'dept_name': nurse_info[0][1]
+            "area": area[0][0] if area else '',
+            'dept_id': nurse_info[0][0],
+            'dept_name': nurse_info[0][1]
         }
-        context['area'] = 'B'
+        context['area'] = 'A' # 由于有可能不当班，或者当班不是该病区，我这里设置了病区为A，最后删掉即可
 
         return render(request, InpatientWorkspaceView.template_name, context=context)
