@@ -12,6 +12,17 @@ function StringFormat() {
 
 const URL = '/InpatientAPI/';
 
+// 清除已有的信息
+function clear_all_info() {
+    $('#history_sheet').empty();
+    $('#patient_base_info_form').find('input').each(function (i, tag) {
+        $(tag).val('');
+    })
+    $('#all_history_sheet').empty();
+    $('#all_history_inspect').empty();
+
+}
+
 // 清除患者td选中样式
 function clear_patient_card_style() {
     $('[name="patient_card"]').each(function (i, tag) {
@@ -95,6 +106,7 @@ function queryPatientBaseInfo(regis_id, event) {
         success: function (data) {
             if ($(event).attr("style")) {
                 $(event).removeAttr('style');
+                clear_all_info();
                 return;
             }
             clear_patient_card_style();
@@ -137,21 +149,22 @@ function queryMedicalAdvice(regis_id) {
                 let medical_advice = data[i].medical_advice;
                 let issue_time = data[i].issue_time;
                 let accordion = '<div class="accordion__item">' +
-                    '<div class="accordion__header pb-1 pt-1" data-toggle="collapse" data-target="#bordered_no-gutter_' + issue_time + '">' +
+                    '<div class="accordion__header pb-1 pt-1 collapsed" data-toggle="collapse" data-target="#bordered_no-gutter_' + issue_time + '">' +
                     '<span class="accordion__header--text">' + issue_time + '</span>' +
                     '<span class="accordion__header--indicator style_two"></span>' +
                     '</div>' +
                     '<div id="bordered_no-gutter_' + issue_time + '" class="collapse accordion__body" data-parent="#all_history_sheet">' +
                     '<div class="accordion__body--text row">';
+                accordion += '<p class="col-12 pt-0 pb-0 mt-0 mb-0">药品详情</p>'
                 for (let j = 0; j < medicine_info_list.length; j++) {
                     accordion += StringFormat(
-                        '<p class=" col-10 pt-1 pb-0 mt-0 mb-0">药品名{0}（数量：{1}）<p class="pt-1 pb-0 mt-0 mb-0 text-right col-2">' +
-                        '<button class="mb-1 btn btn-sm btn-outline-primary">已完成</button></p></p>',
+                        '<p class="text-left offset-1 col-5 pt-1 pb-0 mt-0 mb-0">药品名: {0}</p>' +
+                        '<p class="text-center col-6 pt-1 pb-0 mt-0 mb-0">（数量：{1}）</p>',
                         medicine_info_list[j][0],
                         medicine_info_list[j][1]
                     )
                 }
-                accordion += StringFormat('<hr /><p class="col-12">{0}</p>', medical_advice);
+                accordion += StringFormat('<p class="col-12 pt-0 pb-0 mt-0 mb-0">医嘱详情</p><p class="offset-1">{0}</p>', medical_advice);
                 accordion += '</div></div></div>';
                 console.log(accordion)
                 all_history_sheet.append($(accordion));
