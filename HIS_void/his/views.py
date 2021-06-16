@@ -1,7 +1,10 @@
+import math
+
 from django.contrib.auth import login, logout
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.decorators import method_decorator
 from django.views import View
 
@@ -137,16 +140,84 @@ class WorkHubView(View):
 
 
 class NewsView(View):
-    template_name = 'news.html'
+    template_name = "news.html"
+
+    HISTORY_NEWS_CACHE = None
+    CACHE_DATE = None
+
+    # 每页新闻数
+    PAGE_NONTICES = 10
 
     def get(self, request):
-        dept_id = request.session.get('dept_id')
-        staff_dept = Department.objects.get_by_dept_id(dept_id)
+        """
+        通知页面视图函数
+        """
         news = []
-        notices = staff_dept.notice_set_recv.all().order_by("-send_time")
+        dept_id = request.session.get("dept_id")
+        # 查询并合并当天通知
+        news += self.query_today_notices(dept_id)
+        # 查询并合并历史通知
+        news += self.query_history_notices(dept_id)
+        # 构造 context
+        context = {"news": news, "page_num": math.ceil(len(news) / NewsView.PAGE_NONTICES)}
+        return render(request, NewsView.template_name, context = context)
+    
+    def query_history_notices(self, dept_id):
+        """
+        查询历史通知消息，按时间降序排序。
+        """
+        history_news = []
+        today = timezone.localdate()
+        staff_dept = Department.objects.get_by_dept_id(dept_id)
+        # 更新历史通知缓存
+        if NewsView.CACHE_DATE is None or NewsView.CACHE_DATE < today:
+            history_notices = staff_dept.notice_set_recv.all().filter(
+                send_time__date__lt = today
+            ).order_by("-send_time")
+            for note in history_notices:
+                history_news.append({
+                    "send_time": note.send_time, 
+                    "content": note.content
+                })
+            NewsView.HISTORY_NEWS_CACHE = history_news
+            NewsView.CACHE_DATE = today
+        return NewsView.HISTORY_NEWS_CACHE
+
+    def query_today_notices(self, dept_id):
+        """
+        查询当天通知，按时间降序排序。
+
+        :param dept_id: Department id.
+        :returns: list of dict {'send_time':***, 'content':***}
+        """
+        news = []
+        today = timezone.localdate()
+        staff_dept = Department.objects.get_by_dept_id(dept_id)
+        # 查询当天通知
+        notices = staff_dept.notice_set_recv.all().filter(
+            send_time__date = today
+        ).order_by("-send_time")
         for note in notices:
             news.append({
                 "send_time": note.send_time, 
                 "content": note.content
             })
-        return render(request, NewsView.template_name, context = {'news': news})
+        return news
+
+    def post(self, request):
+        """
+        通知分页查询API
+        """
+        page_num = request.POST.get("page")
+
+        dept_id = request.session.get("dept_id")
+        notices = self.query_today_notices(dept_id)
+        notices += self.query_today_notices(dept_id)
+        news_num = len(notices)
+        st = NewsView.PAGE_NONTICES * (page_num - 1)
+        ed = min(NewsView.PAGE_NEWS * page_num, news_num)
+
+        # 分页起始位置超过通知数量，返回空字符串
+        if st >= news_num:
+            return JsonResponse("", safe = False)
+        return JsonResponse(notices[st:ed], safe = False)

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load get_range %}
 {% block title %}新闻动态{% endblock %}
 {% block body-context %}
     <style>
@@ -88,16 +89,20 @@
                         <ul class="pagination offset-5">
                             <li class="page-item page-indicator">
                                 <a class="page-link" href="javascript:void()">
-                                    <i class="la la-angle-left"></i></a>
+                                    <i class="la la-angle-left"></i>
+                                </a>
                             </li>
-                            <li class="page-item active"><a class="page-link" href="javascript:void()">1</a>
-                            </li>
-                            <li class="page-item"><a class="page-link" href="javascript:void()">2</a></li>
-                            <li class="page-item"><a class="page-link" href="javascript:void()">3</a></li>
-                            <li class="page-item"><a class="page-link" href="javascript:void()">4</a></li>
+                            {% for page in page_num|get_range %}
+                                {% if page == 1 %}
+                                <li class="page-item active"><a class="page-link" href="javascript:void()">{{ page }}</a></li>
+                                {% else %}
+                                <li class="page-item"><a class="page-link" href="javascript:void()">{{ page }}</a></li>
+                                {% endif %}
+                            {% endfor %}
                             <li class="page-item page-indicator">
                                 <a class="page-link" href="javascript:void()">
-                                    <i class="la la-angle-right"></i></a>
+                                    <i class="la la-angle-right"></i>
+                                </a>
                             </li>
                         </ul>
                     </div>
