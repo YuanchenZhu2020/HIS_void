@@ -7,33 +7,39 @@
     <div class="container-fluid" xmlns="http://www.w3.org/1999/html">
 
         <div class="row">
-
-
-            <nav class="breadcrumb-div" aria-label="breadcrumb">
-                <ol class="breadcrumb breadcrumb-adjust">
-                    <li class="breadcrumb-item">
-                        <a href="{% url 'workhub' %}">工作中心</a>
-                    </li>
-                    <li class="breadcrumb-item bc-active">
-                        <a href="#">住院医生工作台</a>
-                    </li>
-                </ol>
-            </nav>
+            <div class="col-12 align-content-center">
+                <nav class="breadcrumb-div row" aria-label="breadcrumb" style="padding: 0px 15px 0px 28px;">
+                    <ol class="col-6 breadcrumb breadcrumb-adjust">
+                        <li class="breadcrumb-item">
+                            <a href="{% url 'workhub' %}">工作中心</a>
+                        </li>
+                        <li class="breadcrumb-item bc-active">
+                            <a href="#">住院医生工作台</a>
+                        </li>
+                    </ol>
+                    <ol class="col-6 breadcrumb breadcrumb-adjust justify-content-end">
+                        <li class="breadcrumb-item" id="area" data-area-id="{{ area }}">病区: {{ area }}</li>
+                        <li class="breadcrumb-item" id="dept" data-dept-id="{{ dept_id }}">科室: {{ dept_name }}</li>
+                    </ol>
+                </nav>
+            </div>
 
             <!-- 顶端科室和病区显示 -->
+            {% comment %}
             <div class="col-lg-12">
                 <div class="card">
 
                     <div class="card-header d-block">
-                        <h4 class="col-md-4">科室：1032&emsp;&emsp;&emsp;&emsp;&emsp;病区：D</h4>
+                        <h4 class="col-4">科室：1032&emsp;&emsp;&emsp;&emsp;&emsp;病区：D</h4>
                         <p class="mb-0 subtitle">负责区域总人数：10086</p>
                     </div>
 
                 </div>
             </div>
+            {% endcomment %}
 
             <!-- 第一列宽度为3，用于放置诊中患者信息和近期将要出院的信息 -->
-            <div class="col-md-3">
+            <div class="col-3">
                 <!-- 在第一列中新建行，每一个container占一行（这里的一行指container不会横向排布 -->
                 <!-- 住院患者信息 -->
                 <div class="container">
@@ -46,37 +52,10 @@
                                     <tr>
                                         <th>姓名</th>
                                         <th>床号</th>
+                                        <th>护理级别</th>
                                     </tr>
                                     </thead>
-                                    <tbody id="ZZHZ">
-                                    {#                                    <tr onclick="displayDate()">#}
-                                    {#                                        <td>A1</td>#}
-                                    {#                                        <td>1002</td>#}
-                                    {#                                    </tr>#}
-                                    {#                                    <tr>#}
-                                    {#                                        <td>A2</td>#}
-                                    {#                                        <td>1003</td>#}
-                                    {#                                    </tr>#}
-                                    {#                                    <tr>#}
-                                    {#                                        <td>A3</td>#}
-                                    {#                                        <td>1004</td>#}
-                                    {#                                    </tr>#}
-                                    {#                                    <tr>#}
-                                    {#                                        <td>A3</td>#}
-                                    {#                                        <td>1004</td>#}
-                                    {#                                    </tr>#}
-                                    {#                                    <tr>#}
-                                    {#                                        <td>A3</td>#}
-                                    {#                                        <td>1004</td>#}
-                                    {#                                    </tr>#}
-                                    {#                                    <tr>#}
-                                    {#                                        <td>A3</td>#}
-                                    {#                                        <td>1004</td>#}
-                                    {#                                    </tr>#}
-                                    {#                                    <tr>#}
-                                    {#                                        <td>A3</td>#}
-                                    {#                                        <td>1004</td>#}
-                                    {#                                    </tr>#}
+                                    <tbody id="inhospital_tbody" name="patient_card">
                                     </tbody>
                                 </table>
                             </div>
@@ -96,70 +75,55 @@
                                         <th>床号</th>
                                     </tr>
                                     </thead>
-                                    <tbody>
-
-                                    <tr>
-                                        <td>xinxin</td>
-                                        <td>123</td>
-                                    </tr>
-                                    <tr>
-                                        <td>噢噢</td>
-                                        <td>345</td>
-                                    </tr>
-                                    <tr>
-                                        <td>哈哈</td>
-                                        <td>789</td>
-                                    </tr>
+                                    <tbody id="recently_discharged_tbody" name="patient_card">
                                     </tbody>
                                 </table>
                             </div>
                         </div>
-
-
                     </div>
                 </div>
             </div>
 
             <!-- 第二列的宽度为9，用于放置分页表格（病例首页、检查检验等） -->
-            <div class="col-md-9">
+            <div class="col-9">
                 <div class="card">
                     <div class="card-body">
                         <!-- 最上部分的个人信息 -->
                         <div class="basic-form">
-                            <form>
+                            <form id="patient_base_info_form">
                                 <div class="form-row justify-content-center">
-                                    <div class="col-md-3">
+                                    <div class="col-3">
                                         <div class="input-group input-group-sm mb-3">
                                             <div class="input-group-prepend ">
-                                                <span class="input-group-text">会诊号</span>
+                                                <span class="input-group-text">病历号</span>
                                             </div>
                                             <!--  <label>-->
-                                            <input type="text" class="form-control" readonly placeholder="114514">
+                                            <input id="regis_id" type="text" class="form-control" readonly>
                                             <!--  </label>-->
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-2">
                                         <div class="input-group input-group-sm mb-3">
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">姓名</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="肖云冲">
+                                            <input type="text" class="form-control" readonly>
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-2">
                                         <div class="input-group input-group-sm mb-3">
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">性别</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="男">
+                                            <input type="text" class="form-control" readonly>
                                         </div>
                                     </div>
-                                    <div class="col-md-2">
+                                    <div class="col-2">
                                         <div class="input-group input-group-sm mb-3">
                                             <div class="input-group-prepend ">
                                                 <span class="input-group-text">年龄</span>
                                             </div>
-                                            <input type="text" class="form-control" readonly placeholder="18">
+                                            <input type="text" class="form-control" readonly>
                                         </div>
                                     </div>
                                 </div>
@@ -171,12 +135,12 @@
                             <!-- 导航栏 -->
                             <ul class="nav nav-tabs justify-content-center" role="tablist">
                                 <li class="nav-item">
-                                    <a href="#yi_zhu_kai_ju" class="nav-link active" data-toggle="tab"
-                                       aria-expanded="false">医嘱开具</a>
+                                    <a href="#bing_li_ji_lu" class="nav-link active" data-toggle="tab"
+                                       aria-expanded="false">病人资料</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="#bing_li_ji_lu" class="nav-link" data-toggle="tab"
-                                       aria-expanded="false">病历记录</a>
+                                    <a href="#yi_zhu_kai_ju" class="nav-link" data-toggle="tab"
+                                       aria-expanded="false">医嘱开具</a>
                                 </li>
                                 <li class="nav-item">
                                     <a href="#bao_gao_cha_xun" class="nav-link" data-toggle="tab"
@@ -206,109 +170,37 @@
 
                             <!--  页面内具体内容 -->
                             <div class="tab-content">
-                                <!-- 医嘱开具 -->
-                                <div id="yi_zhu_kai_ju" class="tab-pane fade show active">
+
+                                <!-- 病历记录 -->
+                                <div id="bing_li_ji_lu" class="tab-pane fade show active">
                                     <div class="card-body">
-                                        <!-- 关于检验项目的选择 -->
-                                        <div class="basic-form">
-                                            <form action="#">
-                                                <form action="{% url 'InhospitalAPI' %}" method="POST">
-                                                    {% csrf_token %}
-                                                    <div class="form-group">
-                                                        <div class="input-group input-group-sm mb-3">
-                                                            <label class="col-md-1.5 col-form-label text-right">常规检验： </label>
-                                                            <select class="form-control form-control-lg" name='CGJY'>
-                                                                <option>无</option>
-                                                                <option>血常规</option>
-                                                                <option>尿常规</option>
-                                                                <option>便常规</option>
-                                                                <option>精液常规</option>
-                                                                <option>白带常规</option>
-                                                                <option>脑脊液常规</option>
-                                                                <option>血流变</option>
-                                                                <option>血沉</option>
-                                                                <option>血凝</option>
-                                                                <option>血涂片</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <div class="input-group input-group-sm mb-3">
-                                                            <label class="col-md-1.5 col-form-label text-right">生化检验： </label>
-                                                            <select class="form-control form-control-lg"
-                                                                    name="sheng_hua">
-                                                                <option>无</option>
-                                                                <option>肝功能</option>
-                                                                <option>肾功能</option>
-                                                                <option>血糖</option>
-                                                                <option>血脂</option>
-                                                                <option>尿酸</option>
-                                                                <option>乳酸脱氢酶</option>
-                                                                <option>肌酸激酶</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <div class="input-group input-group-sm mb-3">
-                                                            <label class="col-md-1.5 col-form-label text-right">免疫检验： </label>
-                                                            <select class="form-control form-control-lg" name="mian_yi">
-                                                                <option>无</option>
-                                                                <option>乙肝五项</option>
-                                                                <option>甲肝</option>
-                                                                <option>丙肝</option>
-                                                                <option>梅毒</option>
-                                                                <option>肺炎支原体</option>
-                                                                <option>甲状腺功能检查</option>
-                                                                <option>HIV</option>
-                                                                <option>类风湿检查</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <div class="input-group input-group-sm mb-3">
-                                                            <label class="col-md-1.5 col-form-label text-right">细菌检验： </label>
-                                                            <select class="form-control form-control-lg" name="xijun">
-                                                                <option>无</option>
-                                                                <option>葡萄球菌</option>
-                                                                <option>杆菌</option>
-                                                                <option>链球菌</option>
-                                                                <option>真菌</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <div class="input-group input-group-sm mb-3">
-                                                            <label class="col-md-1.5 col-form-label text-right">其他检验： </label>
-                                                            <select class="form-control form-control-lg" name="qi_ta">
-                                                                <option>无</option>
-                                                                <option>强制性脊椎炎</option>
-                                                                <option>脑钠肽</option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-12 text-right">
-                                                        <button type="submit" onclick="submitAlert()"
-                                                                class="form-group btn btn-outline-primary btn-sm">
-                                                            提交检验
-                                                        </button>
-                                                    </div>
-                                                </form>
-                                            </form>
-                                        </div>
+                                        <div id="history_sheet" class="col-10 offset-1"></div>
+                                    </div>
+                                </div>
+
+                                <!-- 医嘱开具 -->
+                                <div id="yi_zhu_kai_ju" class="tab-pane fade">
+                                    <div class="card-body">
                                         <!-- 关于药品选择 -->
-                                        <div class="row">
-                                            <div class="offset-3 col-md-2 mt-2"><h5>药品名</h5></div>
-                                            <div class="offset-1 col-md-6 mt-2"><h5>数量</h5></div>
-                                        </div>
-                                        <div id="box" class="row mb-0">
-                                            <input class="form-control col-md-4 offset-2" type="text" name=""
-                                                   id="txt" onblur="setTimeout(display_delete, 1000)"
-                                                   onkeyup="QueryMedicine()"/>
-                                            &nbsp;<input class="form-control col-md-1" type="text" name=""
-                                                         id="num"/>
-                                            &nbsp;<button class="btn btn-outline-primary col-md-1.5"
-                                                          onclick="collect_medicine()" id="btn">添加
-                                        </button>
+                                        <div>
+                                            <div class="row">
+                                                <div class="col-6 offset-1 mt-2 text-center"><h5>药品名</h5></div>
+                                                <div class="col-2 mt-2 text-center"><h5>数量</h5></div>
+                                            </div>
+                                            <div class="row ">
+                                                <div class="mb-0 col-6 offset-1">
+                                                    <select class="ajax-search-medicine" name="medicine_id"></select>
+                                                </div>
+                                                <div class="col-2 input-group input-group-lg input-rounded">
+                                                    &nbsp;<input style="height: 40px;" type="text" class="form-control"
+                                                                 name="medicine_quantity"/>
+                                                </div>
+                                                <div class="col-2">
+                                                    &nbsp;<button class="btn btn-outline-primary btn-sm"
+                                                                  onclick="add_medicine()" id="btn">添加
+                                                </button>
+                                                </div>
+                                            </div>
                                         </div>
                                         <div class="table-responsive">
                                             <table class="table table-bordered table-striped verticle-middle table-responsive-sm">
@@ -327,122 +219,101 @@
                                                     <th>合计</th>
                                                     <th></th>
                                                     <th></th>
-                                                    <th id="medicine_count"></th>
+                                                    <th id="medicine_count">0.00</th>
                                                     <th></th>
                                                 </tr>
                                                 </tfoot>
                                             </table>
                                         </div>
                                         <input type="hidden" name="regis_id" id="regis_id"/>
-                                        <textarea class="form-control" rows="8" id="medical_advice"
-                                                  placeholder="请输入备注"></textarea>
+                                        <textarea class="form-control" rows="8" id="medical_advice" placeholder="请输入备注"></textarea>
                                         <div class="text-right">
-                                            <button type="button" onclick="PostMedicine('{{ csrf_token }}')"
+                                            <button type="button" onclick="postMedicalAdvice('{{ csrf_token }}')"
                                                     class="form-group btn btn-outline-primary btn-sm mt-2">
                                                 提交药品
                                             </button>
                                         </div>
-                                    </div>
-                                </div>
-
-                                <!-- 病历记录 -->
-                                <div id="bing_li_ji_lu" class="tab-pane fade">
-                                    <div class="card-body">
-                                        <div class="basic-form">
-                                            <form id="history_sheet">
-                                                <input type="hidden" name="regis_id"/>
-                                                <input type="hidden" name="post_param" value="history_sheet"/>
-                                                <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-1.5 col-form-label text-right">既往病史：
-                                                    </label>
-                                                    <textarea id="past_illness" type="text" name="past_illness"
-                                                              class="form-control"></textarea>
+                                    </div>                                        <!-- 关于检验项目的选择 -->
+                                    {# 检验表单 #}
+                                    <div class="basic-form">
+                                        <form id="inspection_form">
+                                            <input type="hidden" name="regis_id"/>
+                                            <input type="hidden" name="post_param" value="inspection">
+                                            {% for item in TestItems %}
+                                                <div class="form-group">
+                                                    <div class="input-group input-group-sm mb-3">
+                                                        <label class="col-md-1.5 col-form-label text-right">{{ item.inspect_type_name }}：</label>
+                                                        <select class="form-control form-control-lg"
+                                                                multiple="multiple"
+                                                                name="{{ item.inspect_type_id }}"
+                                                                data-type="{{ item.inspect_type_name }}">
+                                                            {% for testitems in item.content %}
+                                                                <option data-name="{{ testitems.inspect_name }}"
+                                                                        data-price="{{ testitems.inspect_price }}"
+                                                                        value="{{ testitems.inspect_id }}">{{ testitems.inspect_name }}</option>
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                                <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-1.5 col-form-label text-right">过敏病史：
-                                                    </label>
-                                                    <textarea id="allegic_history" type="text" name="allegic_history"
-                                                              class="form-control"></textarea>
-                                                </div>
-                                                <div class="input-group input-group-lg mb-3">
-                                                    <label class="col-md-1.5 col-form-label text-right">发病时间：
-                                                    </label>
-                                                    <input class="datepicker-default form-control"
-                                                           id="illness_date" name="illness_date" readonly/>
-                                                </div>
-
-                                                <div class="text-right">
-                                                    <button class="btn btn-outline-primary" type="button"
-                                                            onclick="PostHisTorySheet('{{ csrf_token }}')">提交
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
+                                            {% endfor %}
+                                            <div class="text-right">
+                                                <button type="button" onclick="PostInspectionItem('{{ csrf_token }}')"
+                                                        class="form-group btn btn-outline-primary btn-sm">
+                                                    提交检验
+                                                </button>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
 
                                 <!-- 报告查询 -->
                                 <div id="bao_gao_cha_xun" class="tab-pane fade">
                                     <div class="card-body">
-                                        <div class="counter">
-                                            <div class="table-responsive">
-                                                <table class="table table-responsive-md"
-                                                       style="text-align: center;">
-                                                    <thead>
-                                                    <tr>
-                                                        <th><strong>日期</strong></th>
-                                                        <th><strong>名称</strong></th>
-                                                        <th><strong>检查结果</strong></th>
-                                                        <th></th>
-                                                    </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                    <!-- 这里需要进行一些更改 -->
-                                                    {% for item in tests_data %}
-                                                        <tr>
-                                                            <td>{{ item.date|date:"Y-m-d H:m:s" }}</td>
-                                                            <td>{{ item.name }}</td>
-                                                            <td>{{ item.result|default_if_none:"（等待结果中）" }}</td>
-                                                            <td>
-                                                                <button type="button"
-                                                                        class="btn btn-success light sharp"
-                                                                        data-toggle="modal"
-                                                                        data-target="#JGXQModal{{ item.id }}"
-                                                                        style="width: 80px">
-                                                                    检查详情
-                                                                </button>
-                                                                <!-- 检查详情弹窗 -->
-                                                                <div class="modal fade"
-                                                                     id="JGXQModal{{ item.id }}">
-                                                                    <div class="modal-dialog">
-                                                                        <div class="modal-content">
-                                                                            <div class="modal-header">
-                                                                                <h4 class="modal-title"
-                                                                                    id="">
-                                                                                    检查结果{{ item.id }}
-                                                                                </h4>
-                                                                            </div>
-                                                                            <div class="modal-body">
-                                                                                在这里添加一些文本
-                                                                                写下很多很多很多结果信息，或许可以放图片
-                                                                            </div>
-                                                                            <div class="modal-footer">
-                                                                                <button type="button"
-                                                                                        class="btn btn-primary"
-                                                                                        data-dismiss="modal">
-                                                                                    确定
-                                                                                </button>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    {% endfor %}
-                                                    </tbody>
-                                                </table>
+                                        <div id="accordion-six" class="accordion">
+                                            <div class="accordion__item">
+                                                <div class="accordion__header" data-toggle="collapse"
+                                                     data-target="#with-icon_collapseOne">
+                                                    <span class="accordion__header--text">历史医嘱及用药详情</span>
+                                                    <span class="accordion__header--indicator indicator_bordered"></span>
+                                                </div>
+                                                <div id="with-icon_collapseOne" class="collapse accordion__body show"
+                                                     data-parent="#accordion-six">
+                                                    <div class="accordion__body--text row">
+                                                        <div id="all_history_sheet"
+                                                             class="accordion accordion-no-gutter accordion-bordered col-12">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="accordion__item">
+                                                <div class="accordion__header" data-toggle="collapse"
+                                                     data-target="#with-icon_collapseTwo">
+                                                    <span class="accordion__header--text">历史检验结果</span>
+                                                    <span class="accordion__header--indicator indicator_bordered"></span>
+                                                </div>
+                                                <div id="with-icon_collapseTwo" class="collapse accordion__body"
+                                                     data-parent="#accordion-six">
+                                                    <div class="accordion__body--text" id="all_inspect_items">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-bordered table-striped verticle-middle table-responsive-sm"
+                                                                   style="text-align: center;">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th><strong>日期</strong></th>
+                                                                    <th><strong>名称</strong></th>
+                                                                    <th><strong>检查结果</strong></th>
+                                                                    <th>详细信息</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody id="all_history_inspect">
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+
                                     </div>
                                 </div>
 
@@ -451,11 +322,11 @@
                                     <div class="container">
                                         <div class="card-body">
                                             <div class="basic-form">
-                                                <form id="history_sheet">
+                                                <form id="opration">
 
                                                     <div class="input-group input-group-sm mb-3">
-                                                        <label class="col-md-1.5 col-form-label text-right">手术等级：</label>
-                                                        <select class="form-control form-control-lg" >
+                                                        <label class="col-1.5 col-form-label text-right">手术等级：</label>
+                                                        <select class="form-control form-control-lg">
                                                             <option>1级</option>
                                                             <option>2级</option>
                                                             <option>3级</option>
@@ -464,8 +335,8 @@
                                                     </div>
 
                                                     <div class="input-group input-group-sm mb-3">
-                                                        <label class="col-md-1.5 col-form-label text-right">预期时长：</label>
-                                                        <select class="form-control form-control-lg" >
+                                                        <label class="col-1.5 col-form-label text-right">预期时长：</label>
+                                                        <select class="form-control form-control-lg">
                                                             <option>1h</option>
                                                             <option>2h</option>
                                                             <option>3h</option>
@@ -480,7 +351,7 @@
                                                     </div>
 
                                                     <div class="input-group input-group-sm mb-3">
-                                                        <label class="col-md-1.5 col-form-label text-right">手术日期：</label>
+                                                        <label class="col-1.5 col-form-label text-right">手术日期：</label>
                                                         <div class="container">
                                                             <input class="datepicker-default form-control"
                                                                    id="illness_date" name="illness_date" readonly/>
@@ -489,9 +360,10 @@
 
                                                     <!-- 关于手术名称查询，需要输入关键词从而查到相关的手术（查询喔喔喔） -->
                                                     <div class="input-group input-group-sm mb-3">
-                                                        <label class="col-md-1.5 col-form-label text-right">手术名称：</label>
+                                                        <label class="col-1.5 col-form-label text-right">手术名称：</label>
                                                         <div class="container">
-                                                            <input type="text" class="form-control input-default " placeholder="请输入手术名称">
+                                                            <input type="text" class="form-control input-default "
+                                                                   placeholder="请输入手术名称">
                                                         </div>
                                                     </div>
 
@@ -742,7 +614,7 @@
                                         </div>
                                         <div class="card-body">
                                             <textarea class="form-control" rows="8" id="medical_advice"
-                                                  placeholder="请输入出院医嘱"></textarea>
+                                                      placeholder="请输入出院医嘱"></textarea>
                                         </div>
                                         <div class="text-right">
                                             <button class="btn btn-outline-primary" type="button"
@@ -757,19 +629,21 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
+{% endblock %}
+
+{% block script-content %}
     <script src="{% static 'vendor/chart.js/Chart.bundle.min.js' %}"></script>
     <script src="{% static 'vendor/select2/js/select2.full.min.js' %}"></script>
     <script src="{% static 'vendor/datatables/js/jquery.dataTables.min.js' %}"></script>
-{#    <script src="{% static 'vendor/morris/raphael-min.js' %}"></script>#}
-{#    <script src="{% static 'vendor/morris/morris.min.js' %}"></script>#}
-    <script src='../static/js/inpatient.js'></script>
-{#    <script src="./vendor/datatables/js/jquery.dataTables.min.js"></script>#}
-{#    <script src="./vendor/select2/js/select2.full.min.js"></script>#}
-{#    <script src="{% static './static/js/inpatient.js' %}"></script>#}
-
+    {#    <script src="{% static 'vendor/morris/raphael-min.js' %}"></script>#}
+    {#    <script src="{% static 'vendor/morris/morris.min.js' %}"></script>#}
+    <script src="{% static 'js/inpatient.js' %}"></script>
+    <script src="{% static 'js/inpatient_query.js' %}"></script>
+    {#    <script src="./vendor/datatables/js/jquery.dataTables.min.js"></script>#}
+    {#    <script src="./vendor/select2/js/select2.full.min.js"></script>#}
+    {#    <script src="{% static './static/js/inpatient.js' %}"></script>#}
 {% endblock %}
 

@@ -3,6 +3,7 @@ from time import sleep
 import uuid
 
 from django.conf import settings
+from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import query
 from django.http import JsonResponse
@@ -15,7 +16,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 
 from his.models import Department, DeptAreaBed, Staff
-from inpatient.models import HospitalRegistration, NursingRecord
+from inpatient.models import HospitalRegistration, NursingRecord, OperationInfo
 from outpatient.models import RemainingRegistration, RegistrationInfo, Prescription, PrescriptionDetail
 from patient.models import PatientUser
 from rbac.decorators import patient_login_required
@@ -23,7 +24,6 @@ from pharmacy.models import MedicineInfo
 from laboratory.models import PatientTestItem
 from internalapi.models import PaymentRecord
 from externalapi.external_api import AlipayClient
-
 from patient.validators import PhoneNumberValidator
 
 
@@ -48,7 +48,6 @@ class OutpatientAPI(View):
 
     # region OutpatientAPI GET
     def get(self, request):
-        print(dict(request.session))
         query_key_to_func = {
             # 病历首页信息查询
             "history_sheet": self.query_history_sheet,
@@ -140,7 +139,7 @@ class OutpatientAPI(View):
             diagnosis_status = 1  # 诊断状态为诊中
         )
         for regis in regis_info:
-            # 获取该挂号对应的所有检验信息
+            # 找到该挂号下所有的检验信息
             all_test_info = PatientTestItem.objects.filter(
                 registration_info_id = regis.id,
             )
@@ -151,7 +150,7 @@ class OutpatientAPI(View):
                 if test_info.test_results is not None:
                     finished_test_num += 1
             data.append({
-                "regis_id": regis.id, 
+                "regis_id": regis.id,
                 "name": regis.patient.name,
                 "progress": (finished_test_num / all_test_num) * 100
             })
@@ -309,7 +308,7 @@ class OutpatientAPI(View):
             RegistrationInfo.objects.filter(
                 id = regis_id
             ).update(
-                chief_complaint = chief_complaint or None,  # 将空字符串转换为None，不用再定义专门的函数 null_string_to_none
+                chief_complaint = chief_complaint or None,
                 illness_date = illness_date or None
             )
             PatientUser.objects.filter(
@@ -388,7 +387,7 @@ class OutpatientAPI(View):
                 result.delete()
             prescription = Prescription.objects.create(
                 registration_info_id = regis_id,
-                medical_advice = data['medical_advice'][0] or None, # 使用 or None 代替 null_string_to_none
+                medical_advice = data['medical_advice'][0] or None,
                 medicine_num = medicine_num,
                 payment_status = 0
             )
@@ -399,8 +398,10 @@ class OutpatientAPI(View):
                     medicine_info_id = data['medicine_info_id[]'][i],
                     prescription_info_id = prescription.id
                 )
-            return {'status': 0, 'message': '药品即医嘱提交成功！'}
+            return {'status': 0, 'message': '药品及医嘱提交成功！'}
+
     # endregion
+
 
 
 class NurseAPI(View):
@@ -431,29 +432,37 @@ class NurseAPI(View):
         data = query_key_to_func.get(query_information)(request)
         return JsonResponse(data, safe=False)
 
+    # 查询医嘱（药品、医嘱、检查检验）
     def query_medical_advice_process(self, request):
+        today = timezone.localdate()
+        # 获取挂号记录编号
         regis_id = request.GET.get('regis_id')
+        # 获取当日医嘱信息
         medical_advice_info = Prescription.objects.filter(
-            registration_info_id=regis_id
+            registration_info_id = regis_id,
+            prescription_date__date = today
         ).values_list('medical_advice')
+        # 根据医嘱获取药品信息
         medicine_info = PrescriptionDetail.objects.filter(
-            prescription_info__registration_info_id=regis_id
+            prescription_info__registration_info_id = regis_id
         ).values_list(
-            'medicine_quantity', 'medicine_info__medicine_name')
+            "medicine_quantity", 
+            "medicine_info__medicine_name"
+        )
         inspect_info = PatientTestItem.objects.filter(
-            registration_info_id=regis_id,
-            issue_time__date=timezone.localdate()
-        ).values_list('test_item__inspect_name')
+            registration_info_id = regis_id,
+            issue_time__date = today
+        ).values_list("test_item__inspect_name")
 
         medical_advice_info = [info[0] for info in medical_advice_info]
         medicine_info = list(medicine_info)
         inspect_info = [info[0] for info in inspect_info]
-        print(medical_advice_info, medicine_info, inspect_info)
+        # print(medical_advice_info, medicine_info, inspect_info)
         data = {
-            'medicine_info': medicine_info,
-            'medical_advice_info': medical_advice_info,
-            'inspect_info': inspect_info
-            }
+            "medicine_info": medicine_info,
+            "medical_advice_info": medical_advice_info,
+            "inspect_info": inspect_info
+        }
         return data
 
     def query_inpatients(self, request):
@@ -551,11 +560,19 @@ class NurseAPI(View):
     def post_nursing_record(self, request):
         regis_id = request.POST.get("regis_id")
         today = timezone.localdate()
-        nurse_id = request.session.get('username')
+        nurse_id = request.session.get("username")
         systolic = request.POST.get("systolic")
         diastolic = request.POST.get("diastolic")
         temperature = request.POST.get("temperature")
         note = request.POST.get("note")
+
+        if not systolic: 
+            return {'status': -1, 'message': '未填写收缩压'}
+        if not diastolic: 
+            return {'status': -1, 'message': '未填写舒张压'}
+        if not temperature: 
+            return {'status': -1, 'message': '未填写体温'}
+
         with transaction.atomic():
             NursingRecord.objects.update_or_create(
                 registration_info_id = regis_id,
@@ -597,24 +614,298 @@ class NurseAPI(View):
     def post_hospital_registration(self, request):
         regis_id = request.POST.get("regis_id")
         reg_date = request.POST.get("reg_date")
-        reg_level = int(request.POST.get("care_level"))
-        area_id = request.POST.get('area_bed')[0]
-        bed_id = request.POST.get('area_bed')[1]
+        reg_level = request.POST.get("care_level")
+        area_bed = request.POST.get('area_bed')
         kin_phone = request.POST.get('kin_phone')
+
+        if not reg_date: 
+            return {'status': -1, 'message': '未选择入院日期'}
+        if not reg_level: 
+            return {'status': -1, 'message': '未选择护理级别'}
+        if not area_bed: 
+            return {'status': -1, 'message': '未选择病区床位'}
+
         try:
             PhoneNumberValidator()(kin_phone)
         except Exception as e:
-            return {'status': 1, 'message': e.message}
+            return {'status': -1, 'message': e.message}
+        # 获取病区与床位
+        area_id = area_bed[0]
+        bed_id = area_bed[1]
         with transaction.atomic():
             HospitalRegistration.objects.filter(registration_info_id = regis_id).update(
                 reg_date = reg_date,
-                care_level = reg_level,
+                care_level = int(reg_level),
                 area_id = area_id,
                 bed_id = bed_id,
                 kin_phone = kin_phone
             )
             return {'status': 0, 'message': "入院登记已记录"}
 
+
+class InpatientAPI(View):
+    """
+    住院医生工作台API
+    """
+    # 设置药品查询每页的药品信息数
+    QUERY_MEDICINE_PAGE_SIZE = 10
+
+    # region get函数
+    def get(self, request):
+        print('====== InpatientAPI GET ======')
+        for get_param in request.GET:
+            print(f'【{get_param}】{request.GET.get(get_param)}')
+        print('====== InpatientAPI GET ======')
+        # 获取需要查询的信息类型
+        get_param = request.GET.get('get_param')
+        query_key_to_func = {
+            "inpatient": self.query_inpatient,
+            "recently_discharged": self.query_recently_discharged,
+            "medical_advice": self.query_medical_advice,
+            "history_sheet": self.query_history_sheet,
+            "patient_info": self.query_patient_info,
+            "search_medicines": self.query_search_medicines,
+            "medicine_details": self.query_medicine_details,
+            "history_inspect": self.query_history_inspect
+        }
+
+        data = query_key_to_func[get_param](request)
+        return JsonResponse(data, safe=False)
+
+    # 查询药品信息，设置了分页功能
+    def query_search_medicines(self, request):
+        # select2.js 要求的数据格式：{total_count: 108, items: list(30), incomplete_results: boolean}
+        # 获取需要查询的页数
+        page = int(request.GET.get('page'))        
+        query_text = request.GET.get('medicine_text')
+        # 查询所有符合条件的药品
+        medicine_info = MedicineInfo.objects.filter(medicine_name__contains = query_text)
+        # 设置分页
+        ptr = Paginator(medicine_info, InpatientAPI.QUERY_MEDICINE_PAGE_SIZE)
+        # 获取分页对象
+        medicine_page_info = ptr.page(page).object_list
+        # 获取分页对象值
+        medicines = medicine_page_info.values_list(
+            "medicine_id", "medicine_name"
+        )
+        data = {
+            "items": [],
+            "total_count": medicine_info.count(),
+            "incomplete_results": ptr.num_pages == page
+        }
+        # 返回的数据中一定需要以id为键的值，用以select2区分数据
+        for info in medicines:
+            data['items'].append(dict(zip(
+                ['id', 'medicine_name'],
+                info
+            )))
+        return data
+
+    # 查询药品价格
+    def query_medicine_details(self, request):
+        medicine_id = request.GET.get('medicine_id')
+        medicine = MedicineInfo.objects.get(medicine_id=medicine_id)
+        return {'retail_price': medicine.retail_price}
+
+    # 查询病人基础信息
+    def query_patient_info(self, request):
+        regis_id = request.GET.get('regis_id')
+        patient = RegistrationInfo.objects.get(id=regis_id).patient
+        # data = {
+        #     'regis_id': regis_id,
+        #     'name': patient.name,
+        #     'gender': patient.gender,
+        #     'age': timezone.now().year - patient.birthday.year
+        # }
+        data = [regis_id, patient.name, patient.gender, timezone.now().year - patient.birthday.year]
+        return data
+
+    # 查询住院患者
+    def query_inpatient(self, request):
+        data = []
+        inhospital_info = HospitalRegistration.objects.filter(
+            area_id=request.GET.get('area_id'),
+            dept_id=request.GET.get('dept_id'),
+            discharge_status=0
+        ).values_list('registration_info__patient__name', 'care_level', 'bed_id', 'registration_info_id')
+        for info in inhospital_info:
+            data.append(dict(zip(
+                ['patient_name', 'care_level', 'bed_id', 'regis_id'],
+                [info[0], info[1], info[2], info[3]]
+            )))
+        return data
+
+    # 查询即将出院的患者
+    def query_recently_discharged(self, request):
+        area_id = request.GET.get('area_id')
+        dept_id = request.GET.get('dept_id')
+        discharged_info = HospitalRegistration.objects.filter(
+            area_id=area_id, dept_id=dept_id, discharge_status=1
+        ).values_list(
+            'registration_info_id',
+            'registration_info__patient__name',
+            'bed_id',
+            'care_level'
+        )
+        data = []
+        for info in discharged_info:
+            data.append(dict(zip(
+                ['regis_id', 'patient_name', 'bed_id', 'care_level'],
+                info
+            )))
+        return data
+
+    # 病人详情
+    def query_history_sheet(self, request):
+        regis_id = request.GET.get('regis_id')
+        patient_info = RegistrationInfo.objects.filter(id=regis_id).values_list(
+            'chief_complaint', 'patient__allegic_history', 'illness_date', 'patient__past_illness', 'diagnosis_results',
+            'hospitalregistration__kin_phone', 'hospitalregistration__reg_date'
+        )
+        patient_info_dict = dict(zip(
+            ('chief_complaint', 'allegic_history', 'illness_date', 'past_illness', 'diagnosis_results', 'kin_phone', 'reg_date'),
+            patient_info[0]
+        ))
+        print(patient_info_dict)
+        return patient_info_dict
+
+    # 查询药品及医嘱
+    def query_medical_advice(self, request):
+        medical_advice = []
+        regis_id = request.GET.get('regis_id')
+        prescription_info = Prescription.objects.filter(
+            registration_info_id=regis_id,
+        ).values_list('id', 'medical_advice', 'prescription_date')
+        for prescription in prescription_info:
+            prescription_details_info = PrescriptionDetail.objects.filter(
+                prescription_info_id=prescription[0]).values_list(
+                'medicine_info__medicine_name', 'medicine_quantity'
+            )
+            print('prescription_details_infomations')
+            print(prescription_details_info)
+            medical_advice.append({
+                'medical_advice': prescription[1],
+                'medicine_info': list(prescription_details_info),
+                'issue_time': prescription[2].strftime('%Y-%m-%d')
+            })
+        print(medical_advice)
+        medical_advice.sort(key=lambda item: item['issue_time'], reverse=True)
+        return medical_advice
+
+    # 查询历史病历
+    def query_history_inspect(self, request):
+        regis_id = request.GET.get('regis_id')
+        inspect_list = PatientTestItem.objects.filter(registration_info_id=regis_id).values_list(
+            'issue_time', 'test_item__inspect_name', 'test_results'
+        )
+        data = []
+        for inspect in inspect_list:
+            data.append(dict(zip(
+                ['issue_time', 'inspect_name', 'test_result'],
+                [inspect[0].strftime('%Y-%m-%d'), inspect[1], inspect[2]]
+            )))
+        data.sort(key=lambda item: item['issue_time'], reverse=True)
+        return data
+
+    # endregion
+
+    def post(self, request):
+        post_key_to_func = {
+            # 保存医生医嘱
+            "medical_advice": self.save_medical_advice,
+            "inspection": self.post_inspection,
+
+        }
+        # 输出提示信息
+        print("==========START outpatientAPI POST==========")
+        for post_param in request.POST:
+            print(f'【{post_param}】{request.POST.get(post_param)}')
+        for post_param in dict(request.POST):
+            print(f"【{post_param}】{dict(request.POST)[post_param]}")
+        print("==========END outpatientAPI POST==========")
+        ''' 
+        param对照表:
+        medicine -> 处方开具选择的药品
+        inspection -> 检验信息
+        history_sheet -> 病历首页
+        '''
+        # 根据参数直接映射对应的函数，并执行
+        data = post_key_to_func[request.POST.get('post_param')](request)
+        return JsonResponse(data, safe=False)
+
+    def save_medical_advice(self, request):
+        registration_info_id = request.POST.get('regis_id')
+        if not registration_info_id:
+            return {'status': -1, 'message': '您未选择病人！'}
+        with transaction.atomic():
+            medicine_info = []
+            # 如果有药品信息，则将药品信息从POST中提取出来
+            if 'medicine_id[]' in request.POST:
+                for i in range(len(dict(request.POST)['medicine_id[]'])):
+                    medicine_info.append([
+                        dict(request.POST)['medicine_id[]'][i],
+                        dict(request.POST)['medicine_quantity[]'][i],
+                    ])
+            # 保存或更新当日医嘱信息
+            prescription = Prescription.objects.update_or_create(
+                registration_info_id=request.POST.get('regis_id'),
+                prescription_date__date=timezone.localdate(),
+                defaults={
+                    'medicine_num': len(medicine_info),
+                    'medical_advice': request.POST.get('medical_advice') or None,
+                    'payment_status': 0
+                }
+            )
+            print(prescription)
+            # 如果有当日药品，则全部删除
+            PrescriptionDetail.objects.filter(prescription_info_id=prescription[0].id).delete()
+            # 添加当日药品
+            for i in range(len(medicine_info)):
+                PrescriptionDetail.objects.create(
+                    detail_id=i,
+                    medicine_quantity=medicine_info[i][1],
+                    medicine_info_id=medicine_info[i][0],
+                    prescription_info_id=prescription[0].id
+                )
+            return {'status': 0, 'message': '医嘱已添加'}
+
+    def post_inspection(self, request):
+        """【request.POST】内容
+         <QueryDict: {
+            'regis_id': ['19'],
+            'post_param': ['inspection'],
+            '1': ['1', '4', '6'],
+            '2': ['16'],
+            '3': ['63'],
+            '5': ['40', '49']
+        }>
+        """
+        with transaction.atomic():  # 事务原子性保证
+            pass  # 检查检验据库操作
+            regis_id = request.POST.get('regis_id')
+            data = dict(request.POST)
+            RegistrationInfo.objects.filter(id=regis_id).update(diagnosis_status=1)
+            test_id = len(PatientTestItem.objects.filter(registration_info_id=regis_id))
+            status = -1
+            message = '请至少选择一个检验项目！'
+            for param in data:
+                print('param:', param)
+                if param not in ('post_param', 'regis_id'):
+                    for test_item in data[param]:
+                        status = 0
+                        message = '检验项目已更新'
+                        print('test_item: ', test_item)
+                        test_id += 1
+                        print(test_id)
+                        PatientTestItem.objects.create(
+                            test_id=test_id,
+                            registration_info_id=regis_id,
+                            test_item_id=test_item,
+                            payment_status=0,
+                            inspect_status=0
+                        )
+        print(status, message)
+        return {'status': status, 'message': message}
 
 class InspectionAPI(View):
     """
@@ -1012,33 +1303,6 @@ class PatientUserAPI(View):
         elif query_information == "XXXX":
             pass
 
-        return JsonResponse(data, safe=False)
-
-
-# 住院医生工作台数据
-class InpatientAPI(View):
-    def get(self, request):
-        # 获取需要查询的信息类型
-        query_information = request.GET.get('get_param')
-
-        #
-        if query_information == "ZZHZ":
-            p_no = request.GET.get('p_no')
-            print(p_no)
-            # 数据库查询语句
-            data = [{
-                "p_no": 114514,
-                "name": "发多冲",
-                "bed": 123,
-            }, {
-                "p_no": 11343,
-                "name": "肖大赛",
-                "bed": 543,
-            }, {
-                "p_no": 114424,
-                "name": "阿凡达",
-                "bed": 64,
-            }]
         return JsonResponse(data, safe=False)
 
 
