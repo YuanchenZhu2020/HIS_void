@@ -95,7 +95,7 @@
                                     <div class="col-3">
                                         <div class="input-group input-group-sm mb-3">
                                             <div class="input-group-prepend ">
-                                                <span class="input-group-text">会诊号</span>
+                                                <span class="input-group-text">病历号</span>
                                             </div>
                                             <!--  <label>-->
                                             <input id="regis_id" type="text" class="form-control" readonly>
@@ -282,59 +282,7 @@
                                                     <div class="accordion__body--text row">
                                                         <div id="all_history_sheet"
                                                              class="accordion accordion-no-gutter accordion-bordered col-12">
-                                                            <div class="accordion__item">
-                                                                <div class="accordion__header pb-1 pt-1"
-                                                                     data-toggle="collapse"
-                                                                     data-target="#bordered_no-gutter_collapseOne">
-                                                                    <span class="accordion__header--text">2021-6-16</span>
-                                                                    <span class="accordion__header--indicator style_two"></span>
-                                                                </div>
-                                                                <div id="bordered_no-gutter_collapseOne"
-                                                                     class="collapse accordion__body show"
-                                                                     data-parent="#all_history_sheet">
-                                                                    <div class="accordion__body--text row">
-                                                                        <p class="col-5 pb-0 pt-0">药品名：金嗓子喉片</p>
-                                                                        <p class="col-5">数量：2</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="accordion__item">
-                                                                <div class="accordion__header pb-1 pt-1 collapsed"
-                                                                     data-toggle="collapse"
-                                                                     data-target="#bordered_no-gutter_collapseTwo">
-                                                                    <span class="accordion__header--text">2021-6-15</span>
-                                                                    <span class="accordion__header--indicator style_two"></span>
-                                                                </div>
-                                                                <div id="bordered_no-gutter_collapseTwo"
-                                                                     class="collapse accordion__body"
-                                                                     data-parent="#all_history_sheet">
-                                                                    <div class="accordion__body--text row">
-                                                                        <p class="col-5">药品名：金嗓子喉片</p>
-                                                                        <p class="col-5">数量：2</p>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="accordion__item">
-                                                                <div class="accordion__header collapsed"
-                                                                     data-toggle="collapse"
-                                                                     data-target="#bordered_no-gutter_collapseThree">
-                                                                    <span class="accordion__header--text">Accordion Header Three</span>
-                                                                    <span class="accordion__header--indicator style_two"></span>
-                                                                </div>
-                                                                <div id="bordered_no-gutter_collapseThree"
-                                                                     class="collapse accordion__body"
-                                                                     data-parent="#all_history_sheet">
-                                                                    <div class="accordion__body--text">
-                                                                        Anim pariatur cliche reprehenderit, enim eiusmod
-                                                                        high life accusamus terry richardson ad squid. 3
-                                                                        wolf moon officia aute, non cupidatat skateboard
-                                                                        dolor brunch. Food truck quinoa nesciunt laborum
-                                                                        eiusmod.
-                                                                    </div>
-                                                                </div>
-                                                            </div>
                                                         </div>
-
                                                     </div>
                                                 </div>
                                             </div>
@@ -347,21 +295,21 @@
                                                 <div id="with-icon_collapseTwo" class="collapse accordion__body"
                                                      data-parent="#accordion-six">
                                                     <div class="accordion__body--text" id="all_inspect_items">
-                                                            <div class="table-responsive">
-                                                                <table class="table table-responsive-md"
-                                                                       style="text-align: center;">
-                                                                    <thead>
-                                                                    <tr>
-                                                                        <th><strong>日期</strong></th>
-                                                                        <th><strong>名称</strong></th>
-                                                                        <th><strong>检查结果</strong></th>
-                                                                        <th></th>
-                                                                    </tr>
-                                                                    </thead>
-                                                                    <tbody id="all_history_inspect">
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
+                                                        <div class="table-responsive">
+                                                            <table class="table table-bordered table-striped verticle-middle table-responsive-sm"
+                                                                   style="text-align: center;">
+                                                                <thead>
+                                                                <tr>
+                                                                    <th><strong>日期</strong></th>
+                                                                    <th><strong>名称</strong></th>
+                                                                    <th><strong>检查结果</strong></th>
+                                                                    <th>详细信息</th>
+                                                                </tr>
+                                                                </thead>
+                                                                <tbody id="all_history_inspect">
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -682,7 +630,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 

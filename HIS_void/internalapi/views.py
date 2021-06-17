@@ -432,11 +432,16 @@ class NurseAPI(View):
         data = query_key_to_func.get(query_information)(request)
         return JsonResponse(data, safe=False)
 
+    # 查询医嘱（药品、医嘱、检查检验）
     def query_medical_advice_process(self, request):
+        # 获取病历号
         regis_id = request.GET.get('regis_id')
+        # 获取当日医嘱信息
         medical_advice_info = Prescription.objects.filter(
-            registration_info_id=regis_id
+            registration_info_id=regis_id,
+            prescription_date__date=timezone.localdate()
         ).values_list('medical_advice')
+        # 根据医嘱获取药品信息
         medicine_info = PrescriptionDetail.objects.filter(
             prescription_info__registration_info_id=regis_id
         ).values_list(
@@ -557,6 +562,9 @@ class NurseAPI(View):
         diastolic = request.POST.get("diastolic")
         temperature = request.POST.get("temperature")
         note = request.POST.get("note")
+        if not systolic: return {'status': -1, 'message': '未填写收缩压'}
+        if not diastolic: return {'status': -1, 'message': '未填写舒张压'}
+        if not temperature: return {'status': -1, 'message': '未填写体温'}
         with transaction.atomic():
             NursingRecord.objects.update_or_create(
                 registration_info_id = regis_id,
@@ -598,18 +606,24 @@ class NurseAPI(View):
     def post_hospital_registration(self, request):
         regis_id = request.POST.get("regis_id")
         reg_date = request.POST.get("reg_date")
-        reg_level = int(request.POST.get("care_level"))
-        area_id = request.POST.get('area_bed')[0]
-        bed_id = request.POST.get('area_bed')[1]
+        # 将护理级别转换为整型的操作，移动到存储时，因为有可能护理级别未选中，导致将空字符串转换为整型，报错
+        reg_level = request.POST.get("care_level")
+        area_bed = request.POST.get('area_bed')
         kin_phone = request.POST.get('kin_phone')
+        if not reg_date: return {'status': 1, 'message': '未选择入院日期'}
+        if not reg_level: return {'status': 1, 'message': '未选择护理级别'}
+        if not area_bed: return {'status': 1, 'message': '未选择病区床位'}
         try:
             PhoneNumberValidator()(kin_phone)
         except Exception as e:
             return {'status': 1, 'message': e.message}
+        # 获取病区与床位
+        area_id = area_bed[0]
+        bed_id = area_bed[1]
         with transaction.atomic():
             HospitalRegistration.objects.filter(registration_info_id = regis_id).update(
                 reg_date = reg_date,
-                care_level = reg_level,
+                care_level = int(reg_level),
                 area_id = area_id,
                 bed_id = bed_id,
                 kin_phone = kin_phone
@@ -760,8 +774,10 @@ class InpatientAPI(View):
                 'issue_time': prescription[2].strftime('%Y-%m-%d')
             })
         print(medical_advice)
+        medical_advice.sort(key=lambda item: item['issue_time'], reverse=True)
         return medical_advice
 
+    # 查询历史病历
     def query_history_inspect(self, request):
         regis_id = request.GET.get('regis_id')
         inspect_list = PatientTestItem.objects.filter(registration_info_id=regis_id).values_list(
@@ -773,7 +789,8 @@ class InpatientAPI(View):
                 ['issue_time', 'inspect_name', 'test_result'],
                 [inspect[0].strftime('%Y-%m-%d'), inspect[1], inspect[2]]
             )))
-            return data
+        data.sort(key=lambda item: item['issue_time'], reverse=True)
+        return data
 
     # endregion
 
@@ -802,25 +819,38 @@ class InpatientAPI(View):
         return JsonResponse(data, safe=False)
 
     def save_medical_advice(self, request):
+        registration_info_id = request.POST.get('regis_id')
+        if not registration_info_id:
+            return {'status': -1, 'message': '您未选择病人！'}
         with transaction.atomic():
             medicine_info = []
-            for i in range(len(dict(request.POST)['medicine_id[]'])):
-                medicine_info.append([
-                    dict(request.POST)['medicine_id[]'][i],
-                    dict(request.POST)['medicine_quantity[]'][i],
-                ])
-            prescription = Prescription.objects.create(
+            # 如果有药品信息，则将药品信息从POST中提取出来
+            if 'medicine_id[]' in request.POST:
+                for i in range(len(dict(request.POST)['medicine_id[]'])):
+                    medicine_info.append([
+                        dict(request.POST)['medicine_id[]'][i],
+                        dict(request.POST)['medicine_quantity[]'][i],
+                    ])
+            # 保存或更新当日医嘱信息
+            prescription = Prescription.objects.update_or_create(
                 registration_info_id=request.POST.get('regis_id'),
-                medicine_num=len(medicine_info),
-                medical_advice=request.POST.get('medical_advice') or None,
-                payment_status=0,
+                prescription_date__date=timezone.localdate(),
+                defaults={
+                    'medicine_num': len(medicine_info),
+                    'medical_advice': request.POST.get('medical_advice') or None,
+                    'payment_status': 0
+                }
             )
+            print(prescription)
+            # 如果有当日药品，则全部删除
+            PrescriptionDetail.objects.filter(prescription_info_id=prescription[0].id).delete()
+            # 添加当日药品
             for i in range(len(medicine_info)):
                 PrescriptionDetail.objects.create(
                     detail_id=i,
                     medicine_quantity=medicine_info[i][1],
                     medicine_info_id=medicine_info[i][0],
-                    prescription_info_id=prescription.id
+                    prescription_info_id=prescription[0].id
                 )
             return {'status': 0, 'message': '医嘱已添加'}
 

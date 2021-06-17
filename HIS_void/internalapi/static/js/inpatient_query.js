@@ -155,7 +155,7 @@ function queryMedicalAdvice(regis_id) {
                     '</div>' +
                     '<div id="bordered_no-gutter_' + issue_time + '" class="collapse accordion__body" data-parent="#all_history_sheet">' +
                     '<div class="accordion__body--text row">';
-                accordion += '<p class="col-12 pt-0 pb-0 mt-0 mb-0">药品详情</p>'
+                accordion += '<p class="col-12 pt-0 pb-0 mt-0 mb-0"><strong>药品详情</strong></p>'
                 for (let j = 0; j < medicine_info_list.length; j++) {
                     accordion += StringFormat(
                         '<p class="text-left offset-1 col-5 pt-1 pb-0 mt-0 mb-0">药品名: {0}</p>' +
@@ -164,7 +164,7 @@ function queryMedicalAdvice(regis_id) {
                         medicine_info_list[j][1]
                     )
                 }
-                accordion += StringFormat('<p class="col-12 pt-0 pb-0 mt-0 mb-0">医嘱详情</p><p class="offset-1">{0}</p>', medical_advice);
+                accordion += StringFormat('<p class="col-12 pt-0 pb-0 mt-0 mb-0"><strong>医嘱详情</strong></p><p class="offset-1">{0}</p>', medical_advice);
                 accordion += '</div></div></div>';
                 console.log(accordion)
                 all_history_sheet.append($(accordion));
@@ -211,14 +211,20 @@ function queryHistoryInspection(regis_id) {
         data: {'get_param': 'history_inspect', 'regis_id': regis_id},
         success: function (data) {
             console.log(data)
+            // 按照检查时间降序排列
+            data.sort(function (a, b) {
+                return Date(b.issue_time) > Date(a.issue_time);
+            })
+            console.log(data)
             let all_history_inspect = $('#all_history_inspect');
             all_history_inspect.empty();
             for (let i = 0; i < data.length; i++) {
                 all_history_inspect.append(StringFormat(
-                    '<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>',
+                    '<tr><td>{0}</td><td>{1}</td><td>{2}</td><td>{3}</td></tr>',
                     data[i]['issue_time'],
                     data[i]['inspect_name'],
-                    data[i]['test_result'],
+                    data[i]['test_result'] || '暂无检验结果',
+                    '<button class="btn btn-outline-primary btn-sm">详细信息</button>'
                 ))
             }
         }
@@ -278,11 +284,48 @@ function formatMedicineSelection(repo) {
 
 //endregion
 
+// 提交提示框，可以提出来到base.html中，我好像是在outpatient和inpatient都使用了
+function submitToastr(content, title, status) {
+    let func = toastr.info
+    if (status === 'success') {
+        func = toastr.error;
+    } else if (status === 'error') {
+        func = toastr.error;
+    }
+    func(content, title, {
+        positionClass: "toast-top-center",
+        timeOut: 5e3,
+        closeButton: !0,
+        debug: !1,
+        newestOnTop: !0,
+        progressBar: !0,
+        preventDuplicates: !0,
+        onclick: null,
+        showDuration: "300",
+        hideDuration: "1000",
+        extendedTimeOut: "1000",
+        showEasing: "swing",
+        hideEasing: "linear",
+        showMethod: "fadeIn",
+        hideMethod: "fadeOut",
+        tapToDismiss: !1
+    })
+}
+
 // 点击添加按钮将药品添加到表格中
 function add_medicine() {
     let medicine_id = $("select[name='medicine_id']").val();
     let medicine_quantity = $("input[name='medicine_quantity']").val();
     let medicine_name = $("span[class=select2-selection__rendered]").text();
+    if (!medicine_id) {
+        submitToastr('请选择一个药品！', '未选择药品！', 'error');
+        return;
+    }
+
+    if (!(/(^[1-9]\d*$)/.test(medicine_quantity))) {
+        submitToastr('药品数量不是正整数', '药品数量错误！', 'error');
+        return;
+    }
     $.ajax({
         url: URL,
         dataType: 'JSON',
@@ -359,8 +402,8 @@ function postMedicalAdvice(csrf_token) {
 
 // 检查检验提交
 function PostInspectionItem(csrf_token) {
-    if ($('#regis_id').val() === undefined) {
-        submitToastr('提交失败！', '您未选择病人', 'error')
+    if (!$('#regis_id').val()) {
+        submitAlert('提交失败！', '您未选择病人', 'error')
         return;
     }
     let data = $('#inspection_form').serialize();
@@ -377,7 +420,6 @@ function PostInspectionItem(csrf_token) {
                 return;
             }
             submitAlert("提交成功", callback.message, "success");
-            $('.swal2-confirm').attr('onblur', 'window.location.reload()');
         },
         error: function (callback) {
             alert('提交失败');
