@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}注册{% endblock %}
+{% block body-context %}
+    <div class="authincation h-100">
+        <div class="container h-100">
+            <div class="row justify-content-center h-100 align-items-center">
+                <div class="col-md-6">
+                    <div class="authincation-content">
+                        <div class="row no-gutters">
+                            <div class="col-xl-12">
+                                <div class="auth-form">
+                                    <h4 class="text-center mb-4">注册您的账户</h4>
+                                    {# cation='#'似乎是提交到当前页 #}
+                                    <form action="#" method="POST">
+                                    {% csrf_token %}
+                                        {% if error_message %}
+                                            <div class="alert alert-danger">{{ error_message }}</div>
+                                        {% endif %}
+                                        {% comment %} <div class="form-group input-group-sm">
+                                            <label class="mb-1"><strong>姓名</strong></label>
+                                            <input type="text" class="form-control " name="username" placeholder="">
+                                        </div> {% endcomment %}
+                                        <div class="form-group input-group-sm">
+                                            <label class="mb-1"><strong>证件类型</strong></label>
+                                            {% comment %} <input type="text" class="form-control" name="IDCard" placeholder=""> {% endcomment %}
+                                            {{ registerform.id_type }}
+                                        </div>
+                                        <div class="form-group input-group-sm">
+                                            <label class="mb-1"><strong>身份证号</strong></label>
+                                            {% comment %} <input type="text" class="form-control" name="IDCard" placeholder=""> {% endcomment %}
+                                            {{ registerform.id_number }}
+                                        </div>
+                                        <div class="form-group input-group-sm">
+                                            <label class="mb-1"><strong>密码</strong></label>
+                                            {% comment %} <input type="password" class="form-control" name="password" placeholder=""> {% endcomment %}
+                                            {{ registerform.password1 }}
+                                        </div>
+                                        <div class="form-group input-group-sm">
+                                            <label class="mb-1"><strong>密码确认</strong></label>
+                                            {% comment %} <input type="password" class="form-control" name="new-password" placeholder=""> {% endcomment %}
+                                            {{ registerform.password2 }}
+                                        </div>
+                                        <div class="form-group input-group-sm">
+                                            <label class="mb-1"><strong>手机号码</strong></label>
+                                            {% comment %} <input type="text" class="form-control" name="telephone" placeholder=""> {% endcomment %}
+                                            {{ registerform.phone }}
+                                        </div>
+                                        <label class="mb-1"><strong>验证码</strong></label>
+                                        <div class="row">
+                                            <div class="form-group col-sm-4">
+                                                <input type="text" class="form-control" name="check_code" placeholder="">
+                                            </div>
+                                            <div class="col-sm-8 text-center">
+                                                <button type="submit" class="btn btn-sm btn-primary btn-block ">
+                                                    发送短信验证码
+                                                </button>
+                                            </div>
+                                            {# 这里我把按钮的布局设置好了，但具体按钮应该提交什么东西到何处还没想清楚 #}
+                                            {# 这里的按钮比文本框矮了一点，不知道为啥 #}
+                                        </div>
+
+
+                                        <div class="text-center mt-4 ">
+                                            <button type="submit" class="btn btn-primary btn-block">注册</button>
+                                        </div>
+                                    </form>
+                                    <div class="new-account mt-3 text-center">
+                                        <p>已拥有帐号？<a class="text-primary" href="{% url 'login-patient' %}">登录</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

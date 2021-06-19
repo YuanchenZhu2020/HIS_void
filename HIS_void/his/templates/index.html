@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}主页{% endblock %}
+{% block body-context %}
+    <div class="container">
+        <div class="jumbotron">
+            <div class="welcome">
+                <div class="welcome-title">
+                    <h1>欢迎使用HIS医院信息管理系统</h1>
+                </div>
+                <div class="welcome-text">
+                    <p>如果您是医护人员，请点击职工登录</p>
+                    <p>如果您是患者，请点击患者登录</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 调整通知栏位置 -->
+    <style type="text/css">
+        .jumbotron {
+            /* 上 右 下 左 */
+            margin: 80px 0px 80px 0px;
+            background-color: white;
+            {#opacity: 0.75;#}
+        }
+        .welcome-title {
+            margin-bottom: 2rem;
+        }
+    </style>
+
+    <div class="row justify-content-center h-100 align-items-center">
+        <div class="col-md-3">
+            <a class="btn btn-primary btn-block" href="{% url 'login-patient' %}"><strong>患者登录</strong></a>
+        </div>
+        <div class="col-md-1"></div>
+        <div class="col-md-3">
+            <a class="btn btn-info btn-block" href="{% url 'login-staff' %}"><strong>职工登录</strong></a>
+        </div>
+    </div>
+{% endblock %}

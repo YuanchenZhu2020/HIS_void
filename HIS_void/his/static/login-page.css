@@ -1,0 +1,41 @@
+#login-box {
+    width: 30%;
+    height: auto;
+    margin: 0 auto;
+    margin-top: 13%;
+    text-align: center;
+    background: #00000060;
+    padding: 20px 50px;
+}
+#login-box h1 {
+    color: #fff;
+}
+#login-box .form .item {
+    margin-top: 15px;
+}
+#login-box .form .item label {
+    font-size: 16px;
+    color: #fff;
+}
+#login-box .form .item input {
+    width: 180px;
+    font-size: 16px;
+    border: 0;
+    border-bottom: 2px solid #fff;
+    padding: 5px 10px;
+    background: #ffffff00;
+    color: #fff;
+}
+#login-box .form .item input::-webkit-input-placeholder {
+    color: #fff;
+}
+#login-box input {
+    margin-top: 15px;
+    width: 180px;
+    height: 30px;
+    font-size: 20px;
+    font-weight: 300px;
+    background-image: linear-gradient(to left, #d9afd9 0%, #97d9e1 100%);
+    border: 0;
+    border-radius: 15px;
+}

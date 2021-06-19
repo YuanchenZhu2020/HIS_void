@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}登录{% endblock %}
+{% block body-context %}
+    <html class="h-100"></html>
+    <body class="h-100">
+    <div class="authincation h-100">
+        <div class="container h-100">
+            <div class="row justify-content-center h-100 align-items-center">
+                <div class="col-md-6">
+                    <div class="authincation-content">
+                        <div class="row no-gutters">
+                            <div class="col-xl-12">
+                                <div class="auth-form">
+                                    <h4 class="text-center mb-4">登录您的帐户</h4>
+                                    <form action="/login-{{ user_type }}/" method="POST">
+                                        {% csrf_token %}
+                                        {% if error_message %}
+                                            <div class="alert alert-danger">{{ error_message }}</div>
+                                        {% endif %}
+                                        <div class="form-group">
+                                            <label class="mb-1"><strong>用户名</strong></label>
+                                            {% comment %} <input type="text" class="form-control" name="username"> {% endcomment %}
+                                            {{ loginform.username }}
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="mb-1"><strong>密码</strong></label>
+                                            {% comment %} <input type="password" class="form-control " name="password"> {% endcomment %}
+                                            {{ loginform.password }}
+                                        </div>
+                                        <div class="form-row d-flex justify-content-between mt-4 mb-2">
+                                            <div class="form-group">
+                                                <div class="custom-control custom-checkbox ml-1">
+                                                    {% comment %} <input type="checkbox" class="custom-control-input" id="basic_checkbox_1"> {% endcomment %}
+                                                    {{ loginform.remembered }}
+                                                    <label class="custom-control-label" for="basic_checkbox_1">
+                                                        当天保持登录
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="form-group">
+                                                <a href="{% url 'forgot-password' %}">忘记密码？</a>
+                                            </div>
+                                        </div>
+                                        <div class="text-center">
+                                            {% if user_type == "patient" %}
+                                                <button type="submit" class="btn btn-primary btn-block">登录</button>
+                                            {% endif %}
+                                            {% if user_type == "staff" %}
+                                                <button type="submit" class="btn btn-info btn-block">登录</button>
+                                            {% endif %}
+                                        </div>
+                                    </form>
+                                    <div class="new-account mt-3 text-center">
+                                        {# url好像是在urls.py中定义的，这里暂时使用'page-register，后端应该要修改 #}
+                                        {#  <p>还没有帐号？ <a class="text-primary" href="{% url 'page-register' %}">注册</a></p> #}
+                                        {# 对登陆人进行了判断，如果是患者，则提供注册按钮，若是医生，则提供管理员联系按钮 #}
+                                        {% if  user_type == 'staff' %}
+                                            <p>还没有帐号？ <a class="text-info">联系管理员</a></p>
+                                        {% endif %}
+                                        {% if  user_type == 'patient' %}
+                                            <p>还没有帐号？ <a class="text-primary" href="{% url 'register' %}">注册</a></p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </body>
+
+{% endblock %}
