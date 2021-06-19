@@ -1,6 +1,6 @@
 -- 患者 URL 访问权限
 insert into patient_patienturlpermission 
-(url_perm_id) values ("logout"), ("patient-details"), ("PatientFastRegisterAPI"), ("PatientTreatmentDetailAPI");
+(url_perm_id) values ("logout"), ("patient-details"), ("PatientFastRegisterAPI"), ("PatientTreatmentDetailAPI"),("PaymentAPI"),("payment-check");
 -- role
 insert into rbac_role
 (id, name, description, create_time) values 
@@ -20,12 +20,12 @@ insert into rbac_role_url_permissions
 (id, role_id, urlpermission_id) values 
     (1,1,"workhub"),(2,1,"logout"),(3,1,"news"),
     (4,2,"outpatient-workspace"),(5,2,"OutpatientAPI"),
-    (6,3,"inpatient-workspace"),(7,3,"InhospitalAPI"),
+    (6,3,"inpatient-workspace"),(7,3,"InpatientAPI"),
     (8,4,"nurse-workspace"),(9,4,"NurseAPI"),
     (10,5,"inspection-workspace"),(11,5,"InspectionAPI"),
     -- 无实际应用
     (12,6,"PaymentAPI"),(13,6,"payment-notify"),(14,6,"payment-check"),(15,6,"payment-error"),(16,6,"patient-details"),
-    (17,7,"PatientRegisterAPI"),(18,7,"PatientFastRegisterAPI"),(19,7,"PatientTreatmentDetailAPI"),(20,7,"OutpatientAPI"),(21,7,"InspectionAPI"),(22,7,"NurseAPI"),(23,7,"InhospitalAPI"),
+    (17,7,"PatientRegisterAPI"),(18,7,"PatientFastRegisterAPI"),(19,7,"PatientTreatmentDetailAPI"),(20,7,"OutpatientAPI"),(21,7,"InspectionAPI"),(22,7,"NurseAPI"),(23,7,"InpatientAPI"),
     (24,8,"PatientFastRegisterAPI");
 
 -- usergroup roles

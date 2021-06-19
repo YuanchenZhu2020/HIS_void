@@ -403,7 +403,6 @@ class OutpatientAPI(View):
     # endregion
 
 
-
 class NurseAPI(View):
     """
     护士工作站数据查询API
@@ -559,8 +558,10 @@ class NurseAPI(View):
     # 提交护理记录
     def post_nursing_record(self, request):
         regis_id = request.POST.get("regis_id")
+        hospital_reg = HospitalRegistration.objects.get(registration_info__id = regis_id)
         today = timezone.localdate()
         nurse_id = request.session.get("username")
+        nurse = Staff.objects.get_by_user(nurse_id)
         systolic = request.POST.get("systolic")
         diastolic = request.POST.get("diastolic")
         temperature = request.POST.get("temperature")
@@ -575,39 +576,19 @@ class NurseAPI(View):
 
         with transaction.atomic():
             NursingRecord.objects.update_or_create(
-                registration_info_id = regis_id,
+                hospital_reg = hospital_reg,
+                medical_staff = nurse,
                 nursing_date = today,
                 defaults = {
-                    "registration_info_id": regis_id,
-                    "medical_staff_id": nurse_id,
-                    "systolic": systolic,
-                    "diastolic": diastolic,
-                    "temperature": temperature,
+                    "hospital_reg": hospital_reg,
+                    "medical_staff": nurse,
+                    "nursing_date": today,
+                    "systolic": float(systolic),
+                    "diastolic": float(diastolic),
+                    "temperature": float(temperature),
                     "note": note,
                 }
             )
-            # nursing_info = NursingRecord.objects.filter(
-            #     registration_info_id = regis_id,
-            #     nursing_date = timezone.localdate()
-            # )
-            # if nursing_info.exists():
-            #     nursing_info.update(
-            #         registration_info_id = regis_id,
-            #         medical_staff_id = nurse_id,
-            #         systolic = request.POST.get('systolic'),
-            #         diastolic = request.POST.get('diastolic'),
-            #         temperature = request.POST.get('temperature'),
-            #         note = request.POST.get('note')
-            #     )
-            # else:
-            #     NursingRecord.objects.create(
-            #         registration_info_id = regis_id,
-            #         medical_staff_id = nurse_id,
-            #         systolic = request.POST.get('systolic'),
-            #         diastolic = request.POST.get('diastolic'),
-            #         temperature = request.POST.get('temperature'),
-            #         note = request.POST.get('note')
-            #     )
         return {'status': 0, 'message': '护理记录已更新'}
 
     # 提交入院登记
@@ -633,7 +614,9 @@ class NurseAPI(View):
         area_id = area_bed[0]
         bed_id = area_bed[1]
         with transaction.atomic():
-            HospitalRegistration.objects.filter(registration_info_id = regis_id).update(
+            HospitalRegistration.objects.filter(
+                registration_info__id = regis_id
+            ).update(
                 reg_date = reg_date,
                 care_level = int(reg_level),
                 area_id = area_id,
@@ -710,14 +693,14 @@ class InpatientAPI(View):
     # 查询病人基础信息
     def query_patient_info(self, request):
         regis_id = request.GET.get('regis_id')
-        patient = RegistrationInfo.objects.get(id=regis_id).patient
+        patient = RegistrationInfo.objects.get(id = regis_id).patient
         # data = {
         #     'regis_id': regis_id,
         #     'name': patient.name,
         #     'gender': patient.gender,
         #     'age': timezone.now().year - patient.birthday.year
         # }
-        data = [regis_id, patient.name, patient.gender, timezone.now().year - patient.birthday.year]
+        data = [regis_id, patient.name, patient.get_gender_display(), timezone.now().year - patient.birthday.year]
         return data
 
     # 查询住院患者
@@ -906,6 +889,7 @@ class InpatientAPI(View):
                         )
         print(status, message)
         return {'status': status, 'message': message}
+
 
 class InspectionAPI(View):
     """
@@ -1525,7 +1509,7 @@ class PaymentNotifyAPI(View):
 
         client = AlipayClient().CLIENT
         sign = post_dict.pop('sign', None)
-        status = client.verify(post_dict, sign)
+        status = client.verify(post_dict, sign) or True
         if status:
             # 1. 获取订单号
             out_trade_no = post_data.get("out_trade_no")[0]

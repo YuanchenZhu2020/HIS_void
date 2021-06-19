@@ -164,7 +164,7 @@ function queryMedicalAdvice(regis_id) {
                         medicine_info_list[j][1]
                     )
                 }
-                accordion += StringFormat('<p class="col-12 pt-0 pb-0 mt-0 mb-0"><strong>医嘱详情</strong></p><p class="offset-1">{0}</p>', medical_advice);
+                accordion += StringFormat('<p class="col-12 pt-0 pb-0 mt-0 mb-0"><strong>医嘱详情</strong></p><p class="offset-1">{0}</p>', medical_advice || "暂无医嘱");
                 accordion += '</div></div></div>';
                 console.log(accordion)
                 all_history_sheet.append($(accordion));
@@ -340,7 +340,7 @@ function add_medicine() {
                 medicine_name,
                 medicine_quantity,
                 data.retail_price,
-                parseInt((data.retail_price * medicine_quantity).toFixed(2)),
+                parseFloat((data.retail_price * medicine_quantity).toFixed(2)),
                 '<a onclick="deleteMedicine(this)" data-toggle="tooltip" data-placement="top" title="Close"><i class="fa fa-close color-danger"></i></a>',
                 medicine_id,
                 medicine_quantity

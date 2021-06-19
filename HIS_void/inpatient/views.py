@@ -35,23 +35,21 @@ class InpatientWorkspaceView(View):
             InpatientWorkspaceView.TEST_ITEMS_CACHE = test_items
             InpatientWorkspaceView.CACHE_DATE = today
 
-        username = request.session.get('username')  # 获取住院医生主键
-        nurse_info = Staff.objects.filter(user_id=username).values_list(
-            'dept__usergroup__ug_id',
-            'dept__usergroup__name'
-        )  # 获取科室ID和科室name
+        username = request.session.get('username')
+        doctor = Staff.objects.get_by_user(username)
+        nurse_info = (doctor.dept.dept_id, doctor.dept.name)
         area = DutyRoster.objects.filter(
-            working_day=timezone.now().weekday(),
-            medical_staff_id=username
+            working_day = today.weekday() + 1,
+            medical_staff = doctor
         ).values_list('duty_area_id')
         print(area)
         print(nurse_info)
         context = {
             "TestItems": InpatientWorkspaceView.TEST_ITEMS_CACHE,
             "area": area[0][0] if area else '',
-            'dept_id': nurse_info[0][0],
-            'dept_name': nurse_info[0][1]
+            'dept_id': nurse_info[0],
+            'dept_name': nurse_info[1]
         }
-        context['area'] = 'A' # 由于有可能不当班，或者当班不是该病区，我这里设置了病区为A，最后删掉即可
+        # context['area'] = 'A' # 由于有可能不当班，或者当班不是该病区，我这里设置了病区为A，最后删掉即可
 
         return render(request, InpatientWorkspaceView.template_name, context=context)

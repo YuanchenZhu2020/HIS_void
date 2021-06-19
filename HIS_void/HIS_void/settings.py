@@ -205,8 +205,8 @@ SAFE_URL = [
     r"/patient/",  # 患者挂号页面
     r"/PaymentNotifyAPI/", # 支付成功回调接口
     r"/PatientRegisterAPI/",  # 患者挂号查询与提交API
-    r"/inpatient-workspace/",  # 临时添加住院医生工作台
-    r"/InpatientAPI/",  # 临时添加住院医生API
+    # r"/inpatient-workspace/",  # 临时添加住院医生工作台
+    # r"/InpatientAPI/",  # 临时添加住院医生API
 ]
 
 # setup session engine to improve performance
@@ -264,6 +264,8 @@ ALIPAY_URL = 'https://openapi.alipaydev.com/gateway.do'
 # /patient-details/
 # /PatientFastRegisterAPI/
 # /PatientTreatmentDetailAPI/
+# /PaymentAPI/
+# /payment-check/
 
 # 角色
 #   职工

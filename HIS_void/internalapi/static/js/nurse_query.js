@@ -94,8 +94,9 @@ function clear_all_info() {
     $('#medicine_info').html('<p class="col-12">今日暂无药品信息</p>');
     $('#test_item').html('<p class="col-12">今日暂无检查检验项目</p>');
     $('input, textarea').each(function (i, tag) {
-        if ($(tag).attr('name') !== 'post_param')
+        if ($(tag).attr('name') !== 'post_param' && $(tag).attr('name') !== 'get_param' && $(tag).attr('name') !== "temperature") {
             $(tag).val('');
+        }
     })
 }
 
